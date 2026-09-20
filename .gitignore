@@ -23,3 +23,8 @@
 /app/Config/core.php
 /app/Config/database.php
 /vendors/*
+
+# Python
+__pycache__/
+*.py[cod]
+

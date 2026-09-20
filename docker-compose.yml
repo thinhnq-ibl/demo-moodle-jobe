@@ -1,0 +1,78 @@
+services:
+  mariadb:
+    image: bitnami/mariadb:latest
+    container_name: moodle_mariadb
+    restart: unless-stopped
+    environment:
+      - MARIADB_ROOT_PASSWORD=rootpassword
+      - MARIADB_USER=moodle
+      - MARIADB_PASSWORD=moodlepassword
+      - MARIADB_DATABASE=moodle
+      - MARIADB_CHARACTER_SET=utf8mb4
+      - MARIADB_COLLATE=utf8mb4_unicode_ci
+    volumes:
+      - mariadb_data:/bitnami/mariadb
+    ports:
+      - "3306:3306"
+    networks:
+      - moodle_net
+
+  jobe1:
+    build:
+      context: .
+      dockerfile: Dockerfile.jobe
+    container_name: moodle_jobe1
+    restart: unless-stopped
+    hostname: jobe1
+    ports:
+      - "4001:80"
+    networks:
+      - moodle_net
+
+  jobe2:
+    build:
+      context: .
+      dockerfile: Dockerfile.jobe
+    container_name: moodle_jobe2
+    restart: unless-stopped
+    hostname: jobe2
+    ports:
+      - "4002:80"
+    networks:
+      - moodle_net
+
+  moodle:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: moodle_app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      - MOODLE_WWWROOT=http://localhost:8080
+      - MOODLE_DB_HOST=mariadb
+      - MOODLE_DB_PORT=3306
+      - MOODLE_DB_NAME=moodle
+      - MOODLE_DB_USER=moodle
+      - MOODLE_DB_PASSWORD=moodlepassword
+      - MOODLE_ADMIN_USER=admin
+      - MOODLE_ADMIN_PASSWORD=AdminPassword123!
+      - MOODLE_ADMIN_EMAIL=admin@example.com
+      - JOBE_HOST=jobe1, jobe2
+    volumes:
+      - moodledata:/var/www/moodledata
+    depends_on:
+      - mariadb
+      - jobe1
+      - jobe2
+    networks:
+      - moodle_net
+
+volumes:
+  mariadb_data:
+  moodledata:
+
+networks:
+  moodle_net:
+    driver: bridge

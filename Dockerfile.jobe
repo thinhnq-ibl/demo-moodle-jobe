@@ -1,0 +1,4 @@
+FROM trampgeek/jobeinabox:latest
+
+# Cài đặt thư viện pymysql để kết nối MariaDB từ Python
+RUN apt-get update && apt-get install -y python3-pymysql && rm -rf /var/lib/apt/lists/*
