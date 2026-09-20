@@ -28,3 +28,5 @@
 __pycache__/
 *.py[cod]
 
+# Question bank XML exports
+*.xml
