@@ -613,6 +613,76 @@ if (!$existing) {
 
 ---
 
+### Bước 6: Nhập Ngân Hàng Câu Hỏi (Question Bank XML Import)
+Khi cần nạp một ngân hàng câu hỏi CodeRunner mới (định dạng Moodle XML, ví dụ file `*.xml`), bạn có thể lựa chọn 1 trong 2 cách sau:
+
+#### Cách 1: Tự động hóa bằng lệnh CLI / Docker (Khuyên dùng cho AI Agent / Kỹ sư DevOps)
+Cách này giúp nạp toàn bộ hàng trăm câu hỏi vào hệ thống trong vài giây mà không cần mở trình duyệt web:
+
+1. Copy tệp XML vào container Moodle:
+   ```bash
+   docker cp "duong_dan_file.xml" moodle_app:/tmp/questions.xml
+   ```
+
+2. Thực thi script nạp tự động qua PHP CLI (nạp vào Course ID 2 - CS101):
+   ```bash
+   docker exec moodle_app php -d display_errors=1 -r '
+   define("CLI_SCRIPT", true);
+   require("/var/www/html/config.php");
+   require_once($CFG->libdir . "/questionlib.php");
+   require_once($CFG->dirroot . "/question/format/xml/format.php");
+
+   // Thiết lập quyền admin cho phiên chạy CLI
+   $admin = $DB->get_record("user", ["username" => "admin"]);
+   \core\session\manager::set_user($admin);
+
+   $courseid = 2; // ID khóa học đích
+   $course = $DB->get_record("course", ["id" => $courseid]);
+   $context = context_course::instance($course->id);
+   $contexts = new core_question\local\bank\question_edit_contexts($context);
+   $defaultcat = question_get_default_category($context->id);
+
+   $qformat = new qformat_xml();
+   $qformat->setCategory($defaultcat);
+   $qformat->setContexts($contexts->having_one_edit_tab_cap("import"));
+   $qformat->setCourse($course);
+   $qformat->setFilename("/tmp/questions.xml");
+   $qformat->setRealfilename("questions.xml");
+   $qformat->setMatchgrades("nearest");
+   $qformat->setCatfromfile(true);
+   $qformat->setContextfromfile(false);
+   $qformat->setStoponerror(false);
+
+   if ($qformat->importpreprocess() && $qformat->importprocess()) {
+       $qformat->importpostprocess();
+       echo "Import ngân hàng câu hỏi thành công!\n";
+   } else {
+       echo "Import thất bại!\n";
+   }
+   '
+   ```
+
+3. Dọn dẹp tệp tạm trong container:
+   ```bash
+   docker exec moodle_app rm -f /tmp/questions.xml
+   ```
+
+#### Cách 2: Qua giao diện Web Moodle (Dành cho Giảng viên / Quản trị viên UI)
+1. Truy cập `http://localhost:8080` (hoặc domain Moodle của bạn) và đăng nhập bằng tài khoản Quản trị / Giảng viên (`admin` / `AdminPassword123!`).
+2. Chọn khóa học cần thêm câu hỏi (ví dụ: **Nhập môn Lập trình (CS101)**).
+3. Trên thanh công cụ trên cùng của khóa học, chọn tab **Thêm (More)** $\to$ chọn **Ngân hàng câu hỏi (Question bank)**.
+4. Ở góc trên bên trái, tại menu thả xuống, chọn mục **Nhập (Import)**.
+5. Cấu hình các thông số:
+   - **Định dạng tệp (File format)**: Chọn **Moodle XML format**.
+   - **Chung (General)**:
+     - Tích chọn **Lấy danh mục từ tệp (Get category from file)** để Moodle tự động giữ nguyên phân loại chuyên mục của câu hỏi.
+     - Mục **Khớp điểm số (Match grades)**: Chọn **Điểm gần nhất nếu không có trong danh sách (Nearest grade if not listed)**.
+6. Kéo thả file `.xml` vào ô tải tệp lên hoặc bấm **Chọn một tệp... (Choose a file...)**.
+7. Bấm nút **Nhập (Import)**. Moodle sẽ hiển thị bản tóm tắt danh sách các câu hỏi đã import.
+8. Cuộn xuống cuối trang và bấm **Tiếp tục (Continue)**.
+
+---
+
 ## IV. BƯỚC KIỂM THỬ XÁC NHẬN (VERIFICATION)
 
 Chạy script kiểm thử để kiểm chứng 2 sinh viên nộp bài đồng thời:
