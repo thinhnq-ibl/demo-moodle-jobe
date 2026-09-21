@@ -104,8 +104,8 @@ php /var/www/html/admin/cli/reset_password.php \
     --password="${MOODLE_ADMIN_PASSWORD:-AdminPassword123!}" || true
 
 # Cấu hình CodeRunner kết nối Jobe sandbox
-echo "Cấu hình CodeRunner Jobe Host (${JOBE_HOST:-jobe})..."
-php /var/www/html/admin/cli/cfg.php --component=qtype_coderunner --name=jobe_host --set="${JOBE_HOST:-jobe}" || true
+echo "Cấu hình CodeRunner Jobe Host (${JOBE_HOST:-jobe1;jobe2})..."
+php /var/www/html/admin/cli/cfg.php --component=qtype_coderunner --name=jobe_host --set="${JOBE_HOST:-jobe1;jobe2}" || true
 
 # Cho phép Moodle kết nối tới các host nội bộ (Jobe sandbox trong mạng Docker)
 echo "Cấu hình bỏ chặn cURL tới mạng nội bộ..."
