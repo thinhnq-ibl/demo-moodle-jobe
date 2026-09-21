@@ -10,3 +10,6 @@ $string['settings_db_host_desc'] = 'Địa chỉ máy chủ cơ sở dữ liệu
 $string['settings_db_user'] = 'DB User';
 $string['settings_db_pass'] = 'DB Password';
 $string['settings_db_name'] = 'DB Name';
+$string['nav_testcase_bank'] = 'Kho Testcase & Đổi thưởng';
+$string['my_testcases'] = 'Testcase Của Tôi';
+$string['received_testcases'] = 'Testcase Được Tặng';
