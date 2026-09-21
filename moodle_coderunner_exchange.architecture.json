@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Moodle CodeRunner & Testcase Exchange Architecture",
+    "quality_profile": "showcase",
+    "viewBox": [1280, 800],
+    "views": [
+      {
+        "id": "full-topology",
+        "label": "Toàn bộ hệ thống",
+        "focus": ["users", "moodle_core", "coderunner", "plugin_exchange", "jobe_cluster", "moodle_db", "testcase_db"],
+        "note": "Kiến trúc tổng thể tích hợp giữa Moodle LMS, plugin CodeRunner, Jobe Sandbox và plugin Testcase Exchange."
+      },
+      {
+        "id": "quiz-execution",
+        "label": "Luồng làm bài Quiz",
+        "focus": ["users", "moodle_core", "coderunner", "jobe_cluster", "moodle_db"],
+        "note": "Sinh viên nộp code qua Quiz, CodeRunner phân phối sang Jobe chạy sandbox và chấm điểm vào Moodle."
+      },
+      {
+        "id": "testcase-exchange",
+        "label": "Đóng góp & Đổi testcase",
+        "focus": ["users", "plugin_exchange", "moodle_core", "testcase_db"],
+        "note": "Thẩm định testcase qua lời giải mẫu question.answer, lọc chống trùng lặp và đổi testcase hiểm hóc."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "users",
+      "type": "external",
+      "label": "Giảng viên / Sinh viên",
+      "sublabel": "Trình duyệt Web",
+      "pos": [40, 290],
+      "size": [150, 70]
+    },
+    {
+      "id": "moodle_core",
+      "type": "frontend",
+      "label": "Moodle LMS Core",
+      "sublabel": "Khóa học, Quiz & Auth",
+      "pos": [270, 190],
+      "size": [160, 70]
+    },
+    {
+      "id": "coderunner",
+      "type": "backend",
+      "label": "qtype_coderunner",
+      "sublabel": "Chấm điểm lập trình",
+      "pos": [510, 190],
+      "size": [165, 70]
+    },
+    {
+      "id": "plugin_exchange",
+      "type": "backend",
+      "label": "local_testcase_exchange",
+      "sublabel": "Đóng góp & Đổi testcase",
+      "pos": [270, 390],
+      "size": [160, 70]
+    },
+    {
+      "id": "jobe_cluster",
+      "type": "cloud",
+      "label": "Jobe Sandbox Cluster",
+      "sublabel": "jobe1:4001 & jobe2:4002",
+      "brand": "docker",
+      "pos": [755, 190],
+      "size": [180, 70]
+    },
+    {
+      "id": "moodle_db",
+      "type": "database",
+      "label": "Moodle MariaDB",
+      "sublabel": "mdl_question, attempts",
+      "brand": "mariadb",
+      "pos": [510, 390],
+      "size": [165, 70]
+    },
+    {
+      "id": "testcase_db",
+      "type": "database",
+      "label": "testcase_store DB",
+      "sublabel": "seed, student, exchanges",
+      "brand": "mariadb",
+      "pos": [270, 570],
+      "size": [160, 70]
+    },
+    {
+      "id": "python_sandbox",
+      "type": "security",
+      "label": "Runc / Linux Isolation",
+      "sublabel": "Python 3 & C/C++ Jail",
+      "brand": "python",
+      "pos": [1015, 190],
+      "size": [180, 70]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Docker Network (moodle_net)",
+      "wraps": ["moodle_core", "coderunner", "plugin_exchange", "jobe_cluster", "moodle_db", "testcase_db", "python_sandbox"]
+    },
+    {
+      "kind": "security-group",
+      "label": "Moodle Application Container (moodle_app)",
+      "wraps": ["moodle_core", "coderunner", "plugin_exchange"]
+    },
+    {
+      "kind": "security-group",
+      "label": "Code Execution Sandbox",
+      "wraps": ["jobe_cluster", "python_sandbox"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "user-to-moodle",
+      "from": "users",
+      "to": "moodle_core",
+      "label": "Làm bài Quiz",
+      "variant": "emphasis"
+    },
+    {
+      "id": "user-to-exchange",
+      "from": "users",
+      "to": "plugin_exchange",
+      "label": "Nộp & Đổi testcase",
+      "variant": "emphasis"
+    },
+    {
+      "id": "moodle-to-coderunner",
+      "from": "moodle_core",
+      "to": "coderunner",
+      "label": "Chuyển code thi"
+    },
+    {
+      "id": "coderunner-to-jobe",
+      "from": "coderunner",
+      "to": "jobe_cluster",
+      "label": "REST API /runs",
+      "variant": "emphasis"
+    },
+    {
+      "id": "jobe-to-jail",
+      "from": "jobe_cluster",
+      "to": "python_sandbox",
+      "label": "Chạy cách ly"
+    },
+    {
+      "id": "exchange-read-solution",
+      "from": "plugin_exchange",
+      "to": "moodle_core",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "label": "Đọc question.answer",
+      "labelDy": -20
+    },
+    {
+      "id": "coderunner-to-moodledb",
+      "from": "coderunner",
+      "to": "moodle_db",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "label": "Lưu điểm & attempts",
+      "labelAt": [593, 325]
+    },
+    {
+      "id": "exchange-to-testcasedb",
+      "from": "plugin_exchange",
+      "to": "testcase_db",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "label": "Lưu testcase & BXH",
+      "labelAt": [350, 515],
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Kiến trúc phân tách (Decoupled)",
+      "items": [
+        "Moodle LMS lưu trữ mã nguồn, kết quả chấm điểm Quiz chính thức",
+        "testcase_store độc lập quản lý kho testcase, không làm phình dữ liệu Moodle"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Cơ chế kiểm thử vi sai & Hợp lệ hóa",
+      "items": [
+        "CodeRunner gửi code sinh viên đến cụm Jobe Sandbox cách ly an toàn",
+        "Plugin Testcase Exchange tự động đối chiếu Input với question.answer của giảng viên"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Chống gian lận 3 lớp & Thi đua",
+      "items": [
+        "Chống nộp trùng lặp: bản thân nộp lại, testcase đã tặng, hạt giống ban đầu",
+        "Đổi thưởng testcase hiểm hóc ngẫu nhiên và vinh danh Leaderboard theo môn học"
+      ]
+    }
+  ]
+}

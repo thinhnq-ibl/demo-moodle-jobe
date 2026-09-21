@@ -52,9 +52,9 @@ foreach ($records as $r) {
 }
 
 /**
- * Thẩm định bằng cách chạy trực tiếp qua code giải chuẩn trong question_solutions
+ * Thẩm định bằng cách chạy qua cụm Jobe Sandbox cô lập an toàn
  */
-function evaluate_against_teacher_solution($conn, $question_id, $test_input) {
+function evaluate_against_teacher_solution_jobe($conn, $question_id, $test_input, &$used_server = 'jobe1') {
     $stmt = $conn->prepare("SELECT func_name, solution_code FROM question_solutions WHERE question_id = ?");
     $stmt->bind_param('i', $question_id);
     $stmt->execute();
@@ -69,31 +69,76 @@ function evaluate_against_teacher_solution($conn, $question_id, $test_input) {
     $func_name = $row['func_name'];
     $solution_code = $row['solution_code'];
 
-    // Gọi python qua lệnh nội bộ
+    // Đóng gói script Python: nạp input an toàn qua json.loads để triệt tiêu Python Injection
+    $input_json = json_encode($test_input);
     $py_script = $solution_code . "\n\n" .
-                 "inp = '''" . addslashes($test_input) . "'''.strip()\n" .
-                 "if inp.lstrip('-').isdigit():\n" .
-                 "    val = int(inp)\n" .
+                 "import json, sys\n" .
+                 "raw = json.loads(" . json_encode($input_json) . ").strip()\n" .
+                 "if raw.lstrip('-').isdigit():\n" .
+                 "    val = int(raw)\n" .
                  "else:\n" .
-                 "    val = inp\n" .
-                 "res = " . $func_name . "(val)\n" .
-                 "print('True' if res else 'False')\n";
+                 "    val = raw\n" .
+                 "try:\n" .
+                 "    res = " . $func_name . "(val)\n" .
+                 "    print('True' if res else 'False')\n" .
+                 "except Exception as e:\n" .
+                 "    print('ERROR:', e, file=sys.stderr)\n";
 
-    $descriptors = [
-        0 => ["pipe", "r"],
-        1 => ["pipe", "w"],
-        2 => ["pipe", "w"]
-    ];
-    $process = proc_open('python3', $descriptors, $pipes);
-    if (is_resource($process)) {
-        fwrite($pipes[0], $py_script);
-        fclose($pipes[0]);
-        $output = trim(stream_get_contents($pipes[1]));
-        fclose($pipes[1]);
-        fclose($pipes[2]);
-        proc_close($process);
-        return $output;
+    // Cân bằng tải Round-robin giữa jobe1 và jobe2
+    $jobe_hosts = ['jobe1', 'jobe2'];
+    static $jobe_idx = 0;
+    $target_host = $jobe_hosts[($jobe_idx++) % count($jobe_hosts)];
+    $used_server = $target_host;
+
+    $payload = json_encode([
+        'run_spec' => [
+            'language_id' => 'python3',
+            'sourcefilename' => 'solution_eval.py',
+            'sourcecode' => $py_script,
+            'cputime' => 2,
+            'memorylimit' => 256
+        ]
+    ]);
+
+    $ch = curl_init("http://{$target_host}/jobe/index.php/restapi/runs");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Accept: application/json'
+    ]);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 4);
+
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curl_err = curl_error($ch);
+    curl_close($ch);
+
+    // Fallback sang node Jobe còn lại nếu node đầu tiên gặp sự cố mạng
+    if (($response === false || $http_code !== 200) && count($jobe_hosts) > 1) {
+        $backup_host = ($target_host === 'jobe1') ? 'jobe2' : 'jobe1';
+        $used_server = $backup_host;
+        $ch = curl_init("http://{$backup_host}/jobe/index.php/restapi/runs");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Accept: application/json']);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 4);
+        $response = curl_exec($ch);
+        curl_close($ch);
     }
+
+    if ($response) {
+        $res_data = json_decode($response, true);
+        // outcome == 15 nghĩa là SUCCESS trong Jobe API specification
+        if (isset($res_data['outcome']) && $res_data['outcome'] == 15) {
+            return trim($res_data['stdout']);
+        }
+    }
+
     return null;
 }
 
@@ -108,10 +153,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $alert_type = "danger";
     } else {
         $valid = true;
-        $actual_teacher_output = evaluate_against_teacher_solution($conn, $selected_qid, $submitted_input);
+        $jobe_server_used = 'jobe1';
+        $actual_teacher_output = evaluate_against_teacher_solution_jobe($conn, $selected_qid, $submitted_input, $jobe_server_used);
 
         if ($actual_teacher_output === null) {
-            $alert_msg = "⚠️ Không tìm thấy lời giải mẫu (Answer Solution) của thầy cô cho bài tập này!";
+            $alert_msg = "⚠️ Không tìm thấy lời giải mẫu của thầy cô hoặc cụm Jobe Sandbox không phản hồi!";
             $alert_type = "warning";
             $valid = false;
         } else {
@@ -155,9 +201,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         $alert_msg = "❌ <b>Trùng testcase có sẵn!</b> Ca kiểm thử <code>" . htmlspecialchars($submitted_input) . "</code> đã có sẵn trong ngân hàng gốc của hệ thống.";
                         $alert_type = "warning";
                     } else {
-                        // D. Hợp lệ! Ghi nhận đầy đủ (Input + Expected Output chuẩn từ code thầy cô)
-                        $in_stmt = $conn->prepare("INSERT INTO student_testcases (course_id, question_id, student_id, test_input, expected_output, jobe_server) VALUES (?, ?, ?, ?, ?, 'web_dashboard')");
-                        $in_stmt->bind_param('sisss', $cname, $selected_qid, $current_student, $submitted_input, $actual_teacher_output);
+                        // D. Hợp lệ! Ghi nhận đầy đủ (Input + Expected Output chuẩn từ code thầy cô chạy qua Jobe Sandbox)
+                        $in_stmt = $conn->prepare("INSERT INTO student_testcases (course_id, question_id, student_id, test_input, expected_output, jobe_server) VALUES (?, ?, ?, ?, ?, ?)");
+                        $in_stmt->bind_param('sissss', $cname, $selected_qid, $current_student, $submitted_input, $actual_teacher_output, $jobe_server_used);
                         $in_stmt->execute();
 
                         // E. Cấp phát phần thưởng mới
