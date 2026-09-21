@@ -3,6 +3,12 @@ import threading
 import subprocess
 import time
 import pymysql
+import shutil
+import sys
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 print("================================================================")
 print("🚀 BẮT ĐẦU KIỂM THỬ: 2 SINH VIÊN NỘP BÀI ĐỒNG THỜI TRÊN CỤM JOBE")
@@ -30,12 +36,17 @@ def submit_testcase(student_user, test_value, thread_name):
     require_once('/var/www/html/question/type/coderunner/classes/jobesandbox.php');
 
     global $DB;
-    $opt = $DB->get_record('question_coderunner_options', ['questionid' => 35]);
+    $opt = $DB->get_record_sql("SELECT o.* FROM {{question_coderunner_options}} o JOIN {{question}} q ON q.id = o.questionid WHERE q.name = 'Testcase exchange demo' LIMIT 1");
+    if (!$opt) {{
+        fwrite(STDERR, "Testcase exchange demo question not found\\n");
+        exit(1);
+    }}
+    $question_id = $opt->questionid;
     $template = $opt->template;
 
     // Thay thế biến ngữ cảnh Twig giả lập Moodle
     $template = str_replace("{{{{ COURSE.shortname | default('CS101') }}}}", "CS101", $template);
-    $template = str_replace("{{{{ QUESTION.id | default(100) }}}}", "35", $template);
+    $template = str_replace("{{{{ QUESTION.id | default(100) }}}}", (string) $question_id, $template);
     $template = str_replace("{{{{ STUDENT.username | default('student') }}}}", "{student_user}", $template);
     $template = str_replace("{{{{ STUDENT_ANSWER | e('py') }}}}", "{test_value}", $template);
 
@@ -44,7 +55,7 @@ def submit_testcase(student_user, test_value, thread_name):
     echo $res->output;
     """
     
-    docker_bin = "/Applications/Docker.app/Contents/Resources/bin/docker"
+    docker_bin = shutil.which("docker") or "docker"
     cmd = [
         docker_bin, "exec", "moodle_app", "php", "-r", php_code
     ]
