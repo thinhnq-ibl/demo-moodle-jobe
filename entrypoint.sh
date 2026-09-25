@@ -85,6 +85,7 @@ $conn->close();
 
 if [ "$HAS_TABLES" = "yes" ]; then
     echo "CSDL Moodle đã tồn tại. Đang cập nhật hệ thống và plugin..."
+    chown -R www-data:www-data /var/www/html/local/testcase_exchange 2>/dev/null || true
     php /var/www/html/admin/cli/upgrade.php --non-interactive || true
 else
     echo "CSDL trống. Đang khởi tạo CSDL Moodle lần đầu..."

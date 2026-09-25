@@ -62,6 +62,7 @@ services:
       - JOBE_HOST=jobe1;jobe2
     volumes:
       - moodledata:/var/www/moodledata
+      - ./local_testcase_exchange:/var/www/html/local/testcase_exchange
     depends_on:
       - mariadb
       - jobe1
