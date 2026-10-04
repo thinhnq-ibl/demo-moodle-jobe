@@ -10,9 +10,11 @@ require_login();
 global $USER, $DB, $CFG, $OUTPUT, $PAGE;
 
 $courseid = optional_param("course", 2, PARAM_INT);
+$quizid = optional_param("quiz", 1, PARAM_INT);
 $course = $DB->get_record("course", ["id" => $courseid], "*", MUST_EXIST);
+$quiz_obj = $DB->get_record("quiz", ["id" => $quizid]);
 
-$PAGE->set_url(new moodle_url("/testcase_dashboard.php", ["course" => $courseid]));
+$PAGE->set_url(new moodle_url("/testcase_dashboard.php", ["course" => $courseid, "quiz" => $quizid]));
 $PAGE->set_context(context_course::instance($courseid));
 $PAGE->set_title("Bảng Thống Kê & Cổng Đóng Góp Testcase Chéo");
 $PAGE->set_heading($course->fullname . " - Đóng Góp & Trao Đổi Testcase Chéo");
@@ -55,6 +57,7 @@ if (!$error_db && $_SERVER['REQUEST_METHOD'] === 'POST' && (optional_param('acti
     $test_input = trim(optional_param('test_input', '', PARAM_RAW));
     $test_output = trim(optional_param('test_output', '', PARAM_RAW));
     $question_id = optional_param('question_id', 119, PARAM_INT);
+    $quiz_id = optional_param('quiz_id', $quizid, PARAM_INT);
     $course_shortname = $course->shortname ?: 'CS101';
     
     if ($test_input === '' || $test_output === '') {
@@ -139,9 +142,9 @@ except Exception as e:
             $action_message = "⚠️ <b>THẨM ĐỊNH THẤT BẠI:</b> " . htmlspecialchars($eval_error);
             $action_status = "danger";
         } else {
-            // 1. Kiểm tra chống trùng lặp trong testcase_store
-            $stmt = $conn->prepare("SELECT student_id, jobe_server, created_at FROM student_testcases WHERE course_id = ? AND question_id = ? AND test_input = ?");
-            $stmt->bind_param("sis", $course_shortname, $question_id, $test_input);
+            // 1. Kiểm tra chống trùng lặp trong testcase_store (Phương án 1: Cách ly 3 tầng course_id + quiz_id + question_id)
+            $stmt = $conn->prepare("SELECT student_id, jobe_server, created_at FROM student_testcases WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND test_input = ?");
+            $stmt->bind_param("siis", $course_shortname, $quiz_id, $question_id, $test_input);
             $stmt->execute();
             $res_exist = $stmt->get_result();
             $exist = $res_exist->fetch_assoc();
@@ -149,16 +152,16 @@ except Exception as e:
 
             if ($exist) {
                 if ($exist['student_id'] === $current_username) {
-                    $action_message = "⚠️ Bạn đã từng nộp testcase <code>input = " . htmlspecialchars($test_input) . "</code> cho bài này rồi.";
+                    $action_message = "⚠️ Bạn đã từng nộp testcase <code>input = " . htmlspecialchars($test_input) . "</code> cho bài này trong Bài Quiz này rồi.";
                     $action_status = "warning";
                 } else {
-                    $action_message = "❌ <b>TESTCASE BỊ TRÙNG!</b> Testcase <code>input = " . htmlspecialchars($test_input) . "</code> này đã được học viên <b>[" . htmlspecialchars($exist['student_id']) . "]</b> đóng góp trước đó vào lúc " . $exist['created_at'] . ". Hãy thử đóng góp một ca kiểm thử góc (edge case) khác!";
+                    $action_message = "❌ <b>TESTCASE BỊ TRÙNG!</b> Testcase <code>input = " . htmlspecialchars($test_input) . "</code> này đã được học viên <b>[" . htmlspecialchars($exist['student_id']) . "]</b> đóng góp trong Bài Quiz này trước đó vào lúc " . $exist['created_at'] . ". Hãy thử đóng góp một ca kiểm thử góc (edge case) khác!";
                     $action_status = "danger";
                 }
             } else {
-                // 2. Ghi nhận testcase vào CSDL testcase_store
-                $stmt = $conn->prepare("INSERT INTO student_testcases (course_id, question_id, student_id, test_input, test_output, jobe_server) VALUES (?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("sissss", $course_shortname, $question_id, $current_username, $test_input, $test_output, $jobe_server);
+                // 2. Ghi nhận testcase vào CSDL testcase_store kèm quiz_id
+                $stmt = $conn->prepare("INSERT INTO student_testcases (course_id, quiz_id, question_id, student_id, test_input, test_output, jobe_server) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("siissss", $course_shortname, $quiz_id, $question_id, $current_username, $test_input, $test_output, $jobe_server);
                 
                 if ($stmt->execute()) {
                     $new_test_id = $stmt->insert_id;
@@ -187,12 +190,14 @@ except Exception as e:
                             $nt->mark = 1.0;
                             $DB->insert_record("question_coderunner_tests", $nt);
                             
-                            // Xóa cache và xóa attempts dở dang để cập nhật tức thì vào bài làm của mọi sinh viên
+                            // Xóa cache và xóa attempts dở dang của chính bài Quiz này để cập nhật tức thì vào bài làm của mọi sinh viên
                             purge_all_caches();
-                            $all_attempts = $DB->get_records("quiz_attempts", ["quiz" => 1, "state" => "inprogress"]);
-                            $q_obj = $DB->get_record("quiz", ["id" => 1]);
-                            foreach ($all_attempts as $att) {
-                                quiz_delete_attempt($att, $q_obj);
+                            $all_attempts = $DB->get_records("quiz_attempts", ["quiz" => $quiz_id, "state" => "inprogress"]);
+                            $q_obj = $DB->get_record("quiz", ["id" => $quiz_id]);
+                            if ($q_obj) {
+                                foreach ($all_attempts as $att) {
+                                    quiz_delete_attempt($att, $q_obj);
+                                }
                             }
                         }
                     } catch (Throwable $ex) {
@@ -219,8 +224,8 @@ except Exception as e:
                             $student_known_inputs[(int)$m_match[1]] = true;
                         }
                     }
-                    // 2. Từ các testcase sinh viên này đã nộp
-                    $res_my_tests = $conn->query("SELECT test_input FROM student_testcases WHERE question_id = " . (int)$question_id . " AND student_id = '" . $conn->real_escape_string($current_username) . "'");
+                    // 2. Từ các testcase sinh viên này đã nộp trong quiz hiện tại
+                    $res_my_tests = $conn->query("SELECT test_input FROM student_testcases WHERE course_id = '" . $conn->real_escape_string($course_shortname) . "' AND quiz_id = " . (int)$quiz_id . " AND question_id = " . (int)$question_id . " AND student_id = '" . $conn->real_escape_string($current_username) . "'");
                     if ($res_my_tests) {
                         while ($r_my = $res_my_tests->fetch_assoc()) {
                             if (is_numeric($r_my['test_input'])) {
@@ -228,12 +233,12 @@ except Exception as e:
                             }
                         }
                     }
-                    // 3. Từ các testcase sinh viên này đã từng được nhận
+                    // 3. Từ các testcase sinh viên này đã từng được nhận trong quiz hiện tại
                     $res_my_gifts = $conn->query("
                         SELECT st.test_input 
                         FROM testcase_exchanges e 
                         JOIN student_testcases st ON st.id = e.testcase_id 
-                        WHERE e.question_id = " . (int)$question_id . " AND e.receiver_student = '" . $conn->real_escape_string($current_username) . "'
+                        WHERE e.course_id = '" . $conn->real_escape_string($course_shortname) . "' AND e.quiz_id = " . (int)$quiz_id . " AND e.question_id = " . (int)$question_id . " AND e.receiver_student = '" . $conn->real_escape_string($current_username) . "'
                     ");
                     if ($res_my_gifts) {
                         while ($r_g = $res_my_gifts->fetch_assoc()) {
@@ -243,13 +248,13 @@ except Exception as e:
                         }
                     }
 
-                    // Ưu tiên 1: Tặng testcase của bạn học khác mà sinh viên này CHƯA TỪNG BIẾT
+                    // Ưu tiên 1: Tặng testcase của bạn học khác trong cùng quiz_id mà sinh viên này CHƯA TỪNG BIẾT
                     $stmt_gift = $conn->prepare("
                         SELECT id, student_id, test_input, test_output, jobe_server FROM student_testcases
-                        WHERE course_id = ? AND question_id = ? AND student_id != ? AND student_id != 'teacher_system'
+                        WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND student_id != ? AND student_id != 'teacher_system'
                         ORDER BY RAND()
                     ");
-                    $stmt_gift->bind_param("sis", $course_shortname, $question_id, $current_username);
+                    $stmt_gift->bind_param("siis", $course_shortname, $quiz_id, $question_id, $current_username);
                     $stmt_gift->execute();
                     $res_gift = $stmt_gift->get_result();
                     $gift = null;
@@ -268,9 +273,9 @@ except Exception as e:
                         $gift_output = $gift['test_output'] ?: (eval_is_prime_solution((int)$gift_input) ? 'true' : 'false');
                         $gift_server = $gift['jobe_server'];
 
-                        // Ghi nhận lịch sử nhận quà
-                        $stmt_ins_gift = $conn->prepare("INSERT INTO testcase_exchanges (course_id, question_id, receiver_student, testcase_id, testcase_output) VALUES (?, ?, ?, ?, ?)");
-                        $stmt_ins_gift->bind_param("sisis", $course_shortname, $question_id, $current_username, $gift_id, $gift_output);
+                        // Ghi nhận lịch sử nhận quà kèm quiz_id
+                        $stmt_ins_gift = $conn->prepare("INSERT INTO testcase_exchanges (course_id, quiz_id, question_id, receiver_student, testcase_id, testcase_output) VALUES (?, ?, ?, ?, ?, ?)");
+                        $stmt_ins_gift->bind_param("siisis", $course_shortname, $quiz_id, $question_id, $current_username, $gift_id, $gift_output);
                         $stmt_ins_gift->execute();
                         $stmt_ins_gift->close();
 
@@ -322,16 +327,16 @@ except Exception as e:
                         $sys_server = (rand(0, 1) === 0 ? "jobe1" : "jobe2");
                         $cand_str = (string)$candidate_input;
 
-                        // Lưu testcase này vào student_testcases để ghi nhận
-                        $stmt_sys = $conn->prepare("INSERT INTO student_testcases (course_id, question_id, student_id, test_input, test_output, jobe_server) VALUES (?, ?, ?, ?, ?, ?)");
-                        $stmt_sys->bind_param("sissss", $course_shortname, $question_id, $sys_author, $cand_str, $candidate_output, $sys_server);
+                        // Lưu testcase này vào student_testcases để ghi nhận kèm quiz_id
+                        $stmt_sys = $conn->prepare("INSERT INTO student_testcases (course_id, quiz_id, question_id, student_id, test_input, test_output, jobe_server) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                        $stmt_sys->bind_param("siissss", $course_shortname, $quiz_id, $question_id, $sys_author, $cand_str, $candidate_output, $sys_server);
                         $stmt_sys->execute();
                         $sys_test_id = $stmt_sys->insert_id;
                         $stmt_sys->close();
 
-                        // Ghi nhận trao tặng cho học viên hiện tại
-                        $stmt_ins_gift = $conn->prepare("INSERT INTO testcase_exchanges (course_id, question_id, receiver_student, testcase_id, testcase_output) VALUES (?, ?, ?, ?, ?)");
-                        $stmt_ins_gift->bind_param("sisis", $course_shortname, $question_id, $current_username, $sys_test_id, $candidate_output);
+                        // Ghi nhận trao tặng cho học viên hiện tại kèm quiz_id
+                        $stmt_ins_gift = $conn->prepare("INSERT INTO testcase_exchanges (course_id, quiz_id, question_id, receiver_student, testcase_id, testcase_output) VALUES (?, ?, ?, ?, ?, ?)");
+                        $stmt_ins_gift->bind_param("siisis", $course_shortname, $quiz_id, $question_id, $current_username, $sys_test_id, $candidate_output);
                         $stmt_ins_gift->execute();
                         $stmt_ins_gift->close();
 
@@ -362,56 +367,75 @@ $my_testcases = [];
 $my_received_gifts = [];
 
 if (!$error_db) {
-    // Tổng số testcase và sinh viên
-    $res = $conn->query("SELECT COUNT(*) AS c, COUNT(DISTINCT student_id) AS s FROM student_testcases");
-    if ($res) {
-        $row = $res->fetch_assoc();
+    $c_sname = $course->shortname ?: 'CS101';
+
+    // Tổng số testcase và sinh viên trong Bài Quiz này
+    $stmt_tot = $conn->prepare("SELECT COUNT(*) AS c, COUNT(DISTINCT student_id) AS s FROM student_testcases WHERE course_id = ? AND quiz_id = ?");
+    $stmt_tot->bind_param("si", $c_sname, $quizid);
+    $stmt_tot->execute();
+    $res_tot = $stmt_tot->get_result();
+    if ($row = $res_tot->fetch_assoc()) {
         $total_tests = (int)$row["c"];
         $total_students = (int)$row["s"];
     }
+    $stmt_tot->close();
 
-    // Tải phân bố trên cụm Jobe
-    $res_jobe = $conn->query("SELECT jobe_server, COUNT(*) AS c FROM student_testcases GROUP BY jobe_server");
+    // Tải phân bố trên cụm Jobe trong Bài Quiz này
+    $stmt_jb = $conn->prepare("SELECT jobe_server, COUNT(*) AS c FROM student_testcases WHERE course_id = ? AND quiz_id = ? GROUP BY jobe_server");
+    $stmt_jb->bind_param("si", $c_sname, $quizid);
+    $stmt_jb->execute();
+    $res_jobe = $stmt_jb->get_result();
     if ($res_jobe) {
         while ($r = $res_jobe->fetch_assoc()) {
             $jobe_stats[$r["jobe_server"]] = (int)$r["c"];
         }
     }
+    $stmt_jb->close();
 
-    // Bảng xếp hạng đóng góp
-    $res_lead = $conn->query("
+    // Bảng xếp hạng đóng góp trong Bài Quiz này
+    $stmt_ld = $conn->prepare("
         SELECT student_id, COUNT(*) AS count, MAX(created_at) AS last_submit 
         FROM student_testcases 
+        WHERE course_id = ? AND quiz_id = ?
         GROUP BY student_id 
         ORDER BY count DESC, last_submit ASC
     ");
+    $stmt_ld->bind_param("si", $c_sname, $quizid);
+    $stmt_ld->execute();
+    $res_lead = $stmt_ld->get_result();
     if ($res_lead) {
         while ($r = $res_lead->fetch_assoc()) {
             $leaderboard[] = $r;
         }
     }
+    $stmt_ld->close();
 
-    // Lịch sử testcase của toàn bộ hệ thống
-    $res_list = $conn->query("
-        SELECT id, course_id, question_id, student_id, test_input, test_output, jobe_server, created_at 
+    // Lịch sử testcase của toàn bộ hệ thống trong Bài Quiz này
+    $stmt_rc = $conn->prepare("
+        SELECT id, course_id, quiz_id, question_id, student_id, test_input, test_output, jobe_server, created_at 
         FROM student_testcases 
+        WHERE course_id = ? AND quiz_id = ?
         ORDER BY id DESC 
         LIMIT 30
     ");
+    $stmt_rc->bind_param("si", $c_sname, $quizid);
+    $stmt_rc->execute();
+    $res_list = $stmt_rc->get_result();
     if ($res_list) {
         while ($r = $res_list->fetch_assoc()) {
             $recent_tests[] = $r;
         }
     }
+    $stmt_rc->close();
 
-    // Testcase do chính học viên hiện tại đã nộp
+    // Testcase do chính học viên hiện tại đã nộp trong Bài Quiz này
     $stmt_my = $conn->prepare("
-        SELECT id, question_id, test_input, test_output, jobe_server, created_at 
+        SELECT id, quiz_id, question_id, test_input, test_output, jobe_server, created_at 
         FROM student_testcases 
-        WHERE student_id = ? 
+        WHERE course_id = ? AND quiz_id = ? AND student_id = ? 
         ORDER BY id DESC
     ");
-    $stmt_my->bind_param("s", $current_username);
+    $stmt_my->bind_param("sis", $c_sname, $quizid, $current_username);
     $stmt_my->execute();
     $res_my = $stmt_my->get_result();
     while ($r = $res_my->fetch_assoc()) {
@@ -419,15 +443,15 @@ if (!$error_db) {
     }
     $stmt_my->close();
 
-    // Testcase mà học viên hiện tại được tặng từ bạn học khác
+    // Testcase mà học viên hiện tại được tặng từ bạn học khác trong Bài Quiz này
     $stmt_rec = $conn->prepare("
-        SELECT e.id as exchange_id, e.received_at, st.student_id as author, st.test_input, COALESCE(st.test_output, e.testcase_output) as test_output, st.jobe_server
+        SELECT e.id as exchange_id, e.quiz_id, e.received_at, st.student_id as author, st.test_input, COALESCE(st.test_output, e.testcase_output) as test_output, st.jobe_server
         FROM testcase_exchanges e
         JOIN student_testcases st ON st.id = e.testcase_id
-        WHERE e.receiver_student = ?
+        WHERE e.course_id = ? AND e.quiz_id = ? AND e.receiver_student = ?
         ORDER BY e.id DESC
     ");
-    $stmt_rec->bind_param("s", $current_username);
+    $stmt_rec->bind_param("sis", $c_sname, $quizid, $current_username);
     $stmt_rec->execute();
     $res_rec = $stmt_rec->get_result();
     while ($r = $res_rec->fetch_assoc()) {
@@ -452,7 +476,11 @@ echo $OUTPUT->header();
             <p class="mb-0 text-muted">Mỗi testcase độc nhất gồm <b>Input</b> và <b>Expected Output</b> do bạn đóng góp sẽ được thẩm định tự động và tích hợp trực tiếp vào bộ test chấm bài của Moodle!</p>
         </div>
         <div>
-            <a href="<?php echo $CFG->wwwroot; ?>/mod/quiz/view.php?id=1" class="btn btn-outline-primary btn-sm me-2">📝 Vào làm bài Quiz</a>
+            <?php 
+            $cm_quiz = $DB->get_record("course_modules", ["course" => $courseid, "instance" => $quizid]);
+            $quiz_link = $cm_quiz ? ($CFG->wwwroot . "/mod/quiz/view.php?id=" . $cm_quiz->id) : ($CFG->wwwroot . "/mod/quiz/view.php?id=" . $quizid);
+            ?>
+            <a href="<?php echo $quiz_link; ?>" class="btn btn-outline-primary btn-sm me-2">📝 Vào làm bài Quiz</a>
             <a href="<?php echo $CFG->wwwroot; ?>/course/view.php?id=<?php echo $courseid; ?>" class="btn btn-outline-dark btn-sm">← Về môn học</a>
         </div>
     </div>
@@ -547,6 +575,7 @@ echo $OUTPUT->header();
                     <form method="post" action="<?php echo $PAGE->url->out(false); ?>" class="mt-3">
                         <input type="hidden" name="sesskey" value="<?php echo sesskey(); ?>">
                         <input type="hidden" name="action" value="submit_test">
+                        <input type="hidden" name="quiz_id" value="<?php echo $quizid; ?>">
                         <input type="hidden" name="question_id" value="119">
 
                         <div class="mb-3">
