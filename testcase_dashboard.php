@@ -46,6 +46,21 @@ if ($conn->connect_error) {
     $error_db = "Không thể kết nối CSDL testcase_store: " . $conn->connect_error;
 }
 
+// Kiểm tra xem bài Quiz này có bật tính năng đóng góp testcase không
+$quiz_testcase_enabled = false;
+if (!$error_db) {
+    $stmt_chk_en = $conn->prepare("SELECT is_enabled FROM quiz_settings WHERE quiz_id = ?");
+    if ($stmt_chk_en) {
+        $stmt_chk_en->bind_param("i", $quizid);
+        $stmt_chk_en->execute();
+        $stmt_chk_en->bind_result($en_val);
+        if ($stmt_chk_en->fetch()) {
+            $quiz_testcase_enabled = ((int)$en_val === 1);
+        }
+        $stmt_chk_en->close();
+    }
+}
+
 $action_message = null;
 $action_status = null; // success | warning | danger
 $gift_info = null;
@@ -54,11 +69,15 @@ $gift_info = null;
 if (!$error_db && $_SERVER['REQUEST_METHOD'] === 'POST' && (optional_param('action', '', PARAM_ALPHANUMEXT) === 'submit_test' || ($_POST['action'] ?? '') === 'submit_test')) {
     require_sesskey();
     
-    $test_input = trim(optional_param('test_input', '', PARAM_RAW));
-    $test_output = trim(optional_param('test_output', '', PARAM_RAW));
-    $question_id = optional_param('question_id', 119, PARAM_INT);
-    $quiz_id = optional_param('quiz_id', $quizid, PARAM_INT);
-    $course_shortname = $course->shortname ?: 'CS101';
+    if (!$quiz_testcase_enabled) {
+        $action_message = "⚠️ <b>TÍNH NĂNG ĐANG TẮT:</b> Giảng viên chưa bật tính năng đóng góp testcase cho bài Quiz này.";
+        $action_status = "danger";
+    } else {
+        $test_input = trim(optional_param('test_input', '', PARAM_RAW));
+        $test_output = trim(optional_param('test_output', '', PARAM_RAW));
+        $question_id = optional_param('question_id', 119, PARAM_INT);
+        $quiz_id = optional_param('quiz_id', $quizid, PARAM_INT);
+        $course_shortname = $course->shortname ?: 'CS101';
     
     if ($test_input === '' || $test_output === '') {
         $action_message = "Vui lòng nhập đầy đủ cả <b>Input</b> (giá trị n) và <b>Expected Output</b> (true / false)!";
@@ -356,6 +375,7 @@ except Exception as e:
         }
     }
 }
+}
 
 // LẤY DỮ LIỆU THỐNG KÊ TOÀN HỆ THỐNG
 $total_tests = 0;
@@ -470,9 +490,16 @@ echo $OUTPUT->header();
 
 <div class="container-fluid my-3">
     <!-- Header banner -->
-    <div class="alert alert-success d-flex justify-content-between align-items-center shadow-sm">
+    <div class="alert alert-<?php echo $quiz_testcase_enabled ? 'success' : 'secondary'; ?> d-flex justify-content-between align-items-center shadow-sm">
         <div>
-            <h4 class="alert-heading mb-1">🚀 Cổng Đóng Góp & Trao Đổi Testcase Chéo (Cụm Jobe Song Song)</h4>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <h4 class="alert-heading mb-0">🚀 Cổng Đóng Góp & Trao Đổi Testcase Chéo</h4>
+                <?php if ($quiz_testcase_enabled): ?>
+                    <span class="badge bg-success text-white">Đang BẬT cho Quiz này</span>
+                <?php else: ?>
+                    <span class="badge bg-secondary text-white">Đang TẮT cho Quiz này</span>
+                <?php endif; ?>
+            </div>
             <p class="mb-0 text-muted">Mỗi testcase độc nhất gồm <b>Input</b> và <b>Expected Output</b> do bạn đóng góp sẽ được thẩm định tự động và tích hợp trực tiếp vào bộ test chấm bài của Moodle!</p>
         </div>
         <div>
@@ -565,6 +592,12 @@ echo $OUTPUT->header();
                     <span class="badge bg-light text-primary">Học viên: <?php echo htmlspecialchars($current_username); ?></span>
                 </div>
                 <div class="card-body">
+                    <?php if (!$quiz_testcase_enabled): ?>
+                        <div class="alert alert-warning border border-warning text-center py-4">
+                            <h5 class="fw-bold mb-2">🔒 Tính năng đóng góp testcase đang TẮT</h5>
+                            <p class="mb-0 text-muted">Giảng viên chưa kích hoạt tính năng đóng góp và trao đổi testcase cho bài kiểm tra này. Bạn vẫn có thể xem các testcase mẫu và ôn luyện bình thường.</p>
+                        </div>
+                    <?php else: ?>
                     <p class="text-muted small">
                         Đóng góp một ca kiểm thử cho hàm <code>isPrime(int n)</code> gồm cả <b>Input</b> và <b>Expected Output</b>.
                         Khi testcase hợp lệ và chưa từng xuất hiện, hệ thống sẽ:
@@ -607,6 +640,7 @@ echo $OUTPUT->header();
                             </button>
                         </div>
                     </form>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
