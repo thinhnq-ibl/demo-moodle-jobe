@@ -14,9 +14,38 @@ $quizid = optional_param("quiz", 1, PARAM_INT);
 $course = $DB->get_record("course", ["id" => $courseid], "*", MUST_EXIST);
 $quiz_obj = $DB->get_record("quiz", ["id" => $quizid]);
 
-$PAGE->set_url(new moodle_url("/testcase_dashboard.php", ["course" => $courseid, "quiz" => $quizid]));
+// Lấy danh sách các câu hỏi lập trình có trong Quiz này
+$sql_quiz_questions = "
+    SELECT q.id, q.name, q.qtype, qs.slot
+    FROM {quiz_slots} qs
+    JOIN {question_references} qr ON qr.itemid = qs.id AND qr.component = 'mod_quiz'
+    JOIN {question_bank_entries} qbe ON qbe.id = qr.questionbankentryid
+    JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
+    JOIN {question} q ON q.id = qv.questionid
+    WHERE qs.quizid = ?
+    ORDER BY qs.slot ASC
+";
+$quiz_questions_records = $DB->get_records_sql($sql_quiz_questions, [$quizid]);
+$quiz_questions = [];
+foreach ($quiz_questions_records as $qrec) {
+    $quiz_questions[$qrec->id] = $qrec;
+}
+
+// Xác định câu hỏi mặc định hoặc người dùng chọn
+$default_qid = !empty($quiz_questions) ? array_key_first($quiz_questions) : 119;
+$question_id = optional_param("question", $default_qid, PARAM_INT);
+
+// Đảm bảo question_id nằm trong danh sách câu hỏi của quiz (nếu có câu hỏi)
+if (!empty($quiz_questions) && !isset($quiz_questions[$question_id])) {
+    $question_id = $default_qid;
+}
+
+$current_question_obj = $quiz_questions[$question_id] ?? null;
+$current_question_name = $current_question_obj ? $current_question_obj->name : "Bài tập #" . $question_id;
+
+$PAGE->set_url(new moodle_url("/testcase_dashboard.php", ["course" => $courseid, "quiz" => $quizid, "question" => $question_id]));
 $PAGE->set_context(context_course::instance($courseid));
-$PAGE->set_title("Bảng Thống Kê & Cổng Đóng Góp Testcase Chéo");
+$PAGE->set_title("Bảng Thống Kê & Cổng Đóng Góp Testcase Chéo - " . $current_question_name);
 $PAGE->set_heading($course->fullname . " - Đóng Góp & Trao Đổi Testcase Chéo");
 
 $current_username = $USER->username;
@@ -75,7 +104,7 @@ if (!$error_db && $_SERVER['REQUEST_METHOD'] === 'POST' && (optional_param('acti
     } else {
         $test_input = trim(optional_param('test_input', '', PARAM_RAW));
         $test_output = trim(optional_param('test_output', '', PARAM_RAW));
-        $question_id = optional_param('question_id', 119, PARAM_INT);
+        $question_id = optional_param('question_id', $question_id, PARAM_INT);
         $quiz_id = optional_param('quiz_id', $quizid, PARAM_INT);
         $course_shortname = $course->shortname ?: 'CS101';
     
@@ -412,15 +441,15 @@ if (!$error_db) {
     }
     $stmt_jb->close();
 
-    // Bảng xếp hạng đóng góp trong Bài Quiz này
+    // Bảng xếp hạng đóng góp cho Bài tập này trong Bài Quiz
     $stmt_ld = $conn->prepare("
         SELECT student_id, COUNT(*) AS count, MAX(created_at) AS last_submit 
         FROM student_testcases 
-        WHERE course_id = ? AND quiz_id = ?
+        WHERE course_id = ? AND quiz_id = ? AND question_id = ?
         GROUP BY student_id 
         ORDER BY count DESC, last_submit ASC
     ");
-    $stmt_ld->bind_param("si", $c_sname, $quizid);
+    $stmt_ld->bind_param("sii", $c_sname, $quizid, $question_id);
     $stmt_ld->execute();
     $res_lead = $stmt_ld->get_result();
     if ($res_lead) {
@@ -430,15 +459,15 @@ if (!$error_db) {
     }
     $stmt_ld->close();
 
-    // Lịch sử testcase của toàn bộ hệ thống trong Bài Quiz này
+    // Lịch sử testcase của toàn bộ hệ thống cho Bài tập này trong Bài Quiz
     $stmt_rc = $conn->prepare("
         SELECT id, course_id, quiz_id, question_id, student_id, test_input, test_output, jobe_server, created_at 
         FROM student_testcases 
-        WHERE course_id = ? AND quiz_id = ?
+        WHERE course_id = ? AND quiz_id = ? AND question_id = ?
         ORDER BY id DESC 
         LIMIT 30
     ");
-    $stmt_rc->bind_param("si", $c_sname, $quizid);
+    $stmt_rc->bind_param("sii", $c_sname, $quizid, $question_id);
     $stmt_rc->execute();
     $res_list = $stmt_rc->get_result();
     if ($res_list) {
@@ -448,14 +477,14 @@ if (!$error_db) {
     }
     $stmt_rc->close();
 
-    // Testcase do chính học viên hiện tại đã nộp trong Bài Quiz này
+    // Testcase do chính học viên hiện tại đã nộp cho Bài tập này trong Bài Quiz
     $stmt_my = $conn->prepare("
         SELECT id, quiz_id, question_id, test_input, test_output, jobe_server, created_at 
         FROM student_testcases 
-        WHERE course_id = ? AND quiz_id = ? AND student_id = ? 
+        WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND student_id = ? 
         ORDER BY id DESC
     ");
-    $stmt_my->bind_param("sis", $c_sname, $quizid, $current_username);
+    $stmt_my->bind_param("siis", $c_sname, $quizid, $question_id, $current_username);
     $stmt_my->execute();
     $res_my = $stmt_my->get_result();
     while ($r = $res_my->fetch_assoc()) {
@@ -463,15 +492,15 @@ if (!$error_db) {
     }
     $stmt_my->close();
 
-    // Testcase mà học viên hiện tại được tặng từ bạn học khác trong Bài Quiz này
+    // Testcase mà học viên hiện tại được tặng từ bạn học khác cho Bài tập này trong Bài Quiz
     $stmt_rec = $conn->prepare("
         SELECT e.id as exchange_id, e.quiz_id, e.received_at, st.student_id as author, st.test_input, COALESCE(st.test_output, e.testcase_output) as test_output, st.jobe_server
         FROM testcase_exchanges e
         JOIN student_testcases st ON st.id = e.testcase_id
-        WHERE e.course_id = ? AND e.quiz_id = ? AND e.receiver_student = ?
+        WHERE e.course_id = ? AND e.quiz_id = ? AND e.question_id = ? AND e.receiver_student = ?
         ORDER BY e.id DESC
     ");
-    $stmt_rec->bind_param("sis", $c_sname, $quizid, $current_username);
+    $stmt_rec->bind_param("siis", $c_sname, $quizid, $question_id, $current_username);
     $stmt_rec->execute();
     $res_rec = $stmt_rec->get_result();
     while ($r = $res_rec->fetch_assoc()) {
@@ -482,8 +511,8 @@ if (!$error_db) {
     $conn->close();
 }
 
-// Lấy danh sách testcase hiện tại trong Moodle để sinh viên nắm được
-$moodle_tests = $DB->get_records("question_coderunner_tests", ["questionid" => 119], "id ASC");
+// Lấy danh sách testcase hiện tại trong Moodle của bài tập được chọn
+$moodle_tests = $DB->get_records("question_coderunner_tests", ["questionid" => $question_id], "id ASC");
 
 echo $OUTPUT->header();
 ?>
@@ -509,6 +538,40 @@ echo $OUTPUT->header();
             ?>
             <a href="<?php echo $quiz_link; ?>" class="btn btn-outline-primary btn-sm me-2">📝 Vào làm bài Quiz</a>
             <a href="<?php echo $CFG->wwwroot; ?>/course/view.php?id=<?php echo $courseid; ?>" class="btn btn-outline-dark btn-sm">← Về môn học</a>
+        </div>
+    </div>
+
+    <!-- KHU VỰC CHỌN BÀI TẬP CỤ THỂ TRONG BÀI QUIZ -->
+    <div class="card shadow-sm border-0 mb-4 bg-light">
+        <div class="card-body py-3">
+            <form method="get" action="<?php echo $CFG->wwwroot; ?>/testcase_dashboard.php" class="row g-3 align-items-center">
+                <input type="hidden" name="course" value="<?php echo $courseid; ?>">
+                <input type="hidden" name="quiz" value="<?php echo $quizid; ?>">
+                
+                <div class="col-md-auto">
+                    <label class="col-form-label fw-bold text-dark fs-6">
+                        📌 Chọn bài tập cần đóng góp & theo dõi:
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    <select name="question" class="form-select form-select-lg border-primary shadow-sm" onchange="this.form.submit()">
+                        <?php if (empty($quiz_questions)): ?>
+                            <option value="<?php echo $question_id; ?>">Bài tập #<?php echo $question_id; ?> (Mặc định)</option>
+                        <?php else: ?>
+                            <?php foreach ($quiz_questions as $qid => $qitem): ?>
+                                <option value="<?php echo $qid; ?>" <?php echo ($qid == $question_id) ? 'selected' : ''; ?>>
+                                    [Câu #<?php echo $qitem->slot ?? 1; ?>] <?php echo htmlspecialchars($qitem->name); ?> (ID: <?php echo $qid; ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                <div class="col-md-auto">
+                    <span class="badge bg-primary fs-6 px-3 py-2">
+                        Đang chọn: <b><?php echo htmlspecialchars($current_question_name); ?></b>
+                    </span>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -599,7 +662,7 @@ echo $OUTPUT->header();
                         </div>
                     <?php else: ?>
                     <p class="text-muted small">
-                        Đóng góp một ca kiểm thử cho hàm <code>isPrime(int n)</code> gồm cả <b>Input</b> và <b>Expected Output</b>.
+                        Đóng góp một ca kiểm thử cho <b><?php echo htmlspecialchars($current_question_name); ?></b> gồm cả <b>Input</b> và <b>Expected Output</b>.
                         Khi testcase hợp lệ và chưa từng xuất hiện, hệ thống sẽ:
                         <br>1️⃣ Cập nhật ngay vào bộ test chấm điểm của bài làm Moodle.
                         <br>2️⃣ Tặng lại cho bạn một testcase độc nhất từ học viên khác!
@@ -609,7 +672,7 @@ echo $OUTPUT->header();
                         <input type="hidden" name="sesskey" value="<?php echo sesskey(); ?>">
                         <input type="hidden" name="action" value="submit_test">
                         <input type="hidden" name="quiz_id" value="<?php echo $quizid; ?>">
-                        <input type="hidden" name="question_id" value="119">
+                        <input type="hidden" name="question_id" value="<?php echo $question_id; ?>">
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">1. Giá trị đầu vào (Input n):</label>
@@ -764,8 +827,9 @@ echo $OUTPUT->header();
     <div class="row g-4">
         <div class="col-lg-5">
             <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-white py-3 border-bottom">
-                    <h5 class="mb-0 fw-bold">🏆 Bảng Xếp Hạng Đóng Góp Toàn Khóa</h5>
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">🏆 Bảng Xếp Hạng Đóng Góp</h5>
+                    <span class="badge bg-light text-primary border border-primary small"><?php echo htmlspecialchars($current_question_name); ?></span>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-hover align-middle mb-0">
@@ -814,7 +878,7 @@ echo $OUTPUT->header();
         <div class="col-lg-7">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">📋 Kho Testcase Đang Được Áp Dụng Chấm Điểm</h5>
+                    <h5 class="mb-0 fw-bold">📋 Kho Testcase Đang Áp Dụng (<?php echo htmlspecialchars($current_question_name); ?>)</h5>
                     <span class="text-muted small">Tự động đồng bộ với Moodle Quiz</span>
                 </div>
                 <div class="card-body p-0">
