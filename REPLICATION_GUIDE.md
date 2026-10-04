@@ -377,7 +377,7 @@ foreach ([["student1", "Nguyễn Văn", "Sinh Viên 1"], ["student2", "Trần Th
     if (!$user) {
         $ud = new stdClass();
         $ud->username = $u[0];
-        $ud->password = hash_internal_user_password("StudentPassword123!");
+        $ud->password = "StudentPassword123!";
         $ud->firstname = $u[1];
         $ud->lastname = $u[2];
         $ud->email = $u[0] . "@example.com";
@@ -451,7 +451,11 @@ $q->parent = 0;
 $q->name = "Thử thách: Đóng góp Testcase độc nhất & Trao đổi chéo";
 $q->questiontext = "<p>Hãy đóng góp một testcase số nguyên độc nhất. Cụm Jobe song song sẽ kiểm tra chống trùng lặp trực tiếp trên CSDL MariaDB độc lập (<code>testcase_store</code>).</p>";
 $q->questiontextformat = FORMAT_HTML;
+$q->generalfeedback = "";
+$q->generalfeedbackformat = FORMAT_HTML;
 $q->defaultmark = 1.0;
+$q->penalty = 0.3333333;
+$q->length = 1;
 $q->qtype = "coderunner";
 $q->stamp = make_unique_id_code();
 $q->timecreated = time();
@@ -553,6 +557,7 @@ $opt->answerpreload = "# Nhập testcase số nguyên (ví dụ: -99999 hoặc 0
 $opt->useace = 1;
 $opt->answer = "0";
 $opt->template = $template;
+$opt->templateparams = "";
 $opt->sandbox = "jobesandbox";
 $DB->insert_record("question_coderunner_options", $opt);
 

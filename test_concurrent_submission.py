@@ -36,9 +36,9 @@ def submit_testcase(student_user, test_value, thread_name):
     require_once('/var/www/html/question/type/coderunner/classes/jobesandbox.php');
 
     global $DB;
-    $opt = $DB->get_record_sql("SELECT o.* FROM {{question_coderunner_options}} o JOIN {{question}} q ON q.id = o.questionid WHERE q.name = 'Testcase exchange demo' LIMIT 1");
+    $opt = $DB->get_record_sql("SELECT o.* FROM {{question_coderunner_options}} o JOIN {{question}} q ON q.id = o.questionid WHERE q.name LIKE '%Đóng góp Testcase%' OR q.name = 'Testcase exchange demo' LIMIT 1");
     if (!$opt) {{
-        fwrite(STDERR, "Testcase exchange demo question not found\\n");
+        fwrite(STDERR, "Không tìm thấy cấu hình câu hỏi Trao đổi Testcase!\\n");
         exit(1);
     }}
     $question_id = $opt->questionid;
@@ -62,10 +62,13 @@ def submit_testcase(student_user, test_value, thread_name):
     start_t = time.time()
     proc = subprocess.run(cmd, capture_output=True, text=True)
     duration = time.time() - start_t
+    out = proc.stdout.strip()
+    if not out and proc.stderr:
+        out = f"[STDERR]: {proc.stderr.strip()}"
     results[thread_name] = {
         "student": student_user,
         "input": test_value,
-        "output": proc.stdout.strip(),
+        "output": out,
         "duration": duration
     }
 
