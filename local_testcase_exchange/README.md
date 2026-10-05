@@ -12,5 +12,9 @@ Plugin mở rộng dành cho Moodle và CodeRunner, hỗ trợ sinh viên nộp 
 2. Đăng nhập quyền Administrator vào Moodle, hệ thống sẽ tự phát hiện và yêu cầu **Upgrade Moodle database now**.
 3. Xác nhận để hoàn tất cài đặt.
 
-## 3. Bản quyền
+## 3. Tài liệu nghiên cứu và phát triển
+
+Xem [Đề xuất module đóng góp câu hỏi và testcase](../docs/de-xuat-module-dong-gop-cau-hoi-testcase.md) để tìm hiểu mục tiêu giáo dục, luật chống trùng, luồng sử dụng, mô hình dữ liệu và lộ trình phát triển.
+
+## 4. Bản quyền
 GPL v3.0 hoặc mới hơn.
