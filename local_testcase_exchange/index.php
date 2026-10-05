@@ -33,8 +33,9 @@ $alert_msg = null;
 $alert_type = null;
 
 $questions = [];
+$questions_by_quiz = [];
 $sql_questions = "
-    SELECT DISTINCT q.id, q.name 
+    SELECT qz.id AS quizid, qz.name AS quizname, q.id AS qid, q.name AS qname
     FROM {course_modules} cm 
     JOIN {quiz} qz ON qz.id = cm.instance 
     JOIN {modules} m ON m.id = cm.module AND m.name = 'quiz' 
@@ -44,11 +45,16 @@ $sql_questions = "
     JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id 
     JOIN {question} q ON q.id = qv.questionid 
     WHERE cm.course = ?
-    ORDER BY q.id ASC
+    ORDER BY qz.id ASC, qs.slot ASC, q.id ASC
 ";
 $records = $DB->get_records_sql($sql_questions, [$course->id]);
 foreach ($records as $r) {
-    $questions[$r->id] = $r->name;
+    $questions[$r->qid] = $r->qname;
+    $quiz_title = !empty($r->quizname) ? $r->quizname : ('Bài Quiz #' . $r->quizid);
+    if (!isset($questions_by_quiz[$quiz_title])) {
+        $questions_by_quiz[$quiz_title] = [];
+    }
+    $questions_by_quiz[$quiz_title][$r->qid] = $r->qname;
 }
 
 /**
@@ -77,10 +83,16 @@ function evaluate_against_teacher_solution_jobe($conn, $question_id, $test_input
                  "if raw.lstrip('-').isdigit():\n" .
                  "    val = int(raw)\n" .
                  "else:\n" .
-                 "    val = raw\n" .
+                 "    try:\n" .
+                 "        val = json.loads(raw)\n" .
+                 "    except Exception:\n" .
+                 "        val = raw\n" .
                  "try:\n" .
                  "    res = " . $func_name . "(val)\n" .
-                 "    print('True' if res else 'False')\n" .
+                 "    if isinstance(res, bool):\n" .
+                 "        print('True' if res else 'False')\n" .
+                 "    else:\n" .
+                 "        print(str(res))\n" .
                  "except Exception as e:\n" .
                  "    print('ERROR:', e, file=sys.stderr)\n";
 
@@ -316,6 +328,7 @@ echo $OUTPUT->header();
 .card-form { border-top: 4px solid #0d6efd; }
 .badge-true { background-color: #d1e7dd; color: #0f5132; font-weight: bold; padding: 4px 8px; border-radius: 4px; }
 .badge-false { background-color: #f8d7da; color: #842029; font-weight: bold; padding: 4px 8px; border-radius: 4px; }
+.badge-output { background-color: #e2e3e5; color: #41464b; font-weight: bold; font-family: monospace; padding: 4px 8px; border-radius: 4px; }
 </style>
 
 <div class="container-fluid mt-3">
@@ -361,23 +374,34 @@ echo $OUTPUT->header();
                     <input type="hidden" name="sesskey" value="<?= sesskey() ?>">
                     <div class="form-row align-items-center">
                         <div class="col-md-4 mb-2">
-                            <label class="font-weight-bold" for="qSelect">1. Chọn Bài Tập:</label>
+                            <label class="font-weight-bold" for="qSelect">1. Chọn Bài Tập (theo Quiz):</label>
                             <select class="form-control" id="qSelect" name="question_id" required>
-                                <?php foreach ($questions as $qid => $qname): ?>
-                                    <option value="<?= $qid ?>"><?= htmlspecialchars($qname) ?></option>
-                                <?php endforeach; ?>
+                                <?php if (!empty($questions_by_quiz)): ?>
+                                    <?php foreach ($questions_by_quiz as $quiz_name => $quiz_qs): ?>
+                                        <optgroup label="📂 <?= htmlspecialchars($quiz_name) ?>">
+                                            <?php foreach ($quiz_qs as $qid => $qname): ?>
+                                                <option value="<?= $qid ?>"><?= htmlspecialchars($qname) ?> (ID: <?= $qid ?>)</option>
+                                            <?php endforeach; ?>
+                                        </optgroup>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <option value="" disabled>Chưa có câu hỏi nào trong khóa học</option>
+                                <?php endif; ?>
                             </select>
                         </div>
                         <div class="col-md-4 mb-2">
                             <label class="font-weight-bold" for="testInput">2. Dữ liệu Input:</label>
-                            <input type="text" class="form-control" id="testInput" name="test_input" placeholder="Ví dụ: 12 hoặc love hoặc 17..." required>
+                            <input type="text" class="form-control font-monospace" id="testInput" name="test_input" placeholder="Ví dụ: 12, love, 17, [1, 2, 3]..." required>
                         </div>
                         <div class="col-md-2 mb-2">
                             <label class="font-weight-bold" for="expectedOutput">3. Expected Output:</label>
-                            <select class="form-control" id="expectedOutput" name="expected_output" required>
-                                <option value="True">True</option>
-                                <option value="False">False</option>
-                            </select>
+                            <input type="text" list="expectedOptions" class="form-control font-monospace" id="expectedOutput" name="expected_output" placeholder="True / False hoặc chuỗi/số" required>
+                            <datalist id="expectedOptions">
+                                <option value="True"></option>
+                                <option value="False"></option>
+                                <option value="0"></option>
+                                <option value="1"></option>
+                            </datalist>
                         </div>
                         <div class="col-md-2 mb-2" style="margin-top: 1.8rem;">
                             <button type="submit" class="btn btn-success btn-block">🚀 Gửi Testcase</button>
@@ -419,8 +443,14 @@ echo $OUTPUT->header();
                                                     <td><?= isset($questions[$r['question_id']]) ? $questions[$r['question_id']] : 'Bài ID ' . $r['question_id'] ?></td>
                                                     <td><span class="testcase-pill"><?= htmlspecialchars($r['test_input']) ?></span></td>
                                                     <td>
-                                                        <span class="<?= ($r['expected_output'] === 'True') ? 'badge-true' : 'badge-false' ?>">
-                                                            <?= htmlspecialchars($r['expected_output'] ?: 'N/A') ?>
+                                                        <?php
+                                                            $exp = $r['expected_output'];
+                                                            $badge_cls = 'badge-output';
+                                                            if (strcasecmp($exp, 'True') === 0) $badge_cls = 'badge-true';
+                                                            elseif (strcasecmp($exp, 'False') === 0) $badge_cls = 'badge-false';
+                                                        ?>
+                                                        <span class="<?= $badge_cls ?>">
+                                                            <?= htmlspecialchars($exp ?: 'N/A') ?>
                                                         </span>
                                                     </td>
                                                     <td><small><?= $r['created_at'] ?></small></td>
@@ -452,8 +482,14 @@ echo $OUTPUT->header();
                                                     <td><?= isset($questions[$r['question_id']]) ? $questions[$r['question_id']] : 'Bài ID ' . $r['question_id'] ?></td>
                                                     <td><span class="testcase-pill text-success font-weight-bold"><?= htmlspecialchars($r['test_input']) ?></span></td>
                                                     <td>
-                                                        <span class="<?= ($r['expected_output'] === 'True') ? 'badge-true' : 'badge-false' ?>">
-                                                            <?= htmlspecialchars($r['expected_output'] ?: 'N/A') ?>
+                                                        <?php
+                                                            $exp = $r['expected_output'];
+                                                            $badge_cls = 'badge-output';
+                                                            if (strcasecmp($exp, 'True') === 0) $badge_cls = 'badge-true';
+                                                            elseif (strcasecmp($exp, 'False') === 0) $badge_cls = 'badge-false';
+                                                        ?>
+                                                        <span class="<?= $badge_cls ?>">
+                                                            <?= htmlspecialchars($exp ?: 'N/A') ?>
                                                         </span>
                                                     </td>
                                                     <td><small><?= $r['received_at'] ?></small></td>
