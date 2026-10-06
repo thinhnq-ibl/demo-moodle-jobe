@@ -59,7 +59,15 @@ services:
       - MOODLE_ADMIN_USER=admin
       - MOODLE_ADMIN_PASSWORD=AdminPassword123!
       - MOODLE_ADMIN_EMAIL=admin@example.com
-      - JOBE_HOST=jobe1;jobe2
+      - JOBE_HOST=${JOBE_HOST:-jobe1;jobe2}
+      # Cấu hình local_testcase_exchange; có thể override bằng file .env.
+      - TESTCASE_DB_HOST=${TESTCASE_DB_HOST:-mariadb}
+      - TESTCASE_DB_PORT=${TESTCASE_DB_PORT:-3306}
+      - TESTCASE_DB_NAME=${TESTCASE_DB_NAME:-testcase_store}
+      - TESTCASE_DB_USER=${TESTCASE_DB_USER:-moodle_app_writer}
+      - TESTCASE_DB_PASSWORD=${TESTCASE_DB_PASSWORD:-JobeSecret123!}
+      - TESTCASE_JOBE_SERVERS=${TESTCASE_JOBE_SERVERS:-jobe1;jobe2}
+      - TESTCASE_JOBE_API_KEY=${TESTCASE_JOBE_API_KEY:-}
     volumes:
       - moodledata:/var/www/moodledata
       - ./local_testcase_exchange:/var/www/html/local/testcase_exchange

@@ -108,6 +108,24 @@ php /var/www/html/admin/cli/reset_password.php \
 echo "Cấu hình CodeRunner Jobe Host (${JOBE_HOST:-jobe1;jobe2})..."
 php /var/www/html/admin/cli/cfg.php --component=qtype_coderunner --name=jobe_host --set="${JOBE_HOST:-jobe1;jobe2}" || true
 
+# Đồng bộ cấu hình Docker vào trang quản trị của local_testcase_exchange.
+# Các biến này là nguồn cấu hình mỗi khi container Moodle khởi động.
+echo "Cấu hình plugin Testcase Exchange..."
+php /var/www/html/admin/cli/cfg.php --component=local_testcase_exchange --name=db_host \
+    --set="${TESTCASE_DB_HOST:-mariadb}" || true
+php /var/www/html/admin/cli/cfg.php --component=local_testcase_exchange --name=db_port \
+    --set="${TESTCASE_DB_PORT:-3306}" || true
+php /var/www/html/admin/cli/cfg.php --component=local_testcase_exchange --name=db_name \
+    --set="${TESTCASE_DB_NAME:-testcase_store}" || true
+php /var/www/html/admin/cli/cfg.php --component=local_testcase_exchange --name=db_user \
+    --set="${TESTCASE_DB_USER:-moodle_app_writer}" || true
+php /var/www/html/admin/cli/cfg.php --component=local_testcase_exchange --name=db_pass \
+    --set="${TESTCASE_DB_PASSWORD:-JobeSecret123!}" || true
+php /var/www/html/admin/cli/cfg.php --component=local_testcase_exchange --name=jobe_servers \
+    --set="${TESTCASE_JOBE_SERVERS:-${JOBE_HOST:-jobe1;jobe2}}" || true
+php /var/www/html/admin/cli/cfg.php --component=local_testcase_exchange --name=jobe_api_key \
+    --set="${TESTCASE_JOBE_API_KEY:-}" || true
+
 # Cho phép Moodle kết nối tới các host nội bộ (Jobe sandbox trong mạng Docker)
 echo "Cấu hình bỏ chặn cURL tới mạng nội bộ..."
 php /var/www/html/admin/cli/cfg.php --name=curlsecurityblockedhosts --set="" || true

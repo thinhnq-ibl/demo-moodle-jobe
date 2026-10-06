@@ -45,6 +45,20 @@ Hệ thống sử dụng **MariaDB** với 2 cơ sở dữ liệu hoàn toàn t�
 
 ## 4. Lệnh Vận Hành Nhanh
 
+Có thể cấu hình plugin `local_testcase_exchange` qua file `.env` cạnh `docker-compose.yml`:
+
+```dotenv
+TESTCASE_DB_HOST=mariadb
+TESTCASE_DB_PORT=3306
+TESTCASE_DB_NAME=testcase_store
+TESTCASE_DB_USER=moodle_app_writer
+TESTCASE_DB_PASSWORD=JobeSecret123!
+TESTCASE_JOBE_SERVERS=jobe1;jobe2
+TESTCASE_JOBE_API_KEY=
+```
+
+Các giá trị này được container Moodle tự động đồng bộ vào trang cấu hình plugin khi khởi động.
+
 Khởi động hệ thống:
 ```bash
 docker compose up -d

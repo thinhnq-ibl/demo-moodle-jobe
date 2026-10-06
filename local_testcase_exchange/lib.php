@@ -2,6 +2,70 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
+ * Return the external testcase database configuration.
+ *
+ * @return array{host:string, port:int, user:string, pass:string, name:string}
+ */
+function local_testcase_exchange_get_db_config(): array {
+    $port = (int) get_config('local_testcase_exchange', 'db_port');
+    $password = get_config('local_testcase_exchange', 'db_pass');
+
+    return [
+        'host' => get_config('local_testcase_exchange', 'db_host') ?: 'mariadb',
+        'port' => $port > 0 && $port <= 65535 ? $port : 3306,
+        'user' => get_config('local_testcase_exchange', 'db_user') ?: 'moodle_app_writer',
+        'pass' => $password === false ? 'JobeSecret123!' : (string) $password,
+        'name' => get_config('local_testcase_exchange', 'db_name') ?: 'testcase_store',
+    ];
+}
+
+/**
+ * Return configured Jobe servers with a ready-to-use runs endpoint.
+ *
+ * The setting accepts the same semicolon-separated host format as CodeRunner,
+ * as well as one server per line. A full REST runs URL is also accepted.
+ *
+ * @return array<int, array{label:string, runsurl:string}>
+ */
+function local_testcase_exchange_get_jobe_servers(): array {
+    $configured = trim((string) get_config('local_testcase_exchange', 'jobe_servers'));
+    if ($configured === '') {
+        $configured = trim((string) get_config('qtype_coderunner', 'jobe_host'));
+    }
+    if ($configured === '') {
+        $configured = 'jobe1;jobe2';
+    }
+
+    $servers = [];
+    foreach (preg_split('/[;\r\n]+/', $configured) as $server) {
+        $server = trim($server);
+        if ($server === '') {
+            continue;
+        }
+
+        if (!preg_match('~^https?://~i', $server)) {
+            $server = 'http://' . $server;
+        }
+
+        $baseurl = rtrim($server, '/');
+        if (preg_match('~/jobe/index\.php/restapi/runs$~i', $baseurl)) {
+            $runsurl = $baseurl;
+        } elseif (preg_match('~/jobe/index\.php/restapi$~i', $baseurl)) {
+            $runsurl = $baseurl . '/runs';
+        } else {
+            $runsurl = $baseurl . '/jobe/index.php/restapi/runs';
+        }
+
+        $servers[] = [
+            'label' => parse_url($baseurl, PHP_URL_HOST) ?: $baseurl,
+            'runsurl' => $runsurl,
+        ];
+    }
+
+    return $servers;
+}
+
+/**
  * Hook tự động chèn mục điều hướng vào thanh menu khóa học.
  * Chạy tự động trong toàn bộ hệ thống khi plugin được cài đặt.
  *

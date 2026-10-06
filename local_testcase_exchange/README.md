@@ -12,9 +12,33 @@ Plugin mở rộng dành cho Moodle và CodeRunner, hỗ trợ sinh viên nộp 
 2. Đăng nhập quyền Administrator vào Moodle, hệ thống sẽ tự phát hiện và yêu cầu **Upgrade Moodle database now**.
 3. Xác nhận để hoàn tất cài đặt.
 
-## 3. Tài liệu nghiên cứu và phát triển
+## 3. Cấu hình quản trị
+
+Mở **Site administration > Plugins > Local plugins > CodeRunner Testcase Exchange** và cấu hình:
+
+* MariaDB host, port, database, username và password của kho testcase. Tài khoản cần quyền đọc và ghi các bảng testcase.
+* Một hoặc nhiều Jobe server, mỗi server trên một dòng hoặc phân cách bằng dấu `;`. Có thể nhập `jobe1`, `jobe2:80`, `https://jobe.example.edu` hoặc URL REST đầy đủ.
+* Jobe API key nếu server yêu cầu. Với cụm Docker mặc định, để trống trường này.
+
+Nếu chưa lưu URL riêng cho module, module sẽ dùng cấu hình `jobe_host` của plugin CodeRunner. Khi có nhiều server, module cân bằng lượt chạy và tự chuyển sang node còn lại nếu một node không phản hồi.
+
+Khi chạy bằng Docker Compose, các biến sau được đồng bộ vào trang cấu hình mỗi lần container Moodle khởi động:
+
+```dotenv
+TESTCASE_DB_HOST=mariadb
+TESTCASE_DB_PORT=3306
+TESTCASE_DB_NAME=testcase_store
+TESTCASE_DB_USER=moodle_app_writer
+TESTCASE_DB_PASSWORD=JobeSecret123!
+TESTCASE_JOBE_SERVERS=jobe1;jobe2
+TESTCASE_JOBE_API_KEY=
+```
+
+Có thể đặt các giá trị khác trong file `.env` cạnh `docker-compose.yml`. Giá trị trong Docker sẽ được áp lại sau mỗi lần restart; vì vậy khi sử dụng các biến này, hãy chỉnh `.env` thay vì chỉ chỉnh trên giao diện Moodle.
+
+## 4. Tài liệu nghiên cứu và phát triển
 
 Xem [Đề xuất module đóng góp câu hỏi và testcase](../docs/de-xuat-module-dong-gop-cau-hoi-testcase.md) để tìm hiểu mục tiêu giáo dục, luật chống trùng, luồng sử dụng, mô hình dữ liệu và lộ trình phát triển.
 
-## 4. Bản quyền
+## 5. Bản quyền
 GPL v3.0 hoặc mới hơn.

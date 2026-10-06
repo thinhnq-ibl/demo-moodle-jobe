@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
 require_login();
 
 global $USER, $DB, $PAGE, $OUTPUT;
@@ -17,16 +18,26 @@ $PAGE->set_heading($course->fullname . ' - ' . get_string('nav_testcase_bank', '
 
 $current_student = $USER->username;
 
-// Cấu hình CSDL testcase_store
-$db_host = get_config('local_testcase_exchange', 'db_host') ?: 'mariadb';
-$db_user = get_config('local_testcase_exchange', 'db_user') ?: 'moodle_reader';
-$db_pass = get_config('local_testcase_exchange', 'db_pass') ?: 'ReaderSecret123!';
-$db_name = get_config('local_testcase_exchange', 'db_name') ?: 'testcase_store';
+// Cấu hình kết nối do quản trị viên thiết lập trong trang cấu hình module.
+$dbconfig = local_testcase_exchange_get_db_config();
+$jobe_servers = local_testcase_exchange_get_jobe_servers();
+$jobe_api_key = trim((string) get_config('local_testcase_exchange', 'jobe_api_key'));
 
-$conn = @new mysqli($db_host, $db_user, $db_pass, $db_name, 3306);
 $error_db = null;
-if ($conn->connect_error) {
-    $error_db = "Không thể kết nối CSDL testcase_store: " . $conn->connect_error;
+$conn = null;
+try {
+    $conn = @new mysqli(
+        $dbconfig['host'],
+        $dbconfig['user'],
+        $dbconfig['pass'],
+        $dbconfig['name'],
+        $dbconfig['port']
+    );
+    if ($conn->connect_error) {
+        $error_db = "Không thể kết nối CSDL {$dbconfig['name']}: " . $conn->connect_error;
+    }
+} catch (Throwable $e) {
+    $error_db = "Không thể kết nối CSDL {$dbconfig['name']}: " . $e->getMessage();
 }
 
 $alert_msg = null;
@@ -60,7 +71,14 @@ foreach ($records as $r) {
 /**
  * Thẩm định bằng cách chạy qua cụm Jobe Sandbox cô lập an toàn
  */
-function evaluate_against_teacher_solution_jobe($conn, $question_id, $test_input, &$used_server = 'jobe1') {
+function evaluate_against_teacher_solution_jobe(
+    $conn,
+    $question_id,
+    $test_input,
+    array $jobe_servers,
+    string $jobe_api_key,
+    &$used_server = ''
+) {
     $stmt = $conn->prepare("SELECT func_name, solution_code FROM question_solutions WHERE question_id = ?");
     $stmt->bind_param('i', $question_id);
     $stmt->execute();
@@ -96,11 +114,13 @@ function evaluate_against_teacher_solution_jobe($conn, $question_id, $test_input
                  "except Exception as e:\n" .
                  "    print('ERROR:', e, file=sys.stderr)\n";
 
-    // Cân bằng tải Round-robin giữa jobe1 và jobe2
-    $jobe_hosts = ['jobe1', 'jobe2'];
+    if (empty($jobe_servers)) {
+        return null;
+    }
+
+    // Cân bằng tải round-robin và lần lượt failover qua các node còn lại.
     static $jobe_idx = 0;
-    $target_host = $jobe_hosts[($jobe_idx++) % count($jobe_hosts)];
-    $used_server = $target_host;
+    $start_idx = ($jobe_idx++) % count($jobe_servers);
 
     $payload = json_encode([
         'run_spec' => [
@@ -112,42 +132,32 @@ function evaluate_against_teacher_solution_jobe($conn, $question_id, $test_input
         ]
     ]);
 
-    $ch = curl_init("http://{$target_host}/jobe/index.php/restapi/runs");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Accept: application/json'
-    ]);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 4);
+    for ($offset = 0; $offset < count($jobe_servers); $offset++) {
+        $server = $jobe_servers[($start_idx + $offset) % count($jobe_servers)];
+        $used_server = $server['label'];
 
-    $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curl_err = curl_error($ch);
-    curl_close($ch);
+        $headers = ['Content-Type: application/json', 'Accept: application/json'];
+        if ($jobe_api_key !== '') {
+            $headers[] = 'X-API-KEY: ' . $jobe_api_key;
+        }
 
-    // Fallback sang node Jobe còn lại nếu node đầu tiên gặp sự cố mạng
-    if (($response === false || $http_code !== 200) && count($jobe_hosts) > 1) {
-        $backup_host = ($target_host === 'jobe1') ? 'jobe2' : 'jobe1';
-        $used_server = $backup_host;
-        $ch = curl_init("http://{$backup_host}/jobe/index.php/restapi/runs");
+        $ch = curl_init($server['runsurl']);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Accept: application/json']);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
         curl_setopt($ch, CURLOPT_TIMEOUT, 4);
         $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-    }
 
-    if ($response) {
-        $res_data = json_decode($response, true);
-        // outcome == 15 nghĩa là SUCCESS trong Jobe API specification
-        if (isset($res_data['outcome']) && $res_data['outcome'] == 15) {
-            return trim($res_data['stdout']);
+        if ($response !== false && $http_code === 200) {
+            $res_data = json_decode($response, true);
+            // outcome == 15 nghĩa là SUCCESS trong Jobe API specification.
+            if (isset($res_data['outcome']) && (int) $res_data['outcome'] === 15) {
+                return trim((string) ($res_data['stdout'] ?? ''));
+            }
         }
     }
 
@@ -163,10 +173,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     if (empty($submitted_input) || empty($submitted_expected)) {
         $alert_msg = "❌ Vui lòng nhập đầy đủ cả Dữ liệu đầu vào (Input) và Kết quả mong đợi (Expected Output)!";
         $alert_type = "danger";
+    } elseif ($error_db) {
+        $alert_msg = "⚠️ Không thể kiểm tra testcase vì kết nối cơ sở dữ liệu chưa đúng. Vui lòng liên hệ quản trị viên.";
+        $alert_type = "danger";
     } else {
         $valid = true;
-        $jobe_server_used = 'jobe1';
-        $actual_teacher_output = evaluate_against_teacher_solution_jobe($conn, $selected_qid, $submitted_input, $jobe_server_used);
+        $jobe_server_used = '';
+        $actual_teacher_output = evaluate_against_teacher_solution_jobe(
+            $conn,
+            $selected_qid,
+            $submitted_input,
+            $jobe_servers,
+            $jobe_api_key,
+            $jobe_server_used
+        );
 
         if ($actual_teacher_output === null) {
             $alert_msg = "⚠️ Không tìm thấy lời giải mẫu của thầy cô hoặc cụm Jobe Sandbox không phản hồi!";
