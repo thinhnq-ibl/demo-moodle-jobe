@@ -21,7 +21,9 @@ Testcase được duyệt không tự động thay đổi bộ test chấm chín
 
 **Site administration > Plugins > Local plugins > CodeRunner Testcase Exchange**
 
-Cần cung cấp MariaDB host/port/database/user/password và một hoặc nhiều Jobe server. Tài khoản DB phải có quyền đọc, ghi và tạo/cập nhật schema trong lần migration đầu.
+Cần cung cấp MariaDB host/port/database/user/password. Tài khoản DB phải có quyền đọc, ghi và tạo/cập nhật schema trong lần migration đầu. Kho ngoài hiện hỗ trợ MariaDB/MySQL, không hỗ trợ PostgreSQL.
+
+Việc chạy code dùng cấu hình Jobe của `qtype_coderunner`. Trường Jobe trong local plugin phục vụ health check và mặc định kế thừa `jobe_host` của CodeRunner; nếu nhập riêng thì hai cấu hình phải trỏ cùng cluster.
 
 Với Docker Compose, tạo `.env` cạnh `docker-compose.yml`:
 
@@ -50,3 +52,11 @@ Chi tiết kiến trúc và tiêu chí nghiệm thu nằm trong [kế hoạch tr
 ## Bản quyền
 
 GPL v3.0 hoặc mới hơn.
+
+## Phát hành công khai
+
+Xem [privacy notice](PRIVACY.md), [security policy](SECURITY.md), [changelog](CHANGES.md) và [release readiness](RELEASE.md). Tạo gói cài đặt từ thư mục gốc repository bằng:
+
+```bash
+./scripts/package-plugin.sh
+```

@@ -1,4 +1,16 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify it under the terms of the GNU GPL v3 or later.
+// Moodle is distributed without any warranty. See <http://www.gnu.org/licenses/>.
+
+/**
+ * Student testcase exchange dashboard.
+ *
+ * @package local_testcase_exchange
+ * @copyright 2026 Nguyen Quoc Thinh
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 require_once(__DIR__ . '/../../config.php');
 
 use local_testcase_exchange\context_service;
@@ -36,7 +48,7 @@ try {
     debugging($e->getMessage(), DEBUG_DEVELOPER);
 }
 
-if ($service && $_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($service && data_submitted()) {
     require_sesskey();
     $action = required_param('action', PARAM_ALPHAEXT);
     try {
@@ -85,7 +97,12 @@ if ($service && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 \core\output\notification::NOTIFY_SUCCESS);
         }
     } catch (Throwable $e) {
-        redirect($PAGE->url, $e->getMessage(), null, \core\output\notification::NOTIFY_ERROR);
+        $message = $e instanceof moodle_exception ? $e->getMessage() :
+            get_string('unexpectederror', 'local_testcase_exchange');
+        if (!($e instanceof moodle_exception)) {
+            debugging($e->getMessage(), DEBUG_DEVELOPER);
+        }
+        redirect($PAGE->url, $message, null, \core\output\notification::NOTIFY_ERROR);
     }
 }
 

@@ -1,4 +1,26 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * English language strings.
+ *
+ * @package    local_testcase_exchange
+ * @copyright  2026 Nguyen Quoc Thinh
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'CodeRunner Testcase Exchange';
@@ -15,17 +37,17 @@ $string['settings_db_host_desc'] = 'Database hostname, without a protocol or por
 $string['settings_db_port'] = 'Database port';
 $string['settings_db_port_desc'] = 'MariaDB/MySQL TCP port.';
 $string['settings_db_user'] = 'DB User';
-$string['settings_db_user_desc'] = 'This account requires SELECT and INSERT permissions on the testcase tables.';
+$string['settings_db_user_desc'] = 'Use a dedicated account. Schema migration additionally requires CREATE, ALTER and INDEX; normal operation requires SELECT, INSERT, UPDATE and DELETE.';
 $string['settings_db_pass'] = 'DB Password';
 $string['settings_db_pass_desc'] = 'Password for the testcase database account.';
 $string['settings_db_name'] = 'DB Name';
 $string['settings_db_name_desc'] = 'Name of the separate testcase database.';
 $string['settings_jobe_heading'] = 'Jobe runner';
-$string['settings_jobe_heading_desc'] = 'Jobe servers used to validate submitted testcases against the teacher solution.';
+$string['settings_jobe_heading_desc'] = 'Endpoints used by this plugin for health monitoring. Actual execution uses the CodeRunner Jobe configuration, so both settings must refer to the same cluster.';
 $string['settings_jobe_servers'] = 'Jobe server URLs';
-$string['settings_jobe_servers_desc'] = 'Enter one server per line, or separate servers with semicolons. Examples: jobe1, jobe2:80, or https://jobe.example.edu. The REST path is added automatically.';
+$string['settings_jobe_servers_desc'] = 'Enter one server per line or separate servers with semicolons. Leave blank to monitor CodeRunner\'s configured jobe_host. The REST path is added automatically.';
 $string['settings_jobe_api_key'] = 'Jobe API key';
-$string['settings_jobe_api_key_desc'] = 'Optional API key sent in the X-API-KEY header. Leave blank when Jobe does not require one.';
+$string['settings_jobe_api_key_desc'] = 'Optional API key used by the health check. Configure the equivalent credential in CodeRunner for actual execution.';
 $string['nav_testcase_bank'] = 'Testcase Bank & Exchange';
 $string['my_testcases'] = 'My Testcases';
 $string['received_testcases'] = 'Received Testcases';
@@ -59,6 +81,7 @@ $string['runcreatedmatch'] = 'The private run was saved. Your prediction matches
 $string['runcreatedmismatch'] = 'The private run was saved. Review the difference before proposing it for sharing.';
 $string['contributionstatus'] = 'Contribution status: {$a}';
 $string['databaseunavailable'] = 'The testcase database is unavailable. Please contact the administrator.';
+$string['unexpectederror'] = 'The operation could not be completed. Please try again or contact the administrator.';
 $string['featuredisabled'] = 'Testcase exploration is disabled for this Quiz.';
 $string['inputtoolarge'] = 'The test input exceeds the configured size limit.';
 $string['ratelimited'] = 'Too many runs. Please wait one minute and try again.';
@@ -85,6 +108,22 @@ $string['enableleaderboard'] = 'Enable leaderboard';
 $string['explanationrequired'] = 'Please explain how this testcase adds distinct value.';
 $string['explanationsaved'] = 'Your explanation was saved and the contribution was resubmitted.';
 $string['resubmitexplanation'] = 'Resubmit explanation';
+$string['quizpolicy'] = 'Quiz policy';
+$string['questionpolicy'] = 'Question policy';
+$string['reviewmode'] = 'Review mode';
+$string['reviewmode_teacher'] = 'Teacher review';
+$string['reviewmode_auto'] = 'Automatic approval';
+$string['rewardpolicy'] = 'Reward policy';
+$string['rewardpolicy_oneforone'] = 'One approved contribution unlocks one testcase';
+$string['runsperminute'] = 'Runs per minute';
+$string['maxinputbytes'] = 'Maximum input size in bytes';
+$string['inputmode'] = 'Input mode';
+$string['testcodetemplate'] = 'Test-code template containing {{INPUT}}';
+$string['normalization'] = 'Input normalization';
+$string['categories'] = 'Allowed categories';
+$string['userid'] = 'User ID';
+$string['quizquestion'] = 'Quiz / question';
+$string['review'] = 'Review';
 $string['healthcheck'] = 'Testcase service health';
 $string['databasehealth'] = 'External database';
 $string['jobehealth'] = 'Jobe nodes';
@@ -93,3 +132,13 @@ $string['server'] = 'Server';
 $string['languages'] = 'Available languages';
 $string['available'] = 'Available';
 $string['unavailable'] = 'Unavailable';
+$string['privacy:path'] = 'Testcase exchange';
+$string['privacy:metadata:testcase_store'] = 'The external testcase repository stores private runs, contributions, reviews and rewards.';
+$string['privacy:metadata:testcase_store:user_id'] = 'The Moodle user ID identifies the owner, reviewer or reward recipient.';
+$string['privacy:metadata:testcase_store:input'] = 'The testcase input submitted by the user.';
+$string['privacy:metadata:testcase_store:source_hash'] = 'A one-way hash of the submitted program source.';
+$string['privacy:metadata:testcase_store:outputs'] = 'Predicted, student-program and reference outputs from a testcase run.';
+$string['privacy:metadata:testcase_store:reflection'] = 'The purpose, category and reflection supplied with a testcase.';
+$string['privacy:metadata:jobe'] = 'Program source and testcase input are sent to the configured Jobe sandbox for execution and are not intentionally persisted there by this plugin.';
+$string['privacy:metadata:jobe:source'] = 'Student program source or the CodeRunner reference solution.';
+$string['privacy:metadata:jobe:input'] = 'The testcase input used for sandbox execution.';

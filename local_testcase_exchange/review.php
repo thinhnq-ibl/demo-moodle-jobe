@@ -1,4 +1,16 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify it under the terms of the GNU GPL v3 or later.
+// Moodle is distributed without any warranty. See <http://www.gnu.org/licenses/>.
+
+/**
+ * Contribution review page.
+ *
+ * @package local_testcase_exchange
+ * @copyright 2026 Nguyen Quoc Thinh
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 require_once(__DIR__ . '/../../config.php');
 
 use local_testcase_exchange\external_database;
@@ -16,11 +28,17 @@ $PAGE->set_context($context);
 $PAGE->set_title(get_string('reviewcontributions', 'local_testcase_exchange'));
 $PAGE->set_heading($course->fullname . ' — ' . get_string('reviewcontributions', 'local_testcase_exchange'));
 
-$connection = external_database::connect();
-schema_manager::migrate($connection);
+$connection = null;
+try {
+    $connection = external_database::connect();
+    schema_manager::migrate($connection);
+} catch (Throwable $e) {
+    debugging($e->getMessage(), DEBUG_DEVELOPER);
+    throw new moodle_exception('databaseunavailable', 'local_testcase_exchange');
+}
 $service = new testcase_service($connection);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (data_submitted()) {
     require_sesskey();
     try {
         $service->review(
@@ -33,7 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect($PAGE->url, get_string('reviewsaved', 'local_testcase_exchange'), null,
             \core\output\notification::NOTIFY_SUCCESS);
     } catch (Throwable $e) {
-        redirect($PAGE->url, $e->getMessage(), null, \core\output\notification::NOTIFY_ERROR);
+        $message = $e instanceof moodle_exception ? $e->getMessage() :
+            get_string('unexpectederror', 'local_testcase_exchange');
+        if (!($e instanceof moodle_exception)) {
+            debugging($e->getMessage(), DEBUG_DEVELOPER);
+        }
+        redirect($PAGE->url, $message, null, \core\output\notification::NOTIFY_ERROR);
     }
 }
 
@@ -47,7 +70,7 @@ echo html_writer::link(
 ?>
 <div class="table-responsive">
     <table class="table table-striped">
-        <thead><tr><th>ID</th><th>User ID</th><th>Quiz/Question</th><th>Input</th><th>Oracle</th><th>Mục đích</th><th>Nhóm</th><th>Review</th></tr></thead>
+        <thead><tr><th>ID</th><th><?= s(get_string('userid', 'local_testcase_exchange')) ?></th><th><?= s(get_string('quizquestion', 'local_testcase_exchange')) ?></th><th><?= s(get_string('testinput', 'local_testcase_exchange')) ?></th><th><?= s(get_string('oracleoutput', 'local_testcase_exchange')) ?></th><th><?= s(get_string('purpose', 'local_testcase_exchange')) ?></th><th><?= s(get_string('category', 'local_testcase_exchange')) ?></th><th><?= s(get_string('review', 'local_testcase_exchange')) ?></th></tr></thead>
         <tbody>
         <?php if (empty($items)): ?>
             <tr><td colspan="8" class="text-center text-muted"><?= s(get_string('nocontributionspending', 'local_testcase_exchange')) ?></td></tr>
