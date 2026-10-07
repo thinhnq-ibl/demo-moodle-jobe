@@ -56,6 +56,7 @@ foreach ($questions as $question) {
 }
 
 $studentcode = '';
+$returnurl = '';
 $selectedquestion = $questionmap[$requestedselection] ?? null;
 if ($attemptid > 0 && $selectedquestion) {
     $attempt = $DB->get_record_select(
@@ -85,6 +86,20 @@ if ($attemptid > 0 && $selectedquestion) {
             ],
             IGNORE_MULTIPLE
         );
+        if ($studentcode !== '') {
+            $cm = get_coursemodule_from_instance('quiz', $attempt->quiz, $courseid, false, MUST_EXIST);
+            if ($attempt->state === 'finished') {
+                $returnurl = (new moodle_url('/mod/quiz/review.php', [
+                    'attempt' => $attempt->id,
+                    'cmid' => $cm->id,
+                ]))->out(false);
+            } else {
+                $returnurl = (new moodle_url('/mod/quiz/attempt.php', [
+                    'attempt' => $attempt->id,
+                    'cmid' => $cm->id,
+                ]))->out(false);
+            }
+        }
     }
 }
 
@@ -178,6 +193,8 @@ if ($databaseerror) {
 }
 
 $cancontribute = has_capability('local/testcase_exchange:contribute', $context);
+$canmanage = has_capability('local/testcase_exchange:manage', $context);
+$hasattemptcode = $studentcode !== '';
 $viewquestions = [];
 foreach ($questions as $question) {
     $quizsettings = $service->quiz_settings((int) $question->quizid);
@@ -212,7 +229,7 @@ foreach (['normal', 'boundary', 'empty', 'invalid', 'large', 'branch', 'other'] 
 }
 $templatedata = [
     'sesskey' => sesskey(),
-    'can_manage' => has_capability('local/testcase_exchange:manage', $context),
+    'can_manage' => $canmanage,
     'can_review' => has_capability('local/testcase_exchange:review', $context),
     'can_run' => has_capability('local/testcase_exchange:run', $context),
     'policy_url' => (new moodle_url('/local/testcase_exchange/policy.php', ['course' => $courseid]))->out(false),
@@ -221,7 +238,15 @@ $templatedata = [
     'has_questions' => !empty($viewquestions),
     'categories' => $viewcategories,
     'student_code' => $studentcode,
-    'has_prefilled_code' => $studentcode !== '',
+    'has_prefilled_code' => $hasattemptcode,
+    'show_run_form' => $hasattemptcode || $canmanage,
+    'show_code_editor' => $canmanage && !$hasattemptcode,
+    'use_attempt_context' => $hasattemptcode,
+    'selected_question_value' => $requestedselection,
+    'current_quiz_name' => $selectedquestion->quizname ?? '',
+    'current_question_name' => $selectedquestion->questionname ?? '',
+    'return_url' => $returnurl,
+    'has_return_url' => $returnurl !== '',
     'runs' => $runs,
     'run_count' => count($runs),
     'contributions' => $contributions,

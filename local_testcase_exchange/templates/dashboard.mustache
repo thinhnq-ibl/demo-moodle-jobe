@@ -7,16 +7,33 @@
 {{/can_manage}}
 {{#can_run}}
 <div class="card mb-4"><div class="card-header"><strong>{{#str}} privateexploration, local_testcase_exchange {{/str}}</strong></div><div class="card-body">
+{{#has_return_url}}<a class="btn btn-secondary mb-3" href="{{return_url}}">{{#str}} backtocurrentquiz, local_testcase_exchange {{/str}}</a>{{/has_return_url}}
 {{^has_questions}}<div class="alert alert-warning">{{#str}} nocoderunnerquestions, local_testcase_exchange {{/str}}</div>{{/has_questions}}
-{{#has_questions}}
-{{#has_prefilled_code}}<div class="alert alert-info">{{#str}} codeprefilledfromattempt, local_testcase_exchange {{/str}}</div>{{/has_prefilled_code}}
+{{#has_questions}}{{#show_run_form}}
+{{#use_attempt_context}}
+<div class="alert alert-primary" role="status">
+    <strong>{{#str}} contributingtestcasefor, local_testcase_exchange {{/str}}</strong>
+    <div><strong>{{#str}} currentquiz, local_testcase_exchange {{/str}}:</strong> {{current_quiz_name}}</div>
+    <div><strong>{{#str}} currentquestion, local_testcase_exchange {{/str}}:</strong> {{current_question_name}}</div>
+</div>
+{{/use_attempt_context}}
 <form method="post"><input type="hidden" name="sesskey" value="{{sesskey}}"><input type="hidden" name="action" value="run">
+{{#use_attempt_context}}<input type="hidden" name="question" value="{{selected_question_value}}"><input type="hidden" name="student_code" value="{{student_code}}">{{/use_attempt_context}}
+{{^use_attempt_context}}
 <div class="form-group"><label for="question"><strong>{{#str}} selectquestion, local_testcase_exchange {{/str}}</strong></label><select class="form-control" id="question" name="question" required>{{#questions}}<option value="{{value}}" {{#disabled}}disabled{{/disabled}} {{#selected}}selected{{/selected}}>{{label}}</option>{{/questions}}</select></div>
+{{#show_code_editor}}
 <div class="form-group"><label for="student_code"><strong>{{#str}} studentsource, local_testcase_exchange {{/str}}</strong></label><textarea class="form-control" id="student_code" name="student_code" rows="10" required>{{student_code}}</textarea></div>
+{{/show_code_editor}}
+{{/use_attempt_context}}
 <div class="row"><div class="col-md-6 form-group"><label for="test_input"><strong>{{#str}} testinput, local_testcase_exchange {{/str}}</strong></label><textarea class="form-control" id="test_input" name="test_input" rows="4" required></textarea></div><div class="col-md-6 form-group"><label for="predicted_output"><strong>{{#str}} predictedoutput, local_testcase_exchange {{/str}}</strong></label><textarea class="form-control" id="predicted_output" name="predicted_output" rows="4"></textarea></div></div>
+{{^use_attempt_context}}
 <div class="row"><div class="col-md-4 form-group"><label for="category">{{#str}} category, local_testcase_exchange {{/str}}</label><select class="form-control" id="category" name="category">{{#categories}}<option value="{{value}}">{{label}}</option>{{/categories}}</select></div><div class="col-md-8 form-group"><label for="purpose">{{#str}} purpose, local_testcase_exchange {{/str}}</label><input class="form-control" id="purpose" name="purpose" maxlength="1000"></div></div>
 <div class="form-group"><label for="reflection">{{#str}} reflection, local_testcase_exchange {{/str}}</label><input class="form-control" id="reflection" name="reflection" maxlength="1000"></div><button class="btn btn-primary" type="submit">{{#str}} runprivate, local_testcase_exchange {{/str}}</button>
-</form>{{/has_questions}}</div></div>
+{{/use_attempt_context}}
+{{#use_attempt_context}}<button class="btn btn-primary" type="submit">{{#str}} runprivate, local_testcase_exchange {{/str}}</button>{{/use_attempt_context}}
+</form>{{/show_run_form}}
+{{^show_run_form}}<div class="alert alert-info">{{#str}} submitcodebeforetesting, local_testcase_exchange {{/str}}</div>{{/show_run_form}}
+{{/has_questions}}</div></div>
 {{/can_run}}
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#runs">{{#str}} myruns, local_testcase_exchange {{/str}} ({{run_count}})</a></li><li class="nav-item"><a class="nav-link" data-toggle="tab" href="#contributions">{{#str}} mycontributions, local_testcase_exchange {{/str}} ({{contribution_count}})</a></li><li class="nav-item"><a class="nav-link" data-toggle="tab" href="#rewards">{{#str}} myrewards, local_testcase_exchange {{/str}} ({{reward_count}})</a></li></ul>
 <div class="tab-content border border-top-0 p-3 mb-4"><div class="tab-pane active" id="runs"><div class="table-responsive"><table class="table table-sm table-striped"><thead><tr><th>ID</th><th>Input</th><th>{{#str}} predictedoutput, local_testcase_exchange {{/str}}</th><th>{{#str}} studentoutput, local_testcase_exchange {{/str}}</th><th>{{#str}} oracleoutput, local_testcase_exchange {{/str}}</th><th>{{#str}} status {{/str}}</th><th></th></tr></thead><tbody>{{#runs}}<tr><td>{{id}}</td><td><pre class="mb-0">{{input_raw}}</pre></td><td><pre class="mb-0">{{predicted_output}}</pre></td><td><pre class="mb-0">{{student_run_output}}</pre><small>{{student_outcome}}</small></td><td>{{#show_oracle}}<pre class="mb-0">{{oracle_output}}</pre>{{/show_oracle}}{{^show_oracle}}—{{/show_oracle}}<small>{{oracle_outcome}}</small></td><td>{{display_status}}</td><td>{{#can_contribute}}<form method="post"><input type="hidden" name="sesskey" value="{{sesskey}}"><input type="hidden" name="action" value="contribute"><input type="hidden" name="run_id" value="{{id}}"><button class="btn btn-sm btn-success" type="submit">{{#str}} proposesharing, local_testcase_exchange {{/str}}</button></form>{{/can_contribute}}</td></tr>{{/runs}}</tbody></table></div></div>
