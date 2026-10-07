@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Testcase workflow service.
@@ -23,16 +23,28 @@
  */
 namespace local_testcase_exchange;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Application service for private runs, contributions, review and rewards. */
+/**
+ * Application service for private runs, contributions, review and rewards.
+ */
 final class testcase_service {
+    /** @var \mysqli External repository connection. */
     private \mysqli $connection;
 
+    /**
+     * Create the workflow service.
+     *
+     * @param \mysqli $connection External repository connection.
+     */
     public function __construct(\mysqli $connection) {
         $this->connection = $connection;
     }
 
+    /**
+     * Return settings for a Quiz.
+     *
+     * @param int $quizid Quiz ID.
+     * @return array Quiz settings.
+     */
     public function quiz_settings(int $quizid): array {
         $stmt = $this->connection->prepare('SELECT * FROM quiz_settings WHERE quiz_id = ?');
         $stmt->bind_param('i', $quizid);
@@ -46,6 +58,14 @@ final class testcase_service {
         ];
     }
 
+    /**
+     * Return execution policy for a question.
+     *
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @param string $coderunnertype CodeRunner question type.
+     * @return array Question policy.
+     */
     public function question_policy(int $quizid, int $questionid, string $coderunnertype = ''): array {
         $stmt = $this->connection->prepare('SELECT * FROM question_policies WHERE quiz_id = ? AND question_id = ?');
         $stmt->bind_param('ii', $quizid, $questionid);
@@ -65,6 +85,21 @@ final class testcase_service {
         ];
     }
 
+    /**
+     * Execute and store a private testcase run.
+     *
+     * @param int $courseid Course ID.
+     * @param \stdClass $quiz Quiz record.
+     * @param \stdClass $questioncontext Validated question context.
+     * @param int $userid User ID.
+     * @param string $studentsource Student source.
+     * @param string $input Raw input.
+     * @param string $predicted Predicted output.
+     * @param string $purpose Test purpose.
+     * @param string $category Test category.
+     * @param string $reflection Student reflection.
+     * @return array Created run result.
+     */
     public function create_run(
         int $courseid,
         \stdClass $quiz,
@@ -120,9 +155,23 @@ final class testcase_service {
         $oracleoutcome = $results['oracle']['outcome'];
         $stmt->bind_param(
             'iiiisssssssssssss',
-            $courseid, $quizid, $questionid, $userid, $input, $normalized, $fingerprint,
-            $predicted, $studentoutput, $oracleoutput, $studentoutcome, $oracleoutcome,
-            $purpose, $category, $reflection, $server, $sourcehash
+            $courseid,
+            $quizid,
+            $questionid,
+            $userid,
+            $input,
+            $normalized,
+            $fingerprint,
+            $predicted,
+            $studentoutput,
+            $oracleoutput,
+            $studentoutcome,
+            $oracleoutcome,
+            $purpose,
+            $category,
+            $reflection,
+            $server,
+            $sourcehash
         );
         $stmt->execute();
         $runid = (int) $stmt->insert_id;
@@ -132,6 +181,13 @@ final class testcase_service {
                 trim($predicted) === trim($oracleoutput)];
     }
 
+    /**
+     * Submit an owned private run as a contribution.
+     *
+     * @param int $runid Run ID.
+     * @param int $userid Owner user ID.
+     * @return array Contribution ID and status.
+     */
     public function submit_contribution(int $runid, int $userid): array {
         $run = $this->owned_run($runid, $userid);
         $existingstmt = $this->connection->prepare(
@@ -168,8 +224,17 @@ final class testcase_service {
             );
             $stmt->bind_param(
                 'iiiiissssss',
-                $runpk, $courseid, $quizid, $questionid, $userid,
-                $normalized, $fingerprint, $oracleoutput, $purpose, $category, $status
+                $runpk,
+                $courseid,
+                $quizid,
+                $questionid,
+                $userid,
+                $normalized,
+                $fingerprint,
+                $oracleoutput,
+                $purpose,
+                $category,
+                $status
             );
             $stmt->execute();
             $contributionid = (int) $stmt->insert_id;
@@ -182,7 +247,11 @@ final class testcase_service {
             );
             $claim->bind_param(
                 'iiisi',
-                $courseid, $quizid, $questionid, $fingerprint, $contributionid
+                $courseid,
+                $quizid,
+                $questionid,
+                $fingerprint,
+                $contributionid
             );
             $claim->execute();
             if ($claim->affected_rows === 0) {
@@ -195,7 +264,7 @@ final class testcase_service {
                 $update->execute();
                 $update->close();
                 $this->insert_review($contributionid, 0, 'submitted', 'duplicate', 'Exact fingerprint duplicate');
-            } elseif ($settings['review_mode'] === 'auto') {
+            } else if ($settings['review_mode'] === 'auto') {
                 $status = 'approved';
                 $update = $this->connection->prepare('UPDATE testcase_contributions SET status = ? WHERE id = ?');
                 $update->bind_param('si', $status, $contributionid);
@@ -213,6 +282,15 @@ final class testcase_service {
         }
     }
 
+    /**
+     * Apply a review transition and audit it.
+     *
+     * @param int $contributionid Contribution ID.
+     * @param int $courseid Course ID.
+     * @param int $reviewerid Reviewer user ID.
+     * @param string $newstatus Requested status.
+     * @param string $note Review note.
+     */
     public function review(
         int $contributionid,
         int $courseid,
@@ -260,6 +338,13 @@ final class testcase_service {
         }
     }
 
+    /**
+     * Add an explanation and resubmit a contribution.
+     *
+     * @param int $contributionid Contribution ID.
+     * @param int $userid Owner user ID.
+     * @param string $explanation Explanation text.
+     */
     public function resubmit_explanation(int $contributionid, int $userid, string $explanation): void {
         if (trim($explanation) === '') {
             throw new \moodle_exception('explanationrequired', 'local_testcase_exchange');
@@ -300,6 +385,13 @@ final class testcase_service {
         }
     }
 
+    /**
+     * Save Quiz-level policy settings.
+     *
+     * @param int $quizid Quiz ID.
+     * @param int $userid Editor user ID.
+     * @param array $values Submitted values.
+     */
     public function save_quiz_settings(int $quizid, int $userid, array $values): void {
         $stmt = $this->connection->prepare(
             'INSERT INTO quiz_settings
@@ -322,13 +414,29 @@ final class testcase_service {
         $maxbytes = max(64, min(1048576, (int) $values['max_input_bytes']));
         $stmt->bind_param(
             'iiissiiiii',
-            $quizid, $enabled, $enabled, $reviewmode, $rewardpolicy, $showoracle,
-            $leaderboard, $maxruns, $maxbytes, $userid
+            $quizid,
+            $enabled,
+            $enabled,
+            $reviewmode,
+            $rewardpolicy,
+            $showoracle,
+            $leaderboard,
+            $maxruns,
+            $maxbytes,
+            $userid
         );
         $stmt->execute();
         $stmt->close();
     }
 
+    /**
+     * Save question-level execution policy.
+     *
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @param int $userid Editor user ID.
+     * @param array $values Submitted values.
+     */
     public function save_question_policy(int $quizid, int $questionid, int $userid, array $values): void {
         $mode = in_array($values['input_mode'], ['stdin', 'testcode', 'template'], true) ?
             $values['input_mode'] : 'testcode';
@@ -349,6 +457,13 @@ final class testcase_service {
         $stmt->close();
     }
 
+    /**
+     * Return private runs for a user.
+     *
+     * @param int $courseid Course ID.
+     * @param int $userid User ID.
+     * @return array Private runs.
+     */
     public function runs_for_user(int $courseid, int $userid): array {
         $stmt = $this->connection->prepare(
             'SELECT * FROM testcase_runs WHERE course_id = ? AND user_id = ? ORDER BY id DESC LIMIT 100'
@@ -360,6 +475,13 @@ final class testcase_service {
         return $rows;
     }
 
+    /**
+     * Return contributions for a user.
+     *
+     * @param int $courseid Course ID.
+     * @param int $userid User ID.
+     * @return array Contributions.
+     */
     public function contributions_for_user(int $courseid, int $userid): array {
         $stmt = $this->connection->prepare(
             'SELECT c.*,
@@ -375,6 +497,13 @@ final class testcase_service {
         return $rows;
     }
 
+    /**
+     * Return rewards for a user.
+     *
+     * @param int $courseid Course ID.
+     * @param int $userid User ID.
+     * @return array Rewards.
+     */
     public function rewards_for_user(int $courseid, int $userid): array {
         $stmt = $this->connection->prepare(
             'SELECT r.*, c.input_normalized, c.oracle_output, c.category
@@ -388,6 +517,12 @@ final class testcase_service {
         return $rows;
     }
 
+    /**
+     * Return contributions awaiting review.
+     *
+     * @param int $courseid Course ID.
+     * @return array Pending contributions.
+     */
     public function pending_contributions(int $courseid): array {
         $stmt = $this->connection->prepare(
             "SELECT * FROM testcase_contributions
@@ -401,6 +536,13 @@ final class testcase_service {
         return $rows;
     }
 
+    /**
+     * Load a private run owned by a user.
+     *
+     * @param int $runid Run ID.
+     * @param int $userid Owner user ID.
+     * @return array Owned run.
+     */
     private function owned_run(int $runid, int $userid): array {
         $stmt = $this->connection->prepare('SELECT * FROM testcase_runs WHERE id = ? AND user_id = ?');
         $stmt->bind_param('ii', $runid, $userid);
@@ -413,6 +555,13 @@ final class testcase_service {
         return $row;
     }
 
+    /**
+     * Enforce the per-user Quiz run limit.
+     *
+     * @param int $userid User ID.
+     * @param int $quizid Quiz ID.
+     * @param int $limit Maximum runs per minute.
+     */
     private function enforce_rate_limit(int $userid, int $quizid, int $limit): void {
         $stmt = $this->connection->prepare(
             'SELECT COUNT(*) AS total FROM testcase_runs
@@ -427,6 +576,12 @@ final class testcase_service {
         }
     }
 
+    /**
+     * Find the canonical contribution ID for a run.
+     *
+     * @param array $run Private run.
+     * @return int Canonical contribution ID.
+     */
     private function canonical_id(array $run): int {
         $stmt = $this->connection->prepare(
             'SELECT canonical_contribution_id FROM testcase_canonical_keys
@@ -443,6 +598,11 @@ final class testcase_service {
         return $id;
     }
 
+    /**
+     * Grant an idempotent reward after approval.
+     *
+     * @param int $contributionid Approved contribution ID.
+     */
     private function grant_reward_for_contribution(int $contributionid): void {
         $contribution = $this->connection->query(
             'SELECT * FROM testcase_contributions WHERE id = ' . (int) $contributionid
@@ -468,7 +628,11 @@ final class testcase_service {
         );
         $stmt->bind_param(
             'iiiii',
-            $courseid, $quizid, $questionid, $ownerid, $ownerid
+            $courseid,
+            $quizid,
+            $questionid,
+            $ownerid,
+            $ownerid
         );
         $stmt->execute();
         $candidate = $stmt->get_result()->fetch_assoc();
@@ -484,12 +648,25 @@ final class testcase_service {
         );
         $insert->bind_param(
             'iiiii',
-            $courseid, $quizid, $questionid, $ownerid, $candidateid
+            $courseid,
+            $quizid,
+            $questionid,
+            $ownerid,
+            $candidateid
         );
         $insert->execute();
         $insert->close();
     }
 
+    /**
+     * Insert an immutable review audit row.
+     *
+     * @param int $contributionid Contribution ID.
+     * @param int $reviewerid Reviewer user ID.
+     * @param string $from Previous status.
+     * @param string $to New status.
+     * @param string $note Review note.
+     */
     private function insert_review(
         int $contributionid,
         int $reviewerid,

@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * CodeRunner execution service.
@@ -23,10 +23,20 @@
  */
 namespace local_testcase_exchange;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Runs a synthetic testcase through the actual CodeRunner question template. */
+/**
+ * Runs synthetic testcases through the actual CodeRunner question template.
+ */
 final class execution_service {
+    /**
+     * Run student and reference sources against one synthetic testcase.
+     *
+     * @param int $questionid CodeRunner question ID.
+     * @param string $studentsource Student source code.
+     * @param string $input Test input or expression.
+     * @param array $policy Question policy.
+     * @param \stdClass $quiz Quiz record.
+     * @return array Student and oracle outcomes.
+     */
     public static function run_pair(
         int $questionid,
         string $studentsource,
@@ -53,6 +63,14 @@ final class execution_service {
         return ['student' => $student, 'oracle' => $oracle];
     }
 
+    /**
+     * Build a CodeRunner testcase object from input policy.
+     *
+     * @param \qtype_coderunner_question $question Question object.
+     * @param string $input Test input.
+     * @param array $policy Question policy.
+     * @return \stdClass
+     */
     private static function make_testcase($question, string $input, array $policy): \stdClass {
         $testcase = new \stdClass();
         $testcase->id = 0;
@@ -71,7 +89,7 @@ final class execution_service {
             $prototype = !empty($question->testcases) ? reset($question->testcases) : null;
             $testcase->testcode = $prototype ? (string) $prototype->testcode : '';
             $testcase->stdin = $input;
-        } elseif ($mode === 'template') {
+        } else if ($mode === 'template') {
             $template = (string) ($policy['testcode_template'] ?? '');
             if ($template === '' || strpos($template, '{{INPUT}}') === false) {
                 throw new \moodle_exception('invalidtestcodetemplate', 'local_testcase_exchange');
@@ -83,6 +101,16 @@ final class execution_service {
         return $testcase;
     }
 
+    /**
+     * Grade one source string through CodeRunner.
+     *
+     * @param \qtype_coderunner_question $question Question object.
+     * @param \stdClass $testcase Synthetic testcase.
+     * @param string $source Program source.
+     * @param \stdClass $quiz Quiz record.
+     * @param \stdClass $user User record.
+     * @return array Normalised execution outcome.
+     */
     private static function run_source($question, \stdClass $testcase, string $source, \stdClass $quiz, \stdClass $user): array {
         try {
             $runquestion = clone $question;

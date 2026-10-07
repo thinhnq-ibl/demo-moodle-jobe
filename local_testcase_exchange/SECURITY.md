@@ -6,9 +6,11 @@ Security fixes are applied to the latest published beta or stable release.
 
 ## Reporting a vulnerability
 
-Do not disclose suspected vulnerabilities in a public issue. Contact the maintainer through the private security-reporting channel of the public source repository before Marketplace publication. The repository owner must configure that channel and replace this paragraph with its permanent URL or email before release.
+Do not disclose suspected vulnerabilities in a public issue. Email the maintainer privately at [nqt900@gmail.com](mailto:nqt900@gmail.com). Use a subject beginning with `[SECURITY] local_testcase_exchange`.
 
 Include the affected version, reproduction steps, impact and any suggested remediation. Avoid attaching production credentials, student source code or personal data.
+
+General bugs and feature requests belong in the [public issue tracker](https://github.com/thinhnq-ibl/demo-moodle-jobe/issues), not in the security mailbox.
 
 ## Deployment expectations
 

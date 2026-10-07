@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * External database connection factory.
@@ -23,11 +23,15 @@
  */
 namespace local_testcase_exchange;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** External testcase_store connection factory. */
+/**
+ * Creates external testcase repository connections.
+ */
 final class external_database {
-    /** @return \mysqli */
+    /**
+     * Open a UTF-8 MariaDB connection using plugin settings.
+     *
+     * @return \mysqli
+     */
     public static function connect(): \mysqli {
         $port = (int) get_config('local_testcase_exchange', 'db_port');
         $password = get_config('local_testcase_exchange', 'db_pass');

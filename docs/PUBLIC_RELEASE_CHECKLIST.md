@@ -15,8 +15,9 @@
 
 ## Required before uploading to Moodle Marketplace
 
-- [ ] Replace the placeholder vulnerability-reporting text in `SECURITY.md` with a permanent private contact.
-- [ ] Publish the source repository and public issue tracker; add both URLs to the Marketplace listing.
+- [x] Security contact configured as `nqt900@gmail.com`.
+- [x] Public source repository configured as `https://github.com/thinhnq-ibl/demo-moodle-jobe`.
+- [x] Public issue tracker configured as `https://github.com/thinhnq-ibl/demo-moodle-jobe/issues`.
 - [ ] Confirm maintainer name/copyright information in every PHP file.
 - [ ] Run Moodle Plugin CI/CodeChecker with PHP versions supported by each advertised Moodle release.
 - [ ] Run PHPUnit and Privacy API tests on a clean Moodle installation.
@@ -29,8 +30,12 @@
 - [ ] Restore the pre-migration backup into a disposable database and rehearse rollback.
 - [ ] Decide and document production retention periods for private runs, reviews and Jobe logs.
 - [ ] Use production secrets and TLS endpoints; do not publish the development `.env` values.
-- [ ] Create screenshots, concise/full English Marketplace descriptions and supported-version matrix.
-- [ ] Obtain consent for shipping the Vietnamese language pack or move it to AMOS after approval.
+- [x] Draft concise/full English Marketplace descriptions and supported-version matrix in `docs/MARKETPLACE_LISTING.md`.
+- [ ] Capture Marketplace screenshots from the final pilot UI.
+- [x] Release owner decided to keep the Vietnamese language pack in the ZIP.
+- [ ] Reconcile the repository-level MIT license with the plugin's GPL v3 declaration, or clearly scope the licenses by directory.
+- [ ] Remove or rewrite public root documentation that exposes demo credentials and describes the retired DB-writing Jobe architecture.
+- [ ] Decide whether to retain the full-stack repository name or create the Marketplace-recommended `moodle-local_testcase_exchange` repository before the first stable release.
 
 ## Latest automated audit — 2026-10-07
 
@@ -41,7 +46,8 @@
 - Normalizer smoke test: 3/3 pass.
 - Docker Compose validation and shell syntax: pass.
 - ZIP packaging: pass; `local_testcase_exchange-2.1.0-beta1.zip` contains only the plugin tree.
-- Moodle CodeSniffer: **not yet passing** — 641 errors and 272 warnings. The largest sources are mixed PHP/HTML pages (`index.php`, `policy.php`, `review.php`) and missing method PHPDoc. Refactor these pages to Moodle forms/renderers/Mustache, then require a clean CI run before Marketplace upload.
+- Moodle CodeSniffer: pass with **0 errors and 0 warnings** after moving the dashboard, policy and review markup to Mustache and documenting service methods.
+- Mustache smoke render: pass for `dashboard`, `policy` and `review` templates in Moodle 4.4.
 - PHPUnit runner: not installed in the current Docker image; the added test must be executed by Moodle Plugin CI.
 
 ## Commands

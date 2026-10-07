@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * External database schema manager.
@@ -23,12 +23,18 @@
  */
 namespace local_testcase_exchange;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Creates and migrates the external testcase_store schema. */
+/**
+ * Creates and migrates the external testcase repository schema.
+ */
 final class schema_manager {
+    /** Current external schema version. */
     private const VERSION = '2026100701';
 
+    /**
+     * Apply idempotent external schema and legacy-data migrations.
+     *
+     * @param \mysqli $connection External connection.
+     */
     public static function migrate(\mysqli $connection): void {
         global $DB;
 
@@ -164,6 +170,12 @@ final class schema_manager {
         }
     }
 
+    /**
+     * Migrate legacy testcase rows.
+     *
+     * @param \mysqli $connection External connection.
+     * @param \moodle_database $moodledb Moodle database.
+     */
     private static function migrate_legacy_data(\mysqli $connection, $moodledb): void {
         if (!self::table_exists($connection, 'student_testcases')) {
             return;
@@ -205,8 +217,20 @@ final class schema_manager {
                 $created = (string) $row['created_at'];
                 $stmt->bind_param(
                     'iiiiisssssssss',
-                    $legacyid, $courseid, $quizid, $questionid, $userid, $input, $normalized,
-                    $fingerprint, $output, $output, $outcome, $outcome, $server, $created
+                    $legacyid,
+                    $courseid,
+                    $quizid,
+                    $questionid,
+                    $userid,
+                    $input,
+                    $normalized,
+                    $fingerprint,
+                    $output,
+                    $output,
+                    $outcome,
+                    $outcome,
+                    $server,
+                    $created
                 );
                 $stmt->execute();
                 $stmt->close();
@@ -226,8 +250,17 @@ final class schema_manager {
                 );
                 $stmt->bind_param(
                     'iiiiiisssss',
-                    $legacyid, $runid, $courseid, $quizid, $questionid, $userid, $normalized,
-                    $fingerprint, $output, $status, $created
+                    $legacyid,
+                    $runid,
+                    $courseid,
+                    $quizid,
+                    $questionid,
+                    $userid,
+                    $normalized,
+                    $fingerprint,
+                    $output,
+                    $status,
+                    $created
                 );
                 $stmt->execute();
                 $stmt->close();
@@ -267,6 +300,12 @@ final class schema_manager {
         self::migrate_legacy_rewards($connection, $moodledb);
     }
 
+    /**
+     * Migrate legacy reward rows.
+     *
+     * @param \mysqli $connection External connection.
+     * @param \moodle_database $moodledb Moodle database.
+     */
     private static function migrate_legacy_rewards(\mysqli $connection, $moodledb): void {
         if (!self::table_exists($connection, 'testcase_exchanges')) {
             return;
@@ -299,6 +338,16 @@ final class schema_manager {
         }
     }
 
+    /**
+     * Find the canonical contribution for a fingerprint.
+     *
+     * @param \mysqli $connection External connection.
+     * @param int $courseid Course ID.
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @param string $fingerprint Input fingerprint.
+     * @return int Contribution ID.
+     */
     private static function canonical_id(
         \mysqli $connection,
         int $courseid,
@@ -317,11 +366,25 @@ final class schema_manager {
         return $id;
     }
 
+    /**
+     * Check whether a legacy table exists.
+     *
+     * @param \mysqli $connection External connection.
+     * @param string $table Table name controlled by this class.
+     * @return bool
+     */
     private static function table_exists(\mysqli $connection, string $table): bool {
         $escaped = $connection->real_escape_string($table);
         return $connection->query("SHOW TABLES LIKE '{$escaped}'")->num_rows > 0;
     }
 
+    /**
+     * Return metadata for columns in a controlled legacy table.
+     *
+     * @param \mysqli $connection External connection.
+     * @param string $table Table name controlled by this class.
+     * @return array Column metadata keyed by name.
+     */
     private static function columns(\mysqli $connection, string $table): array {
         $columns = [];
         $result = $connection->query("SHOW COLUMNS FROM `{$table}`");

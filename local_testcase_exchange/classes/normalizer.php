@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Input normalization utilities.
@@ -23,10 +23,17 @@
  */
 namespace local_testcase_exchange;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Input normalisation and fingerprinting. */
+/**
+ * Input normalisation and fingerprinting.
+ */
 final class normalizer {
+    /**
+     * Normalize input according to the question policy.
+     *
+     * @param string $input Raw input.
+     * @param string $mode Normalization mode.
+     * @return string Normalized input.
+     */
     public static function normalize(string $input, string $mode): string {
         $input = str_replace(["\r\n", "\r"], "\n", $input);
         if ($mode === 'trim') {
@@ -41,10 +48,21 @@ final class normalizer {
         return $input;
     }
 
+    /**
+     * Create a stable SHA-256 fingerprint.
+     *
+     * @param string $normalized Normalized input.
+     * @return string Hexadecimal fingerprint.
+     */
     public static function fingerprint(string $normalized): string {
         return hash('sha256', $normalized);
     }
 
+    /**
+     * Sort associative JSON structures recursively.
+     *
+     * @param mixed $value Value to sort in place.
+     */
     private static function sort_recursive(&$value): void {
         if (!is_array($value)) {
             return;

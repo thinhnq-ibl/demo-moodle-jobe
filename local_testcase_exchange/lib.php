@@ -1,8 +1,18 @@
 <?php
 // This file is part of Moodle - http://moodle.org/
 //
-// Moodle is free software: you can redistribute it and/or modify it under the terms of the GNU GPL v3 or later.
-// Moodle is distributed without any warranty. See <http://www.gnu.org/licenses/>.
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Plugin callbacks and configuration helpers.
@@ -11,8 +21,6 @@
  * @copyright 2026 Nguyen Quoc Thinh
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Return the external testcase database configuration.
  *
@@ -62,7 +70,7 @@ function local_testcase_exchange_get_jobe_servers(): array {
         $baseurl = rtrim($server, '/');
         if (preg_match('~/jobe/index\.php/restapi/runs$~i', $baseurl)) {
             $runsurl = $baseurl;
-        } elseif (preg_match('~/jobe/index\.php/restapi$~i', $baseurl)) {
+        } else if (preg_match('~/jobe/index\.php/restapi$~i', $baseurl)) {
             $runsurl = $baseurl . '/runs';
         } else {
             $runsurl = $baseurl . '/jobe/index.php/restapi/runs';
@@ -78,22 +86,19 @@ function local_testcase_exchange_get_jobe_servers(): array {
 }
 
 /**
- * Hook tự động chèn mục điều hướng vào thanh menu khóa học.
- * Chạy tự động trong toàn bộ hệ thống khi plugin được cài đặt.
+ * Add the testcase exchange link to course navigation.
  *
- * @param navigation_node $parentnode Node cha (Course navigation).
- * @param stdClass $course Đối tượng khóa học hiện tại.
- * @param context_course $context Ngữ cảnh khóa học.
+ * @param navigation_node $parentnode Course navigation node.
+ * @param stdClass $course Current course.
+ * @param context_course $context Course context.
  */
 function local_testcase_exchange_extend_navigation_course(navigation_node $parentnode, stdClass $course, context_course $context) {
-    global $USER;
-
-    // Chỉ hiển thị cho người dùng đã đăng nhập hợp lệ (bỏ qua tài khoản Guest)
+    // Hide the link from guests and logged-out users.
     if (!isloggedin() || isguestuser()) {
         return;
     }
 
-    // Kiểm tra quyền xem nội dung plugin
+    // Respect the course-level view capability.
     if (!has_capability('local/testcase_exchange:view', $context)) {
         return;
     }

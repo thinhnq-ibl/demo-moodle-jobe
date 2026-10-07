@@ -60,3 +60,8 @@ Xem [privacy notice](PRIVACY.md), [security policy](SECURITY.md), [changelog](CH
 ```bash
 ./scripts/package-plugin.sh
 ```
+
+- Source repository: <https://github.com/thinhnq-ibl/demo-moodle-jobe>
+- Issue tracker: <https://github.com/thinhnq-ibl/demo-moodle-jobe/issues>
+- Security reports: [nqt900@gmail.com](mailto:nqt900@gmail.com)
+- The Vietnamese language pack in `lang/vi` is intentionally included in the release archive.

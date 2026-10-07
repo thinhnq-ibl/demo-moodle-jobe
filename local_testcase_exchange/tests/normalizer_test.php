@@ -5,6 +5,14 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Tests for testcase input normalization.
@@ -22,18 +30,23 @@ namespace local_testcase_exchange;
  * @covers \local_testcase_exchange\normalizer
  */
 final class normalizer_test extends \advanced_testcase {
-
-    /** Test raw mode only normalizes line endings. */
+    /**
+     * Test raw mode only normalizes line endings.
+     */
     public function test_raw_normalization(): void {
         $this->assertSame(" a\nb ", normalizer::normalize(" a\r\nb ", 'raw'));
     }
 
-    /** Test trim mode removes outer whitespace and trailing whitespace per line. */
+    /**
+     * Test trim mode removes outer whitespace and trailing whitespace per line.
+     */
     public function test_trim_normalization(): void {
         $this->assertSame("a\n b", normalizer::normalize("  a  \r\n b \n", 'trim'));
     }
 
-    /** Test equivalent JSON objects produce the same canonical representation. */
+    /**
+     * Test equivalent JSON objects produce the same canonical representation.
+     */
     public function test_json_normalization_is_stable(): void {
         $first = normalizer::normalize('{"b":2,"a":{"d":4,"c":3}}', 'json');
         $second = normalizer::normalize('{"a":{"c":3,"d":4},"b":2}', 'json');
@@ -41,7 +54,9 @@ final class normalizer_test extends \advanced_testcase {
         $this->assertSame(normalizer::fingerprint($first), normalizer::fingerprint($second));
     }
 
-    /** Test invalid JSON is rejected. */
+    /**
+     * Test invalid JSON is rejected.
+     */
     public function test_invalid_json_throws_exception(): void {
         $this->expectException(\JsonException::class);
         normalizer::normalize('{invalid', 'json');

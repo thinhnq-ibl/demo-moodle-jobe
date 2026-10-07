@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Moodle course and question context service.
@@ -23,10 +23,16 @@
  */
 namespace local_testcase_exchange;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Resolves and validates Moodle course/quiz/CodeRunner question context. */
+/**
+ * Resolves and validates Moodle course, Quiz and CodeRunner question context.
+ */
 final class context_service {
+    /**
+     * Return current CodeRunner question versions used by Quizzes in a course.
+     *
+     * @param int $courseid Course ID.
+     * @return array Question context records.
+     */
     public static function questions_for_course(int $courseid): array {
         global $DB;
         $sql = "
@@ -52,6 +58,14 @@ final class context_service {
         return array_values($DB->get_records_sql($sql, [$courseid]));
     }
 
+    /**
+     * Validate that a question belongs to a Quiz in a course.
+     *
+     * @param int $courseid Course ID.
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @return \stdClass Validated question context.
+     */
     public static function validate(int $courseid, int $quizid, int $questionid): \stdClass {
         foreach (self::questions_for_course($courseid) as $record) {
             if ((int) $record->quizid === $quizid && (int) $record->questionid === $questionid) {
