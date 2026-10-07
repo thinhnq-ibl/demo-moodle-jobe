@@ -116,3 +116,121 @@ function local_testcase_exchange_extend_navigation_course(navigation_node $paren
     $node->showinflatnavigation = true;
     $parentnode->add_node($node);
 }
+
+/**
+ * Add contextual testcase links to Quiz navigation.
+ *
+ * @param settings_navigation $navigation Settings navigation.
+ * @param context $context Current page context.
+ */
+function local_testcase_exchange_extend_settings_navigation(settings_navigation $navigation, context $context): void {
+    if ($context->contextlevel !== CONTEXT_MODULE || !isloggedin() || isguestuser()) {
+        return;
+    }
+
+    $cm = get_coursemodule_from_id('', $context->instanceid, 0, false, IGNORE_MISSING);
+    if (!$cm || $cm->modname !== 'quiz') {
+        return;
+    }
+    $context = context_course::instance($cm->course);
+    if (!has_capability('local/testcase_exchange:view', $context)) {
+        return;
+    }
+
+    $url = new moodle_url('/local/testcase_exchange/index.php', ['course' => $cm->course]);
+    $label = get_string('nav_testcase_bank', 'local_testcase_exchange');
+    if (has_capability('local/testcase_exchange:manage', $context)) {
+        $questions = \local_testcase_exchange\context_service::questions_for_course($cm->course);
+        foreach ($questions as $question) {
+            if ((int) $question->quizid === (int) $cm->instance) {
+                $url = new moodle_url('/local/testcase_exchange/policy.php', [
+                    'course' => $cm->course,
+                    'question' => $question->quizid . ':' . $question->questionid,
+                ]);
+                break;
+            }
+        }
+        $label = get_string('configuretestcasecontributions', 'local_testcase_exchange');
+    }
+
+    $navigation->add(
+        $label,
+        $url,
+        navigation_node::TYPE_SETTING,
+        null,
+        'testcase_exchange_quiz',
+        new pix_icon('i/report', '')
+    );
+}
+
+/**
+ * Add the testcase contribution toggle to Quiz settings.
+ *
+ * @param moodleform_mod $formwrapper Module form wrapper.
+ * @param MoodleQuickForm $mform Module form.
+ */
+function local_testcase_exchange_coursemodule_standard_elements($formwrapper, MoodleQuickForm $mform): void {
+    $current = $formwrapper->get_current();
+    if (($current->modulename ?? '') !== 'quiz') {
+        return;
+    }
+
+    $mform->addElement('header', 'testcaseexchangeheader', get_string('testcaseexchangeheading', 'local_testcase_exchange'));
+    $mform->addElement(
+        'advcheckbox',
+        'testcaseexchangeenabled',
+        get_string('enabletestcasecontributions', 'local_testcase_exchange')
+    );
+    $mform->addHelpButton('testcaseexchangeenabled', 'enabletestcasecontributions', 'local_testcase_exchange');
+
+    $enabled = false;
+    $quizid = (int) $formwrapper->get_instance();
+    if ($quizid > 0) {
+        try {
+            $connection = \local_testcase_exchange\external_database::connect();
+            $service = new \local_testcase_exchange\testcase_service($connection);
+            $settings = $service->quiz_settings($quizid);
+            $enabled = !empty($settings['enabled']);
+            $connection->close();
+        } catch (Throwable $e) {
+            debugging($e->getMessage(), DEBUG_DEVELOPER);
+        }
+    }
+    $mform->setDefault('testcaseexchangeenabled', $enabled ? 1 : 0);
+}
+
+/**
+ * Save the testcase contribution toggle after a Quiz is created or updated.
+ *
+ * @param stdClass $data Submitted module data.
+ * @param stdClass $course Course record.
+ * @return stdClass Unmodified module data.
+ */
+function local_testcase_exchange_coursemodule_edit_post_actions($data, $course) {
+    global $USER;
+
+    if (($data->modulename ?? '') !== 'quiz' || empty($data->instance)) {
+        return $data;
+    }
+
+    try {
+        $connection = \local_testcase_exchange\external_database::connect();
+        \local_testcase_exchange\schema_manager::migrate($connection);
+        $service = new \local_testcase_exchange\testcase_service($connection);
+        $settings = $service->quiz_settings((int) $data->instance);
+        $service->save_quiz_settings((int) $data->instance, (int) $USER->id, [
+            'enabled' => !empty($data->testcaseexchangeenabled),
+            'review_mode' => $settings['review_mode'] ?? 'teacher',
+            'reward_policy' => $settings['reward_policy'] ?? 'disabled',
+            'show_oracle_output' => $settings['show_oracle_output'] ?? false,
+            'leaderboard_enabled' => $settings['leaderboard_enabled'] ?? false,
+            'max_runs_per_minute' => $settings['max_runs_per_minute'] ?? 10,
+            'max_input_bytes' => $settings['max_input_bytes'] ?? 8192,
+        ]);
+        $connection->close();
+    } catch (Throwable $e) {
+        debugging($e->getMessage(), DEBUG_DEVELOPER);
+    }
+
+    return $data;
+}
