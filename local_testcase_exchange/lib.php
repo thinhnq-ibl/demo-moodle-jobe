@@ -234,3 +234,120 @@ function local_testcase_exchange_coursemodule_edit_post_actions($data, $course) 
 
     return $data;
 }
+
+/**
+ * Show contribution links after a student has completed an enabled Quiz.
+ *
+ * @return string HTML displayed before the page footer.
+ */
+function local_testcase_exchange_before_footer(): string {
+    global $DB, $PAGE, $USER;
+
+    if (!isloggedin() || isguestuser()) {
+        return '';
+    }
+    try {
+        $cm = $PAGE->cm;
+    } catch (Throwable $e) {
+        return '';
+    }
+    if (!$cm || $cm->modname !== 'quiz') {
+        return '';
+    }
+    if (!in_array($PAGE->pagetype, [
+        'mod-quiz-attempt',
+        'mod-quiz-summary',
+        'mod-quiz-view',
+        'mod-quiz-review',
+    ], true)) {
+        return '';
+    }
+
+    $coursecontext = context_course::instance($cm->course);
+    if (!has_capability('local/testcase_exchange:contribute', $coursecontext)) {
+        return '';
+    }
+
+    $requestedattemptid = optional_param('attempt', 0, PARAM_INT);
+    $attempt = $DB->get_record_sql(
+        "SELECT *
+           FROM {quiz_attempts}
+          WHERE quiz = :quizid
+                AND userid = :userid
+                AND state <> :abandoned
+                AND (:attemptid = 0 OR id = :attemptid2)
+       ORDER BY attempt DESC",
+        [
+            'quizid' => $cm->instance,
+            'userid' => $USER->id,
+            'abandoned' => 'abandoned',
+            'attemptid' => $requestedattemptid,
+            'attemptid2' => $requestedattemptid,
+        ],
+        IGNORE_MULTIPLE
+    );
+    if (!$attempt) {
+        return '';
+    }
+
+    try {
+        $connection = \local_testcase_exchange\external_database::connect();
+        $service = new \local_testcase_exchange\testcase_service($connection);
+        $settings = $service->quiz_settings((int) $cm->instance);
+        $connection->close();
+        if (empty($settings['enabled'])) {
+            return '';
+        }
+    } catch (Throwable $e) {
+        debugging($e->getMessage(), DEBUG_DEVELOPER);
+        return '';
+    }
+
+    $links = [];
+    $questions = \local_testcase_exchange\context_service::questions_for_course($cm->course);
+    foreach ($questions as $question) {
+        if ((int) $question->quizid !== (int) $cm->instance) {
+            continue;
+        }
+        $hasanswer = $DB->record_exists_sql(
+            "SELECT 1
+               FROM {question_attempts} qa
+               JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
+               JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id
+              WHERE qa.questionusageid = :usageid
+                    AND qa.questionid = :questionid
+                    AND qasd.name = :answername
+                    AND qasd.value <> :emptyanswer",
+            [
+                'usageid' => $attempt->uniqueid,
+                'questionid' => $question->questionid,
+                'answername' => 'answer',
+                'emptyanswer' => '',
+            ]
+        );
+        if (!$hasanswer) {
+            continue;
+        }
+        $url = new moodle_url('/local/testcase_exchange/index.php', [
+            'course' => $cm->course,
+            'question' => $question->quizid . ':' . $question->questionid,
+            'attempt' => $attempt->id,
+        ]);
+        $links[] = html_writer::link(
+            $url,
+            get_string('contributetestcaseafterquiz', 'local_testcase_exchange') . ': ' . $question->questionname,
+            ['class' => 'btn btn-primary mr-2 mb-2']
+        );
+    }
+    if (!$links) {
+        return '';
+    }
+
+    $content = html_writer::tag(
+        'p',
+        get_string('contributetestcaseafterquizintro', 'local_testcase_exchange'),
+        ['class' => 'mb-2']
+    );
+    $content .= implode('', $links);
+    return html_writer::div($content, 'card card-body mt-4 mb-4');
+}

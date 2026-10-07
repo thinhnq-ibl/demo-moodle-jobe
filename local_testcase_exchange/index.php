@@ -35,7 +35,16 @@ $course = get_course($courseid);
 $context = context_course::instance($courseid);
 require_capability('local/testcase_exchange:view', $context);
 
-$PAGE->set_url(new moodle_url('/local/testcase_exchange/index.php', ['course' => $courseid]));
+$requestedselection = optional_param('question', '', PARAM_RAW_TRIMMED);
+$attemptid = optional_param('attempt', 0, PARAM_INT);
+$pageparams = ['course' => $courseid];
+if ($requestedselection !== '') {
+    $pageparams['question'] = $requestedselection;
+}
+if ($attemptid > 0) {
+    $pageparams['attempt'] = $attemptid;
+}
+$PAGE->set_url(new moodle_url('/local/testcase_exchange/index.php', $pageparams));
 $PAGE->set_context($context);
 $PAGE->set_title(get_string('nav_testcase_bank', 'local_testcase_exchange'));
 $PAGE->set_heading($course->fullname . ' — ' . get_string('nav_testcase_bank', 'local_testcase_exchange'));
@@ -44,6 +53,39 @@ $questions = context_service::questions_for_course($courseid);
 $questionmap = [];
 foreach ($questions as $question) {
     $questionmap[$question->quizid . ':' . $question->questionid] = $question;
+}
+
+$studentcode = '';
+$selectedquestion = $questionmap[$requestedselection] ?? null;
+if ($attemptid > 0 && $selectedquestion) {
+    $attempt = $DB->get_record_select(
+        'quiz_attempts',
+        'id = :id AND quiz = :quiz AND userid = :userid AND state <> :abandoned',
+        [
+            'id' => $attemptid,
+            'quiz' => $selectedquestion->quizid,
+            'userid' => $USER->id,
+            'abandoned' => 'abandoned',
+        ]
+    );
+    if ($attempt) {
+        $studentcode = (string) $DB->get_field_sql(
+            "SELECT qasd.value
+               FROM {question_attempts} qa
+               JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
+               JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id
+              WHERE qa.questionusageid = :usageid
+                    AND qa.questionid = :questionid
+                    AND qasd.name = :answername
+           ORDER BY qas.sequencenumber DESC",
+            [
+                'usageid' => $attempt->uniqueid,
+                'questionid' => $selectedquestion->questionid,
+                'answername' => 'answer',
+            ],
+            IGNORE_MULTIPLE
+        );
+    }
 }
 
 $connection = null;
@@ -145,6 +187,7 @@ foreach ($questions as $question) {
         'label' => $question->quizname . ' — ' . $question->questionname .
             ($disabled ? ' (' . get_string('disabled', 'core') . ')' : ''),
         'disabled' => $disabled,
+        'selected' => $requestedselection === $question->quizid . ':' . $question->questionid,
     ];
 }
 foreach ($runs as &$run) {
@@ -177,6 +220,8 @@ $templatedata = [
     'questions' => $viewquestions,
     'has_questions' => !empty($viewquestions),
     'categories' => $viewcategories,
+    'student_code' => $studentcode,
+    'has_prefilled_code' => $studentcode !== '',
     'runs' => $runs,
     'run_count' => count($runs),
     'contributions' => $contributions,
