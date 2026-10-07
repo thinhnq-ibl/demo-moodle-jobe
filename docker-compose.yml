@@ -15,7 +15,7 @@ services:
     ports:
       - "3306:3306"
     networks:
-      - moodle_net
+      - db_net
 
   jobe1:
     build:
@@ -27,7 +27,7 @@ services:
     ports:
       - "4001:80"
     networks:
-      - moodle_net
+      - jobe_net
 
   jobe2:
     build:
@@ -39,7 +39,7 @@ services:
     ports:
       - "4002:80"
     networks:
-      - moodle_net
+      - jobe_net
 
   moodle:
     build:
@@ -76,12 +76,15 @@ services:
       - jobe1
       - jobe2
     networks:
-      - moodle_net
+      - db_net
+      - jobe_net
 
 volumes:
   mariadb_data:
   moodledata:
 
 networks:
-  moodle_net:
+  db_net:
+    driver: bridge
+  jobe_net:
     driver: bridge

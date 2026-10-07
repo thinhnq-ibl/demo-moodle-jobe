@@ -38,7 +38,7 @@ if ($hassiteconfig) {
         'local_testcase_exchange/db_pass',
         get_string('settings_db_pass', 'local_testcase_exchange'),
         get_string('settings_db_pass_desc', 'local_testcase_exchange'),
-        'JobeSecret123!'
+        ''
     ));
 
     $settings->add(new admin_setting_configtext(
@@ -71,4 +71,9 @@ if ($hassiteconfig) {
     ));
 
     $ADMIN->add('localplugins', $settings);
+    $ADMIN->add('localplugins', new admin_externalpage(
+        'local_testcase_exchange_health',
+        get_string('healthcheck', 'local_testcase_exchange'),
+        new moodle_url('/local/testcase_exchange/health.php')
+    ));
 }

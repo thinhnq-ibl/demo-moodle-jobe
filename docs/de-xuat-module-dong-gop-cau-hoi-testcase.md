@@ -560,6 +560,8 @@ MVP có thể được xem là đạt khi:
 
 ## 18. Đề xuất bước tiếp theo
 
+Kế hoạch thực thi, mô hình dữ liệu, work package và tiêu chí nghiệm thu chi tiết được quản lý tại [Kế hoạch triển khai tính năng đóng góp testcase](./ke-hoach-trien-khai-dong-gop-testcase.md).
+
 1. Chốt phạm vi của giai đoạn 1: chỉ bài lập trình hay gồm cả video.
 2. Thiết kế wireframe cho nhật ký testcase cá nhân và form đặt câu hỏi.
 3. Chuẩn hóa mô hình dữ liệu hiện có của `testcase_store`.
