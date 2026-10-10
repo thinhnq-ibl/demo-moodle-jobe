@@ -124,7 +124,41 @@ function local_testcase_exchange_extend_navigation_course(navigation_node $paren
  * @param context $context Current page context.
  */
 function local_testcase_exchange_extend_settings_navigation(settings_navigation $navigation, context $context): void {
-    if ($context->contextlevel !== CONTEXT_MODULE || !isloggedin() || isguestuser()) {
+    if (!isloggedin() || isguestuser()) {
+        return;
+    }
+
+    if ($context->contextlevel === CONTEXT_COURSE) {
+        if (!has_capability('local/testcase_exchange:view', $context)) {
+            return;
+        }
+        $courseadmin = $navigation->get('courseadmin');
+        if ($courseadmin) {
+            $bankurl = new moodle_url('/local/testcase_exchange/index.php', ['course' => $context->instanceid]);
+            $courseadmin->add(
+                get_string('nav_testcase_bank', 'local_testcase_exchange'),
+                $bankurl,
+                navigation_node::TYPE_SETTING,
+                null,
+                'testcase_exchange_course_bank',
+                new pix_icon('i/report', '')
+            );
+            if (has_capability('local/testcase_exchange:review', $context)) {
+                $reviewurl = new moodle_url('/local/testcase_exchange/review.php', ['course' => $context->instanceid]);
+                $courseadmin->add(
+                    get_string('reviewcontributions', 'local_testcase_exchange'),
+                    $reviewurl,
+                    navigation_node::TYPE_SETTING,
+                    null,
+                    'testcase_exchange_course_review',
+                    new pix_icon('i/marked', '')
+                );
+            }
+        }
+        return;
+    }
+
+    if ($context->contextlevel !== CONTEXT_MODULE) {
         return;
     }
 

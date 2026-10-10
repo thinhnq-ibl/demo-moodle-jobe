@@ -24,10 +24,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_testcase_exchange';
-$plugin->version   = 2026100704;
+$plugin->version   = 2026101001;
 $plugin->requires  = 2023100900; // Moodle 4.3+.
 $plugin->maturity  = MATURITY_BETA;
-$plugin->release   = '2.1.0-beta1';
+$plugin->release   = '2.2.0';
 $plugin->dependencies = [
     'qtype_coderunner' => 2023050100,
 ];

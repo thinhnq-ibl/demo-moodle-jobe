@@ -29,7 +29,10 @@ use local_testcase_exchange\testcase_service;
 require_once(__DIR__ . '/../../config.php');
 
 require_login();
-$courseid = required_param('course', PARAM_INT);
+$courseid = optional_param('course', 0, PARAM_INT);
+if ($courseid === 0) {
+    redirect(new moodle_url('/local/testcase_exchange/index.php'));
+}
 $course = get_course($courseid);
 $context = context_course::instance($courseid);
 require_capability('local/testcase_exchange:manage', $context);

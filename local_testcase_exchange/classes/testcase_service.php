@@ -834,4 +834,40 @@ final class testcase_service {
         $audit->execute();
         $audit->close();
     }
+
+    /**
+     * Return summary statistics for all courses in testcase_contributions.
+     *
+     * @return array<int, array{course_id:int, total_count:int, pending_count:int, approved_count:int, rejected_count:int, duplicate_count:int, student_count:int}>
+     */
+    public function courses_summary(): array {
+        $result = $this->connection->query(
+            "SELECT course_id,
+                    COUNT(*) AS total_count,
+                    SUM(CASE WHEN status IN ('submitted', 'needs_explanation') THEN 1 ELSE 0 END) AS pending_count,
+                    SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) AS approved_count,
+                    SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) AS rejected_count,
+                    SUM(CASE WHEN status = 'duplicate' THEN 1 ELSE 0 END) AS duplicate_count,
+                    COUNT(DISTINCT user_id) AS student_count
+               FROM testcase_contributions
+              GROUP BY course_id"
+        );
+        if (!$result) {
+            return [];
+        }
+        $summary = [];
+        while ($row = $result->fetch_assoc()) {
+            $summary[(int) $row['course_id']] = [
+                'course_id' => (int) $row['course_id'],
+                'total_count' => (int) $row['total_count'],
+                'pending_count' => (int) $row['pending_count'],
+                'approved_count' => (int) $row['approved_count'],
+                'rejected_count' => (int) $row['rejected_count'],
+                'duplicate_count' => (int) $row['duplicate_count'],
+                'student_count' => (int) $row['student_count'],
+            ];
+        }
+        return $summary;
+    }
 }
+

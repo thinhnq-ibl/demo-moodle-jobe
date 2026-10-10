@@ -71,6 +71,8 @@ services:
     volumes:
       - moodledata:/var/www/moodledata
       - ./local_testcase_exchange:/var/www/html/local/testcase_exchange
+      - ./quizaccess_testcaseexchange:/var/www/html/mod/quiz/accessrule/testcaseexchange
+      - ./testcase_dashboard.php:/var/www/html/testcase_dashboard.php
     depends_on:
       - mariadb
       - jobe1

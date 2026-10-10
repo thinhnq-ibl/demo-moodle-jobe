@@ -94,6 +94,16 @@ if ($hassiteconfig) {
 
     $ADMIN->add('localplugins', $settings);
     $ADMIN->add('localplugins', new admin_externalpage(
+        'local_testcase_exchange_dashboard',
+        get_string('nav_testcase_bank', 'local_testcase_exchange'),
+        new moodle_url('/local/testcase_exchange/index.php')
+    ));
+    $ADMIN->add('localplugins', new admin_externalpage(
+        'local_testcase_exchange_review',
+        get_string('reviewcontributions', 'local_testcase_exchange'),
+        new moodle_url('/local/testcase_exchange/review.php')
+    ));
+    $ADMIN->add('localplugins', new admin_externalpage(
         'local_testcase_exchange_health',
         get_string('healthcheck', 'local_testcase_exchange'),
         new moodle_url('/local/testcase_exchange/health.php')

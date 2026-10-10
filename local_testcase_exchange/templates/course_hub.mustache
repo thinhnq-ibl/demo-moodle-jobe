@@ -1,0 +1,131 @@
+{{! Course selector / hub for site admins and teachers. }}
+<div class="testcase-course-hub">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h3 class="mb-1">{{hub_title}}</h3>
+            <p class="text-muted mb-0">{{hub_desc}}</p>
+        </div>
+        <div class="mt-2 mt-md-0">
+            {{#is_review_mode}}
+            <a class="btn btn-outline-primary" href="{{index_hub_url}}">
+                📚 {{#str}} nav_testcase_bank, local_testcase_exchange {{/str}}
+            </a>
+            {{/is_review_mode}}
+            {{^is_review_mode}}
+            <a class="btn btn-outline-warning" href="{{review_hub_url}}">
+                ⚖️ {{#str}} reviewcontributions, local_testcase_exchange {{/str}}
+            </a>
+            {{/is_review_mode}}
+        </div>
+    </div>
+
+    {{#has_courses}}
+    <div class="row mb-4">
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card bg-light border text-center p-3">
+                <div class="text-muted small text-uppercase font-weight-bold">{{#str}} courses {{/str}}</div>
+                <div class="h2 mb-0 font-weight-bold text-primary">{{total_courses_count}}</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card bg-light border text-center p-3">
+                <div class="text-muted small text-uppercase font-weight-bold">{{#str}} totalcontributions, local_testcase_exchange {{/str}}</div>
+                <div class="h2 mb-0 font-weight-bold text-info">{{total_all_contributions}}</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card bg-light border text-center p-3">
+                <div class="text-muted small text-uppercase font-weight-bold">{{#str}} pendingcount, local_testcase_exchange {{/str}}</div>
+                <div class="h2 mb-0 font-weight-bold text-warning">{{total_pending_contributions}}</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card bg-light border text-center p-3">
+                <div class="text-muted small text-uppercase font-weight-bold">{{#str}} approvedcount, local_testcase_exchange {{/str}}</div>
+                <div class="h2 mb-0 font-weight-bold text-success">{{total_approved_contributions}}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white font-weight-bold">
+            {{#str}} courseswithcoderunner, local_testcase_exchange {{/str}}
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col" style="min-width: 250px;">{{#str}} course {{/str}}</th>
+                        <th scope="col" class="text-center">{{#str}} quiz, local_testcase_exchange {{/str}} / {{#str}} question, local_testcase_exchange {{/str}}</th>
+                        <th scope="col" class="text-center">{{#str}} totalcontributions, local_testcase_exchange {{/str}}</th>
+                        <th scope="col" class="text-center">{{#str}} pendingcount, local_testcase_exchange {{/str}}</th>
+                        <th scope="col" class="text-center">{{#str}} approvedcount, local_testcase_exchange {{/str}}</th>
+                        <th scope="col" class="text-right" style="min-width: 220px;">{{#str}} actions, local_testcase_exchange {{/str}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#courses}}
+                    <tr>
+                        <td>
+                            <div>
+                                <a href="{{dashboard_url}}" class="font-weight-bold text-dark h6 mb-1 d-inline-block">
+                                    {{fullname}}
+                                </a>
+                            </div>
+                            <span class="badge badge-secondary">{{shortname}}</span>
+                            <small class="text-muted ml-2">ID: {{courseid}}</small>
+                        </td>
+                        <td class="text-center">
+                            <div><strong>{{quiz_count}}</strong> quiz</div>
+                            <small class="text-muted">{{question_count}} câu CodeRunner</small>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-info p-2 font-weight-bold">{{total_contributions}}</span>
+                        </td>
+                        <td class="text-center">
+                            {{#has_pending}}
+                            <span class="badge badge-warning text-dark p-2 font-weight-bold font-italic">
+                                ⏳ {{pending_contributions}}
+                            </span>
+                            {{/has_pending}}
+                            {{^has_pending}}
+                            <span class="text-muted small">0</span>
+                            {{/has_pending}}
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-success p-2 font-weight-bold">
+                                ✓ {{approved_contributions}}
+                            </span>
+                        </td>
+                        <td class="text-right">
+                            <div class="btn-group" role="group">
+                                <a href="{{dashboard_url}}" class="btn btn-sm btn-outline-primary" title="{{#str}} viewtestcasebank, local_testcase_exchange {{/str}}">
+                                    📥 {{#str}} viewtestcasebank, local_testcase_exchange {{/str}}
+                                </a>
+                                {{#can_review}}
+                                <a href="{{review_url}}" class="btn btn-sm {{#has_pending}}btn-warning text-dark font-weight-bold{{/has_pending}}{{^has_pending}}btn-outline-secondary{{/has_pending}}" title="{{#str}} reviewcontributionsbtn, local_testcase_exchange {{/str}}">
+                                    ⚖️ {{#str}} review, local_testcase_exchange {{/str}}
+                                    {{#has_pending}}({{pending_contributions}}){{/has_pending}}
+                                </a>
+                                {{/can_review}}
+                                {{#can_manage}}
+                                <a href="{{policy_url}}" class="btn btn-sm btn-outline-secondary" title="{{#str}} managepolicies, local_testcase_exchange {{/str}}">
+                                    ⚙️
+                                </a>
+                                {{/can_manage}}
+                            </div>
+                        </td>
+                    </tr>
+                    {{/courses}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {{/has_courses}}
+
+    {{^has_courses}}
+    <div class="alert alert-info">
+        {{#str}} nocourseswithcoderunner, local_testcase_exchange {{/str}}
+    </div>
+    {{/has_courses}}
+</div>

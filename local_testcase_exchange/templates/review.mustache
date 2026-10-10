@@ -1,4 +1,24 @@
 {{! Contribution review table and filters for teacher. }}
+{{#show_course_switcher}}
+<div class="card bg-light mb-3 p-2">
+    <div class="d-flex flex-wrap justify-content-between align-items-center">
+        <div>
+            <span class="text-muted mr-1">📚 {{#str}} course {{/str}}:</span>
+            <strong>{{current_course_name}}</strong>
+            <a href="{{course_hub_url}}" class="badge badge-secondary ml-2">&larr; {{#str}} allcourses, local_testcase_exchange {{/str}}</a>
+        </div>
+        <div class="d-flex align-items-center mt-1 mt-md-0">
+            <label for="switchReviewCourseSelect" class="small text-muted mb-0 mr-2">{{#str}} switchcourse, local_testcase_exchange {{/str}}:</label>
+            <select id="switchReviewCourseSelect" class="custom-select custom-select-sm" onchange="if (this.value) window.location.href=this.value;">
+                {{#available_courses}}
+                <option value="{{switch_url}}" {{#is_current}}selected{{/is_current}}>{{shortname}} - {{fullname}}</option>
+                {{/available_courses}}
+            </select>
+        </div>
+    </div>
+</div>
+{{/show_course_switcher}}
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <a class="btn btn-secondary" href="{{dashboard_url}}">
         &larr; {{#str}} backtodashboard, local_testcase_exchange {{/str}}

@@ -120,9 +120,8 @@ class quizaccess_testcaseexchange extends access_rule_base {
         $quizid = $this->quiz->id;
         $courseid = $this->quiz->course;
 
-        $dashboard_url = new moodle_url('/testcase_dashboard.php', [
+        $dashboard_url = new moodle_url('/local/testcase_exchange/index.php', [
             'course' => $courseid,
-            'quiz' => $quizid
         ]);
 
         $btn = html_writer::link(

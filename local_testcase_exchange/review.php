@@ -29,7 +29,116 @@ use local_testcase_exchange\testcase_service;
 require_once(__DIR__ . '/../../config.php');
 
 require_login();
-$courseid = required_param('course', PARAM_INT);
+$courseid = optional_param('course', 0, PARAM_INT);
+
+if ($courseid === 0) {
+    $context = context_system::instance();
+    $PAGE->set_url(new moodle_url('/local/testcase_exchange/review.php'));
+    $PAGE->set_context($context);
+    $PAGE->set_title(get_string('coursehub_review_title', 'local_testcase_exchange'));
+    $PAGE->set_heading(get_string('coursehub_review_title', 'local_testcase_exchange'));
+
+    $coursesummaries = [];
+    $connection = null;
+    try {
+        $connection = external_database::connect();
+        schema_manager::migrate($connection);
+        $service = new testcase_service($connection);
+        $coursesummaries = $service->courses_summary();
+    } catch (Throwable $e) {
+        debugging($e->getMessage(), DEBUG_DEVELOPER);
+    }
+
+    $rawcourses = context_service::courses_with_coderunner();
+    $courseids_found = [];
+    foreach ($rawcourses as $rc) {
+        $courseids_found[(int) $rc->courseid] = true;
+    }
+
+    foreach (array_keys($coursesummaries) as $cid) {
+        if (!isset($courseids_found[$cid])) {
+            $cobj = $DB->get_record('course', ['id' => $cid], 'id, fullname, shortname');
+            if ($cobj) {
+                $rawcourses[] = (object) [
+                    'courseid' => $cobj->id,
+                    'fullname' => $cobj->fullname,
+                    'shortname' => $cobj->shortname,
+                    'quiz_count' => 0,
+                    'question_count' => 0,
+                ];
+                $courseids_found[$cid] = true;
+            }
+        }
+    }
+
+    $issiteadmin = is_siteadmin();
+    $availablecourses = [];
+    $totalallcontributions = 0;
+    $totalpendingcontributions = 0;
+    $totalapprovedcontributions = 0;
+
+    foreach ($rawcourses as $c) {
+        $cid = (int) $c->courseid;
+        $ccontext = context_course::instance($cid);
+        if (!$issiteadmin && !has_capability('local/testcase_exchange:review', $ccontext)) {
+            continue;
+        }
+
+        $cstats = $coursesummaries[$cid] ?? [
+            'total_count' => 0,
+            'pending_count' => 0,
+            'approved_count' => 0,
+        ];
+
+        $canmanage = $issiteadmin || has_capability('local/testcase_exchange:manage', $ccontext);
+
+        $totalallcontributions += $cstats['total_count'];
+        $totalpendingcontributions += $cstats['pending_count'];
+        $totalapprovedcontributions += $cstats['approved_count'];
+
+        $availablecourses[] = [
+            'courseid' => $cid,
+            'fullname' => $c->fullname,
+            'shortname' => $c->shortname,
+            'quiz_count' => (int) $c->quiz_count,
+            'question_count' => (int) $c->question_count,
+            'total_contributions' => (int) $cstats['total_count'],
+            'pending_contributions' => (int) $cstats['pending_count'],
+            'approved_contributions' => (int) $cstats['approved_count'],
+            'has_pending' => ((int) $cstats['pending_count'] > 0),
+            'dashboard_url' => (new moodle_url('/local/testcase_exchange/index.php', ['course' => $cid]))->out(false),
+            'review_url' => (new moodle_url('/local/testcase_exchange/review.php', ['course' => $cid]))->out(false),
+            'policy_url' => (new moodle_url('/local/testcase_exchange/policy.php', ['course' => $cid]))->out(false),
+            'can_review' => true,
+            'can_manage' => $canmanage,
+        ];
+    }
+
+    if (!$issiteadmin && count($availablecourses) === 1) {
+        redirect(new moodle_url('/local/testcase_exchange/review.php', ['course' => $availablecourses[0]['courseid']]));
+    }
+
+    echo $OUTPUT->header();
+    echo $OUTPUT->render_from_template('local_testcase_exchange/course_hub', [
+        'hub_title' => get_string('coursehub_review_title', 'local_testcase_exchange'),
+        'hub_desc' => get_string('coursehub_review_desc', 'local_testcase_exchange'),
+        'is_review_mode' => true,
+        'index_hub_url' => (new moodle_url('/local/testcase_exchange/index.php'))->out(false),
+        'review_hub_url' => (new moodle_url('/local/testcase_exchange/review.php'))->out(false),
+        'has_courses' => !empty($availablecourses),
+        'total_courses_count' => count($availablecourses),
+        'total_all_contributions' => $totalallcontributions,
+        'total_pending_contributions' => $totalpendingcontributions,
+        'total_approved_contributions' => $totalapprovedcontributions,
+        'courses' => $availablecourses,
+    ]);
+    if (isset($connection) && $connection) {
+        $connection->close();
+    }
+    echo $OUTPUT->footer();
+    exit;
+}
+
 $course = get_course($courseid);
 $context = context_course::instance($courseid);
 require_capability('local/testcase_exchange:review', $context);
@@ -43,6 +152,7 @@ try {
     throw new moodle_exception('databaseunavailable', 'local_testcase_exchange');
 }
 $service = new testcase_service($connection);
+
 
 if (data_submitted()) {
     require_sesskey();
@@ -145,10 +255,32 @@ foreach ($questions as $q) {
     ];
 }
 
+$rawcourses = context_service::courses_with_coderunner();
+$availablecourselist = [];
+$issiteadmin = is_siteadmin();
+foreach ($rawcourses as $rc) {
+    $cid = (int) $rc->courseid;
+    if (!$issiteadmin && !has_capability('local/testcase_exchange:review', context_course::instance($cid))) {
+        continue;
+    }
+    $availablecourselist[] = [
+        'courseid' => $cid,
+        'fullname' => $rc->fullname,
+        'shortname' => $rc->shortname,
+        'switch_url' => (new moodle_url('/local/testcase_exchange/review.php', ['course' => $cid]))->out(false),
+        'is_current' => ($cid === $courseid),
+    ];
+}
+
 echo $OUTPUT->header();
 echo $OUTPUT->render_from_template('local_testcase_exchange/review', [
     'sesskey' => sesskey(),
     'course_id' => $courseid,
+    'course_hub_url' => (new moodle_url('/local/testcase_exchange/review.php'))->out(false),
+    'current_course_name' => $course->fullname,
+    'current_course_shortname' => $course->shortname,
+    'available_courses' => $availablecourselist,
+    'show_course_switcher' => (count($availablecourselist) > 1 || $issiteadmin),
     'dashboard_url' => (new moodle_url('/local/testcase_exchange/index.php', ['course' => $courseid]))->out(false),
     'current_status' => $statusparam,
     'status_tabs' => $statustabs,

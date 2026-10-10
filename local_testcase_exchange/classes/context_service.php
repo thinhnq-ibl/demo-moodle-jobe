@@ -361,5 +361,36 @@ final class context_service {
 
         return $trajectory;
     }
+
+    /**
+     * Return all courses with CodeRunner questions.
+     *
+     * @return array<int, \stdClass> List of course summaries.
+     */
+    public static function courses_with_coderunner(): array {
+        global $DB;
+        $sql = "
+            SELECT c.id AS courseid, c.fullname, c.shortname,
+                   COUNT(DISTINCT qz.id) AS quiz_count,
+                   COUNT(DISTINCT q.id) AS question_count
+              FROM {course} c
+              JOIN {course_modules} cm ON cm.course = c.id
+              JOIN {modules} m ON m.id = cm.module AND m.name = 'quiz'
+              JOIN {quiz} qz ON qz.id = cm.instance
+              JOIN {quiz_slots} qs ON qs.quizid = qz.id
+              JOIN {question_references} qr ON qr.itemid = qs.id AND qr.component = 'mod_quiz'
+              JOIN {question_bank_entries} qbe ON qbe.id = qr.questionbankentryid
+              JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
+               AND qv.version = CASE WHEN qr.version IS NULL THEN (
+                   SELECT MAX(qv2.version)
+                     FROM {question_versions} qv2
+                    WHERE qv2.questionbankentryid = qbe.id AND qv2.status = 'ready'
+               ) ELSE qr.version END
+              JOIN {question} q ON q.id = qv.questionid AND q.qtype = 'coderunner'
+             WHERE c.id > 1
+             GROUP BY c.id, c.fullname, c.shortname
+             ORDER BY c.id ASC";
+        return array_values($DB->get_records_sql($sql));
+    }
 }
 
