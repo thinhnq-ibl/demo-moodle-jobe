@@ -2,6 +2,10 @@
 
 Hệ thống triển khai LMS Moodle tích hợp plugin CodeRunner và cụm máy chủ Sandbox Jobe song song, hỗ trợ tự động chấm bài lập trình và nền tảng trao đổi / kiểm tra trùng lặp testcase giữa các sinh viên.
 
+> 🤖 **Dành cho AI Agents / Tự động hóa**: Xem tài liệu hướng dẫn khôi phục chi tiết tại **[`AGENT_RESTORE_GUIDE.md`](file:///Users/nguyenquocthinh/Documents/demo-moodle-jobe/AGENT_RESTORE_GUIDE.md)**.  
+> 🚀 **Lệnh khôi phục 1 chạm (Zero-touch)**: `./reproduce_and_restore.sh --force`  
+> 📦 **Lệnh xuất backup toàn diện**: `./export_backup.sh`
+
 ---
 
 ## 1. Cấu Trúc Thư Mục & Các Tệp Tin

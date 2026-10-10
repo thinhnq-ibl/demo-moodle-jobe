@@ -1,0 +1,23 @@
+{
+  "project": "demo-moodle-jobe",
+  "purpose": "PhD Research Testcase Exchange & Reproducible Sandbox",
+  "backup_timestamp_iso": "2026-10-10T08:11:46Z",
+  "git_commit": "15c04f62c999f63cec05705d73338b0a1bf3d07a",
+  "environment_runtime": {
+    "moodle_version": "4.4.12+ (Build: 20251212)",
+    "php_version": "8.2.33",
+    "mariadb_version": "Bitnami MariaDB 11.x (13.1.1-MariaDB)",
+    "jobe_sandbox_python": "Python 3.12.3",
+    "coderunner_commit": "bab106d480716330d1f3330433652b3c8c8d174d",
+    "qbehaviour_adaptive_commit": "73beb92d1d95d5a9ded94c0803871f0d57719f77",
+    "plugin_local_testcase_exchange": "2026101001 (v2.2.0)",
+    "plugin_quizaccess_testcaseexchange": "2026100501"
+  },
+  "checksums_sha256": {
+    "database_sql_gz": "f8f58c3faaa371c09e2e8e09a3281cd9e5de12c4fff050c08385dec37516033e",
+    "moodledata_tar_gz": "f8395f0c1bd4df1482bda71f5d131d670c9866b275ef70ac55f2d1de0c1e747a",
+    "docker_compose_yml": "ce542d2d121111c6085f0a9cb285e52c2c90b744a91aab8f3553f765b9cfc095",
+    "dockerfile_moodle": "fbd43695ff88e3e290f7172d1445d20d8e74159121d997bd51f15dd77a8e6887",
+    "dockerfile_jobe": "2f197db8aac79268247a54542aaa4f8cc176a6187c05a06c05097ac4a79d1b5c"
+  }
+}
