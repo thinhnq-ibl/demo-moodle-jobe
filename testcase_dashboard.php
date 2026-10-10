@@ -183,11 +183,12 @@ except Exception as e:
             }
         } catch (Throwable $e) {
             $jobe_server = "jobe1";
-            $algo_correct = true; // fallback
+            $algo_correct = false;
+            $eval_error = "Lỗi thẩm định từ Jobe Sandbox: " . $e->getMessage();
         }
 
-        if ($algo_correct === false) {
-            $action_message = "⚠️ <b>THẨM ĐỊNH THẤT BẠI:</b> " . htmlspecialchars($eval_error);
+        if ($algo_correct !== true) {
+            $action_message = "⚠️ <b>THẨM ĐỊNH THẤT BẠI:</b> " . htmlspecialchars($eval_error ?? 'Không thể thẩm định kết quả từ Jobe sandbox.');
             $action_status = "danger";
         } else {
             // 1. Kiểm tra chống trùng lặp trong testcase_store (Phương án 1: Cách ly 3 tầng course_id + quiz_id + question_id)

@@ -1,5 +1,182 @@
-{{! Contribution review table. }}
-<div class="table-responsive"><table class="table table-striped"><thead><tr><th>ID</th><th>{{#str}} userid, local_testcase_exchange {{/str}}</th><th>{{#str}} quizquestion, local_testcase_exchange {{/str}}</th><th>{{#str}} testinput, local_testcase_exchange {{/str}}</th><th>{{#str}} oracleoutput, local_testcase_exchange {{/str}}</th><th>{{#str}} purpose, local_testcase_exchange {{/str}}</th><th>{{#str}} category, local_testcase_exchange {{/str}}</th><th>{{#str}} review, local_testcase_exchange {{/str}}</th></tr></thead><tbody>
-{{^has_items}}<tr><td colspan="8" class="text-center text-muted">{{#str}} nocontributionspending, local_testcase_exchange {{/str}}</td></tr>{{/has_items}}
-{{#items}}<tr><td>{{id}}</td><td>{{user_id}}</td><td>{{quiz_question}}</td><td><pre>{{input_normalized}}</pre></td><td><pre>{{oracle_output}}</pre></td><td>{{purpose}}</td><td>{{category}}</td><td><form method="post"><input type="hidden" name="sesskey" value="{{sesskey}}"><input type="hidden" name="contribution_id" value="{{id}}"><input class="form-control form-control-sm mb-2" name="review_note" placeholder="{{#str}} reviewnote, local_testcase_exchange {{/str}}"><button class="btn btn-sm btn-success" name="decision" value="approved">{{#str}} approvecontribution, local_testcase_exchange {{/str}}</button> <button class="btn btn-sm btn-warning" name="decision" value="needs_explanation">{{#str}} needsexplanation, local_testcase_exchange {{/str}}</button> <button class="btn btn-sm btn-danger" name="decision" value="rejected">{{#str}} rejectcontribution, local_testcase_exchange {{/str}}</button></form></td></tr>{{/items}}
-</tbody></table></div>
+{{! Contribution review table and filters for teacher. }}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a class="btn btn-secondary" href="{{dashboard_url}}">
+        &larr; {{#str}} backtodashboard, local_testcase_exchange {{/str}}
+    </a>
+    <span class="text-muted">{{#str}} total, core {{/str}}: <strong>{{total_count}}</strong> testcase</span>
+</div>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body p-3">
+        <form method="get" class="form-inline d-flex flex-wrap align-items-center">
+            <input type="hidden" name="course" value="{{course_id}}">
+            <input type="hidden" name="status" value="{{current_status}}">
+            {{#has_question_filter}}
+            <label for="filter_question" class="mr-2 mb-2"><strong>{{#str}} filterbyquestion, local_testcase_exchange {{/str}}:</strong></label>
+            <select class="form-control mr-2 mb-2" id="filter_question" name="question" onchange="this.form.submit()">
+                {{#question_options}}
+                <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+                {{/question_options}}
+            </select>
+            <button class="btn btn-outline-secondary mb-2" type="submit">{{#str}} search, core {{/str}}</button>
+            {{/has_question_filter}}
+        </form>
+    </div>
+</div>
+
+<ul class="nav nav-tabs mb-3">
+    {{#status_tabs}}
+    <li class="nav-item">
+        <a class="nav-link {{#is_active}}active font-weight-bold{{/is_active}}" href="{{url}}">
+            {{label}} <span class="badge {{#is_active}}badge-primary{{/is_active}}{{^is_active}}badge-light{{/is_active}}">{{count}}</span>
+        </a>
+    </li>
+    {{/status_tabs}}
+</ul>
+
+<div class="table-responsive bg-white rounded shadow-sm border p-2">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="thead-light">
+            <tr>
+                <th style="width: 50px;">ID</th>
+                <th style="width: 180px;">{{#str}} student, local_testcase_exchange {{/str}}</th>
+                <th>{{#str}} quizquestion, local_testcase_exchange {{/str}}</th>
+                <th>{{#str}} testinput, local_testcase_exchange {{/str}}</th>
+                <th>{{#str}} oracleoutput, local_testcase_exchange {{/str}}</th>
+                <th>{{#str}} purpose, local_testcase_exchange {{/str}} / {{#str}} category, local_testcase_exchange {{/str}}</th>
+                <th style="width: 120px;">{{#str}} status {{/str}}</th>
+                <th style="min-width: 200px;">{{#str}} actions, local_testcase_exchange {{/str}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{^has_items}}
+            <tr>
+                <td colspan="8" class="text-center py-4 text-muted">
+                    {{#str}} nocontributionsfound, local_testcase_exchange {{/str}}
+                </td>
+            </tr>
+            {{/has_items}}
+            {{#items}}
+            <tr>
+                <td><strong>#{{id}}</strong></td>
+                <td>
+                    <div class="font-weight-bold">{{student_name}}</div>
+                    <small class="text-muted">{{student_username}}</small>
+                </td>
+                <td>
+                    <div class="font-weight-bold">{{quiz_name}}</div>
+                    <small class="text-muted">{{question_name}}</small>
+                </td>
+                <td>
+                    <pre class="bg-light p-2 rounded mb-0 text-wrap font-monospace" style="max-height: 120px; overflow-y: auto;">{{input_normalized}}</pre>
+                </td>
+                <td>
+                    <pre class="bg-light p-2 rounded mb-0 text-wrap font-monospace" style="max-height: 120px; overflow-y: auto;">{{oracle_output}}</pre>
+                </td>
+                <td>
+                    <div><span class="badge badge-info">{{category}}</span></div>
+                    {{#purpose}}<small class="text-muted">{{purpose}}</small>{{/purpose}}
+                </td>
+                <td>
+                    <span class="{{status_badge_class}}">{{status_label}}</span>
+                    {{#has_rating}}
+                    <div class="mt-1" title="{{rating_val}}/5 sao">
+                        <span class="text-warning font-weight-bold" style="letter-spacing: 1px;">{{stars_emoji}}</span>
+                        <span class="badge badge-warning text-dark ml-1">{{rating_val}}/5 ★</span>
+                    </div>
+                    {{/has_rating}}
+                    {{#has_teacher_comment}}
+                    <div class="small bg-light p-1 rounded border mt-1 text-dark" style="max-width: 220px; word-break: break-word;">
+                        <span class="text-primary font-weight-bold">💬</span> {{teacher_comment}}
+                    </div>
+                    {{/has_teacher_comment}}
+                    <div class="small text-muted mt-1">{{submitted_at}}</div>
+                </td>
+                <td>
+                    {{#is_pending}}
+                    <form method="post" class="border p-2 rounded bg-light">
+                        <input type="hidden" name="sesskey" value="{{sesskey}}">
+                        <input type="hidden" name="contribution_id" value="{{id}}">
+                        <div class="form-group mb-2">
+                            <label class="small font-weight-bold mb-1 d-block text-muted">{{#str}} starrating, local_testcase_exchange {{/str}} ({{#str}} optional, core {{/str}}):</label>
+                            <select class="form-control form-control-sm" name="rating">
+                                <option value="0">-- {{#str}} norating, local_testcase_exchange {{/str}} --</option>
+                                <option value="5">⭐⭐⭐⭐⭐ 5 {{#str}} stars, local_testcase_exchange {{/str}} - {{#str}} rating_5_desc, local_testcase_exchange {{/str}}</option>
+                                <option value="4">⭐⭐⭐⭐ 4 {{#str}} stars, local_testcase_exchange {{/str}} - {{#str}} rating_4_desc, local_testcase_exchange {{/str}}</option>
+                                <option value="3">⭐⭐⭐ 3 {{#str}} stars, local_testcase_exchange {{/str}} - {{#str}} rating_3_desc, local_testcase_exchange {{/str}}</option>
+                                <option value="2">⭐⭐ 2 {{#str}} stars, local_testcase_exchange {{/str}} - {{#str}} rating_2_desc, local_testcase_exchange {{/str}}</option>
+                                <option value="1">⭐ 1 {{#str}} stars, local_testcase_exchange {{/str}} - {{#str}} rating_1_desc, local_testcase_exchange {{/str}}</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-2">
+                            <input class="form-control form-control-sm" name="review_note" placeholder="{{#str}} reviewnote, local_testcase_exchange {{/str}} / {{#str}} teachercomment, local_testcase_exchange {{/str}}...">
+                        </div>
+                        <div class="btn-group btn-group-sm w-100" role="group">
+                            <button class="btn btn-success" name="decision" value="approved" title="{{#str}} approvecontribution, local_testcase_exchange {{/str}}">
+                                &check; {{#str}} approvecontribution, local_testcase_exchange {{/str}}
+                            </button>
+                            <button class="btn btn-warning" name="decision" value="needs_explanation" title="{{#str}} needsexplanation, local_testcase_exchange {{/str}}">
+                                ? {{#str}} needsexplanation, local_testcase_exchange {{/str}}
+                            </button>
+                            <button class="btn btn-danger" name="decision" value="rejected" title="{{#str}} rejectcontribution, local_testcase_exchange {{/str}}">
+                                &times; {{#str}} rejectcontribution, local_testcase_exchange {{/str}}
+                            </button>
+                        </div>
+                    </form>
+                    {{/is_pending}}
+                    {{^is_pending}}
+                    <div class="border p-2 rounded bg-light mb-2">
+                        <form method="post" class="mb-2">
+                            <input type="hidden" name="sesskey" value="{{sesskey}}">
+                            <input type="hidden" name="contribution_id" value="{{id}}">
+                            <input type="hidden" name="decision" value="rate_only">
+                            <div class="input-group input-group-sm mb-1">
+                                <select class="form-control form-control-sm" name="rating">
+                                    <option value="0">-- {{#str}} starrating, local_testcase_exchange {{/str}} --</option>
+                                    <option value="5" {{#is_rating_5}}selected{{/is_rating_5}}>⭐⭐⭐⭐⭐ 5 {{#str}} stars, local_testcase_exchange {{/str}}</option>
+                                    <option value="4" {{#is_rating_4}}selected{{/is_rating_4}}>⭐⭐⭐⭐ 4 {{#str}} stars, local_testcase_exchange {{/str}}</option>
+                                    <option value="3" {{#is_rating_3}}selected{{/is_rating_3}}>⭐⭐⭐ 3 {{#str}} stars, local_testcase_exchange {{/str}}</option>
+                                    <option value="2" {{#is_rating_2}}selected{{/is_rating_2}}>⭐⭐ 2 {{#str}} stars, local_testcase_exchange {{/str}}</option>
+                                    <option value="1" {{#is_rating_1}}selected{{/is_rating_1}}>⭐ 1 {{#str}} stars, local_testcase_exchange {{/str}}</option>
+                                </select>
+                            </div>
+                            <div class="input-group input-group-sm">
+                                <input class="form-control form-control-sm" name="review_note" placeholder="{{#str}} teachercomment, local_testcase_exchange {{/str}}..." value="{{teacher_comment}}">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-primary" type="submit">{{#str}} saverating, local_testcase_exchange {{/str}}</button>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="d-flex justify-content-between align-items-center">
+                            {{#is_approved}}
+                            <form method="post" class="d-inline">
+                                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                <input type="hidden" name="contribution_id" value="{{id}}">
+                                <input type="hidden" name="review_note" value="Rejecting previously approved testcase">
+                                <button class="btn btn-sm btn-outline-danger" name="decision" value="rejected">
+                                    {{#str}} rejectcontribution, local_testcase_exchange {{/str}}
+                                </button>
+                            </form>
+                            {{/is_approved}}
+                            {{#is_rejected}}
+                            <form method="post" class="d-inline">
+                                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                <input type="hidden" name="contribution_id" value="{{id}}">
+                                <input type="hidden" name="review_note" value="Approving previously rejected testcase">
+                                <button class="btn btn-sm btn-outline-success" name="decision" value="approved">
+                                    {{#str}} approvecontribution, local_testcase_exchange {{/str}}
+                                </button>
+                            </form>
+                            {{/is_rejected}}
+                            {{#is_duplicate}}
+                            <span class="text-muted small">Duplicate of #{{duplicate_of}}</span>
+                            {{/is_duplicate}}
+                        </div>
+                    </div>
+                    {{/is_pending}}
+                </td>
+            </tr>
+            {{/items}}
+        </tbody>
+    </table>
+</div>

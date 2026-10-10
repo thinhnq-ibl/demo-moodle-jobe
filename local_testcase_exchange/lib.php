@@ -309,21 +309,9 @@ function local_testcase_exchange_before_footer(): string {
         if ((int) $question->quizid !== (int) $cm->instance) {
             continue;
         }
-        $hasanswer = $DB->record_exists_sql(
-            "SELECT 1
-               FROM {question_attempts} qa
-               JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
-               JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id
-              WHERE qa.questionusageid = :usageid
-                    AND qa.questionid = :questionid
-                    AND qasd.name = :answername
-                    AND qasd.value <> :emptyanswer",
-            [
-                'usageid' => $attempt->uniqueid,
-                'questionid' => $question->questionid,
-                'answername' => 'answer',
-                'emptyanswer' => '',
-            ]
+        $hasanswer = \local_testcase_exchange\context_service::has_valid_submission(
+            (int) $attempt->uniqueid,
+            (int) $question->questionid
         );
         if (!$hasanswer) {
             continue;

@@ -140,12 +140,30 @@ final class testcase_service {
         );
         $server = $results['student']['server'] ?: $results['oracle']['server'];
         $sourcehash = hash('sha256', $studentsource);
+        $studentsnapshot = $studentsource;
+        $oraclesnapshot = (string) ($results['oracle_solution'] ?? '');
+        $templatesnapshot = (string) ($results['template'] ?? '');
+        $runtimecontext = json_encode([
+            'coderunnertype' => (string) ($questioncontext->coderunnertype ?? ''),
+            'input_mode' => (string) ($policy['input_mode'] ?? 'testcode'),
+            'normalization_mode' => (string) ($policy['normalization_mode'] ?? 'trim'),
+            'jobe_server' => $server,
+            'timestamp' => date('c'),
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $qversion = (int) ($results['question_version'] ?? 1);
+        $gradertype = (string) ($results['grader_type'] ?? 'EqualityGrader');
+        $oracleversionhash = (string) ($results['oracle_version_hash'] ?? '');
+        $testsuiteversionhash = (string) ($results['test_suite_version_hash'] ?? '');
+        $executionlimits = (string) ($results['execution_limits'] ?? '');
+
         $stmt = $this->connection->prepare(
             'INSERT INTO testcase_runs
             (course_id, quiz_id, question_id, user_id, input_raw, input_normalized, input_fingerprint,
              predicted_output, student_run_output, oracle_output, student_outcome, oracle_outcome,
-             purpose, category, reflection, jobe_server, student_source_hash)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+             purpose, category, reflection, jobe_server, student_source_hash,
+             student_code_snapshot, oracle_solution_snapshot, template_snapshot, runtime_context,
+             question_version, grader_type, oracle_version_hash, test_suite_version_hash, execution_limits)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $quizid = (int) $quiz->id;
         $questionid = (int) $questioncontext->questionid;
@@ -154,7 +172,7 @@ final class testcase_service {
         $studentoutcome = $results['student']['outcome'];
         $oracleoutcome = $results['oracle']['outcome'];
         $stmt->bind_param(
-            'iiiisssssssssssss',
+            'iiiisssssssssssssssssissss',
             $courseid,
             $quizid,
             $questionid,
@@ -171,13 +189,23 @@ final class testcase_service {
             $category,
             $reflection,
             $server,
-            $sourcehash
+            $sourcehash,
+            $studentsnapshot,
+            $oraclesnapshot,
+            $templatesnapshot,
+            $runtimecontext,
+            $qversion,
+            $gradertype,
+            $oracleversionhash,
+            $testsuiteversionhash,
+            $executionlimits
         );
         $stmt->execute();
         $runid = (int) $stmt->insert_id;
         $stmt->close();
         return ['id' => $runid, 'student' => $results['student'], 'oracle' => $results['oracle'],
             'prediction_matches_oracle' => $oracleoutcome === 'success' &&
+                trim($predicted) !== '' &&
                 trim($predicted) === trim($oracleoutput)];
     }
 
@@ -296,14 +324,16 @@ final class testcase_service {
         int $courseid,
         int $reviewerid,
         string $newstatus,
-        string $note
+        string $note = '',
+        int $rating = 0,
+        string $ratingreason = ''
     ): void {
-        $allowed = ['approved', 'rejected', 'needs_explanation', 'archived'];
+        $allowed = ['approved', 'rejected', 'needs_explanation', 'archived', 'rate_only'];
         if (!in_array($newstatus, $allowed, true)) {
             throw new \moodle_exception('invalidstatus', 'local_testcase_exchange');
         }
         $stmt = $this->connection->prepare(
-            'SELECT status FROM testcase_contributions WHERE id = ? AND course_id = ? FOR UPDATE'
+            'SELECT status, rating, review_comment FROM testcase_contributions WHERE id = ? AND course_id = ? FOR UPDATE'
         );
         $this->connection->begin_transaction();
         try {
@@ -315,20 +345,32 @@ final class testcase_service {
                 throw new \moodle_exception('invalidcontribution', 'local_testcase_exchange');
             }
             $from = $row['status'];
-            $transitions = [
-                'submitted' => ['approved', 'rejected', 'needs_explanation'],
-                'needs_explanation' => ['approved', 'rejected'],
-                'approved' => ['archived'],
-            ];
-            if (!in_array($newstatus, $transitions[$from] ?? [], true)) {
-                throw new \moodle_exception('invalidtransition', 'local_testcase_exchange');
+            $targetstatus = ($newstatus === 'rate_only') ? $from : $newstatus;
+
+            if ($targetstatus !== $from) {
+                $transitions = [
+                    'submitted' => ['approved', 'rejected', 'needs_explanation'],
+                    'needs_explanation' => ['approved', 'rejected'],
+                    'approved' => ['archived', 'rejected'],
+                    'rejected' => ['approved'],
+                ];
+                if (!in_array($targetstatus, $transitions[$from] ?? [], true)) {
+                    throw new \moodle_exception('invalidtransition', 'local_testcase_exchange');
+                }
             }
-            $update = $this->connection->prepare('UPDATE testcase_contributions SET status = ? WHERE id = ?');
-            $update->bind_param('si', $newstatus, $contributionid);
+
+            $finalrating = ($rating >= 1 && $rating <= 5) ? $rating : ($row['rating'] !== null ? (int) $row['rating'] : null);
+            $finalcomment = (trim($note) !== '') ? trim($note) : $row['review_comment'];
+
+            $update = $this->connection->prepare(
+                'UPDATE testcase_contributions SET status = ?, rating = ?, review_comment = ? WHERE id = ?'
+            );
+            $update->bind_param('sisi', $targetstatus, $finalrating, $finalcomment, $contributionid);
             $update->execute();
             $update->close();
-            $this->insert_review($contributionid, $reviewerid, $from, $newstatus, $note);
-            if ($newstatus === 'approved') {
+
+            $this->insert_review($contributionid, $reviewerid, $from, $targetstatus, $note, $finalrating, $ratingreason);
+            if ($targetstatus === 'approved' && $from !== 'approved') {
                 $this->grant_reward_for_contribution($contributionid);
             }
             $this->connection->commit();
@@ -486,7 +528,11 @@ final class testcase_service {
         $stmt = $this->connection->prepare(
             'SELECT c.*,
                     (SELECT cr.review_note FROM contribution_reviews cr
-                      WHERE cr.contribution_id = c.id ORDER BY cr.id DESC LIMIT 1) AS latest_review_note
+                      WHERE cr.contribution_id = c.id AND cr.review_note IS NOT NULL AND cr.review_note <> \'\'
+                      ORDER BY cr.id DESC LIMIT 1) AS latest_review_note,
+                    (SELECT cr.rating FROM contribution_reviews cr
+                      WHERE cr.contribution_id = c.id AND cr.rating IS NOT NULL AND cr.rating > 0
+                      ORDER BY cr.id DESC LIMIT 1) AS latest_rating
                FROM testcase_contributions c
               WHERE c.course_id = ? AND c.user_id = ? ORDER BY c.id DESC LIMIT 100'
         );
@@ -524,16 +570,117 @@ final class testcase_service {
      * @return array Pending contributions.
      */
     public function pending_contributions(int $courseid): array {
-        $stmt = $this->connection->prepare(
-            "SELECT * FROM testcase_contributions
-              WHERE course_id = ? AND status IN ('submitted', 'needs_explanation')
-              ORDER BY submitted_at ASC"
-        );
-        $stmt->bind_param('i', $courseid);
+        return $this->course_contributions($courseid, 'pending');
+    }
+
+    /**
+     * Return contributions for a course with optional status, quiz, and question filters.
+     *
+     * @param int $courseid Course ID.
+     * @param string $status Filter status ('all', 'pending', 'submitted', 'approved', 'rejected', 'duplicate', 'needs_explanation').
+     * @param int $quizid Optional Quiz ID filter.
+     * @param int $questionid Optional Question ID filter.
+     * @return array Contributions.
+     */
+    public function course_contributions(int $courseid, string $status = 'all', int $quizid = 0, int $questionid = 0): array {
+        $conditions = ['c.course_id = ?'];
+        $params = [$courseid];
+        $types = 'i';
+
+        if ($status === 'pending') {
+            $conditions[] = "c.status IN ('submitted', 'needs_explanation')";
+        } else if ($status !== 'all' && in_array($status, ['submitted', 'approved', 'rejected', 'duplicate', 'needs_explanation', 'archived'], true)) {
+            $conditions[] = 'c.status = ?';
+            $params[] = $status;
+            $types .= 's';
+        }
+
+        if ($quizid > 0) {
+            $conditions[] = 'c.quiz_id = ?';
+            $params[] = $quizid;
+            $types .= 'i';
+        }
+
+        if ($questionid > 0) {
+            $conditions[] = 'c.question_id = ?';
+            $params[] = $questionid;
+            $types .= 'i';
+        }
+
+        $where = implode(' AND ', $conditions);
+        $sql = "SELECT c.*,
+                       (SELECT cr.review_note FROM contribution_reviews cr
+                         WHERE cr.contribution_id = c.id AND cr.review_note IS NOT NULL AND cr.review_note <> ''
+                         ORDER BY cr.id DESC LIMIT 1) AS latest_review_note,
+                       (SELECT cr.rating FROM contribution_reviews cr
+                         WHERE cr.contribution_id = c.id AND cr.rating IS NOT NULL AND cr.rating > 0
+                         ORDER BY cr.id DESC LIMIT 1) AS latest_rating
+                  FROM testcase_contributions c
+                 WHERE {$where}
+              ORDER BY c.id DESC LIMIT 500";
+
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bind_param($types, ...$params);
         $stmt->execute();
         $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
         return $rows;
+    }
+
+    /**
+     * Return contribution counts by status for a course with optional quiz/question filters.
+     *
+     * @param int $courseid Course ID.
+     * @param int $quizid Optional Quiz ID.
+     * @param int $questionid Optional Question ID.
+     * @return array<string, int>
+     */
+    public function contribution_counts(int $courseid, int $quizid = 0, int $questionid = 0): array {
+        $conditions = ['course_id = ?'];
+        $params = [$courseid];
+        $types = 'i';
+
+        if ($quizid > 0) {
+            $conditions[] = 'quiz_id = ?';
+            $params[] = $quizid;
+            $types .= 'i';
+        }
+
+        if ($questionid > 0) {
+            $conditions[] = 'question_id = ?';
+            $params[] = $questionid;
+            $types .= 'i';
+        }
+
+        $where = implode(' AND ', $conditions);
+        $sql = "SELECT status, COUNT(*) AS cnt FROM testcase_contributions WHERE {$where} GROUP BY status";
+
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $counts = [
+            'all' => 0,
+            'pending' => 0,
+            'approved' => 0,
+            'duplicate' => 0,
+            'rejected' => 0,
+            'needs_explanation' => 0,
+            'submitted' => 0,
+        ];
+
+        while ($row = $result->fetch_assoc()) {
+            $st = (string) $row['status'];
+            $cnt = (int) $row['cnt'];
+            $counts[$st] = $cnt;
+            $counts['all'] += $cnt;
+            if ($st === 'submitted' || $st === 'needs_explanation') {
+                $counts['pending'] += $cnt;
+            }
+        }
+        $stmt->close();
+        return $counts;
     }
 
     /**
@@ -666,20 +813,24 @@ final class testcase_service {
      * @param string $from Previous status.
      * @param string $to New status.
      * @param string $note Review note.
+     * @param ?int $rating Rating 1-5.
+     * @param string $ratingreason Rating reason.
      */
     private function insert_review(
         int $contributionid,
         int $reviewerid,
         string $from,
         string $to,
-        string $note
+        string $note,
+        ?int $rating = null,
+        string $ratingreason = ''
     ): void {
         $audit = $this->connection->prepare(
             'INSERT INTO contribution_reviews
-            (contribution_id, reviewer_user_id, from_status, to_status, review_note)
-            VALUES (?, ?, ?, ?, ?)'
+            (contribution_id, reviewer_user_id, from_status, to_status, review_note, rating, rating_reason)
+            VALUES (?, ?, ?, ?, ?, ?, ?)'
         );
-        $audit->bind_param('iisss', $contributionid, $reviewerid, $from, $to, $note);
+        $audit->bind_param('iisssis', $contributionid, $reviewerid, $from, $to, $note, $rating, $ratingreason);
         $audit->execute();
         $audit->close();
     }

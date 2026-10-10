@@ -55,12 +55,37 @@ final class execution_service {
         if (trim((string) $question->answer) === '') {
             throw new \moodle_exception('missingoracle', 'local_testcase_exchange');
         }
-        $question->get_prototype();
+        $proto = $question->get_prototype();
+        $template = (string) ($policy['testcode_template'] ?? '');
+        if ($template === '') {
+            $template = (string) ($question->template ?: ($proto ? $proto->template : ''));
+        }
+        $grader = (string) ($question->grader ?: 'EqualityGrader');
+        $qversion = isset($question->version) ? (int) $question->version : 1;
+        $oraclehash = hash('sha256', (string) $question->answer);
+        $testsuitehash = hash('sha256', json_encode($question->testcases ?? []));
+        $limits = [
+            'cputimelimitsecs' => $question->cputimelimitsecs,
+            'memlimitmb' => $question->memlimitmb,
+            'allornothing' => $question->allornothing ?? 1,
+            'sandbox' => $question->sandbox,
+        ];
 
         $testcase = self::make_testcase($question, $input, $policy);
         $student = self::run_source($question, $testcase, $studentsource, $quiz, $USER);
         $oracle = self::run_source($question, $testcase, (string) $question->answer, $quiz, $USER);
-        return ['student' => $student, 'oracle' => $oracle];
+        return [
+            'student' => $student,
+            'oracle' => $oracle,
+            'oracle_solution' => (string) $question->answer,
+            'template' => $template,
+            'coderunnertype' => (string) ($question->coderunnertype ?? ''),
+            'question_version' => $qversion,
+            'grader_type' => $grader,
+            'oracle_version_hash' => $oraclehash,
+            'test_suite_version_hash' => $testsuitehash,
+            'execution_limits' => json_encode($limits, JSON_UNESCAPED_SLASHES),
+        ];
     }
 
     /**
@@ -137,9 +162,30 @@ final class execution_service {
                     'error' => (string) $outcome->errormessage];
             }
             $result = reset($outcome->testresults);
-            return ['output' => rtrim((string) $result->got), 'outcome' => 'success', 'server' => $server, 'error' => ''];
+            $output = rtrim((string) $result->got);
+            if (self::is_execution_error($output)) {
+                return ['output' => $output, 'outcome' => 'runtime_error', 'server' => $server, 'error' => $output];
+            }
+            return ['output' => $output, 'outcome' => 'success', 'server' => $server, 'error' => ''];
         } catch (\Throwable $e) {
             return ['output' => '', 'outcome' => 'infrastructure_error', 'server' => '', 'error' => $e->getMessage()];
         }
     }
+
+    /**
+     * Check if output string contains runtime error or sandbox execution failure markers.
+     *
+     * @param string $output Program output.
+     * @return bool True if output indicates execution failure.
+     */
+    public static function is_execution_error(string $output): bool {
+        return (bool) preg_match(
+            '/\*\*\*(Run error|Time limit exceeded|Memory limit exceeded|Illegal system call|Internal error|Output limit exceeded|Abnormal termination|Server overload|No run).*?\*\*\*/i',
+            $output
+        ) ||
+        str_contains($output, 'Traceback (most recent call last):') ||
+        (bool) preg_match('/^Exception in thread\b/m', $output) ||
+        (bool) preg_match('/\b(Segmentation fault|core dumped)\b/i', $output);
+    }
 }
+

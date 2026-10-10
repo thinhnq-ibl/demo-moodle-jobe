@@ -70,21 +70,9 @@ if ($attemptid > 0 && $selectedquestion) {
         ]
     );
     if ($attempt) {
-        $studentcode = (string) $DB->get_field_sql(
-            "SELECT qasd.value
-               FROM {question_attempts} qa
-               JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
-               JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id
-              WHERE qa.questionusageid = :usageid
-                    AND qa.questionid = :questionid
-                    AND qasd.name = :answername
-           ORDER BY qas.sequencenumber DESC",
-            [
-                'usageid' => $attempt->uniqueid,
-                'questionid' => $selectedquestion->questionid,
-                'answername' => 'answer',
-            ],
-            IGNORE_MULTIPLE
+        $studentcode = context_service::get_latest_valid_submission_code(
+            (int) $attempt->uniqueid,
+            (int) $selectedquestion->questionid
         );
         if ($studentcode !== '') {
             $cm = get_coursemodule_from_instance('quiz', $attempt->quiz, $courseid, false, MUST_EXIST);
@@ -127,22 +115,38 @@ if ($service && data_submitted()) {
             }
             $questioncontext = $questionmap[$selection];
             $quiz = $DB->get_record('quiz', ['id' => $questioncontext->quizid, 'course' => $courseid], '*', MUST_EXIST);
+            $studentcode = required_param('student_code', PARAM_RAW);
+            $testinput = required_param('test_input', PARAM_RAW);
+            $predictedoutput = optional_param('predicted_output', '', PARAM_RAW);
             $run = $service->create_run(
                 $courseid,
                 $quiz,
                 $questioncontext,
                 (int) $USER->id,
-                required_param('student_code', PARAM_RAW),
-                required_param('test_input', PARAM_RAW),
-                optional_param('predicted_output', '', PARAM_RAW),
+                $studentcode,
+                $testinput,
+                $predictedoutput,
                 optional_param('purpose', '', PARAM_TEXT),
                 optional_param('category', 'other', PARAM_ALPHANUMEXT),
                 optional_param('reflection', '', PARAM_TEXT)
             );
-            $message = $run['prediction_matches_oracle'] ?
-                get_string('runcreatedmatch', 'local_testcase_exchange') :
-                get_string('runcreatedmismatch', 'local_testcase_exchange');
-            redirect($PAGE->url, $message, null, \core\output\notification::NOTIFY_SUCCESS);
+            if ($run['oracle']['outcome'] !== 'success') {
+                $message = get_string('runcreatedoraclefailed', 'local_testcase_exchange', $run['oracle']['outcome']);
+                $notifytype = \core\output\notification::NOTIFY_ERROR;
+            } else if ($run['student']['outcome'] !== 'success') {
+                $message = get_string('runcreatedstudenterror', 'local_testcase_exchange');
+                $notifytype = \core\output\notification::NOTIFY_INFO;
+            } else if ($run['prediction_matches_oracle']) {
+                $message = get_string('runcreatedmatch', 'local_testcase_exchange');
+                $notifytype = \core\output\notification::NOTIFY_SUCCESS;
+            } else if (trim($predictedoutput) !== '') {
+                $message = get_string('runcreatedmismatch', 'local_testcase_exchange');
+                $notifytype = \core\output\notification::NOTIFY_WARNING;
+            } else {
+                $message = get_string('runcreatedsaved', 'local_testcase_exchange');
+                $notifytype = \core\output\notification::NOTIFY_SUCCESS;
+            }
+            redirect($PAGE->url, $message, null, $notifytype);
         } else if ($action === 'contribute') {
             require_capability('local/testcase_exchange:contribute', $context);
             $result = $service->submit_contribution(required_param('run_id', PARAM_INT), (int) $USER->id);
@@ -178,7 +182,9 @@ if ($service && data_submitted()) {
 }
 
 $runs = $service ? $service->runs_for_user($courseid, (int) $USER->id) : [];
-$contributions = $service ? $service->contributions_for_user($courseid, (int) $USER->id) : [];
+$rawcontributions = $service ? $service->contributions_for_user($courseid, (int) $USER->id) : [];
+$contributions = !empty($rawcontributions) ?
+    \local_testcase_exchange\context_service::enrich_contributions($rawcontributions, $courseid) : [];
 $rewards = $service ? $service->rewards_for_user($courseid, (int) $USER->id) : [];
 $contributionbyrun = [];
 foreach ($contributions as $contribution) {
@@ -194,6 +200,15 @@ if ($databaseerror) {
 
 $cancontribute = has_capability('local/testcase_exchange:contribute', $context);
 $canmanage = has_capability('local/testcase_exchange:manage', $context);
+$canreview = has_capability('local/testcase_exchange:review', $context);
+$isteacher = $canmanage || $canreview;
+
+$coursecontributions = ($service && $isteacher) ? $service->course_contributions($courseid, 'all') : [];
+$enrichedcoursecontributions = $isteacher ?
+    \local_testcase_exchange\context_service::enrich_contributions($coursecontributions, $courseid) : [];
+$counts = ($service && $isteacher) ?
+    $service->contribution_counts($courseid) : ['pending' => 0, 'all' => 0];
+
 $hasattemptcode = $studentcode !== '';
 $viewquestions = [];
 foreach ($questions as $question) {
@@ -211,7 +226,7 @@ foreach ($runs as &$run) {
     $existing = $contributionbyrun[(int) $run['id']] ?? null;
     $runsettings = $service->quiz_settings((int) $run['quiz_id']);
     $run['show_oracle'] = !empty($runsettings['show_oracle_output']);
-    $run['display_status'] = $existing['status'] ?? 'private';
+    $run['display_status'] = $existing['status'] ?? ($run['oracle_outcome'] !== 'success' ? 'invalid' : 'private');
     $run['can_contribute'] = $cancontribute && !$existing && $run['oracle_outcome'] === 'success';
 }
 unset($run);
@@ -230,10 +245,16 @@ foreach (['normal', 'boundary', 'empty', 'invalid', 'large', 'branch', 'other'] 
 $templatedata = [
     'sesskey' => sesskey(),
     'can_manage' => $canmanage,
-    'can_review' => has_capability('local/testcase_exchange:review', $context),
+    'can_review' => $canreview,
+    'can_manage_or_review' => $isteacher,
+    'is_teacher' => $isteacher,
     'can_run' => has_capability('local/testcase_exchange:run', $context),
     'policy_url' => (new moodle_url('/local/testcase_exchange/policy.php', ['course' => $courseid]))->out(false),
     'review_url' => (new moodle_url('/local/testcase_exchange/review.php', ['course' => $courseid]))->out(false),
+    'pending_contribution_count' => $counts['pending'] ?? 0,
+    'course_contributions' => $enrichedcoursecontributions,
+    'has_course_contributions' => !empty($enrichedcoursecontributions),
+    'course_contribution_count' => count($enrichedcoursecontributions),
     'questions' => $viewquestions,
     'has_questions' => !empty($viewquestions),
     'categories' => $viewcategories,
