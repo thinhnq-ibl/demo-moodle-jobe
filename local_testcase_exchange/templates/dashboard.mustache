@@ -18,6 +18,15 @@
     </div>
 </div>
 {{/show_course_switcher}}
+
+{{#has_return_url}}
+<div class="mb-3 d-flex align-items-center">
+    <a class="btn btn-outline-secondary font-weight-bold" href="{{return_url}}">
+        &larr; {{#str}} backtocurrentquiz, local_testcase_exchange {{/str}}{{#return_quiz_name}}: <strong>{{return_quiz_name}}</strong>{{/return_quiz_name}}
+    </a>
+</div>
+{{/has_return_url}}
+
 {{#can_manage_or_review}}
 <div class="mb-3 d-flex flex-wrap align-items-center">
     {{#can_manage}}<a class="btn btn-secondary mr-2 mb-2" href="{{policy_url}}">{{#str}} managepolicies, local_testcase_exchange {{/str}}</a>{{/can_manage}}

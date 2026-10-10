@@ -148,12 +148,18 @@ require_capability('local/testcase_exchange:view', $context);
 
 $requestedselection = optional_param('question', '', PARAM_RAW_TRIMMED);
 $attemptid = optional_param('attempt', 0, PARAM_INT);
+$quizid = optional_param('quiz', 0, PARAM_INT);
+$cmid = optional_param('cmid', 0, PARAM_INT);
+
 $pageparams = ['course' => $courseid];
 if ($requestedselection !== '') {
     $pageparams['question'] = $requestedselection;
 }
 if ($attemptid > 0) {
     $pageparams['attempt'] = $attemptid;
+}
+if ($quizid > 0) {
+    $pageparams['quiz'] = $quizid;
 }
 $PAGE->set_url(new moodle_url('/local/testcase_exchange/index.php', $pageparams));
 $PAGE->set_context($context);
@@ -166,9 +172,20 @@ foreach ($questions as $question) {
     $questionmap[$question->quizid . ':' . $question->questionid] = $question;
 }
 
+if ($quizid > 0 && empty($requestedselection)) {
+    foreach ($questions as $q) {
+        if ((int) $q->quizid === $quizid) {
+            $requestedselection = $q->quizid . ':' . $q->questionid;
+            break;
+        }
+    }
+}
+
 $studentcode = '';
 $returnurl = '';
+$returnquizname = '';
 $selectedquestion = $questionmap[$requestedselection] ?? null;
+
 if ($attemptid > 0 && $selectedquestion) {
     $attempt = $DB->get_record_select(
         'quiz_attempts',
@@ -185,8 +202,9 @@ if ($attemptid > 0 && $selectedquestion) {
             (int) $attempt->uniqueid,
             (int) $selectedquestion->questionid
         );
-        if ($studentcode !== '') {
-            $cm = get_coursemodule_from_instance('quiz', $attempt->quiz, $courseid, false, MUST_EXIST);
+        $cm = get_coursemodule_from_instance('quiz', $attempt->quiz, $courseid, false, IGNORE_MISSING);
+        if ($cm) {
+            $returnquizname = $selectedquestion->quizname ?? '';
             if ($attempt->state === 'finished') {
                 $returnurl = (new moodle_url('/mod/quiz/review.php', [
                     'attempt' => $attempt->id,
@@ -198,6 +216,48 @@ if ($attemptid > 0 && $selectedquestion) {
                     'cmid' => $cm->id,
                 ]))->out(false);
             }
+        }
+    }
+}
+
+if ($returnurl === '') {
+    $targetquizid = $quizid;
+    if ($targetquizid === 0 && $cmid > 0) {
+        $cmobj = get_coursemodule_from_id('quiz', $cmid, $courseid, false, IGNORE_MISSING);
+        if ($cmobj) {
+            $targetquizid = (int) $cmobj->instance;
+        }
+    }
+    if ($targetquizid === 0 && $selectedquestion) {
+        $targetquizid = (int) $selectedquestion->quizid;
+    }
+    if ($targetquizid > 0) {
+        $cm = get_coursemodule_from_instance('quiz', $targetquizid, $courseid, false, IGNORE_MISSING);
+        if ($cm) {
+            $returnquizname = $DB->get_field('quiz', 'name', ['id' => $targetquizid]) ?: '';
+            $userattempt = $DB->get_record_sql(
+                "SELECT * FROM {quiz_attempts}
+                  WHERE quiz = :quiz AND userid = :userid AND state <> :abandoned
+               ORDER BY attempt DESC",
+                ['quiz' => $targetquizid, 'userid' => $USER->id, 'abandoned' => 'abandoned'],
+                IGNORE_MULTIPLE
+            );
+            if ($userattempt) {
+                if ($userattempt->state === 'finished') {
+                    $returnurl = (new moodle_url('/mod/quiz/review.php', ['attempt' => $userattempt->id, 'cmid' => $cm->id]))->out(false);
+                } else {
+                    $returnurl = (new moodle_url('/mod/quiz/attempt.php', ['attempt' => $userattempt->id, 'cmid' => $cm->id]))->out(false);
+                }
+            } else {
+                $returnurl = (new moodle_url('/mod/quiz/view.php', ['id' => $cm->id]))->out(false);
+            }
+        }
+    } else if (!empty($questions)) {
+        $firstquizid = (int) $questions[0]->quizid;
+        $cm = get_coursemodule_from_instance('quiz', $firstquizid, $courseid, false, IGNORE_MISSING);
+        if ($cm) {
+            $returnquizname = $questions[0]->quizname;
+            $returnurl = (new moodle_url('/mod/quiz/view.php', ['id' => $cm->id]))->out(false);
         }
     }
 }
@@ -403,6 +463,7 @@ $templatedata = [
     'current_question_name' => $selectedquestion->questionname ?? '',
     'return_url' => $returnurl,
     'has_return_url' => $returnurl !== '',
+    'return_quiz_name' => $returnquizname,
     'runs' => $runs,
     'run_count' => count($runs),
     'contributions' => $contributions,

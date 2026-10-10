@@ -122,6 +122,7 @@ class quizaccess_testcaseexchange extends access_rule_base {
 
         $dashboardurl = new moodle_url('/local/testcase_exchange/index.php', [
             'course' => $courseid,
+            'quiz' => $quizid,
         ]);
 
         $btn = html_writer::link(

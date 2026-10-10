@@ -272,6 +272,17 @@ foreach ($rawcourses as $rc) {
     ];
 }
 
+$quizid = optional_param('quiz', 0, PARAM_INT);
+$returnurl = '';
+$returnquizname = '';
+if ($quizid > 0) {
+    $cm = get_coursemodule_from_instance('quiz', $quizid, $courseid, false, IGNORE_MISSING);
+    if ($cm) {
+        $returnurl = (new moodle_url('/mod/quiz/view.php', ['id' => $cm->id]))->out(false);
+        $returnquizname = $DB->get_field('quiz', 'name', ['id' => $quizid]) ?: '';
+    }
+}
+
 echo $OUTPUT->header();
 echo $OUTPUT->render_from_template('local_testcase_exchange/review', [
     'sesskey' => sesskey(),
@@ -281,6 +292,9 @@ echo $OUTPUT->render_from_template('local_testcase_exchange/review', [
     'current_course_shortname' => $course->shortname,
     'available_courses' => $availablecourselist,
     'show_course_switcher' => (count($availablecourselist) > 1 || $issiteadmin),
+    'return_url' => $returnurl,
+    'has_return_url' => ($returnurl !== ''),
+    'return_quiz_name' => $returnquizname,
     'dashboard_url' => (new moodle_url('/local/testcase_exchange/index.php', ['course' => $courseid]))->out(false),
     'current_status' => $statusparam,
     'status_tabs' => $statustabs,
