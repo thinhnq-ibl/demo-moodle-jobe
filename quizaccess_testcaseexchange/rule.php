@@ -120,27 +120,30 @@ class quizaccess_testcaseexchange extends access_rule_base {
         $quizid = $this->quiz->id;
         $courseid = $this->quiz->course;
 
-        $dashboard_url = new moodle_url('/local/testcase_exchange/index.php', [
+        $dashboardurl = new moodle_url('/local/testcase_exchange/index.php', [
             'course' => $courseid,
         ]);
 
         $btn = html_writer::link(
-            $dashboard_url,
+            $dashboardurl,
             get_string('gotodashboard', 'quizaccess_testcaseexchange'),
-            ['class' => 'btn btn-success btn-sm ms-2 fw-bold text-white', 'target' => '_blank']
+            ['class' => 'btn btn-outline-primary font-weight-bold text-nowrap']
         );
 
-        $html = html_writer::div(
-            '<div class="d-flex align-items-center justify-content-between w-100 flex-wrap gap-2">' .
-                '<div>' .
-                    '🚀 <b>' . get_string('testcasebanner', 'quizaccess_testcaseexchange') . '</b>' .
-                    '<br><small class="text-muted">Đóng góp testcase độc nhất để tích hợp vào bộ chấm và nhận quà tặng testcase từ bạn học.</small>' .
+        $headertext = get_string('testcasebanner', 'quizaccess_testcaseexchange');
+        $desctext = get_string('testcasebanner_desc', 'quizaccess_testcaseexchange');
+
+        $content = html_writer::div(
+            '<div class="d-flex align-items-center justify-content-between flex-wrap">' .
+                '<div class="mr-3 mb-2 mb-md-0">' .
+                    '<div class="font-weight-bold text-dark mb-1">' . $headertext . '</div>' .
+                    '<div class="text-muted small">' . $desctext . '</div>' .
                 '</div>' .
-                '<div>' . $btn . '</div>' .
+                '<div class="mt-1 mt-md-0">' . $btn . '</div>' .
             '</div>',
-            'alert alert-success border border-success my-3 shadow-sm'
+            'card bg-light border p-3 my-4'
         );
 
-        return $html;
+        return $content;
     }
 }
