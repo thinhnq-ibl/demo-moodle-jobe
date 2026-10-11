@@ -25068,7 +25068,7 @@ INSERT INTO `mdl_sessions` VALUES
 (68,0,'f52fc19a930344c60912fde00f0764bc',3,NULL,1791384168,1791384941,'172.21.0.1','172.21.0.1'),
 (70,0,'1202da9949d36abfcb2d1a6114fe0406',3,NULL,1791555297,1791555360,'172.21.0.1','172.21.0.1'),
 (90,0,'171fe8434985138e8f79cd352b4d73fb',3,NULL,1791604419,1791605190,'172.21.0.1','172.21.0.1'),
-(92,0,'6ce4cd0b28eeefac4b800a3c57349a7d',2,NULL,1791616773,1791619129,'172.21.0.1','192.168.65.1'),
+(92,0,'6ce4cd0b28eeefac4b800a3c57349a7d',2,NULL,1791616773,1791620232,'172.21.0.1','192.168.65.1'),
 (94,0,'ae8bc0ae417210f8934842514d8835a0',2,NULL,1791617766,1791617767,'172.21.0.1','172.21.0.1'),
 (96,0,'2956725fc13ef27ad837c56bf94ed237',2,NULL,1791618062,1791618063,'192.168.65.1','192.168.65.1'),
 (98,0,'3d9b3e0c35ff63a7f6cf524a1bbba0ba',2,NULL,1791618275,1791618276,'192.168.65.1','192.168.65.1'),
@@ -28818,7 +28818,7 @@ LOCK TABLES `mdl_user` WRITE;
 /*!40000 ALTER TABLE `mdl_user` DISABLE KEYS */;
 INSERT INTO `mdl_user` VALUES
 (1,'manual',1,0,0,0,1,'guest','$6$rounds=10000$o/MKbxczQc8zhSI4$pp1e8LmfRdmolIva5DSTurhEK1mmJaEAW4imb1O2lik9hlkXcTO3fGRaHzqpif/huTKkR2obsg1fQIs7W9efH0','','Guest user',' ','root@localhost',0,'','','','','','','','en','gregorian','','99',0,0,0,0,'','',0,'This user is a special user that allows read-only access to some courses.',1,1,0,2,1,0,0,1790344224,0,NULL,NULL,NULL,NULL,NULL,NULL),
-(2,'manual',1,0,0,0,1,'admin','$6$rounds=10000$0/.Hxa/pAyXiNILP$ihsQRfRNfvso.S9wyTBPPIxYb4kc9keDJEh88QLo76Z3O8a/9QErLtZbGXRGuYiiZvF33ywMDUi9xKWFKwbe3/','','Admin','User','admin@example.com',0,'','','','','','','','en','gregorian','','99',1790344812,1791619129,1791619056,1791619099,'192.168.65.1','',0,NULL,1,1,0,1,1,0,0,1790344224,0,NULL,NULL,NULL,NULL,NULL,NULL),
+(2,'manual',1,0,0,0,1,'admin','$6$rounds=10000$0/.Hxa/pAyXiNILP$ihsQRfRNfvso.S9wyTBPPIxYb4kc9keDJEh88QLo76Z3O8a/9QErLtZbGXRGuYiiZvF33ywMDUi9xKWFKwbe3/','','Admin','User','admin@example.com',0,'','','','','','','','en','gregorian','','99',1790344812,1791620232,1791619056,1791619099,'192.168.65.1','',0,NULL,1,1,0,1,1,0,0,1790344224,0,NULL,NULL,NULL,NULL,NULL,NULL),
 (3,'manual',1,1,0,0,1,'student1','$6$rounds=10000$wEr9WanmWK0PmLKI$HcDDHwKfyphtUqaOJR/fsNPwKA3eFgi.UZHRfIpxeBI9t89vI0Qke60fwJ3tTpXZIlvw38rg.K4zbH5sFXIIh.','','Nguyễn Văn','Sinh Viên 1','student1@example.com',0,'','','','','','','','en','gregorian','','99',1790345263,1791605190,1791601705,1791604419,'172.21.0.1','',0,NULL,1,1,0,2,1,0,1790344298,1790344298,0,NULL,NULL,NULL,NULL,NULL,NULL),
 (4,'manual',1,1,0,0,1,'student2','$6$rounds=10000$wvb6wN1xHctccOLx$On9Lrh/1hVSEdNU8to2/3/zXCblUDGqWAi0CZhf/uujwph.tEeezJSbNOERFndeM9Gj6pie/SevVjjDCn70tB/','','Trần Thị','Sinh Viên 2','student2@example.com',0,'','','','','','','','en','gregorian','','99',1790949011,1791384615,1791383182,1791384009,'172.21.0.1','',0,NULL,1,1,0,2,1,0,1790344298,1790344298,0,NULL,NULL,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `mdl_user` ENABLE KEYS */;
@@ -29951,6 +29951,14 @@ COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 
 --
+-- Dumping events for database 'moodle'
+--
+
+--
+-- Dumping routines for database 'moodle'
+--
+
+--
 -- Current Database: `testcase_store`
 --
 
@@ -30431,6 +30439,14 @@ INSERT INTO `testcase_runs` VALUES
 UNLOCK TABLES;
 COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
+
+--
+-- Dumping events for database 'testcase_store'
+--
+
+--
+-- Dumping routines for database 'testcase_store'
+--
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -30441,4 +30457,15 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-10-10  8:00:46
+-- Dump completed on 2026-10-10  8:28:07
+
+-- =================================================================
+-- Cấp quyền người dùng cho testcase_store và Moodle integration
+-- =================================================================
+CREATE USER IF NOT EXISTS 'moodle_app_writer'@'%' IDENTIFIED BY 'JobeSecret123!';
+GRANT ALL PRIVILEGES ON `testcase_store`.* TO 'moodle_app_writer'@'%';
+CREATE USER IF NOT EXISTS 'jobe_user'@'%' IDENTIFIED BY 'JobeSecret123!';
+GRANT ALL PRIVILEGES ON `testcase_store`.* TO 'jobe_user'@'%';
+CREATE USER IF NOT EXISTS 'moodle_reader'@'%' IDENTIFIED BY 'ReaderSecret123!';
+GRANT SELECT ON `testcase_store`.* TO 'moodle_reader'@'%';
+FLUSH PRIVILEGES;

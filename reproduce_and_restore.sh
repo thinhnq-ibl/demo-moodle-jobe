@@ -10,10 +10,32 @@ echo "================================================================="
 echo " 🚀 HỆ THỐNG TÁI LẬP MOODLE + CODERUNNER + DUAL JOBE SANDBOX "
 echo "================================================================="
 
-# 1. Kiểm tra Docker
+# 1. Kiểm tra và tự động khởi động Docker daemon nếu chưa chạy
 if ! command -v docker &> /dev/null; then
     echo "❌ Lỗi: Không tìm thấy lệnh docker! Vui lòng cài đặt Docker trước."
     exit 1
+fi
+
+if ! docker info &> /dev/null; then
+    echo "⚠️ Docker daemon chưa chạy. Đang thử khởi động Docker..."
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        open -a Docker 2>/dev/null || true
+    elif command -v systemctl &> /dev/null; then
+        sudo systemctl start docker 2>/dev/null || true
+    fi
+
+    echo "Đang chờ Docker daemon sẵn sàng..."
+    DAEMON_WAIT=0
+    while ! docker info &> /dev/null && [ "$DAEMON_WAIT" -lt 30 ]; do
+        DAEMON_WAIT=$((DAEMON_WAIT+1))
+        sleep 2
+    done
+
+    if ! docker info &> /dev/null; then
+        echo "❌ Lỗi: Docker daemon vẫn chưa chạy! Vui lòng mở Docker Desktop hoặc chạy 'sudo systemctl start docker'."
+        exit 1
+    fi
+    echo "✓ Docker daemon đã sẵn sàng!"
 fi
 
 COMPOSE_FILE="docker-compose.yml"
@@ -101,6 +123,19 @@ if [ "$DO_RESTORE" = true ]; then
         docker exec -i moodle_mariadb /opt/bitnami/mariadb/bin/mariadb -u root -prootpassword < "$BACKUP_SQL"
         echo "  ✓ Đã nạp thành công 2 CSDL: moodle và testcase_store!"
     fi
+
+    # Đảm bảo phân quyền truy cập cho testcase_store
+    echo "  Đang đảm bảo quyền truy cập MariaDB cho plugin testcase_store..."
+    docker exec -i moodle_mariadb /opt/bitnami/mariadb/bin/mariadb -u root -prootpassword << 'EOSQL'
+CREATE USER IF NOT EXISTS 'moodle_app_writer'@'%' IDENTIFIED BY 'JobeSecret123!';
+GRANT ALL PRIVILEGES ON `testcase_store`.* TO 'moodle_app_writer'@'%';
+CREATE USER IF NOT EXISTS 'jobe_user'@'%' IDENTIFIED BY 'JobeSecret123!';
+GRANT ALL PRIVILEGES ON `testcase_store`.* TO 'jobe_user'@'%';
+CREATE USER IF NOT EXISTS 'moodle_reader'@'%' IDENTIFIED BY 'ReaderSecret123!';
+GRANT SELECT ON `testcase_store`.* TO 'moodle_reader'@'%';
+FLUSH PRIVILEGES;
+EOSQL
+    echo "  ✓ Đã thiết lập phân quyền moodle_app_writer, jobe_user, moodle_reader!"
 
     # Khôi phục volume moodledata
     if [ -f "$BACKUP_MOODLEDATA" ]; then

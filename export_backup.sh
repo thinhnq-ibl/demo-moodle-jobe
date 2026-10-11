@@ -13,13 +13,27 @@ mkdir -p metadata
 
 # 1. Trích xuất CSDL với transaction nhất quán tuyệt đối (InnoDB snapshot)
 echo ""
-echo "[1/3] Đang sao lưu CSDL MariaDB (moodle & testcase_store) với --single-transaction..."
-docker exec moodle_mariadb mariadb-dump -u root -prootpassword \
-    --single-transaction \
-    --routines \
-    --events \
-    --triggers \
-    --databases moodle testcase_store | gzip -9 > "$BACKUP_SQL"
+echo "[1/3] Đang sao lưu CSDL MariaDB (moodle & testcase_store) kèm quyền truy cập..."
+{
+    docker exec moodle_mariadb mariadb-dump -u root -prootpassword \
+        --single-transaction \
+        --routines \
+        --events \
+        --triggers \
+        --databases moodle testcase_store
+
+    echo ""
+    echo "-- ================================================================="
+    echo "-- Cấp quyền người dùng cho testcase_store và Moodle integration"
+    echo "-- ================================================================="
+    echo "CREATE USER IF NOT EXISTS 'moodle_app_writer'@'%' IDENTIFIED BY 'JobeSecret123!';"
+    echo "GRANT ALL PRIVILEGES ON \`testcase_store\`.* TO 'moodle_app_writer'@'%';"
+    echo "CREATE USER IF NOT EXISTS 'jobe_user'@'%' IDENTIFIED BY 'JobeSecret123!';"
+    echo "GRANT ALL PRIVILEGES ON \`testcase_store\`.* TO 'jobe_user'@'%';"
+    echo "CREATE USER IF NOT EXISTS 'moodle_reader'@'%' IDENTIFIED BY 'ReaderSecret123!';"
+    echo "GRANT SELECT ON \`testcase_store\`.* TO 'moodle_reader'@'%';"
+    echo "FLUSH PRIVILEGES;"
+} | gzip -9 > "$BACKUP_SQL"
 
 # Đồng thời tạo file sql giải nén để tương thích ngược nếu cần
 gunzip -c "$BACKUP_SQL" > backup_moodle_and_testcase.sql

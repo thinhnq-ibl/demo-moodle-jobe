@@ -17,19 +17,52 @@ Hệ thống này là môi trường nghiên cứu PhD tích hợp bao gồm:
 
 ---
 
-## 2. ĐIỀU KIỆN TIÊN QUYẾT (PRE-FLIGHT CHECKS)
-Trước khi chạy lệnh khôi phục, Agent hãy thực thi các lệnh kiểm tra sau trong shell:
+## 2. ĐIỀU KIỆN TIÊN QUYẾT & KHỞI ĐỘNG DOCKER (PRE-FLIGHT & START DOCKER)
 
+### 2.1. Kiểm tra và Khởi động Docker Daemon
+Nếu Docker daemon chưa chạy, Agent hãy dùng lệnh tương ứng với hệ điều hành để bật:
+
+- **Trên macOS**:
+  ```bash
+  open -a Docker
+  # Đợi Docker daemon sẵn sàng
+  until docker info > /dev/null 2>&1; do sleep 2; done
+  echo "✓ Docker daemon macOS đã sẵn sàng!"
+  ```
+- **Trên Linux (Ubuntu / Debian / RHEL)**:
+  ```bash
+  sudo systemctl start docker
+  until docker info > /dev/null 2>&1; do sleep 2; done
+  echo "✓ Docker daemon Linux đã sẵn sàng!"
+  ```
+- **Trên Windows (WSL2 / PowerShell)**:
+  ```powershell
+  Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+  ```
+
+*(Lưu ý: Script `reproduce_and_restore.sh` đã được tích hợp sẵn đoạn mã tự phát hiện và tự động gọi `open -a Docker` hoặc `systemctl start docker` nếu Docker đang tắt).*
+
+### 2.2. Cơ chế Tải và Dựng Docker Images (Image Build & Pull)
+Hệ thống **không yêu cầu Agent phải clone bất kỳ repository bên ngoài nào**, vì mọi cấu hình và Dockerfile đã có sẵn trong gói:
+1. `Dockerfile`: Tự động kéo base image `moodlehq/moodle-php-apache:8.2`, tải Moodle 4.4 stable và CodeRunner plugin.
+2. `Dockerfile.jobe`: Kéo base image `trampgeek/jobeinabox:latest` thiết lập sandbox compiler.
+3. `docker-compose.yml`: Kéo `bitnami/mariadb:latest` và điều phối 4 container.
+
+Nếu Agent muốn chủ động tải trước hoặc build image trước khi chạy khôi phục:
 ```bash
-# 1. Kiểm tra Docker daemon đang hoạt động
-docker info > /dev/null 2>&1 || { echo "❌ Docker daemon chưa chạy. Khởi động Docker trước."; exit 1; }
+# Tải và build toàn bộ 4 service trước
+docker compose build --pull
+docker compose pull mariadb
+```
 
-# 2. Kiểm tra các cổng 8080, 3306, 4001, 4002 không bị chiếm dụng
+### 2.3. Kiểm tra cổng và tệp dữ liệu
+```bash
+# Kiểm tra cổng 8080, 3306, 4001, 4002 không bị chiếm dụng
 for port in 8080 3306 4001 4002; do
   lsof -i :$port > /dev/null 2>&1 && echo "⚠️ Cảnh báo: Cổng $port đang được sử dụng!"
 done
 
-# 3. Kiểm tra các tệp lưu trữ bắt buộc
+# Kiểm tra các tệp dữ liệu cốt lõi có trong thư mục
 ls -lh backup_moodle_and_testcase.sql.gz moodledata.tar.gz docker-compose.yml metadata/manifest.json
 ```
 
@@ -67,6 +100,28 @@ Agent có thể theo dõi tiến trình 5 bước của script:
    - Cấu hình CodeRunner: `jobe_host="jobe1;jobe2"` và gỡ chặn cURL: `curlsecurityblockedhosts=""`.
    - Làm mới bộ nhớ đệm: `purge_caches.php`.
 6. **Bước 5 (Health Check)**: Kiểm tra API của `jobe1`, `jobe2` và số lượng user trong DB.
+
+### 4.1. Cơ chế Cài đặt & Cấu hình Moodle + CodeRunner
+> [!NOTE]
+> **Không cần cài đặt thủ công qua giao diện web:**
+> - Moodle 4.4 Stable và plugin CodeRunner (`qtype_coderunner` + `qbehaviour_adaptive_adapted_for_coderunner`) **đã được tích hợp sẵn 100% trong Dockerfile**.
+> - CSDL Moodle và phân quyền đã được import đầy đủ qua script.
+> - Nếu Agent muốn cài đặt lại hoặc cấu hình lại CodeRunner bằng lệnh CLI độc lập:
+>   ```bash
+>   # 1. Cập nhật schema plugin vào Moodle:
+>   docker exec moodle_app php /var/www/html/admin/cli/upgrade.php --non-interactive
+>
+>   # 2. Cấu hình CodeRunner trỏ tới 2 máy chủ Jobe sandbox:
+>   docker exec moodle_app php /var/www/html/admin/cli/cfg.php --component=qtype_coderunner --name=jobe_host --set="jobe1;jobe2"
+>
+>   # 3. Mở chặn cURL nội bộ Docker (Moodle mặc định chặn kết nối đến hostname local):
+>   docker exec moodle_app php /var/www/html/admin/cli/cfg.php --name=curlsecurityblockedhosts --set=""
+>
+>   # 4. Xóa cache Moodle:
+>   docker exec moodle_app php /var/www/html/admin/cli/purge_caches.php
+>   ```
+> - **URL Tự kiểm tra CodeRunner Sandbox (Self-test)**:  
+>   `http://localhost:8080/question/type/coderunner/sandboxcheck.php` (Đăng nhập với tài khoản `admin`)
 
 ---
 

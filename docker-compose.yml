@@ -50,7 +50,7 @@ services:
     ports:
       - "8080:80"
     environment:
-      - MOODLE_WWWROOT=http://localhost:8080
+      - MOODLE_WWWROOT=${MOODLE_WWWROOT:-http://localhost:8080}
       - MOODLE_DB_HOST=mariadb
       - MOODLE_DB_PORT=3306
       - MOODLE_DB_NAME=moodle
