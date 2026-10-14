@@ -190,6 +190,41 @@ curl -I -s http://localhost:8080 | head -n 1
 | **Jobe 1 Direct Port** | `http://localhost:4001/jobe/index.php/restapi/languages` | REST API |
 | **Jobe 2 Direct Port** | `http://localhost:4002/jobe/index.php/restapi/languages` | REST API |
 
+> Trong backup hiện tại, username được tạo là `student1` và `student2`. Mật khẩu hai tài khoản mẫu được thiết lập bởi fixture là `StudentPassword123!`. Nếu triển khai production, hãy đổi các mật khẩu mặc định trước khi mở hệ thống ra mạng.
+
+### 6.1. Hướng dẫn sử dụng plugin Testcase Exchange
+
+Plugin chỉ hiển thị các câu hỏi CodeRunner thuộc Quiz trong khóa học hiện tại. Testcase đóng góp là dữ liệu tham khảo được chia sẻ theo chính sách; chúng không tự động thêm vào bộ test chấm điểm chính thức của CodeRunner.
+
+**Giảng viên: cấu hình khóa học và câu hỏi**
+1. Đăng nhập bằng tài khoản có quyền quản lý chính sách, mở **Kho Testcase Hub** trong khóa học (ví dụ khóa AI-PY-PILOT: `http://localhost:8080/local/testcase_exchange/index.php?course=4`).
+2. Chọn biểu tượng cấu hình chính sách cho khóa học/câu hỏi cần dùng.
+3. Chọn Quiz và câu hỏi CodeRunner, bật tính năng; cấu hình chế độ duyệt (`teacher` để giảng viên duyệt), chính sách trao testcase (`one_for_one` hoặc tắt), hiển thị oracle output, giới hạn số lần chạy và kích thước input.
+4. Chọn kiểu input (`stdin`, `testcode` hoặc template có `{{INPUT}}`), cách chuẩn hóa kết quả (`raw`, `trim` hoặc `json`) và các nhóm testcase phù hợp; lưu cấu hình.
+
+**Sinh viên: chạy và đề xuất testcase**
+1. Đăng nhập bằng tài khoản sinh viên đã ghi danh vào khóa học, mở Quiz và câu hỏi CodeRunner có bật chính sách đóng góp.
+2. Nhập/chỉnh sửa lời giải, testcase input, kết quả dự đoán, mục đích và nhóm testcase.
+3. Chạy testcase để xem kết quả của mã sinh viên và lời giải tham chiếu. Lần chạy này riêng tư; dữ liệu chỉ được gửi vào hàng chờ chia sẻ khi sinh viên chọn **Đề xuất chia sẻ**.
+4. Theo dõi trạng thái đề xuất trên giao diện plugin. Giảng viên có thể yêu cầu giải thích thêm hoặc từ chối testcase.
+
+**Giảng viên: duyệt và đánh giá**
+1. Từ Hub chọn **Duyệt testcase**, hoặc mở `http://localhost:8080/local/testcase_exchange/review.php?course=4` cho khóa AI-PY-PILOT.
+2. Lọc theo câu hỏi, kiểm tra input, kết quả oracle, mục đích và nhóm testcase.
+3. Chọn duyệt, yêu cầu giải thích hoặc từ chối; có thể thêm nhận xét và đánh giá sao. Testcase đã duyệt được chia sẻ/trao theo chính sách đã cấu hình.
+
+Tài khoản admin dùng để quản trị và duyệt; tài khoản `student1`/`student2` dùng để thử luồng sinh viên. Tài khoản sinh viên cần được ghi danh vào khóa học có Quiz CodeRunner.
+
+### 6.2. Cài đặt/nâng cấp plugin từ gói ZIP
+
+Gói phát hành mới nhất trong workspace: `dist/local_testcase_exchange-2.2.0.zip`.
+
+1. Sao lưu CSDL Moodle và thư mục plugin hiện có trước khi nâng cấp.
+2. Đăng nhập Moodle bằng admin, mở **Site administration > Plugins > Install plugins**, tải ZIP lên và chọn **Install plugin from the ZIP file**.
+3. Xác nhận component `local_testcase_exchange`, tiếp tục qua trang kiểm tra plugin và chọn **Upgrade Moodle database now**.
+4. Sau nâng cấp, mở **Site administration > Plugins > Local plugins > CodeRunner Testcase Exchange** kiểm tra cấu hình kho DB/Jobe; trong Docker Compose, `entrypoint.sh` đồng bộ cấu hình từ các biến `TESTCASE_*` khi container khởi động.
+5. Chạy **Purge caches** nếu giao diện chưa cập nhật, rồi kiểm tra Hub và trang Review bằng tài khoản phù hợp.
+
 ---
 
 ## 7. CẨM NANG XỬ LÝ SỰ CỐ DÀNH CHO AGENT (TROUBLESHOOTING PLAYBOOK)
