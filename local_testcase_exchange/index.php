@@ -341,6 +341,25 @@ if ($service && data_submitted()) {
                 null,
                 \core\output\notification::NOTIFY_SUCCESS
             );
+        } else if ($action === 'claim_reward') {
+            require_capability('local/testcase_exchange:view', $context);
+            $rewardid = required_param('reward_id', PARAM_INT);
+            $ok = $service->claim_reward($rewardid, (int) $USER->id, $courseid);
+            if ($ok) {
+                redirect(
+                    $PAGE->url,
+                    get_string('rewardclaimedsuccess', 'local_testcase_exchange'),
+                    null,
+                    \core\output\notification::NOTIFY_SUCCESS
+                );
+            } else {
+                redirect(
+                    $PAGE->url,
+                    get_string('invalidreward', 'local_testcase_exchange'),
+                    null,
+                    \core\output\notification::NOTIFY_ERROR
+                );
+            }
         }
     } catch (Throwable $e) {
         $message = $e instanceof moodle_exception ? $e->getMessage() :
@@ -471,6 +490,22 @@ $templatedata = [
     'rewards' => $rewards,
     'reward_count' => count($rewards),
 ];
+
+$leaderboarddata = $service ? $service->course_leaderboard($courseid, (int) $USER->id) : [
+    'leaderboard' => [], 'my_rank' => 0, 'my_stars' => 0, 'my_count' => 0,
+    'top_user_name' => '', 'top_stars' => 0, 'top_count' => 0, 'has_leaderboard' => false,
+];
+$templatedata = array_merge($templatedata, $leaderboarddata);
+
+// Count unclaimed rewards for user
+$unclaimedrewards = 0;
+foreach ($rewards as $rw) {
+    if (empty($rw['is_claimed_bool'])) {
+        $unclaimedrewards++;
+    }
+}
+$templatedata['unclaimed_rewards_count'] = $unclaimedrewards;
+$templatedata['has_unclaimed_rewards'] = ($unclaimedrewards > 0);
 
 echo $OUTPUT->header();
 echo $OUTPUT->render_from_template('local_testcase_exchange/dashboard', $templatedata);

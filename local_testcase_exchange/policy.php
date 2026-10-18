@@ -65,6 +65,45 @@ if (data_submitted()) {
         throw new moodle_exception('invalidcontext', 'local_testcase_exchange');
     }
     try {
+        $action = optional_param('action', 'save_policy', PARAM_ALPHAEXT);
+        if ($action === 'sync_seeds') {
+            $count = $service->sync_question_testsuites($courseid, (int) $selected->quizid, (int) $selected->questionid);
+            redirect(
+                new moodle_url($PAGE->url, ['question' => $selection]),
+                "Đã quét và đồng bộ thành công {$count} testcase hạt giống (Suite 2) từ câu hỏi vào Ngân hàng thưởng của môn học!",
+                null,
+                \core\output\notification::NOTIFY_SUCCESS
+            );
+        } else if ($action === 'auto_partition') {
+            // Auto partition legacy tests into 3 suites: Test 1 -> example, Test 2,3 -> seed reward, Test 4,5 -> HIDE
+            $tests = $DB->get_records('question_coderunner_tests', ['questionid' => $selected->questionid], 'id ASC');
+            $idx = 1;
+            foreach ($tests as $t) {
+                if ($idx === 1) {
+                    $t->useasexample = 1;
+                    $t->display = 'SHOW';
+                    $t->extra = 'sample';
+                } else if ($idx <= 3) {
+                    $t->useasexample = 0;
+                    $t->display = 'SHOW';
+                    $t->extra = 'reward_bank';
+                } else {
+                    $t->useasexample = 0;
+                    $t->display = 'HIDE';
+                    $t->extra = 'grading';
+                }
+                $DB->update_record('question_coderunner_tests', $t);
+                $idx++;
+            }
+            $synced = $service->sync_question_testsuites($courseid, (int) $selected->quizid, (int) $selected->questionid);
+            redirect(
+                new moodle_url($PAGE->url, ['question' => $selection]),
+                "Đã tự động phân tách 3 bộ testcase cho câu hỏi (Test 1 làm Mẫu, Test 2-3 làm Thưởng, Test 4-5 làm Chấm điểm HIDE) và đồng bộ {$synced} ca vào ngân hàng thưởng!",
+                null,
+                \core\output\notification::NOTIFY_SUCCESS
+            );
+        }
+
         $service->save_quiz_settings((int) $selected->quizid, (int) $USER->id, [
             'enabled' => optional_param('enabled', 0, PARAM_BOOL),
             'review_mode' => required_param('review_mode', PARAM_ALPHA),

@@ -197,6 +197,24 @@ $string['reviewcontributionsbtn'] = 'Review contributions';
 $string['totalcontributions'] = 'Total contributions';
 $string['pendingcount'] = 'Pending';
 $string['approvedcount'] = 'Approved';
-$string['nocourseswithcoderunner'] = 'No courses with CodeRunner questions were found on this site.';
 $string['backtocoursehub'] = 'Back to course list';
+
+$string['leaderboard'] = 'Leaderboard';
+$string['course_leaderboard_title'] = 'Course Testcase Contribution Hall of Fame';
+$string['leaderboard_rules_hint'] = 'Ranking rules: 1. Total Stars ⭐ | 2. Approved count | 3. Earliest contribution';
+$string['rank'] = 'Rank';
+$string['rank_1'] = 'Champion';
+$string['your_rank'] = 'Your Rank';
+$string['no_leaderboard_yet'] = 'No leaderboard data available in this course yet.';
+$string['total_stars'] = 'Total Stars ⭐';
+$string['approved_testcases'] = 'Approved Testcases';
+$string['first_contribution'] = 'First Contribution';
+$string['claimed'] = 'Claimed';
+$string['unclaimed'] = 'Unclaimed';
+$string['claim_reward_btn'] = 'Claim Reward';
+$string['rewardclaimedsuccess'] = 'Congratulations! You unlocked a new reward testcase!';
+$string['invalidreward'] = 'Reward is invalid or has already been claimed.';
+$string['unclaimed_rewards_alert'] = 'New reward waiting for you to claim';
+$string['ready_for_check'] = 'Ready for Check execution';
+$string['norewardsfound'] = 'You have no rewards yet. Contribute new testcases to earn rewards!';
 

@@ -63,13 +63,63 @@
 {{^show_run_form}}<div class="alert alert-info">{{#str}} submitcodebeforetesting, local_testcase_exchange {{/str}}</div>{{/show_run_form}}
 {{/has_questions}}</div></div>
 {{/can_run}}
+{{! Personal Rank & Stats Banner }}
+<div class="card bg-light border-primary mb-4 shadow-sm">
+    <div class="card-body py-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center">
+            <div class="d-flex align-items-center mb-2 mb-md-0">
+                <span class="display-4 mr-3" style="font-size: 2.2rem;">🏆</span>
+                <div>
+                    <h5 class="mb-1 text-primary font-weight-bold">{{#str}} leaderboard, local_testcase_exchange {{/str}} - {{current_course_shortname}}</h5>
+                    <div class="text-muted small">
+                        {{#has_leaderboard}}
+                        🥇 <strong>{{#str}} rank_1, local_testcase_exchange {{/str}}:</strong> {{top_user_name}} (<span class="text-warning font-weight-bold">{{top_stars}} ⭐</span> | {{top_count}} testcases)
+                        {{/has_leaderboard}}
+                        {{^has_leaderboard}}
+                        <em>{{#str}} no_leaderboard_yet, local_testcase_exchange {{/str}}</em>
+                        {{/has_leaderboard}}
+                    </div>
+                </div>
+            </div>
+            <div class="text-md-right">
+                <div class="h5 mb-0">
+                    <span class="badge badge-primary p-2">
+                        👤 {{#str}} your_rank, local_testcase_exchange {{/str}}: <strong>{{#my_rank}}#{{my_rank}}{{/my_rank}}{{^my_rank}}—{{/my_rank}}</strong>
+                    </span>
+                    <span class="badge badge-warning text-dark p-2 ml-1">
+                        {{my_stars}} ⭐
+                    </span>
+                    <span class="badge badge-info p-2 ml-1">
+                        {{my_count}} testcases
+                    </span>
+                </div>
+                {{#has_unclaimed_rewards}}
+                <div class="mt-2">
+                    <a href="#rewards" data-toggle="tab" class="badge badge-danger p-2 animate-pulse text-white">
+                        🎁 {{#str}} unclaimed_rewards_alert, local_testcase_exchange {{/str}}: <strong>{{unclaimed_rewards_count}}</strong>
+                    </a>
+                </div>
+                {{/has_unclaimed_rewards}}
+            </div>
+        </div>
+    </div>
+</div>
+
 <ul class="nav nav-tabs" role="tablist">
     {{#is_teacher}}
     <li class="nav-item"><a class="nav-link active font-weight-bold" data-toggle="tab" href="#course_contributions">{{#str}} coursecontributions, local_testcase_exchange {{/str}} ({{course_contribution_count}})</a></li>
     {{/is_teacher}}
     <li class="nav-item"><a class="nav-link {{^is_teacher}}active{{/is_teacher}}" data-toggle="tab" href="#runs">{{#str}} myruns, local_testcase_exchange {{/str}} ({{run_count}})</a></li>
     <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#contributions">{{#str}} mycontributions, local_testcase_exchange {{/str}} ({{contribution_count}})</a></li>
-    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#rewards">{{#str}} myrewards, local_testcase_exchange {{/str}} ({{reward_count}})</a></li>
+    <li class="nav-item">
+        <a class="nav-link position-relative" data-toggle="tab" href="#rewards">
+            {{#str}} myrewards, local_testcase_exchange {{/str}} ({{reward_count}})
+            {{#has_unclaimed_rewards}}
+            <span class="badge badge-danger ml-1">{{unclaimed_rewards_count}}</span>
+            {{/has_unclaimed_rewards}}
+        </a>
+    </li>
+    <li class="nav-item"><a class="nav-link font-weight-bold text-dark" data-toggle="tab" href="#leaderboard">🏆 {{#str}} leaderboard, local_testcase_exchange {{/str}}</a></li>
 </ul>
 <div class="tab-content border border-top-0 p-3 mb-4">
     {{#is_teacher}}
@@ -86,5 +136,100 @@
     {{/is_teacher}}
     <div class="tab-pane {{^is_teacher}}active{{/is_teacher}}" id="runs"><div class="table-responsive"><table class="table table-sm table-striped"><thead><tr><th>ID</th><th>Input</th><th>{{#str}} predictedoutput, local_testcase_exchange {{/str}}</th><th>{{#str}} studentoutput, local_testcase_exchange {{/str}}</th><th>{{#str}} oracleoutput, local_testcase_exchange {{/str}}</th><th>{{#str}} status {{/str}}</th><th></th></tr></thead><tbody>{{#runs}}<tr><td>{{id}}</td><td><pre class="mb-0">{{input_raw}}</pre></td><td><pre class="mb-0">{{predicted_output}}</pre></td><td><pre class="mb-0">{{student_run_output}}</pre><small>{{student_outcome}}</small></td><td>{{#show_oracle}}<pre class="mb-0">{{oracle_output}}</pre>{{/show_oracle}}{{^show_oracle}}—{{/show_oracle}}<small>{{oracle_outcome}}</small></td><td>{{display_status}}</td><td>{{#can_contribute}}<form method="post"><input type="hidden" name="sesskey" value="{{sesskey}}"><input type="hidden" name="action" value="contribute"><input type="hidden" name="run_id" value="{{id}}"><button class="btn btn-sm btn-success" type="submit">{{#str}} proposesharing, local_testcase_exchange {{/str}}</button></form>{{/can_contribute}}</td></tr>{{/runs}}</tbody></table></div></div>
     <div class="tab-pane" id="contributions"><div class="table-responsive"><table class="table table-sm table-striped"><thead><tr><th>ID</th><th>Input</th><th>{{#str}} category, local_testcase_exchange {{/str}}</th><th>{{#str}} status {{/str}}</th><th>{{#str}} starrating, local_testcase_exchange {{/str}} / {{#str}} teachercomment, local_testcase_exchange {{/str}}</th><th>{{#str}} time {{/str}}</th></tr></thead><tbody>{{#contributions}}<tr><td>{{id}}</td><td><pre class="mb-0">{{input_normalized}}</pre></td><td>{{category}}</td><td><span class="{{status_badge_class}}">{{status_label}}</span>{{#can_explain}}<form method="post" class="mt-2"><input type="hidden" name="sesskey" value="{{sesskey}}"><input type="hidden" name="action" value="explain"><input type="hidden" name="contribution_id" value="{{id}}"><input class="form-control form-control-sm mb-1" name="explanation" required><button class="btn btn-sm btn-primary">{{#str}} resubmitexplanation, local_testcase_exchange {{/str}}</button></form>{{/can_explain}}</td><td>{{#has_rating}}<div title="{{rating_val}}/5 sao"><span class="text-warning font-weight-bold">{{stars_emoji}}</span> <span class="badge badge-warning text-dark ml-1">{{rating_val}}/5 ★</span></div>{{/has_rating}}{{^has_rating}}<span class="text-muted small">—</span>{{/has_rating}}{{#has_teacher_comment}}<div class="small text-muted mt-1 bg-light p-1 rounded border">💬 {{teacher_comment}}</div>{{/has_teacher_comment}}</td><td>{{submitted_at}}</td></tr>{{/contributions}}</tbody></table></div></div>
-    <div class="tab-pane" id="rewards"><div class="table-responsive"><table class="table table-sm table-striped"><thead><tr><th>ID</th><th>Input</th><th>{{#str}} oracleoutput, local_testcase_exchange {{/str}}</th><th>{{#str}} category, local_testcase_exchange {{/str}}</th><th>{{#str}} time {{/str}}</th></tr></thead><tbody>{{#rewards}}<tr><td>{{id}}</td><td><pre class="mb-0">{{input_normalized}}</pre></td><td><pre class="mb-0">{{oracle_output}}</pre></td><td>{{category}}</td><td>{{created_at}}</td></tr>{{/rewards}}</tbody></table></div></div>
+    
+    {{! Tab Rewards with Claim Button }}
+    <div class="tab-pane" id="rewards">
+        <div class="table-responsive">
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Input</th>
+                        <th>{{#str}} oracleoutput, local_testcase_exchange {{/str}}</th>
+                        <th>{{#str}} category, local_testcase_exchange {{/str}}</th>
+                        <th>{{#str}} status {{/str}}</th>
+                        <th>{{#str}} action {{/str}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{^rewards}}
+                    <tr><td colspan="6" class="text-center text-muted py-3">{{#str}} norewardsfound, local_testcase_exchange {{/str}}</td></tr>
+                    {{/rewards}}
+                    {{#rewards}}
+                    <tr class="{{^is_claimed_bool}}table-warning font-weight-bold{{/is_claimed_bool}}">
+                        <td>#{{id}}</td>
+                        <td><pre class="mb-0">{{display_input}}</pre></td>
+                        <td><pre class="mb-0">{{display_oracle}}</pre></td>
+                        <td><span class="badge badge-secondary">{{category}}</span></td>
+                        <td>
+                            {{#is_claimed_bool}}
+                            <span class="badge badge-success">✓ {{#str}} claimed, local_testcase_exchange {{/str}}</span>
+                            <div class="small text-muted">{{claimed_at}}</div>
+                            {{/is_claimed_bool}}
+                            {{^is_claimed_bool}}
+                            <span class="badge badge-warning text-dark">🔒 {{#str}} unclaimed, local_testcase_exchange {{/str}}</span>
+                            {{/is_claimed_bool}}
+                        </td>
+                        <td>
+                            {{^is_claimed_bool}}
+                            <form method="post" class="d-inline">
+                                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                <input type="hidden" name="action" value="claim_reward">
+                                <input type="hidden" name="reward_id" value="{{id}}">
+                                <button type="submit" class="btn btn-sm btn-primary font-weight-bold shadow-sm">
+                                    🎁 {{#str}} claim_reward_btn, local_testcase_exchange {{/str}}
+                                </button>
+                            </form>
+                            {{/is_claimed_bool}}
+                            {{#is_claimed_bool}}
+                            <span class="text-success small font-weight-bold">✓ {{#str}} ready_for_check, local_testcase_exchange {{/str}}</span>
+                            {{/is_claimed_bool}}
+                        </td>
+                    </tr>
+                    {{/rewards}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{! Tab Leaderboard }}
+    <div class="tab-pane" id="leaderboard">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 font-weight-bold">🏆 {{#str}} course_leaderboard_title, local_testcase_exchange {{/str}}</h5>
+            <small class="text-muted">{{#str}} leaderboard_rules_hint, local_testcase_exchange {{/str}}</small>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover table-striped">
+                <thead class="thead-light">
+                    <tr>
+                        <th style="width: 80px;">{{#str}} rank, local_testcase_exchange {{/str}}</th>
+                        <th>{{#str}} student, local_testcase_exchange {{/str}}</th>
+                        <th>{{#str}} total_stars, local_testcase_exchange {{/str}}</th>
+                        <th>{{#str}} approved_testcases, local_testcase_exchange {{/str}}</th>
+                        <th>{{#str}} first_contribution, local_testcase_exchange {{/str}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{^has_leaderboard}}
+                    <tr><td colspan="5" class="text-center text-muted py-3">{{#str}} no_leaderboard_yet, local_testcase_exchange {{/str}}</td></tr>
+                    {{/has_leaderboard}}
+                    {{#leaderboard}}
+                    <tr class="{{#is_current_user}}table-primary font-weight-bold{{/is_current_user}}">
+                        <td><span class="badge {{badge_class}} p-2 font-weight-bold">{{medal}}</span></td>
+                        <td>
+                            <div><strong>{{fullname}}</strong> {{#is_current_user}}<span class="badge badge-info ml-1">({{#str}} you, core {{/str}})</span>{{/is_current_user}}</div>
+                            <small class="text-muted">{{username}}</small>
+                        </td>
+                        <td>
+                            <span class="text-warning font-weight-bold" style="font-size: 1.1rem;">{{stars_display}}</span>
+                            <span class="badge badge-warning text-dark ml-1 font-weight-bold">{{total_stars}} ⭐</span>
+                        </td>
+                        <td><span class="badge badge-secondary p-1">{{approved_count}} testcases</span></td>
+                        <td><small class="text-muted">{{first_submitted_at}}</small></td>
+                    </tr>
+                    {{/leaderboard}}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>

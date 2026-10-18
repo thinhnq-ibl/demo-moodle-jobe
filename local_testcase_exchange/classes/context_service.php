@@ -392,5 +392,90 @@ final class context_service {
              ORDER BY c.id ASC";
         return array_values($DB->get_records_sql($sql));
     }
+
+    /**
+     * Record a student code revision snapshot if the code has changed since the last check.
+     *
+     * @param int $courseid Course ID.
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @param int $userid User ID.
+     * @param string $codecontent Code content.
+     * @param int $attemptid Quiz attempt ID.
+     * @param int $questionattemptid Question attempt ID.
+     * @param int $stepnumber Attempt step sequence number.
+     * @param string $executionmode Execution mode ('check' or 'submit').
+     * @param ?int $passedcount Number of testcases passed.
+     * @param ?int $totalcount Total testcases executed.
+     * @return bool True if a new revision was recorded, false if deduplicated.
+     */
+    public static function record_code_revision_if_changed(
+        int $courseid,
+        int $quizid,
+        int $questionid,
+        int $userid,
+        string $codecontent,
+        int $attemptid = 0,
+        int $questionattemptid = 0,
+        int $stepnumber = 0,
+        string $executionmode = 'check',
+        ?int $passedcount = null,
+        ?int $totalcount = null
+    ): bool {
+        $trimmed = trim($codecontent);
+        if ($trimmed === '') {
+            return false;
+        }
+
+        $codehash = hash('sha256', $trimmed);
+
+        try {
+            $connection = external_database::connect();
+            // Check previous hash for this user and question
+            $stmt = $connection->prepare(
+                'SELECT code_hash FROM student_code_revisions
+                  WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND user_id = ?
+                  ORDER BY id DESC LIMIT 1'
+            );
+            $stmt->bind_param('iiii', $courseid, $quizid, $questionid, $userid);
+            $stmt->execute();
+            $last = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+
+            if ($last && (string) $last['code_hash'] === $codehash) {
+                $connection->close();
+                return false; // Deduplicated! Code hasn't changed.
+            }
+
+            $ins = $connection->prepare(
+                'INSERT INTO student_code_revisions
+                (course_id, quiz_id, question_id, user_id, quiz_attempt_id, question_attempt_id,
+                 step_number, code_content, code_hash, execution_mode, passed_count, total_count)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            );
+            $ins->bind_param(
+                'iiiiiiisssii',
+                $courseid,
+                $quizid,
+                $questionid,
+                $userid,
+                $attemptid,
+                $questionattemptid,
+                $stepnumber,
+                $trimmed,
+                $codehash,
+                $executionmode,
+                $passedcount,
+                $totalcount
+            );
+            $ins->execute();
+            $ins->close();
+            $connection->close();
+            return true;
+        } catch (\Throwable $e) {
+            debugging('Failed to record student code revision: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            return false;
+        }
+    }
 }
 

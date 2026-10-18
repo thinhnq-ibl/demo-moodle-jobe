@@ -197,6 +197,24 @@ $string['reviewcontributionsbtn'] = 'Duyệt đóng góp';
 $string['totalcontributions'] = 'Tổng đóng góp';
 $string['pendingcount'] = 'Chờ duyệt';
 $string['approvedcount'] = 'Đã duyệt';
-$string['nocourseswithcoderunner'] = 'Không tìm thấy khóa học nào có bài tập CodeRunner trên hệ thống.';
 $string['backtocoursehub'] = 'Về danh sách khóa học';
+
+$string['leaderboard'] = 'Bảng Xếp Hạng';
+$string['course_leaderboard_title'] = 'Bảng Vinh Danh Đóng Góp Testcase Khóa Học';
+$string['leaderboard_rules_hint'] = 'Ưu tiên: 1. Tổng số sao ⭐ | 2. Số lượng testcase | 3. Thời gian đóng góp sớm nhất';
+$string['rank'] = 'Hạng';
+$string['rank_1'] = 'Quán quân';
+$string['your_rank'] = 'Vị trí của bạn';
+$string['no_leaderboard_yet'] = 'Chưa có dữ liệu xếp hạng trong khóa học này.';
+$string['total_stars'] = 'Tổng sao ⭐';
+$string['approved_testcases'] = 'Testcase được duyệt';
+$string['first_contribution'] = 'Đóng góp đầu tiên';
+$string['claimed'] = 'Đã nhận thưởng';
+$string['unclaimed'] = 'Chưa nhận';
+$string['claim_reward_btn'] = 'Nhận thưởng';
+$string['rewardclaimedsuccess'] = 'Chúc mừng bạn đã mở khóa thành công testcase phần thưởng mới!';
+$string['invalidreward'] = 'Phần thưởng không hợp lệ hoặc đã được nhận trước đó.';
+$string['unclaimed_rewards_alert'] = 'Phần thưởng mới chờ bạn nhận';
+$string['ready_for_check'] = 'Sẵn sàng dùng cho nút Check';
+$string['norewardsfound'] = 'Bạn chưa có phần thưởng nào. Hãy đóng góp testcase mới để được thưởng!';
 

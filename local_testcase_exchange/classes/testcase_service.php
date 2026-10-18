@@ -156,6 +156,18 @@ final class testcase_service {
         $testsuiteversionhash = (string) ($results['test_suite_version_hash'] ?? '');
         $executionlimits = (string) ($results['execution_limits'] ?? '');
 
+        // Persist solution version immutably
+        if ($oraclesnapshot !== '') {
+            $this->ensure_solution_version(
+                $courseid,
+                (int) $quiz->id,
+                (int) $questioncontext->questionid,
+                $oraclesnapshot,
+                $templatesnapshot,
+                $qversion
+            );
+        }
+
         $stmt = $this->connection->prepare(
             'INSERT INTO testcase_runs
             (course_id, quiz_id, question_id, user_id, input_raw, input_normalized, input_fingerprint,
@@ -543,25 +555,6 @@ final class testcase_service {
         return $rows;
     }
 
-    /**
-     * Return rewards for a user.
-     *
-     * @param int $courseid Course ID.
-     * @param int $userid User ID.
-     * @return array Rewards.
-     */
-    public function rewards_for_user(int $courseid, int $userid): array {
-        $stmt = $this->connection->prepare(
-            'SELECT r.*, c.input_normalized, c.oracle_output, c.category
-               FROM testcase_rewards r JOIN testcase_contributions c ON c.id = r.contribution_id
-              WHERE r.course_id = ? AND r.receiver_user_id = ? ORDER BY r.id DESC LIMIT 100'
-        );
-        $stmt->bind_param('ii', $courseid, $userid);
-        $stmt->execute();
-        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
-        return $rows;
-    }
 
     /**
      * Return contributions awaiting review.
@@ -746,7 +739,314 @@ final class testcase_service {
     }
 
     /**
-     * Grant an idempotent reward after approval.
+     * Ensure a solution version snapshot exists in question_solution_versions.
+     *
+     * @param int $courseid Course ID.
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @param string $solutioncode Teacher answer code.
+     * @param string $templatecode Question template code.
+     * @param int $questionversion Version number.
+     * @param int $authorid Teacher user ID.
+     * @return array{id:int, solution_hash:string}
+     */
+    public function ensure_solution_version(
+        int $courseid,
+        int $quizid,
+        int $questionid,
+        string $solutioncode,
+        string $templatecode = '',
+        int $questionversion = 1,
+        int $authorid = 0
+    ): array {
+        $hash = hash('sha256', trim($solutioncode));
+        $stmt = $this->connection->prepare(
+            'SELECT id, solution_hash FROM question_solution_versions
+              WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND solution_hash = ?'
+        );
+        $stmt->bind_param('iiis', $courseid, $quizid, $questionid, $hash);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        if ($row) {
+            return ['id' => (int) $row['id'], 'solution_hash' => (string) $row['solution_hash']];
+        }
+
+        $ins = $this->connection->prepare(
+            'INSERT IGNORE INTO question_solution_versions
+            (course_id, quiz_id, question_id, question_version, solution_code, solution_hash, template_code, author_user_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+        );
+        $ins->bind_param(
+            'iiiisssi',
+            $courseid,
+            $quizid,
+            $questionid,
+            $questionversion,
+            $solutioncode,
+            $hash,
+            $templatecode,
+            $authorid
+        );
+        $ins->execute();
+        $id = $ins->insert_id ?: 0;
+        $ins->close();
+
+        return ['id' => (int) $id, 'solution_hash' => $hash];
+    }
+
+    /**
+     * Synchronize Suite 2 (Reward Bank / Seeds) from Moodle Question Bank for a specific question.
+     *
+     * @param int $courseid Course ID.
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @return int Number of seed testcases synchronized.
+     */
+    public function sync_question_testsuites(int $courseid, int $quizid, int $questionid): int {
+        global $DB;
+
+        $tests = $DB->get_records('question_coderunner_tests', ['questionid' => $questionid]);
+        if (!$tests) {
+            return 0;
+        }
+
+        $synced = 0;
+        foreach ($tests as $t) {
+            $extra = strtolower(trim((string) ($t->extra ?? '')));
+            $is_reward_seed = in_array($extra, ['reward_bank', 'seed', 'suite2'], true) ||
+                              (strpos($extra, 'reward') !== false && (int) $t->useasexample === 0);
+
+            if (!$is_reward_seed) {
+                continue;
+            }
+
+            $rawinput = trim((string) ($t->stdin ?? ''));
+            if ($rawinput === '') {
+                $rawinput = trim((string) ($t->testcode ?? ''));
+            }
+            if ($rawinput === '') {
+                continue;
+            }
+
+            $normalized = normalizer::normalize($rawinput, 'trim');
+            $fingerprint = normalizer::fingerprint($normalized);
+            $testcode = (string) ($t->testcode ?? '');
+            $stdin = (string) ($t->stdin ?? '');
+            $expected = (string) ($t->expected ?? '');
+
+            $stmt = $this->connection->prepare(
+                'INSERT INTO question_seed_testcases
+                (course_id, quiz_id, question_id, moodle_test_id, testcode, stdin, input_raw, input_normalized, input_fingerprint, expected_output, category, is_active)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "seed", 1)
+                ON DUPLICATE KEY UPDATE
+                    testcode = VALUES(testcode),
+                    stdin = VALUES(stdin),
+                    input_raw = VALUES(input_raw),
+                    input_normalized = VALUES(input_normalized),
+                    expected_output = VALUES(expected_output),
+                    is_active = 1'
+            );
+            $mid = (int) $t->id;
+            $stmt->bind_param(
+                'iiiissssss',
+                $courseid,
+                $quizid,
+                $questionid,
+                $mid,
+                $testcode,
+                $stdin,
+                $rawinput,
+                $normalized,
+                $fingerprint,
+                $expected
+            );
+            $stmt->execute();
+            if ($stmt->affected_rows > 0) {
+                $synced++;
+            }
+            $stmt->close();
+        }
+
+        return $synced;
+    }
+
+    /**
+     * Return rewards for a user (unclaimed and claimed).
+     *
+     * @param int $courseid Course ID.
+     * @param int $userid User ID.
+     * @return array Rewards with masked input/output if unclaimed.
+     */
+    public function rewards_for_user(int $courseid, int $userid): array {
+        $stmt = $this->connection->prepare(
+            'SELECT r.id, r.course_id, r.quiz_id, r.question_id, r.receiver_user_id, r.contribution_id,
+                    r.reward_source, r.seed_id, r.is_claimed, r.claimed_at, r.created_at,
+                    COALESCE(c.input_normalized, s.input_normalized, "") AS input_normalized,
+                    COALESCE(c.oracle_output, s.expected_output, "") AS oracle_output,
+                    COALESCE(c.category, s.category, "seed") AS category
+               FROM testcase_rewards r
+          LEFT JOIN testcase_contributions c ON (r.reward_source = "contribution" AND c.id = r.contribution_id)
+          LEFT JOIN question_seed_testcases s ON (r.reward_source = "seed" AND s.id = r.seed_id)
+              WHERE r.course_id = ? AND r.receiver_user_id = ?
+           ORDER BY r.id DESC LIMIT 100'
+        );
+        $stmt->bind_param('ii', $courseid, $userid);
+        $stmt->execute();
+        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+
+        // Process claim state for display
+        foreach ($rows as &$row) {
+            $row['is_claimed_bool'] = ((int) $row['is_claimed'] === 1);
+            if (!$row['is_claimed_bool']) {
+                $row['display_input'] = '🔒 [Nhấn "Nhận thưởng" để xem nội dung kiểm thử]';
+                $row['display_oracle'] = '🔒 [Ẩn cho đến khi bạn bấm nhận]';
+            } else {
+                $row['display_input'] = $row['input_normalized'];
+                $row['display_oracle'] = $row['oracle_output'];
+            }
+        }
+        unset($row);
+
+        return $rows;
+    }
+
+    /**
+     * Claim a pending reward to reveal its testcase and record precise viewed_at timestamp.
+     *
+     * @param int $rewardid Reward ID.
+     * @param int $userid User ID.
+     * @param int $courseid Course ID.
+     * @return bool True if claimed, false if invalid.
+     */
+    public function claim_reward(int $rewardid, int $userid, int $courseid): bool {
+        $stmt = $this->connection->prepare(
+            'SELECT * FROM testcase_rewards WHERE id = ? AND receiver_user_id = ? AND course_id = ?'
+        );
+        $stmt->bind_param('iii', $rewardid, $userid, $courseid);
+        $stmt->execute();
+        $reward = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        if (!$reward) {
+            return false;
+        }
+
+        if ((int) $reward['is_claimed'] === 1) {
+            return true;
+        }
+
+        $now = date('Y-m-d H:i:s');
+        $upd = $this->connection->prepare(
+            'UPDATE testcase_rewards SET is_claimed = 1, claimed_at = ? WHERE id = ?'
+        );
+        $upd->bind_param('si', $now, $rewardid);
+        $upd->execute();
+        $upd->close();
+
+        // Log view event
+        $log = $this->connection->prepare(
+            'INSERT INTO testcase_view_logs
+            (course_id, quiz_id, question_id, user_id, reward_id, contribution_id, action, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, "claim_reward", ?)'
+        );
+        $cid = (int) $reward['course_id'];
+        $qid = (int) $reward['quiz_id'];
+        $quid = (int) $reward['question_id'];
+        $contribid = (int) ($reward['contribution_id'] ?? 0);
+        $log->bind_param('iiiiiss', $cid, $qid, $quid, $userid, $rewardid, $contribid, $now);
+        $log->execute();
+        $log->close();
+
+        return true;
+    }
+
+    /**
+     * Return course leaderboard sorted by: total_stars DESC, approved_count DESC, earliest_submitted_at ASC.
+     *
+     * @param int $courseid Course ID.
+     * @param int $currentuserid Current user ID.
+     * @return array{leaderboard:array, my_rank:int, my_stars:int, my_count:int, top_user_name:string, top_stars:int, top_count:int}
+     */
+    public function course_leaderboard(int $courseid, int $currentuserid): array {
+        global $DB;
+
+        $sql = "
+            SELECT user_id,
+                   COALESCE(SUM(COALESCE(rating, 0)), 0) AS total_stars,
+                   COUNT(id) AS approved_count,
+                   MIN(submitted_at) AS first_submitted_at
+              FROM testcase_contributions
+             WHERE course_id = ? AND status = 'approved'
+             GROUP BY user_id
+             ORDER BY total_stars DESC, approved_count DESC, first_submitted_at ASC, user_id ASC
+        ";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bind_param('i', $courseid);
+        $stmt->execute();
+        $res = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+
+        $leaderboard = [];
+        $rank = 1;
+        $myrank = 0;
+        $mystars = 0;
+        $mycount = 0;
+
+        foreach ($res as $row) {
+            $uid = (int) $row['user_id'];
+            $stars = (int) $row['total_stars'];
+            $count = (int) $row['approved_count'];
+
+            $userobj = $DB->get_record('user', ['id' => $uid], 'id, firstname, lastname, username');
+            $fullname = $userobj ? fullname($userobj) : ('Sinh viên #' . $uid);
+
+            $iscurrent = ($uid === $currentuserid);
+            if ($iscurrent) {
+                $myrank = $rank;
+                $mystars = $stars;
+                $mycount = $count;
+            }
+
+            $starsdisplay = '';
+            for ($s = 0; $s < min($stars, 20); $s++) {
+                $starsdisplay .= '⭐';
+            }
+
+            $leaderboard[] = [
+                'rank' => $rank,
+                'user_id' => $uid,
+                'fullname' => $fullname,
+                'username' => $userobj ? $userobj->username : '',
+                'total_stars' => $stars,
+                'stars_display' => $starsdisplay,
+                'approved_count' => $count,
+                'first_submitted_at' => $row['first_submitted_at'],
+                'is_current_user' => $iscurrent,
+                'badge_class' => ($rank === 1 ? 'badge-warning text-dark font-weight-bold' :
+                                 ($rank === 2 ? 'badge-secondary' :
+                                 ($rank === 3 ? 'badge-info' : 'badge-light text-muted'))),
+                'medal' => ($rank === 1 ? '🥇' : ($rank === 2 ? '🥈' : ($rank === 3 ? '🥉' : ('#' . $rank)))),
+            ];
+            $rank++;
+        }
+
+        $top = $leaderboard[0] ?? null;
+
+        return [
+            'leaderboard' => $leaderboard,
+            'my_rank' => $myrank,
+            'my_stars' => $mystars,
+            'my_count' => $mycount,
+            'top_user_name' => $top ? $top['fullname'] : '',
+            'top_stars' => $top ? $top['total_stars'] : 0,
+            'top_count' => $top ? $top['approved_count'] : 0,
+            'has_leaderboard' => !empty($leaderboard),
+        ];
+    }
+
+    /**
+     * Grant an idempotent reward after approval, avoiding duplicates across contributions and seeds.
      *
      * @param int $contributionid Approved contribution ID.
      */
@@ -765,41 +1065,87 @@ final class testcase_service {
         $quizid = (int) $contribution['quiz_id'];
         $questionid = (int) $contribution['question_id'];
         $ownerid = (int) $contribution['user_id'];
+
+        // Find candidate from approved peer contributions (prioritize higher star rating)
         $stmt = $this->connection->prepare(
-            "SELECT c.id FROM testcase_contributions c
+            "SELECT c.id, c.input_fingerprint, 'contribution' AS source
+               FROM testcase_contributions c
               WHERE c.course_id = ? AND c.quiz_id = ? AND c.question_id = ?
                 AND c.status = 'approved' AND c.user_id <> ?
-                AND NOT EXISTS (SELECT 1 FROM testcase_rewards r
-                                 WHERE r.receiver_user_id = ? AND r.contribution_id = c.id)
-              ORDER BY RAND() LIMIT 1"
+                AND NOT EXISTS (
+                    SELECT 1 FROM testcase_rewards r
+                     WHERE r.receiver_user_id = ? AND r.course_id = ? AND r.question_id = ?
+                       AND r.contribution_id = c.id
+                )
+                AND NOT EXISTS (
+                    SELECT 1 FROM testcase_contributions own
+                     WHERE own.user_id = ? AND own.course_id = ? AND own.question_id = ?
+                       AND own.input_fingerprint = c.input_fingerprint
+                )
+              ORDER BY COALESCE(c.rating, 0) DESC, RAND() LIMIT 1"
         );
         $stmt->bind_param(
-            'iiiii',
-            $courseid,
-            $quizid,
-            $questionid,
-            $ownerid,
-            $ownerid
+            'iiiiiiiiii',
+            $courseid, $quizid, $questionid, $ownerid,
+            $ownerid, $courseid, $questionid,
+            $ownerid, $courseid, $questionid
         );
         $stmt->execute();
         $candidate = $stmt->get_result()->fetch_assoc();
         $stmt->close();
+
+        // If no peer contribution available, fallback to seed testcase bank (Cold-start guardrail)
+        if (!$candidate) {
+            $stmt = $this->connection->prepare(
+                "SELECT s.id, s.input_fingerprint, 'seed' AS source
+                   FROM question_seed_testcases s
+                  WHERE s.course_id = ? AND s.quiz_id = ? AND s.question_id = ? AND s.is_active = 1
+                    AND NOT EXISTS (
+                        SELECT 1 FROM testcase_rewards r
+                         WHERE r.receiver_user_id = ? AND r.course_id = ? AND r.question_id = ?
+                           AND r.reward_source = 'seed' AND r.seed_id = s.id
+                    )
+                    AND NOT EXISTS (
+                        SELECT 1 FROM testcase_contributions own
+                         WHERE own.user_id = ? AND own.course_id = ? AND own.question_id = ?
+                           AND own.input_fingerprint = s.input_fingerprint
+                    )
+                  ORDER BY RAND() LIMIT 1"
+            );
+            $stmt->bind_param(
+                'iiiiiiiiii',
+                $courseid, $quizid, $questionid,
+                $ownerid, $courseid, $questionid,
+                $ownerid, $courseid, $questionid
+            );
+            $stmt->execute();
+            $candidate = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+        }
+
         if (!$candidate) {
             return;
         }
-        $candidateid = (int) $candidate['id'];
+
+        $source = (string) $candidate['source'];
+        $targetid = (int) $candidate['id'];
+        $contribid = ($source === 'contribution') ? $targetid : 0;
+        $seedid = ($source === 'seed') ? $targetid : null;
+
         $insert = $this->connection->prepare(
             'INSERT IGNORE INTO testcase_rewards
-            (course_id, quiz_id, question_id, receiver_user_id, contribution_id)
-            VALUES (?, ?, ?, ?, ?)'
+            (course_id, quiz_id, question_id, receiver_user_id, contribution_id, reward_source, seed_id, is_claimed, claimed_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 0, NULL)'
         );
         $insert->bind_param(
-            'iiiii',
+            'iiiiisi',
             $courseid,
             $quizid,
             $questionid,
             $ownerid,
-            $candidateid
+            $contribid,
+            $source,
+            $seedid
         );
         $insert->execute();
         $insert->close();

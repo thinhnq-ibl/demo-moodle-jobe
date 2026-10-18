@@ -28,7 +28,7 @@
  * @return bool
  */
 function xmldb_local_testcase_exchange_upgrade($oldversion) {
-    if ($oldversion < 2026100702) {
+    if ($oldversion < 2026101801) {
         try {
             $connection = \local_testcase_exchange\external_database::connect();
             \local_testcase_exchange\schema_manager::migrate($connection);
@@ -37,10 +37,7 @@ function xmldb_local_testcase_exchange_upgrade($oldversion) {
             mtrace('External testcase_store migration deferred; use the plugin health check after upgrade.');
             debugging($e->getMessage(), DEBUG_DEVELOPER);
         }
-        upgrade_plugin_savepoint(true, 2026100702, 'local', 'testcase_exchange');
-    }
-    if ($oldversion < 2026100704) {
-        upgrade_plugin_savepoint(true, 2026100704, 'local', 'testcase_exchange');
+        upgrade_plugin_savepoint(true, 2026101801, 'local', 'testcase_exchange');
     }
     return true;
 }

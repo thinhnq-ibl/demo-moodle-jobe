@@ -263,3 +263,21 @@ chmod +x export_backup.sh
 zip -r demo-moodle-jobe.zip . -x "*.git*"
 ```
 Script sẽ tự động dump lại DB, volume moodledata và tính lại SHA-256 vào `metadata/manifest.json`.
+
+---
+
+## 9. CHECKLIST NGẮN CHO AGENT: CÀI PLUGIN ZIP
+
+Áp dụng khi Moodle đã được cài sẵn; không chạy restore database của dự án.
+
+1. Xác nhận Moodle từ 4.3 trở lên và CodeRunner đã cài; sao lưu CSDL Moodle và thư mục `local/testcase_exchange` hiện tại.
+2. Dùng `dist/local_testcase_exchange-2.2.0.zip` tại **Site administration > Plugins > Install plugins**; xác nhận component `local_testcase_exchange`.
+3. Chạy **Upgrade Moodle database now**, sau đó purge caches.
+4. Kiểm tra trang **CodeRunner Testcase Exchange** trong Local plugins, xác nhận cấu hình DB/Jobe và mở Hub/Review để smoke-test quyền truy cập.
+
+Nếu không dùng được giao diện cài plugin, giải nén thư mục `local_testcase_exchange` từ ZIP vào `<MOODLE_ROOT>/local/`, đặt owner theo web server, rồi chạy từ Moodle host/container:
+
+```bash
+php <MOODLE_ROOT>/admin/cli/upgrade.php --non-interactive
+php <MOODLE_ROOT>/admin/cli/purge_caches.php
+```

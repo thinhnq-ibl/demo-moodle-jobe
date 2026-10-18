@@ -350,6 +350,26 @@ function local_testcase_exchange_before_footer(): string {
         if (!$hasanswer) {
             continue;
         }
+
+        // Record code revision automatically if changed during this check/attempt step
+        $latestcode = \local_testcase_exchange\context_service::get_latest_valid_submission_code(
+            (int) $attempt->uniqueid,
+            (int) $question->questionid
+        );
+        if ($latestcode !== '') {
+            \local_testcase_exchange\context_service::record_code_revision_if_changed(
+                (int) $cm->course,
+                (int) $cm->instance,
+                (int) $question->questionid,
+                (int) $USER->id,
+                $latestcode,
+                (int) $attempt->id,
+                (int) $attempt->uniqueid,
+                0,
+                'check'
+            );
+        }
+
         $url = new moodle_url('/local/testcase_exchange/index.php', [
             'course' => $cm->course,
             'question' => $question->quizid . ':' . $question->questionid,

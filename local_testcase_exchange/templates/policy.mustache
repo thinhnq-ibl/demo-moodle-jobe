@@ -14,5 +14,25 @@
 <div class="card mb-3"><div class="card-header"><strong>{{#str}} questionpolicy, local_testcase_exchange {{/str}}</strong></div><div class="card-body">
 <label>{{#str}} inputmode, local_testcase_exchange {{/str}}</label><select class="form-control mb-2" name="input_mode"><option value="stdin" {{#input_stdin}}selected{{/input_stdin}}>stdin</option><option value="testcode" {{#input_testcode}}selected{{/input_testcode}}>testcode</option><option value="template" {{#input_template}}selected{{/input_template}}>template</option></select>
 <label>{{#str}} testcodetemplate, local_testcase_exchange {{/str}}</label><textarea class="form-control mb-2" name="testcode_template" rows="4">{{testcode_template}}</textarea><label>{{#str}} normalization, local_testcase_exchange {{/str}}</label><select class="form-control mb-2" name="normalization_mode"><option value="raw" {{#normalization_raw}}selected{{/normalization_raw}}>raw</option><option value="trim" {{#normalization_trim}}selected{{/normalization_trim}}>trim</option><option value="json" {{#normalization_json}}selected{{/normalization_json}}>json</option></select><label>{{#str}} categories, local_testcase_exchange {{/str}}</label><input class="form-control" name="categories" value="{{categories}}"></div></div>
-<button class="btn btn-primary" type="submit">{{#str}} savechanges {{/str}}</button></form>
+<div class="card mb-3 border-info">
+    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+        <strong>⚙️ Quản Lý 3 Bộ Testcase & Ngân Hàng Hạt Giống (3-Suite Management)</strong>
+        <span class="badge badge-light text-dark">Suite 1 (Mẫu) + Suite 2 (Thưởng) + Suite 3 (Chấm điểm)</span>
+    </div>
+    <div class="card-body">
+        <p class="card-text text-muted small">
+            Đồng bộ các ca kiểm thử từ câu hỏi CodeRunner vào <strong>Suite 2 (Kho hạt giống thưởng)</strong> của môn học hiện tại. Hệ thống nhận diện các testcase có trường <code>Extra: reward_bank</code> để nạp vào ngân hàng thưởng.
+        </p>
+        <div class="d-flex flex-wrap">
+            <button type="submit" name="action" value="sync_seeds" class="btn btn-outline-info font-weight-bold mr-2 mb-2">
+                🔄 Quét & Đồng bộ Testcase Thưởng (Suite 2) vào Kho
+            </button>
+            <button type="submit" name="action" value="auto_partition" class="btn btn-outline-warning text-dark font-weight-bold mr-2 mb-2" onclick="return confirm('Bạn có chắc muốn tự động chia 5 testcase của câu hỏi này thành: Test 1 làm Mẫu, Test 2-3 làm Thưởng (Suite 2), Test 4-5 làm Chấm thi bí mật (Suite 3 - HIDE)?');">
+                ⚡ Tự động Phân bổ 3 Suite (Dành cho Đề XML Cũ)
+            </button>
+        </div>
+    </div>
+</div>
+
+<button class="btn btn-primary" type="submit" name="action" value="save_policy">{{#str}} savechanges {{/str}}</button></form>
 {{/has_questions}}

@@ -28,7 +28,7 @@ namespace local_testcase_exchange;
  */
 final class schema_manager {
     /** Current external schema version. */
-    private const VERSION = '2026100701';
+    private const VERSION = '2026101701';
 
     /**
      * Apply idempotent external schema and legacy-data migrations.
@@ -170,10 +170,81 @@ final class schema_manager {
                 question_id BIGINT NOT NULL,
                 receiver_user_id BIGINT NOT NULL,
                 contribution_id BIGINT NOT NULL,
+                reward_source VARCHAR(24) NOT NULL DEFAULT 'contribution',
+                seed_id BIGINT NULL DEFAULT NULL,
+                is_claimed TINYINT(1) NOT NULL DEFAULT 0,
+                claimed_at DATETIME NULL DEFAULT NULL,
                 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE KEY uq_reward (receiver_user_id, contribution_id),
                 UNIQUE KEY uq_reward_legacy (legacy_source_id),
-                KEY idx_reward_scope (course_id, quiz_id, question_id, receiver_user_id)
+                KEY idx_reward_scope (course_id, quiz_id, question_id, receiver_user_id),
+                KEY idx_reward_claimed (receiver_user_id, is_claimed)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+            "ALTER TABLE testcase_rewards ADD COLUMN IF NOT EXISTS reward_source VARCHAR(24) NOT NULL DEFAULT 'contribution'",
+            "ALTER TABLE testcase_rewards ADD COLUMN IF NOT EXISTS seed_id BIGINT NULL DEFAULT NULL",
+            "ALTER TABLE testcase_rewards ADD COLUMN IF NOT EXISTS is_claimed TINYINT(1) NOT NULL DEFAULT 0",
+            "ALTER TABLE testcase_rewards ADD COLUMN IF NOT EXISTS claimed_at DATETIME NULL DEFAULT NULL",
+            "CREATE TABLE IF NOT EXISTS question_seed_testcases (
+                id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                course_id BIGINT NOT NULL,
+                quiz_id BIGINT NOT NULL,
+                question_id BIGINT NOT NULL,
+                moodle_test_id BIGINT NULL,
+                testcode LONGTEXT NULL,
+                stdin LONGTEXT NULL,
+                input_raw LONGTEXT NOT NULL,
+                input_normalized LONGTEXT NOT NULL,
+                input_fingerprint CHAR(64) NOT NULL,
+                expected_output LONGTEXT NULL,
+                category VARCHAR(64) NOT NULL DEFAULT 'seed',
+                is_active TINYINT(1) NOT NULL DEFAULT 1,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY uq_seed_fingerprint (course_id, quiz_id, question_id, input_fingerprint),
+                KEY idx_seed_scope (course_id, quiz_id, question_id, is_active)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+            "CREATE TABLE IF NOT EXISTS question_solution_versions (
+                id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                course_id BIGINT NOT NULL,
+                quiz_id BIGINT NOT NULL,
+                question_id BIGINT NOT NULL,
+                question_version INT NOT NULL DEFAULT 1,
+                solution_code LONGTEXT NOT NULL,
+                solution_hash CHAR(64) NOT NULL,
+                template_code LONGTEXT NULL,
+                author_user_id BIGINT NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY uq_solution_ver (course_id, quiz_id, question_id, solution_hash),
+                KEY idx_sol_scope (course_id, quiz_id, question_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+            "CREATE TABLE IF NOT EXISTS testcase_view_logs (
+                id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                course_id BIGINT NOT NULL,
+                quiz_id BIGINT NOT NULL,
+                question_id BIGINT NOT NULL,
+                user_id BIGINT NOT NULL,
+                reward_id BIGINT NULL,
+                contribution_id BIGINT NULL,
+                action VARCHAR(32) NOT NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                KEY idx_view_user (course_id, user_id, action, created_at)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+            "CREATE TABLE IF NOT EXISTS student_code_revisions (
+                id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                course_id BIGINT NOT NULL,
+                quiz_id BIGINT NOT NULL,
+                question_id BIGINT NOT NULL,
+                user_id BIGINT NOT NULL,
+                quiz_attempt_id BIGINT NULL,
+                question_attempt_id BIGINT NULL,
+                step_number INT NOT NULL DEFAULT 0,
+                code_content LONGTEXT NOT NULL,
+                code_hash CHAR(64) NOT NULL,
+                execution_mode VARCHAR(24) NOT NULL DEFAULT 'check',
+                passed_count INT NULL DEFAULT NULL,
+                total_count INT NULL DEFAULT NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                KEY idx_rev_user (course_id, quiz_id, question_id, user_id, created_at),
+                KEY idx_rev_hash (user_id, question_id, code_hash)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         ];
 
