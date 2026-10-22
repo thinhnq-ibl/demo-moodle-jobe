@@ -2300,7 +2300,7 @@ INSERT INTO `mdl_block_recentlyaccesseditems` VALUES
 (8,4,10,2,1791383813),
 (9,4,9,2,1791383599),
 (10,4,7,2,1791619144),
-(11,4,7,3,1791605051),
+(11,4,7,3,1792230541),
 (12,4,8,3,1791384664),
 (13,4,9,3,1791383707),
 (14,4,8,2,1791619137),
@@ -2539,11 +2539,11 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `mdl_cache_flags` WRITE;
 /*!40000 ALTER TABLE `mdl_cache_flags` DISABLE KEYS */;
 INSERT INTO `mdl_cache_flags` VALUES
-(1,'userpreferenceschanged','3',1791604589,'1',1791633389),
+(1,'userpreferenceschanged','3',1792230532,'1',1792259332),
 (2,'accesslib/dirtyusers','3',1791382943,'1',1791411743),
 (3,'userpreferenceschanged','4',1791384011,'1',1791412811),
 (4,'accesslib/dirtyusers','4',1791382943,'1',1791411743),
-(5,'userpreferenceschanged','2',1791619099,'1',1791647899),
+(5,'userpreferenceschanged','2',1792230724,'1',1792259524),
 (6,'accesslib/dirtyusers','2',1791114027,'1',1791142827);
 /*!40000 ALTER TABLE `mdl_cache_flags` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -4397,7 +4397,7 @@ CREATE TABLE `mdl_config` (
   `value` longtext NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `mdl_conf_nam_uix` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=584 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Moodle configuration variables';
+) ENGINE=InnoDB AUTO_INCREMENT=585 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Moodle configuration variables';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4431,9 +4431,9 @@ INSERT INTO `mdl_config` VALUES
 (22,'mnet_all_hosts_id','2'),
 (23,'siteguest','1'),
 (24,'siteadmins','2'),
-(25,'themerev','1791619014'),
-(26,'jsrev','1791619014'),
-(27,'templaterev','1791619014'),
+(25,'themerev','1792416742'),
+(26,'jsrev','1792416742'),
+(27,'templaterev','1792416742'),
 (28,'gdversion','2'),
 (29,'licenses','unknown,allrightsreserved,public,cc-4.0,cc-nc-4.0,cc-nd-4.0,cc-nc-nd-4.0,cc-nc-sa-4.0,cc-sa-4.0'),
 (30,'sitedefaultlicense','unknown'),
@@ -4569,7 +4569,7 @@ INSERT INTO `mdl_config` VALUES
 (160,'autolangusercreation','1'),
 (161,'langmenu','1'),
 (162,'langlist',''),
-(163,'langrev','1791619014'),
+(163,'langrev','1792416742'),
 (164,'langcache','1'),
 (165,'langstringcache','1'),
 (166,'locale',''),
@@ -4848,12 +4848,12 @@ INSERT INTO `mdl_config` VALUES
 (439,'profilingimportprefix','(I)'),
 (440,'release','4.4.12+ (Build: 20251212)'),
 (441,'branch','404'),
-(442,'localcachedirpurged','1791619014'),
-(443,'scheduledtaskreset','1791619014'),
+(442,'localcachedirpurged','1792416741'),
+(443,'scheduledtaskreset','1792416741'),
 (444,'paygw_plugins_sortorder','paypal'),
-(445,'allversionshash','9747c4731ba995142112aca59094752ed33188e6'),
-(446,'allcomponenthash','4761557cdc02710d7e9511d4d5a048ee5d015aa9'),
-(447,'registrationpending','0'),
+(445,'allversionshash','61c4128ed891c075ac4156271dbe6902a75cf5ff'),
+(446,'allcomponenthash','1957d9be1f68b0561c56621b7af878d325e174e6'),
+(447,'registrationpending','1'),
 (448,'supportemail','admin@example.com'),
 (449,'enableaccessibilitytools','1'),
 (450,'notloggedinroleid','6'),
@@ -9098,9 +9098,9 @@ INSERT INTO `mdl_config_plugins` VALUES
 (2167,'factor_sms','api_region','ap-southeast-2'),
 (2168,'tool_moodlenet','defaultmoodlenetname','MoodleNet Central'),
 (2169,'tool_moodlenet','defaultmoodlenet','https://moodle.net'),
-(2170,'theme_boost','themerev','1791618037'),
+(2170,'theme_boost','themerev','1792416744'),
 (2171,'quizaccess_testcaseexchange','version','2026100501'),
-(2172,'local_testcase_exchange','version','2026101001'),
+(2172,'local_testcase_exchange','version','2026101801'),
 (2174,'local_testcase_exchange','db_host','mariadb'),
 (2175,'local_testcase_exchange','db_port','3306'),
 (2176,'local_testcase_exchange','db_user','moodle_app_writer'),
@@ -9318,10 +9318,10 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `mdl_course` WRITE;
 /*!40000 ALTER TABLE `mdl_course` DISABLE KEYS */;
 INSERT INTO `mdl_course` VALUES
-(1,0,1,'Moodle CodeRunner LMS','CodeRunner','','',0,'site',1,3,0,0,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1790344224,1790344245,0,0,0,1791619014,NULL,0,NULL,NULL),
-(2,1,10003,'Nhập môn Lập trình (Demo CodeRunner)','CS101','','Lớp học mẫu thử nghiệm tự động chấm bài lập trình.',0,'topics',1,1,0,0,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1790344297,1790344297,0,0,0,1791619014,NULL,0,1,NULL),
-(3,1,10002,'Huong dan co ban py ','basic py ','','',1,'topics',1,5,1791154800,1822690800,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1791114027,1791114027,0,1,0,1791619014,NULL,1,1,NULL),
-(4,1,10001,'Python cơ bản cho AI — Pilot đóng góp','AI-PY-PILOT','','<p>Ba Quiz Python cơ bản và một hoạt động đặt câu hỏi cho bài đọc về lịch sử AI.</p>',1,'topics',1,1,0,0,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1791382943,1791382943,0,0,0,1791619014,NULL,0,1,NULL);
+(1,0,1,'Moodle CodeRunner LMS','CodeRunner','','',0,'site',1,3,0,0,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1790344224,1790344245,0,0,0,1792416742,NULL,0,NULL,NULL),
+(2,1,10003,'Nhập môn Lập trình (Demo CodeRunner)','CS101','','Lớp học mẫu thử nghiệm tự động chấm bài lập trình.',0,'topics',1,1,0,0,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1790344297,1790344297,0,0,0,1792416742,NULL,0,1,NULL),
+(3,1,10002,'Huong dan co ban py ','basic py ','','',1,'topics',1,5,1791154800,1822690800,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1791114027,1791114027,0,1,0,1792416742,NULL,1,1,NULL),
+(4,1,10001,'Python cơ bản cho AI — Pilot đóng góp','AI-PY-PILOT','','<p>Ba Quiz Python cơ bản và một hoạt động đặt câu hỏi cho bài đọc về lịch sử AI.</p>',1,'topics',1,1,0,0,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1791382943,1791382943,0,0,0,1792416742,NULL,0,1,NULL);
 /*!40000 ALTER TABLE `mdl_course` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -15721,7 +15721,7 @@ CREATE TABLE `mdl_logstore_standard_log` (
   KEY `mdl_logsstanlog_cou_ix` (`courseid`),
   KEY `mdl_logsstanlog_rea_ix` (`realuserid`),
   KEY `mdl_logsstanlog_rel_ix` (`relateduserid`)
-) ENGINE=InnoDB AUTO_INCREMENT=777 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Standard log table';
+) ENGINE=InnoDB AUTO_INCREMENT=798 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Standard log table';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -16507,7 +16507,28 @@ INSERT INTO `mdl_logstore_standard_log` VALUES
 (773,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',4,'r',2,31,70,8,2,4,NULL,0,'null',1791619129,'web','192.168.65.1',NULL),
 (774,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',4,'r',2,31,70,8,2,4,NULL,0,'null',1791619137,'web','192.168.65.1',NULL),
 (775,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',3,'r',2,30,70,7,2,4,NULL,0,'null',1791619139,'web','192.168.65.1',NULL),
-(776,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',3,'r',2,30,70,7,2,4,NULL,0,'null',1791619144,'web','192.168.65.1',NULL);
+(776,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',3,'r',2,30,70,7,2,4,NULL,0,'null',1791619144,'web','192.168.65.1',NULL),
+(777,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,0,1,NULL,0,'null',1792229451,'web','172.21.0.1',NULL),
+(778,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792229720,'web','172.21.0.1',NULL),
+(779,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792229821,'web','172.21.0.1',NULL),
+(780,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792229827,'web','172.21.0.1',NULL),
+(781,'\\core\\event\\user_loggedin','core','loggedin','user','user',3,'r',0,1,10,0,3,0,NULL,0,'{\"username\":\"student1\",\"extrauserinfo\":[]}',1792229922,'web','172.21.0.1',NULL),
+(782,'\\core\\event\\user_loggedout','core','loggedout','user','user',3,'r',0,1,10,0,3,0,NULL,0,'{\"sessionid\":\"2458e8daaafd50bfd0d3e78f3cb23167\"}',1792229927,'web','172.21.0.1',NULL),
+(783,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,0,1,NULL,0,'null',1792229927,'web','172.21.0.1',NULL),
+(784,'\\core\\event\\user_loggedin','core','loggedin','user','user',3,'r',0,1,10,0,3,0,NULL,0,'{\"username\":\"student1\",\"extrauserinfo\":[]}',1792229975,'web','172.21.0.1',NULL),
+(785,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,12,30,3,3,0,3,0,'null',1792229975,'web','172.21.0.1',NULL),
+(786,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,3,1,NULL,0,'null',1792229977,'web','172.21.0.1',NULL),
+(787,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,29,50,4,3,4,NULL,0,'null',1792229979,'web','172.21.0.1',NULL),
+(788,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',3,'r',2,30,70,7,3,4,NULL,0,'null',1792229984,'web','172.21.0.1',NULL),
+(789,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',3,'r',2,30,70,7,3,4,NULL,0,'null',1792230073,'web','172.21.0.1',NULL),
+(790,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',3,'r',2,30,70,7,3,4,NULL,0,'null',1792230458,'web','172.21.0.1',NULL),
+(791,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',16,'r',2,30,70,7,3,4,3,0,'{\"quizid\":\"3\",\"page\":\"0\"}',1792230532,'web','172.21.0.1',NULL),
+(792,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',3,'r',2,30,70,7,3,4,NULL,0,'null',1792230541,'web','172.21.0.1',NULL),
+(793,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',16,'r',2,30,70,7,3,4,3,0,'{\"quizid\":\"3\",\"page\":\"0\"}',1792230686,'web','172.21.0.1',NULL),
+(794,'\\core\\event\\user_loggedout','core','loggedout','user','user',3,'r',0,1,10,0,3,0,NULL,0,'{\"sessionid\":\"76b43538fdfc5d97eb73de6a698bf540\"}',1792230708,'web','172.21.0.1',NULL),
+(795,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,0,1,NULL,0,'null',1792230708,'web','172.21.0.1',NULL),
+(796,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792230724,'web','172.21.0.1',NULL),
+(797,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792230724,'web','172.21.0.1',NULL);
 /*!40000 ALTER TABLE `mdl_logstore_standard_log` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -20740,8 +20761,8 @@ INSERT INTO `mdl_question_coderunner_tests` VALUES
 (490,119,NULL,'System.out.println(isPrime(123));','','false','',0,'SHOW',0,1.000),
 (491,121,0,'','0.75','0.75','',1,'SHOW',0,1.000),
 (492,121,0,'','-0.2','0.00','',1,'SHOW',0,1.000),
-(493,121,0,'','1.4','1.00','',0,'HIDE',0,1.000),
-(494,121,0,'','0','0.00','',0,'HIDE',0,1.000),
+(493,121,0,'','1.4','1.00','reward_bank',0,'HIDE',0,1.000),
+(494,121,0,'','0','0.00','reward_bank',0,'HIDE',0,1.000),
 (495,121,0,'','1','1.00','',0,'HIDE',0,1.000),
 (496,122,0,'','AI helps AI','2','',1,'SHOW',0,1.000),
 (497,122,0,'','Python for ai','1','',1,'SHOW',0,1.000),
@@ -25029,7 +25050,7 @@ CREATE TABLE `mdl_sessions` (
   KEY `mdl_sess_tim_ix` (`timecreated`),
   KEY `mdl_sess_tim2_ix` (`timemodified`),
   KEY `mdl_sess_use_ix` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=117 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Database based session storage - now recommended';
+) ENGINE=InnoDB AUTO_INCREMENT=130 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Database based session storage - now recommended';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -25080,7 +25101,11 @@ INSERT INTO `mdl_sessions` VALUES
 (110,0,'f0a301502ed207cb844229a40ef1df5a',2,NULL,1791618789,1791618789,'192.168.65.1','192.168.65.1'),
 (112,0,'f47879d9c31ed0e38605efbd95b93961',2,NULL,1791619044,1791619044,'192.168.65.1','192.168.65.1'),
 (114,0,'3a56ab1906f0ad44a896d21f264d2496',2,NULL,1791619056,1791619056,'192.168.65.1','192.168.65.1'),
-(116,0,'39d58361d3244c5514b0fdccd2414a60',2,NULL,1791619099,1791619099,'192.168.65.1','192.168.65.1');
+(116,0,'39d58361d3244c5514b0fdccd2414a60',2,NULL,1791619099,1791619099,'192.168.65.1','192.168.65.1'),
+(117,0,'86efa98369c2e31f8b767c9e4d542dbd',0,NULL,1792227735,1792227735,'172.21.0.1','172.21.0.1'),
+(120,0,'30820d1cb0b3fe97dcf253bd2f78b813',2,NULL,1792229720,1792229720,'172.21.0.1','172.21.0.1'),
+(122,0,'c0258007476fbb89062fa67d8aa0a669',2,NULL,1792229821,1792229821,'172.21.0.1','172.21.0.1'),
+(129,0,'c78896039af45025b29583110951630d',0,NULL,1792315471,1792315472,'172.21.0.1','172.21.0.1');
 /*!40000 ALTER TABLE `mdl_sessions` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -25718,7 +25743,7 @@ CREATE TABLE `mdl_task_adhoc` (
   KEY `mdl_taskadho_nex_ix` (`nextruntime`),
   KEY `mdl_taskadho_tim_ix` (`timestarted`),
   KEY `mdl_taskadho_use_ix` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='List of adhoc tasks waiting to run.';
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='List of adhoc tasks waiting to run.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -25739,7 +25764,8 @@ INSERT INTO `mdl_task_adhoc` VALUES
 (8,'quiz_statistics','\\quiz_statistics\\task\\recalculate',1791387325,0,'{\"quizid\":4}',NULL,1791383725,NULL,NULL,NULL,12,NULL),
 (9,'quiz_statistics','\\quiz_statistics\\task\\recalculate',1791387325,0,'{\"quizid\":5}',NULL,1791383725,NULL,NULL,NULL,12,NULL),
 (10,'core','\\core\\task\\send_login_notifications',1791617765,0,'{\"ismoodleapp\":false,\"useragent\":\"python-requests\\/2.33.1\",\"loginip\":\"172.21.0.1\",\"logintime\":1791617766}',2,1791617766,NULL,NULL,NULL,12,NULL),
-(11,'core','\\core\\task\\send_login_notifications',1791618061,0,'{\"ismoodleapp\":false,\"useragent\":\"python-requests\\/2.33.1\",\"loginip\":\"192.168.65.1\",\"logintime\":1791618062}',2,1791618062,NULL,NULL,NULL,12,NULL);
+(11,'core','\\core\\task\\send_login_notifications',1791618061,0,'{\"ismoodleapp\":false,\"useragent\":\"python-requests\\/2.33.1\",\"loginip\":\"192.168.65.1\",\"logintime\":1791618062}',2,1791618062,NULL,NULL,NULL,12,NULL),
+(12,'core','\\core\\task\\send_login_notifications',1792229719,0,'{\"ismoodleapp\":false,\"useragent\":\"curl\\/8.7.1\",\"loginip\":\"172.21.0.1\",\"logintime\":1792229720}',2,1792229720,NULL,NULL,NULL,12,NULL);
 /*!40000 ALTER TABLE `mdl_task_adhoc` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -27329,7 +27355,7 @@ CREATE TABLE `mdl_upgrade_log` (
   KEY `mdl_upgrlog_tim_ix` (`timemodified`),
   KEY `mdl_upgrlog_typtim_ix` (`type`,`timemodified`),
   KEY `mdl_upgrlog_use_ix` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1353 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Upgrade logging';
+) ENGINE=InnoDB AUTO_INCREMENT=1356 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Upgrade logging';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -28691,7 +28717,10 @@ INSERT INTO `mdl_upgrade_log` VALUES
 (1349,0,'local_testcase_exchange','2026100704','2026100704','Plugin upgraded',NULL,'',0,1791381242),
 (1350,0,'local_testcase_exchange','2026100704','2026101001','Starting plugin upgrade',NULL,'',0,1791618034),
 (1351,0,'local_testcase_exchange','2026101001','2026101001','Upgrade savepoint reached',NULL,'',0,1791618034),
-(1352,0,'local_testcase_exchange','2026101001','2026101001','Plugin upgraded',NULL,'',0,1791618034);
+(1352,0,'local_testcase_exchange','2026101001','2026101001','Plugin upgraded',NULL,'',0,1791618034),
+(1353,0,'local_testcase_exchange','2026101001','2026101801','Starting plugin upgrade',NULL,'',0,1792416741),
+(1354,0,'local_testcase_exchange','2026101801','2026101801','Upgrade savepoint reached',NULL,'',0,1792416741),
+(1355,0,'local_testcase_exchange','2026101801','2026101801','Plugin upgraded',NULL,'',0,1792416741);
 /*!40000 ALTER TABLE `mdl_upgrade_log` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -28818,8 +28847,8 @@ LOCK TABLES `mdl_user` WRITE;
 /*!40000 ALTER TABLE `mdl_user` DISABLE KEYS */;
 INSERT INTO `mdl_user` VALUES
 (1,'manual',1,0,0,0,1,'guest','$6$rounds=10000$o/MKbxczQc8zhSI4$pp1e8LmfRdmolIva5DSTurhEK1mmJaEAW4imb1O2lik9hlkXcTO3fGRaHzqpif/huTKkR2obsg1fQIs7W9efH0','','Guest user',' ','root@localhost',0,'','','','','','','','en','gregorian','','99',0,0,0,0,'','',0,'This user is a special user that allows read-only access to some courses.',1,1,0,2,1,0,0,1790344224,0,NULL,NULL,NULL,NULL,NULL,NULL),
-(2,'manual',1,0,0,0,1,'admin','$6$rounds=10000$0/.Hxa/pAyXiNILP$ihsQRfRNfvso.S9wyTBPPIxYb4kc9keDJEh88QLo76Z3O8a/9QErLtZbGXRGuYiiZvF33ywMDUi9xKWFKwbe3/','','Admin','User','admin@example.com',0,'','','','','','','','en','gregorian','','99',1790344812,1791620232,1791619056,1791619099,'192.168.65.1','',0,NULL,1,1,0,1,1,0,0,1790344224,0,NULL,NULL,NULL,NULL,NULL,NULL),
-(3,'manual',1,1,0,0,1,'student1','$6$rounds=10000$wEr9WanmWK0PmLKI$HcDDHwKfyphtUqaOJR/fsNPwKA3eFgi.UZHRfIpxeBI9t89vI0Qke60fwJ3tTpXZIlvw38rg.K4zbH5sFXIIh.','','Nguyễn Văn','Sinh Viên 1','student1@example.com',0,'','','','','','','','en','gregorian','','99',1790345263,1791605190,1791601705,1791604419,'172.21.0.1','',0,NULL,1,1,0,2,1,0,1790344298,1790344298,0,NULL,NULL,NULL,NULL,NULL,NULL),
+(2,'manual',1,0,0,0,1,'admin','$6$rounds=10000$iCkHEtlHtDBXrHQn$8rnq35yuR2oxol7HroCDxCboceTmk13.ctfuweS9KFJamCJXdy5Wj7s9daxEOAZmzMFrRPC5acUMmQNFlNYYj0','','Admin','User','admin@example.com',0,'','','','','','','','en','gregorian','','99',1790344812,1792230724,1792229827,1792230724,'172.21.0.1','',0,NULL,1,1,0,1,1,0,0,1790344224,0,NULL,NULL,NULL,NULL,NULL,NULL),
+(3,'manual',1,1,0,0,1,'student1','$6$rounds=10000$wEr9WanmWK0PmLKI$HcDDHwKfyphtUqaOJR/fsNPwKA3eFgi.UZHRfIpxeBI9t89vI0Qke60fwJ3tTpXZIlvw38rg.K4zbH5sFXIIh.','','Nguyễn Văn','Sinh Viên 1','student1@example.com',0,'','','','','','','','en','gregorian','','99',1790345263,1792230686,1792229922,1792229975,'172.21.0.1','',0,NULL,1,1,0,2,1,0,1790344298,1790344298,0,NULL,NULL,NULL,NULL,NULL,NULL),
 (4,'manual',1,1,0,0,1,'student2','$6$rounds=10000$wvb6wN1xHctccOLx$On9Lrh/1hVSEdNU8to2/3/zXCblUDGqWAi0CZhf/uujwph.tEeezJSbNOERFndeM9Gj6pie/SevVjjDCn70tB/','','Trần Thị','Sinh Viên 2','student2@example.com',0,'','','','','','','','en','gregorian','','99',1790949011,1791384615,1791383182,1791384009,'172.21.0.1','',0,NULL,1,1,0,2,1,0,1790344298,1790344298,0,NULL,NULL,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `mdl_user` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -29040,7 +29069,7 @@ INSERT INTO `mdl_user_lastaccess` VALUES
 (2,3,2,1790950421),
 (3,4,2,1790949018),
 (4,2,3,1791210812),
-(5,3,4,1791605051),
+(5,3,4,1792230686),
 (6,4,4,1791384464),
 (7,2,4,1791619129);
 /*!40000 ALTER TABLE `mdl_user_lastaccess` ENABLE KEYS */;
@@ -29145,7 +29174,7 @@ INSERT INTO `mdl_user_preferences` VALUES
 (10,3,'core_user_welcome','1790345263'),
 (11,3,'tool_usertours_tour_completion_time_5','1790345269'),
 (12,3,'tool_usertours_tour_completion_time_2','1790345274'),
-(13,3,'drawer-open-index','1'),
+(13,3,'drawer-open-index','0'),
 (14,2,'drawer-open-index','1'),
 (15,2,'qbank_managecategories_includesubcategories_filter_default','0'),
 (16,3,'drawer-open-block','0'),
@@ -29985,7 +30014,7 @@ CREATE TABLE `contribution_reviews` (
   `rating_reason` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_review_contribution` (`contribution_id`,`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30002,7 +30031,8 @@ INSERT INTO `contribution_reviews` VALUES
 (4,15,2,'submitted','approved','Pilot review: input có mục đích rõ và oracle chạy thành công.','2026-10-07 14:25:04',NULL,NULL),
 (5,16,2,'submitted','approved','Pilot review: input có mục đích rõ và oracle chạy thành công.','2026-10-07 14:25:04',NULL,NULL),
 (6,17,2,'submitted','approved','Pilot review: input có mục đích rõ và oracle chạy thành công.','2026-10-07 14:25:04',NULL,NULL),
-(7,1,2,'approved','approved','Trường hợp biên xuất sắc!','2026-10-10 07:04:27',5,'');
+(7,1,2,'approved','approved','Trường hợp biên xuất sắc!','2026-10-10 07:04:27',5,''),
+(8,19,2,'submitted','approved','Testcase biên tuyệt vời!','2026-10-17 09:01:27',5,'edge_case');
 /*!40000 ALTER TABLE `contribution_reviews` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -30047,6 +30077,87 @@ COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 
 --
+-- Table structure for table `question_seed_testcases`
+--
+
+DROP TABLE IF EXISTS `question_seed_testcases`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `question_seed_testcases` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `course_id` bigint(20) NOT NULL,
+  `quiz_id` bigint(20) NOT NULL,
+  `question_id` bigint(20) NOT NULL,
+  `moodle_test_id` bigint(20) DEFAULT NULL,
+  `testcode` longtext DEFAULT NULL,
+  `stdin` longtext DEFAULT NULL,
+  `input_raw` longtext NOT NULL,
+  `input_normalized` longtext NOT NULL,
+  `input_fingerprint` char(64) NOT NULL,
+  `expected_output` longtext DEFAULT NULL,
+  `category` varchar(64) NOT NULL DEFAULT 'seed',
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_seed_fingerprint` (`course_id`,`quiz_id`,`question_id`,`input_fingerprint`),
+  KEY `idx_seed_scope` (`course_id`,`quiz_id`,`question_id`,`is_active`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `question_seed_testcases`
+--
+
+SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
+LOCK TABLES `question_seed_testcases` WRITE;
+/*!40000 ALTER TABLE `question_seed_testcases` DISABLE KEYS */;
+INSERT INTO `question_seed_testcases` VALUES
+(1,4,3,121,493,'','1.4','1.4','1.4','1a948f1b4374f4e3f02501c7feb43784021718a93c1ed5f9f19adf357bb2d20e','1.00','seed',1,'2026-10-17 08:59:57'),
+(2,4,3,121,494,'','0','0','0','5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9','0.00','seed',1,'2026-10-17 08:59:57');
+/*!40000 ALTER TABLE `question_seed_testcases` ENABLE KEYS */;
+UNLOCK TABLES;
+COMMIT;
+SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
+
+--
+-- Table structure for table `question_solution_versions`
+--
+
+DROP TABLE IF EXISTS `question_solution_versions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `question_solution_versions` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `course_id` bigint(20) NOT NULL,
+  `quiz_id` bigint(20) NOT NULL,
+  `question_id` bigint(20) NOT NULL,
+  `question_version` int(11) NOT NULL DEFAULT 1,
+  `solution_code` longtext NOT NULL,
+  `solution_hash` char(64) NOT NULL,
+  `template_code` longtext DEFAULT NULL,
+  `author_user_id` bigint(20) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_solution_ver` (`course_id`,`quiz_id`,`question_id`,`solution_hash`),
+  KEY `idx_sol_scope` (`course_id`,`quiz_id`,`question_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `question_solution_versions`
+--
+
+SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
+LOCK TABLES `question_solution_versions` WRITE;
+/*!40000 ALTER TABLE `question_solution_versions` DISABLE KEYS */;
+INSERT INTO `question_solution_versions` VALUES
+(1,4,3,121,1,'score = float(input())\nscore = max(0.0, min(1.0, score))\nprint(f\'{score:.2f}\')','eecb456f370dedafa7162ee2d64a2745c4d977381f7b40588c953ec4882c4c68','{{ STUDENT_ANSWER }}\n\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\n\nSEPARATOR = \"#<ab@17943918#@>#\"\n\n{% for TEST in TESTCASES %}\n{{ TEST.testcode }}\n{% if not loop.last %}\nprint(SEPARATOR)\n{% endif %}\n{% endfor %}',2,'2026-10-17 09:02:05');
+/*!40000 ALTER TABLE `question_solution_versions` ENABLE KEYS */;
+UNLOCK TABLES;
+COMMIT;
+SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
+
+--
 -- Table structure for table `quiz_settings`
 --
 
@@ -30078,7 +30189,7 @@ LOCK TABLES `quiz_settings` WRITE;
 /*!40000 ALTER TABLE `quiz_settings` DISABLE KEYS */;
 INSERT INTO `quiz_settings` VALUES
 (1,1,'2026-10-07 00:41:59',1,'teacher','one_for_one',1,1,10,8192,NULL),
-(3,1,'2026-10-07 14:41:04',1,'teacher','disabled',0,0,10,4096,2),
+(3,1,'2026-10-17 08:57:34',1,'teacher','one_for_one',0,1,10,4096,2),
 (4,1,'2026-10-07 14:22:57',1,'teacher','disabled',0,0,10,4096,2),
 (5,1,'2026-10-07 14:22:57',1,'teacher','disabled',0,0,10,4096,2);
 /*!40000 ALTER TABLE `quiz_settings` ENABLE KEYS */;
@@ -30109,8 +30220,53 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `schema_migrations` WRITE;
 /*!40000 ALTER TABLE `schema_migrations` DISABLE KEYS */;
 INSERT INTO `schema_migrations` VALUES
-('2026100701','2026-10-07 00:41:59','36ed8f537f8d891052acfa7a0758d6213cb17fd61eb4bf5465e8978dfd862f88');
+('2026100701','2026-10-07 00:41:59','36ed8f537f8d891052acfa7a0758d6213cb17fd61eb4bf5465e8978dfd862f88'),
+('2026101701','2026-10-17 08:37:03','85438ec35415f027b1a646f990a1a2e844c2d84ab6b3ad5a8507a47790b759d4');
 /*!40000 ALTER TABLE `schema_migrations` ENABLE KEYS */;
+UNLOCK TABLES;
+COMMIT;
+SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
+
+--
+-- Table structure for table `student_code_revisions`
+--
+
+DROP TABLE IF EXISTS `student_code_revisions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `student_code_revisions` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `course_id` bigint(20) NOT NULL,
+  `quiz_id` bigint(20) NOT NULL,
+  `question_id` bigint(20) NOT NULL,
+  `user_id` bigint(20) NOT NULL,
+  `quiz_attempt_id` bigint(20) DEFAULT NULL,
+  `question_attempt_id` bigint(20) DEFAULT NULL,
+  `step_number` int(11) NOT NULL DEFAULT 0,
+  `code_content` longtext NOT NULL,
+  `code_hash` char(64) NOT NULL,
+  `execution_mode` varchar(24) NOT NULL DEFAULT 'check',
+  `passed_count` int(11) DEFAULT NULL,
+  `total_count` int(11) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_rev_user` (`course_id`,`quiz_id`,`question_id`,`user_id`,`created_at`),
+  KEY `idx_rev_hash` (`user_id`,`question_id`,`code_hash`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `student_code_revisions`
+--
+
+SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
+LOCK TABLES `student_code_revisions` WRITE;
+/*!40000 ALTER TABLE `student_code_revisions` DISABLE KEYS */;
+INSERT INTO `student_code_revisions` VALUES
+(1,4,1,119,3,10,20,1,'int isPrime(int n) { return n > 1; }','f146b7e762a9b936bf22edb84797b7ef58a25ebbccc7e20c049ea15e71b1321c','check',NULL,NULL,'2026-10-17 08:52:39'),
+(2,4,1,119,3,10,20,3,'int isPrime(int n) { if (n <= 1) return 0; for (int i=2; i*i<=n; i++) if (n%i==0) return 0; return 1; }','a0dcc3d80fe7458b5fd3a6fb6ce23833b1a51d25f520b2817651100254f3e7c2','check',NULL,NULL,'2026-10-17 08:52:39'),
+(3,4,3,121,3,16,16,0,'score = float(input())\r\n# TODO: giới hạn score trong [0, 1] rồi in hai chữ số thập phân.','e52f82e4af85cd6985fcc76f45f4e3b45dc2d1439263de08cf3e0fca0708ae41','check',NULL,NULL,'2026-10-17 09:39:44');
+/*!40000 ALTER TABLE `student_code_revisions` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
@@ -30179,7 +30335,7 @@ CREATE TABLE `testcase_canonical_keys` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_canonical` (`course_id`,`quiz_id`,`question_id`,`input_fingerprint`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30244,7 +30400,7 @@ CREATE TABLE `testcase_contributions` (
   UNIQUE KEY `uq_contribution_legacy` (`legacy_source_id`),
   KEY `idx_contribution_scope` (`course_id`,`quiz_id`,`question_id`,`status`),
   KEY `idx_contribution_owner` (`user_id`,`submitted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30255,24 +30411,25 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `testcase_contributions` WRITE;
 /*!40000 ALTER TABLE `testcase_contributions` DISABLE KEYS */;
 INSERT INTO `testcase_contributions` VALUES
-(1,1,1,2,1,119,3,'13','3fdba35f04dc8c462986c992bcf875546257113072a909c162f7e470e581e278','true',NULL,NULL,'approved',NULL,'2026-10-02 13:22:18','2026-10-10 07:04:27',5,'Trường hợp biên xuất sắc!'),
-(2,2,2,2,1,119,4,'17','4523540f1504cd17100c4835e85b7eefd49911580f8efff0599a8f283be6b9e3','true',NULL,NULL,'approved',NULL,'2026-10-02 13:22:45','2026-10-07 00:41:59',NULL,NULL),
-(3,3,3,2,1,119,3,'5','ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d','true',NULL,NULL,'approved',NULL,'2026-10-02 13:23:25','2026-10-07 00:41:59',NULL,NULL),
-(4,4,4,2,1,119,3,'8','2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3','false',NULL,NULL,'approved',NULL,'2026-10-02 13:23:39','2026-10-07 00:41:59',NULL,NULL),
-(5,5,5,2,1,119,3,'97','d6d824abba4afde81129c71dea75b8100e96338da5f416d2f69088f1960cb091','true',NULL,NULL,'approved',NULL,'2026-10-02 13:30:33','2026-10-07 00:41:59',NULL,NULL),
-(6,6,6,2,1,119,3,'29','35135aaa6cc23891b40cb3f378c53a17a1127210ce60e125ccf03efcfdaec458','true',NULL,NULL,'approved',NULL,'2026-10-02 13:36:29','2026-10-07 00:41:59',NULL,NULL),
-(7,7,7,2,1,119,3,'107','3346f2bbf6c34bd2dbe28bd1bb657d0e9c37392a1d5ec9929e6a5df4763ddc2d','true',NULL,NULL,'approved',NULL,'2026-10-02 13:41:31','2026-10-07 00:41:59',NULL,NULL),
-(8,8,8,2,1,119,3,'23','535fa30d7e25dd8a49f1536779734ec8286108d115da5045d77f3b4185d8f790','true',NULL,NULL,'approved',NULL,'2026-10-02 13:43:26','2026-10-07 00:41:59',NULL,NULL),
-(9,9,9,2,1,119,3,'19','9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767','true',NULL,NULL,'approved',NULL,'2026-10-02 13:48:02','2026-10-07 00:41:59',NULL,NULL),
-(10,10,10,2,1,119,4,'31','eb1e33e8a81b697b75855af6bfcdbcbf7cbbde9f94962ceaec1ed8af21f5a50f','true',NULL,NULL,'approved',NULL,'2026-10-02 13:50:56','2026-10-07 00:41:59',NULL,NULL),
-(11,11,11,2,1,119,3,'123','a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3','false',NULL,NULL,'approved',NULL,'2026-10-02 14:15:45','2026-10-07 00:41:59',NULL,NULL),
-(12,NULL,14,4,3,121,3,'0.999','11958c6d1f109f217d648882d314388c8a036925acc6ffe9abc96f4492923a95','1.00','Kiểm tra làm tròn gần biên trên.','boundary','approved',NULL,'2026-10-07 14:24:51','2026-10-07 14:25:04',NULL,NULL),
-(13,NULL,15,4,4,122,3,'AI   ai','54785aac69dc62730001853a1d9edb48e23272189edb21c47e5fd42ec8d764be','2','Kiểm tra chữ hoa và nhiều khoảng trắng.','branch','approved',NULL,'2026-10-07 14:24:54','2026-10-07 14:25:04',NULL,NULL),
+(1,1,1,2,1,119,3,'13','3fdba35f04dc8c462986c992bcf875546257113072a909c162f7e470e581e278','true',NULL,NULL,'duplicate',1,'2026-10-02 13:22:18','2026-10-17 08:37:03',5,'Trường hợp biên xuất sắc!'),
+(2,2,2,2,1,119,4,'17','4523540f1504cd17100c4835e85b7eefd49911580f8efff0599a8f283be6b9e3','true',NULL,NULL,'duplicate',2,'2026-10-02 13:22:45','2026-10-17 08:37:03',NULL,NULL),
+(3,3,3,2,1,119,3,'5','ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d','true',NULL,NULL,'duplicate',3,'2026-10-02 13:23:25','2026-10-17 08:37:03',NULL,NULL),
+(4,4,4,2,1,119,3,'8','2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3','false',NULL,NULL,'duplicate',4,'2026-10-02 13:23:39','2026-10-17 08:37:03',NULL,NULL),
+(5,5,5,2,1,119,3,'97','d6d824abba4afde81129c71dea75b8100e96338da5f416d2f69088f1960cb091','true',NULL,NULL,'duplicate',5,'2026-10-02 13:30:33','2026-10-17 08:37:03',NULL,NULL),
+(6,6,6,2,1,119,3,'29','35135aaa6cc23891b40cb3f378c53a17a1127210ce60e125ccf03efcfdaec458','true',NULL,NULL,'duplicate',6,'2026-10-02 13:36:29','2026-10-17 08:37:03',NULL,NULL),
+(7,7,7,2,1,119,3,'107','3346f2bbf6c34bd2dbe28bd1bb657d0e9c37392a1d5ec9929e6a5df4763ddc2d','true',NULL,NULL,'duplicate',7,'2026-10-02 13:41:31','2026-10-17 08:37:03',NULL,NULL),
+(8,8,8,2,1,119,3,'23','535fa30d7e25dd8a49f1536779734ec8286108d115da5045d77f3b4185d8f790','true',NULL,NULL,'duplicate',8,'2026-10-02 13:43:26','2026-10-17 08:37:03',NULL,NULL),
+(9,9,9,2,1,119,3,'19','9400f1b21cb527d7fa3d3eabba93557a18ebe7a2ca4e471cfe5e4c5b4ca7f767','true',NULL,NULL,'duplicate',9,'2026-10-02 13:48:02','2026-10-17 08:37:03',NULL,NULL),
+(10,10,10,2,1,119,4,'31','eb1e33e8a81b697b75855af6bfcdbcbf7cbbde9f94962ceaec1ed8af21f5a50f','true',NULL,NULL,'duplicate',10,'2026-10-02 13:50:56','2026-10-17 08:37:03',NULL,NULL),
+(11,11,11,2,1,119,3,'123','a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3','false',NULL,NULL,'duplicate',11,'2026-10-02 14:15:45','2026-10-17 08:37:03',NULL,NULL),
+(12,NULL,14,4,3,121,3,'0.999','11958c6d1f109f217d648882d314388c8a036925acc6ffe9abc96f4492923a95','1.00','Kiểm tra làm tròn gần biên trên.','boundary','approved',NULL,'2026-10-07 14:24:51','2026-10-17 08:51:11',5,NULL),
+(13,NULL,15,4,4,122,3,'AI   ai','54785aac69dc62730001853a1d9edb48e23272189edb21c47e5fd42ec8d764be','2','Kiểm tra chữ hoa và nhiều khoảng trắng.','branch','approved',NULL,'2026-10-07 14:24:54','2026-10-17 08:51:11',4,NULL),
 (14,NULL,16,4,5,123,3,'2 7','7b13ac13a99e4bb1bbbcc536064bd39b77ad474229166adc9640f825fad9f55c','28.57','Kiểm tra phép chia tạo số thập phân tuần hoàn.','normal','approved',NULL,'2026-10-07 14:24:56','2026-10-07 14:25:04',NULL,NULL),
-(15,NULL,17,4,3,121,4,'-10','c171d4ec282b23db89a99880cd624e9ba2940c1d894783602edab5d7481dc1ea','0.00','Kiểm tra giá trị rất nhỏ ngoài miền.','boundary','approved',NULL,'2026-10-07 14:24:59','2026-10-07 14:25:04',NULL,NULL),
+(15,NULL,17,4,3,121,4,'-10','c171d4ec282b23db89a99880cd624e9ba2940c1d894783602edab5d7481dc1ea','0.00','Kiểm tra giá trị rất nhỏ ngoài miền.','boundary','approved',NULL,'2026-10-07 14:24:59','2026-10-17 08:51:11',3,NULL),
 (16,NULL,18,4,4,122,4,'AI-powered AI','5ef430e131036d1be027e4f4d55ce2b7d1551855e2a02dd53757337a0e39fc41','1','Phân biệt từ AI với từ ghép có dấu gạch nối.','branch','approved',NULL,'2026-10-07 14:25:01','2026-10-07 14:25:04',NULL,NULL),
 (17,NULL,19,4,5,123,4,'999 1000','4b81040de10260eb4c748dc7f27294c708952e1680d59c3ad1554863918a12b9','99.90','Kiểm tra tập dữ liệu lớn gần accuracy tuyệt đối.','large','approved',NULL,'2026-10-07 14:25:04','2026-10-07 14:25:04',NULL,NULL),
-(19,NULL,23,4,3,121,3,'0.6','b4af4e0d40391d3a00179d935c63b7e15ba8cd3dfa29f218dedc270bd3eb3e79','0.60','','other','submitted',NULL,'2026-10-10 03:10:53','2026-10-10 03:10:53',NULL,NULL);
+(19,NULL,23,4,3,121,3,'0.6','b4af4e0d40391d3a00179d935c63b7e15ba8cd3dfa29f218dedc270bd3eb3e79','0.60','','other','approved',NULL,'2026-10-10 03:10:53','2026-10-17 09:01:27',5,'Testcase biên tuyệt vời!'),
+(31,NULL,999,4,3,121,4,'1000 -500\n','a19e9fba3de3d79927abc4fe6d387f8ef13424bf1d84b7b983fa6dc4fa4ea4e9','500\n','Kiểm tra số lớn và số âm trong cùng phép tính','boundary','submitted',NULL,'2026-10-17 09:34:30','2026-10-17 09:34:30',NULL,NULL);
 /*!40000 ALTER TABLE `testcase_contributions` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -30333,11 +30490,15 @@ CREATE TABLE `testcase_rewards` (
   `receiver_user_id` bigint(20) NOT NULL,
   `contribution_id` bigint(20) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `reward_source` varchar(24) NOT NULL DEFAULT 'contribution',
+  `seed_id` bigint(20) DEFAULT NULL,
+  `is_claimed` tinyint(1) NOT NULL DEFAULT 0,
+  `claimed_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_reward` (`receiver_user_id`,`contribution_id`),
   UNIQUE KEY `uq_reward_legacy` (`legacy_source_id`),
   KEY `idx_reward_scope` (`course_id`,`quiz_id`,`question_id`,`receiver_user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30348,10 +30509,11 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `testcase_rewards` WRITE;
 /*!40000 ALTER TABLE `testcase_rewards` DISABLE KEYS */;
 INSERT INTO `testcase_rewards` VALUES
-(1,1,2,1,119,4,1,'2026-10-02 13:22:45'),
-(2,2,2,1,119,3,2,'2026-10-02 13:23:25'),
-(3,3,2,1,119,4,5,'2026-10-02 13:50:56'),
-(4,4,2,1,119,3,10,'2026-10-02 14:15:46');
+(1,1,2,1,119,4,1,'2026-10-02 13:22:45','contribution',NULL,0,NULL),
+(2,2,2,1,119,3,2,'2026-10-02 13:23:25','contribution',NULL,0,NULL),
+(3,3,2,1,119,4,5,'2026-10-02 13:50:56','contribution',NULL,0,NULL),
+(4,4,2,1,119,3,10,'2026-10-02 14:15:46','contribution',NULL,0,NULL),
+(10,NULL,4,3,121,3,15,'2026-10-17 09:01:27','contribution',NULL,1,'2026-10-17 10:01:27');
 /*!40000 ALTER TABLE `testcase_rewards` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -30400,7 +30562,7 @@ CREATE TABLE `testcase_runs` (
   UNIQUE KEY `uq_run_legacy` (`legacy_source_id`),
   KEY `idx_runs_owner` (`course_id`,`quiz_id`,`question_id`,`user_id`,`created_at`),
   KEY `idx_runs_fingerprint` (`course_id`,`quiz_id`,`question_id`,`input_fingerprint`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30441,6 +30603,43 @@ COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 
 --
+-- Table structure for table `testcase_view_logs`
+--
+
+DROP TABLE IF EXISTS `testcase_view_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `testcase_view_logs` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `course_id` bigint(20) NOT NULL,
+  `quiz_id` bigint(20) NOT NULL,
+  `question_id` bigint(20) NOT NULL,
+  `user_id` bigint(20) NOT NULL,
+  `reward_id` bigint(20) DEFAULT NULL,
+  `contribution_id` bigint(20) DEFAULT NULL,
+  `action` varchar(32) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_view_user` (`course_id`,`user_id`,`action`,`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `testcase_view_logs`
+--
+
+SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
+LOCK TABLES `testcase_view_logs` WRITE;
+/*!40000 ALTER TABLE `testcase_view_logs` DISABLE KEYS */;
+INSERT INTO `testcase_view_logs` VALUES
+(1,4,1,119,3,9,15,'claim_reward','2026-10-17 09:52:17'),
+(2,4,3,121,3,10,15,'claim_reward','2026-10-17 10:01:27');
+/*!40000 ALTER TABLE `testcase_view_logs` ENABLE KEYS */;
+UNLOCK TABLES;
+COMMIT;
+SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
+
+--
 -- Dumping events for database 'testcase_store'
 --
 
@@ -30457,7 +30656,7 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-10-10  8:28:07
+-- Dump completed on 2026-10-19 13:35:01
 
 -- =================================================================
 -- Cấp quyền người dùng cho testcase_store và Moodle integration

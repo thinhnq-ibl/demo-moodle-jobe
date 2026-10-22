@@ -33,3 +33,8 @@ __pycache__/
 dist/*
 dist.zip
 
+# Locally generated portable-image bundles (too large for the GitHub file limit)
+.DS_Store
+moodle_portable_full_package.zip
+portable_dist/moodle_stack_images.tar.gz
+

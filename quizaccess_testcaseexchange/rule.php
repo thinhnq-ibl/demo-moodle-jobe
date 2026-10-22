@@ -82,9 +82,9 @@ class quizaccess_testcaseexchange extends access_rule_base {
             return;
         }
 
-        $stmt = $conn->prepare("INSERT INTO quiz_settings (quiz_id, is_enabled) VALUES (?, ?) ON DUPLICATE KEY UPDATE is_enabled = VALUES(is_enabled)");
+        $stmt = $conn->prepare("INSERT INTO quiz_settings (quiz_id, is_enabled, enabled) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE is_enabled = VALUES(is_enabled), enabled = VALUES(enabled)");
         if ($stmt) {
-            $stmt->bind_param('ii', $quizid, $isenabled);
+            $stmt->bind_param('iii', $quizid, $isenabled, $isenabled);
             $stmt->execute();
             $stmt->close();
         }
