@@ -44,8 +44,18 @@ echo "✓ Đã xuất CSDL thành công: $BACKUP_SQL ($SQL_SIZE)"
 # 2. Sao lưu toàn bộ Docker Volume moodledata (chứa file nộp, ảnh, câu hỏi đính kèm)
 echo ""
 echo "[2/3] Đang sao lưu Docker Volume moodledata..."
+MOODLEDATA_VOL=$(docker inspect moodle_app --format '{{range .Mounts}}{{if eq .Destination "/var/www/moodledata"}}{{.Name}}{{end}}{{end}}' 2>/dev/null || true)
+if [ -z "$MOODLEDATA_VOL" ]; then
+    if docker volume inspect portable_dist_moodledata >/dev/null 2>&1; then
+        MOODLEDATA_VOL="portable_dist_moodledata"
+    else
+        MOODLEDATA_VOL="demo-moodle-jobe_moodledata"
+    fi
+fi
+echo "✓ Phát hiện volume moodledata: $MOODLEDATA_VOL"
+
 docker run --rm \
-    -v demo-moodle-jobe_moodledata:/moodledata:ro \
+    -v "$MOODLEDATA_VOL":/moodledata:ro \
     -v "$(pwd)":/backup \
     alpine tar -czf /backup/"$BACKUP_MOODLEDATA" -C /moodledata .
 

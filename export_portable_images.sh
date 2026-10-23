@@ -24,6 +24,7 @@ mkdir -p "$DIST_DIR"
 cp docker-compose.portable.yml "$DIST_DIR/"
 cp run_stack.sh "$DIST_DIR/"
 cp run_stack.bat "$DIST_DIR/"
+cp HUONG_DAN_CAI_DAT_PORTABLE.md "$DIST_DIR/HUONG_DAN_CAI_DAT.md"
 chmod +x "$DIST_DIR/run_stack.sh"
 
 cat <<'EOF' > "$DIST_DIR/README.txt"
@@ -55,12 +56,13 @@ CÁCH DỪNG HỆ THỐNG:
 ==================================================================
 EOF
 
-# 4. Xuất các Docker Images ra file nén .tar.gz
+# 4. Xuất các Docker Images đã cập nhật ra file nén .tar.gz (bỏ qua Jobe vì không đổi)
 echo ""
-echo "[3/4] Đang xuất Docker Images ra file nén (có thể mất 1-3 phút)..."
+echo "[3/4] Đang xuất Docker Images cập nhật (moodle-portable & mariadb-portable) ra file nén..."
+echo "(Jobe Sandbox không có thay đổi nên được bỏ qua để tối ưu dung lượng và thời gian export)"
 IMAGE_FILE="$DIST_DIR/moodle_stack_images.tar.gz"
 
-docker save moodle-portable:latest mariadb-portable:latest jobe-portable:latest | gzip > "$IMAGE_FILE"
+docker save moodle-portable:latest mariadb-portable:latest | gzip > "$IMAGE_FILE"
 
 FILE_SIZE=$(ls -lh "$IMAGE_FILE" | awk '{print $5}')
 echo "✓ Đã xuất thành công: $IMAGE_FILE ($FILE_SIZE)"

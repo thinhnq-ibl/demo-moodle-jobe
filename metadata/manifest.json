@@ -1,8 +1,8 @@
 {
   "project": "demo-moodle-jobe",
   "purpose": "PhD Research Testcase Exchange & Reproducible Sandbox",
-  "backup_timestamp_iso": "2026-10-19T13:35:02Z",
-  "git_commit": "7a586656e22adca1c87a86c8fd68bac8872e27dc",
+  "backup_timestamp_iso": "2026-10-23T06:30:33Z",
+  "git_commit": "15b8f4e301e132ab1cd4dbef837974f13381e7c6",
   "environment_runtime": {
     "moodle_version": "4.4.12+ (Build: 20251212)",
     "php_version": "8.2.33",
@@ -14,8 +14,8 @@
     "plugin_quizaccess_testcaseexchange": "2026100501"
   },
   "checksums_sha256": {
-    "database_sql_gz": "2912c198d82cfd90a072dcca2cc37cd2b4bfd4b8f9fcf64a073c914208105fd5",
-    "moodledata_tar_gz": "188a91130a507c8668c28e5ff5dea3924108351e4e0a3be0dfb557f6b35de3fc",
+    "database_sql_gz": "2a88c5bee0ed16df0246c88ecc7786d56c77fac96687f35c35f25e889162d5ea",
+    "moodledata_tar_gz": "81c6d7c61f4c84503a8fb2e60d63a6039c9280347e08f51e79e840ba27cb2aea",
     "docker_compose_yml": "418acb815853016347fba9dacc34871f6b788d2192f2a90b189af86220205eee",
     "dockerfile_moodle": "fbd43695ff88e3e290f7172d1445d20d8e74159121d997bd51f15dd77a8e6887",
     "dockerfile_jobe": "2f197db8aac79268247a54542aaa4f8cc176a6187c05a06c05097ac4a79d1b5c"

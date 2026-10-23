@@ -84,6 +84,11 @@ Sau khi script báo hoàn tất, bạn có thể mở trình duyệt web và tru
   ```bash
   docker compose -f docker-compose.portable.yml down
   ```
+* **Làm mới dữ liệu về bản snapshot mới nhất (Xóa volume cũ để import lại CSDL mới):**
+  ```bash
+  docker compose -f docker-compose.portable.yml down -v
+  ```
+  *(Dùng lệnh này khi bạn muốn máy cũ nạp lại toàn bộ dữ liệu mới nhất từ gói đóng gói).*
 
 ---
 

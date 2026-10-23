@@ -2241,7 +2241,7 @@ CREATE TABLE `mdl_block_recent_activity` (
   `modname` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `mdl_blocreceacti_coutim_ix` (`courseid`,`timecreated`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Recent activity block';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Recent activity block';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2255,7 +2255,10 @@ INSERT INTO `mdl_block_recent_activity` VALUES
 (1,3,5,1791114147,2,0,NULL),
 (2,2,2,1791156830,2,1,NULL),
 (3,2,2,1791156841,2,1,NULL),
-(4,4,7,1791604203,2,1,NULL);
+(4,4,7,1791604203,2,1,NULL),
+(5,5,12,1792665888,2,0,NULL),
+(6,5,12,1792720750,2,1,NULL),
+(7,5,12,1792721744,2,1,NULL);
 /*!40000 ALTER TABLE `mdl_block_recent_activity` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -2279,7 +2282,7 @@ CREATE TABLE `mdl_block_recentlyaccesseditems` (
   KEY `mdl_blocrece_use_ix` (`userid`),
   KEY `mdl_blocrece_cou_ix` (`courseid`),
   KEY `mdl_blocrece_cmi_ix` (`cmid`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Most recently accessed items accessed by a user';
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Most recently accessed items accessed by a user';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2290,7 +2293,6 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `mdl_block_recentlyaccesseditems` WRITE;
 /*!40000 ALTER TABLE `mdl_block_recentlyaccesseditems` DISABLE KEYS */;
 INSERT INTO `mdl_block_recentlyaccesseditems` VALUES
-(1,2,3,2,1790951487),
 (2,2,3,3,1790950456),
 (3,2,2,3,1790950336),
 (4,2,2,2,1791242993),
@@ -2306,7 +2308,14 @@ INSERT INTO `mdl_block_recentlyaccesseditems` VALUES
 (14,4,8,2,1791619137),
 (15,4,10,3,1791604523),
 (16,4,10,4,1791384014),
-(17,4,7,4,1791384473);
+(17,4,7,4,1791384473),
+(18,5,11,2,1792665893),
+(19,5,12,2,1792731301),
+(20,5,12,3,1792731472),
+(21,5,12,4,1792723059),
+(22,5,13,2,1792735968),
+(23,5,13,3,1792731900),
+(24,5,13,4,1792736046);
 /*!40000 ALTER TABLE `mdl_block_recentlyaccesseditems` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -2539,12 +2548,12 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `mdl_cache_flags` WRITE;
 /*!40000 ALTER TABLE `mdl_cache_flags` DISABLE KEYS */;
 INSERT INTO `mdl_cache_flags` VALUES
-(1,'userpreferenceschanged','3',1792230532,'1',1792259332),
+(1,'userpreferenceschanged','3',1792723081,'1',1792751881),
 (2,'accesslib/dirtyusers','3',1791382943,'1',1791411743),
-(3,'userpreferenceschanged','4',1791384011,'1',1791412811),
+(3,'userpreferenceschanged','4',1792736035,'1',1792764835),
 (4,'accesslib/dirtyusers','4',1791382943,'1',1791411743),
-(5,'userpreferenceschanged','2',1792230724,'1',1792259524),
-(6,'accesslib/dirtyusers','2',1791114027,'1',1791142827);
+(5,'userpreferenceschanged','2',1792735957,'1',1792764757),
+(6,'accesslib/dirtyusers','2',1792665144,'1',1792693944);
 /*!40000 ALTER TABLE `mdl_cache_flags` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -4431,9 +4440,9 @@ INSERT INTO `mdl_config` VALUES
 (22,'mnet_all_hosts_id','2'),
 (23,'siteguest','1'),
 (24,'siteadmins','2'),
-(25,'themerev','1792416742'),
-(26,'jsrev','1792416742'),
-(27,'templaterev','1792416742'),
+(25,'themerev','1792735476'),
+(26,'jsrev','1792735476'),
+(27,'templaterev','1792735476'),
 (28,'gdversion','2'),
 (29,'licenses','unknown,allrightsreserved,public,cc-4.0,cc-nc-4.0,cc-nd-4.0,cc-nc-nd-4.0,cc-nc-sa-4.0,cc-sa-4.0'),
 (30,'sitedefaultlicense','unknown'),
@@ -4569,7 +4578,7 @@ INSERT INTO `mdl_config` VALUES
 (160,'autolangusercreation','1'),
 (161,'langmenu','1'),
 (162,'langlist',''),
-(163,'langrev','1792416742'),
+(163,'langrev','1792735476'),
 (164,'langcache','1'),
 (165,'langstringcache','1'),
 (166,'locale',''),
@@ -4848,12 +4857,12 @@ INSERT INTO `mdl_config` VALUES
 (439,'profilingimportprefix','(I)'),
 (440,'release','4.4.12+ (Build: 20251212)'),
 (441,'branch','404'),
-(442,'localcachedirpurged','1792416741'),
-(443,'scheduledtaskreset','1792416741'),
+(442,'localcachedirpurged','1792735476'),
+(443,'scheduledtaskreset','1792735476'),
 (444,'paygw_plugins_sortorder','paypal'),
 (445,'allversionshash','61c4128ed891c075ac4156271dbe6902a75cf5ff'),
 (446,'allcomponenthash','1957d9be1f68b0561c56621b7af878d325e174e6'),
-(447,'registrationpending','1'),
+(447,'registrationpending','0'),
 (448,'supportemail','admin@example.com'),
 (449,'enableaccessibilitytools','1'),
 (450,'notloggedinroleid','6'),
@@ -9178,7 +9187,7 @@ CREATE TABLE `mdl_context` (
   UNIQUE KEY `mdl_cont_conins_uix` (`contextlevel`,`instanceid`),
   KEY `mdl_cont_ins_ix` (`instanceid`),
   KEY `mdl_cont_pat_ix` (`path`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='one of these must be set';
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='one of these must be set';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9222,7 +9231,11 @@ INSERT INTO `mdl_context` VALUES
 (31,70,8,'/1/3/29/31',4,0),
 (32,70,9,'/1/3/29/32',4,0),
 (33,70,10,'/1/3/29/33',4,0),
-(34,70,6,'/1/3/29/34',4,0);
+(34,70,6,'/1/3/29/34',4,0),
+(35,50,5,'/1/3/35',3,0),
+(36,70,11,'/1/3/35/36',4,0),
+(37,70,12,'/1/3/35/37',4,0),
+(38,70,13,'/1/3/35/38',4,0);
 /*!40000 ALTER TABLE `mdl_context` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -9307,7 +9320,7 @@ CREATE TABLE `mdl_course` (
   KEY `mdl_cour_sho_ix` (`shortname`),
   KEY `mdl_cour_sor_ix` (`sortorder`),
   KEY `mdl_cour_ori_ix` (`originalcourseid`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Central course table';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Central course table';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9318,10 +9331,11 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `mdl_course` WRITE;
 /*!40000 ALTER TABLE `mdl_course` DISABLE KEYS */;
 INSERT INTO `mdl_course` VALUES
-(1,0,1,'Moodle CodeRunner LMS','CodeRunner','','',0,'site',1,3,0,0,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1790344224,1790344245,0,0,0,1792416742,NULL,0,NULL,NULL),
-(2,1,10003,'Nhập môn Lập trình (Demo CodeRunner)','CS101','','Lớp học mẫu thử nghiệm tự động chấm bài lập trình.',0,'topics',1,1,0,0,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1790344297,1790344297,0,0,0,1792416742,NULL,0,1,NULL),
-(3,1,10002,'Huong dan co ban py ','basic py ','','',1,'topics',1,5,1791154800,1822690800,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1791114027,1791114027,0,1,0,1792416742,NULL,1,1,NULL),
-(4,1,10001,'Python cơ bản cho AI — Pilot đóng góp','AI-PY-PILOT','','<p>Ba Quiz Python cơ bản và một hoạt động đặt câu hỏi cho bài đọc về lịch sử AI.</p>',1,'topics',1,1,0,0,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1791382943,1791382943,0,0,0,1792416742,NULL,0,1,NULL);
+(1,0,1,'Moodle CodeRunner LMS','CodeRunner','','',0,'site',1,3,0,0,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1790344224,1790344245,0,0,0,1792735476,NULL,0,NULL,NULL),
+(2,1,10004,'Nhập môn Lập trình (Demo CodeRunner)','CS101','','Lớp học mẫu thử nghiệm tự động chấm bài lập trình.',0,'topics',1,1,0,0,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1790344297,1790344297,0,0,0,1792735476,NULL,0,1,NULL),
+(3,1,10003,'Huong dan co ban py ','basic py ','','',1,'topics',1,5,1791154800,1822690800,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1791114027,1791114027,0,1,0,1792735476,NULL,1,1,NULL),
+(4,1,10002,'Python cơ bản cho AI — Pilot đóng góp','AI-PY-PILOT','','<p>Ba Quiz Python cơ bản và một hoạt động đặt câu hỏi cho bài đọc về lịch sử AI.</p>',1,'topics',1,1,0,0,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1791382943,1791382943,0,0,0,1792735476,NULL,0,1,NULL),
+(5,1,10001,'python 2','python 2','12','<p>basic python</p>',1,'topics',1,5,1792710000,1824246000,0,0,0,0,0,1,1,NULL,0,0,0,'','','',1792665144,1792665144,0,1,0,1792735476,NULL,1,1,NULL);
 /*!40000 ALTER TABLE `mdl_course` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -9362,7 +9376,7 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `mdl_course_categories` WRITE;
 /*!40000 ALTER TABLE `mdl_course_categories` DISABLE KEYS */;
 INSERT INTO `mdl_course_categories` VALUES
-(1,'Category 1',NULL,NULL,1,0,10000,3,1,1,1790344224,1,'/1',NULL);
+(1,'Category 1',NULL,NULL,1,0,10000,4,1,1,1790344224,1,'/1',NULL);
 /*!40000 ALTER TABLE `mdl_course_categories` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -9559,7 +9573,7 @@ CREATE TABLE `mdl_course_format_options` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `mdl_courformopti_couforsec_uix` (`courseid`,`format`,`sectionid`,`name`),
   KEY `mdl_courformopti_cou_ix` (`courseid`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Stores format-specific options for the course or course sect';
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Stores format-specific options for the course or course sect';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9576,7 +9590,9 @@ INSERT INTO `mdl_course_format_options` VALUES
 (4,3,'topics',0,'hiddensections','1'),
 (5,3,'topics',0,'coursedisplay','0'),
 (6,4,'topics',0,'hiddensections','1'),
-(7,4,'topics',0,'coursedisplay','0');
+(7,4,'topics',0,'coursedisplay','0'),
+(8,5,'topics',0,'hiddensections','1'),
+(9,5,'topics',0,'coursedisplay','0');
 /*!40000 ALTER TABLE `mdl_course_format_options` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -9621,7 +9637,7 @@ CREATE TABLE `mdl_course_modules` (
   KEY `mdl_courmodu_ins_ix` (`instance`),
   KEY `mdl_courmodu_idncou_ix` (`idnumber`,`course`),
   KEY `mdl_courmodu_gro_ix` (`groupingid`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='course_modules table retrofitted from MySQL';
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='course_modules table retrofitted from MySQL';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9641,7 +9657,10 @@ INSERT INTO `mdl_course_modules` VALUES
 (7,4,17,3,13,NULL,1791382977,0,0,1,1,1,0,0,0,NULL,0,0,0,0,NULL,0,1,''),
 (8,4,17,4,14,NULL,1791382977,0,0,1,1,1,0,0,0,NULL,0,0,0,0,NULL,0,1,NULL),
 (9,4,17,5,15,NULL,1791382977,0,0,1,1,1,0,0,0,NULL,0,0,0,0,NULL,0,1,NULL),
-(10,4,9,4,16,NULL,1791382977,0,0,1,1,1,0,0,2,NULL,0,0,0,0,NULL,0,1,NULL);
+(10,4,9,4,16,NULL,1791382977,0,0,1,1,1,0,0,2,NULL,0,0,0,0,NULL,0,1,NULL),
+(11,5,9,5,17,NULL,1792665144,0,0,1,1,1,0,0,0,NULL,0,0,0,0,NULL,0,1,NULL),
+(12,5,17,6,17,'',1792665888,0,0,1,1,1,0,0,0,NULL,0,0,0,0,NULL,0,1,''),
+(13,5,17,7,18,'',1792731574,0,0,1,1,1,0,0,0,NULL,0,0,0,0,NULL,0,1,NULL);
 /*!40000 ALTER TABLE `mdl_course_modules` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -9799,7 +9818,7 @@ CREATE TABLE `mdl_course_sections` (
   `timemodified` bigint(10) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `mdl_coursect_cousec_uix` (`course`,`section`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='to define the sections for each course';
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='to define the sections for each course';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9825,7 +9844,12 @@ INSERT INTO `mdl_course_sections` VALUES
 (13,4,1,NULL,'',1,'7',1,NULL,NULL,NULL,1791382943),
 (14,4,2,NULL,'',1,'8',1,NULL,NULL,NULL,1791382943),
 (15,4,3,NULL,'',1,'9',1,NULL,NULL,NULL,1791382943),
-(16,4,4,NULL,'',1,'10',1,NULL,NULL,NULL,1791382943);
+(16,4,4,NULL,'',1,'10',1,NULL,NULL,NULL,1791382943),
+(17,5,0,NULL,'',1,'11,12',1,NULL,NULL,NULL,1792665144),
+(18,5,1,NULL,'',1,'13',1,NULL,NULL,NULL,1792665144),
+(19,5,2,NULL,'',1,'',1,NULL,NULL,NULL,1792665144),
+(20,5,3,NULL,'',1,'',1,NULL,NULL,NULL,1792665144),
+(21,5,4,NULL,'',1,'',1,NULL,NULL,NULL,1792665144);
 /*!40000 ALTER TABLE `mdl_course_sections` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -10200,7 +10224,7 @@ CREATE TABLE `mdl_enrol` (
   KEY `mdl_enro_enr_ix` (`enrol`),
   KEY `mdl_enro_cou_ix` (`courseid`),
   KEY `mdl_enro_rol_ix` (`roleid`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Instances of enrolment plugins used in courses, fields marke';
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Instances of enrolment plugins used in courses, fields marke';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -10219,7 +10243,10 @@ INSERT INTO `mdl_enrol` VALUES
 (6,'self',1,3,2,NULL,0,0,0,0,86400,0,NULL,NULL,NULL,5,0,0,0,1,0,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1791114027,1791114027),
 (7,'manual',0,4,0,NULL,0,0,0,0,86400,0,NULL,NULL,NULL,5,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1791382943,1791382943),
 (8,'guest',1,4,1,NULL,0,0,0,0,0,0,'',NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1791382943,1791382943),
-(9,'self',1,4,2,NULL,0,0,0,0,86400,0,NULL,NULL,NULL,5,0,0,0,1,0,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1791382943,1791382943);
+(9,'self',1,4,2,NULL,0,0,0,0,86400,0,NULL,NULL,NULL,5,0,0,0,1,0,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1791382943,1791382943),
+(10,'manual',0,5,0,NULL,0,0,0,0,86400,0,NULL,NULL,NULL,5,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1792665144,1792665144),
+(11,'guest',1,5,1,NULL,0,0,0,0,0,0,'',NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1792665144,1792665144),
+(12,'self',0,5,2,NULL,0,0,0,0,86400,0,NULL,NULL,NULL,5,0,0,0,1,0,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1792665144,1792665144);
 /*!40000 ALTER TABLE `mdl_enrol` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -10885,7 +10912,7 @@ CREATE TABLE `mdl_event` (
   KEY `mdl_even_modinseve_ix` (`modulename`,`instance`,`eventtype`),
   KEY `mdl_even_cat_ix` (`categoryid`),
   KEY `mdl_even_sub_ix` (`subscriptionid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='For everything with a time associated to it';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='For everything with a time associated to it';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -10895,6 +10922,9 @@ CREATE TABLE `mdl_event` (
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `mdl_event` WRITE;
 /*!40000 ALTER TABLE `mdl_event` DISABLE KEYS */;
+INSERT INTO `mdl_event` VALUES
+(1,'bai thuc hanh 1 opens','',1,0,5,0,2,0,NULL,'quiz',6,0,'open',1792721700,0,1792721700,1,'',1,1792721744,NULL,NULL,NULL),
+(2,'bai thuc hanh 1 closes','',1,0,5,0,2,0,NULL,'quiz',6,1,'close',1792808100,0,1792808100,1,'',1,1792721744,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `mdl_event` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -12963,7 +12993,7 @@ CREATE TABLE `mdl_forum` (
   `lockdiscussionafter` bigint(10) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `mdl_foru_cou_ix` (`course`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Forums contain and structure discussion';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Forums contain and structure discussion';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -12977,7 +13007,8 @@ INSERT INTO `mdl_forum` VALUES
 (1,2,'news','Announcements','General news and announcements',1,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1790344297,0,0,0,0,0,0,0,0),
 (2,3,'news','Announcements','General news and announcements',1,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1791114027,0,0,0,0,0,0,0,0),
 (3,4,'news','Announcements','General news and announcements',1,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1791382943,0,0,0,0,0,0,0,0),
-(4,4,'qanda','Bài đọc: Alan Turing và những nền móng của AI','<p>Đọc đoạn văn trong discussion. Mỗi sinh viên đăng một câu hỏi mở trước khi đọc câu hỏi của bạn khác.</p>',1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1791382977,0,0,0,0,1,1,0,0);
+(4,4,'qanda','Bài đọc: Alan Turing và những nền móng của AI','<p>Đọc đoạn văn trong discussion. Mỗi sinh viên đăng một câu hỏi mở trước khi đọc câu hỏi của bạn khác.</p>',1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1791382977,0,0,0,0,1,1,0,0),
+(5,5,'news','Announcements','General news and announcements',1,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1792665144,0,0,0,0,0,0,0,0);
 /*!40000 ALTER TABLE `mdl_forum` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -13556,7 +13587,7 @@ CREATE TABLE `mdl_grade_categories` (
   PRIMARY KEY (`id`),
   KEY `mdl_gradcate_cou_ix` (`courseid`),
   KEY `mdl_gradcate_par_ix` (`parent`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='This table keeps information about categories, used for grou';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='This table keeps information about categories, used for grou';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -13569,7 +13600,8 @@ LOCK TABLES `mdl_grade_categories` WRITE;
 INSERT INTO `mdl_grade_categories` VALUES
 (1,2,NULL,1,'/1/','?',13,0,0,1,0,1790346218,1790346218,0),
 (2,3,NULL,1,'/2/','?',13,0,0,1,0,1791114111,1791114111,0),
-(3,4,NULL,1,'/3/','?',13,0,0,1,0,1791383539,1791383539,0);
+(3,4,NULL,1,'/3/','?',13,0,0,1,0,1791383539,1791383539,0),
+(4,5,NULL,1,'/4/','?',13,0,0,1,0,1792665167,1792665167,0);
 /*!40000 ALTER TABLE `mdl_grade_categories` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -13608,7 +13640,7 @@ CREATE TABLE `mdl_grade_categories_history` (
   KEY `mdl_gradcatehist_cou_ix` (`courseid`),
   KEY `mdl_gradcatehist_par_ix` (`parent`),
   KEY `mdl_gradcatehist_log_ix` (`loggeduser`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='History of grade_categories';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='History of grade_categories';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -13624,7 +13656,9 @@ INSERT INTO `mdl_grade_categories_history` VALUES
 (3,1,2,'system',1791114111,2,3,NULL,0,NULL,'?',13,0,0,1,0,0,0),
 (4,2,2,'system',1791114111,2,3,NULL,1,'/2/','?',13,0,0,1,0,0,0),
 (5,1,3,'system',1791383539,2,4,NULL,0,NULL,'?',13,0,0,1,0,0,0),
-(6,2,3,'system',1791383539,2,4,NULL,1,'/3/','?',13,0,0,1,0,0,0);
+(6,2,3,'system',1791383539,2,4,NULL,1,'/3/','?',13,0,0,1,0,0,0),
+(7,1,4,'system',1792665167,2,5,NULL,0,NULL,'?',13,0,0,1,0,0,0),
+(8,2,4,'system',1792665167,2,5,NULL,1,'/4/','?',13,0,0,1,0,0,0);
 /*!40000 ALTER TABLE `mdl_grade_categories_history` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -13888,7 +13922,7 @@ CREATE TABLE `mdl_grade_items` (
   KEY `mdl_graditem_cat_ix` (`categoryid`),
   KEY `mdl_graditem_sca_ix` (`scaleid`),
   KEY `mdl_graditem_out_ix` (`outcomeid`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='This table keeps information about gradeable items (ie colum';
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='This table keeps information about gradeable items (ie colum';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -13906,7 +13940,9 @@ INSERT INTO `mdl_grade_items` VALUES
 (5,4,NULL,NULL,'course',NULL,3,NULL,NULL,NULL,NULL,1,30.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,0.00000,1,0,NULL,0,0,0,0,0,1791383539,1791384405),
 (6,4,3,'Quiz 1 — Chuẩn hóa confidence score','mod','quiz',3,0,NULL,NULL,NULL,1,10.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,0.33333,2,0,NULL,1,0,0,0,0,1791383725,1791384405),
 (7,4,3,'Quiz 2 — Đếm từ khóa AI','mod','quiz',4,0,NULL,NULL,NULL,1,10.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,0.33333,3,0,NULL,1,0,0,0,0,1791383725,1791384405),
-(8,4,3,'Quiz 3 — Tính accuracy của mô hình','mod','quiz',5,0,NULL,NULL,NULL,1,10.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,0.33333,4,0,NULL,1,0,0,0,0,1791383725,1791384405);
+(8,4,3,'Quiz 3 — Tính accuracy của mô hình','mod','quiz',5,0,NULL,NULL,NULL,1,10.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,0.33333,4,0,NULL,1,0,0,0,0,1791383725,1791384405),
+(9,5,NULL,NULL,'course',NULL,4,NULL,NULL,NULL,NULL,1,10.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,0.00000,1,0,NULL,0,0,0,0,0,1792665167,1792665888),
+(10,5,4,'bai thuc hanh 1','mod','quiz',6,0,NULL,'',NULL,1,10.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,1.00000,2,0,NULL,0,0,0,0,0,1792665888,1792665888);
 /*!40000 ALTER TABLE `mdl_grade_items` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -13963,7 +13999,7 @@ CREATE TABLE `mdl_grade_items_history` (
   KEY `mdl_graditemhist_sca_ix` (`scaleid`),
   KEY `mdl_graditemhist_out_ix` (`outcomeid`),
   KEY `mdl_graditemhist_log_ix` (`loggeduser`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='History of grade_items';
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='History of grade_items';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -13998,7 +14034,12 @@ INSERT INTO `mdl_grade_items_history` VALUES
 (22,2,6,NULL,1791384405,4,4,3,'Quiz 1 — Chuẩn hóa confidence score','mod','quiz',3,0,NULL,NULL,NULL,1,10.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,0.33333,2,1,0,0,1,0,NULL,0),
 (23,2,7,NULL,1791384405,4,4,3,'Quiz 2 — Đếm từ khóa AI','mod','quiz',4,0,NULL,NULL,NULL,1,10.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,0.33333,3,1,0,0,1,0,NULL,0),
 (24,2,8,NULL,1791384405,4,4,3,'Quiz 3 — Tính accuracy của mô hình','mod','quiz',5,0,NULL,NULL,NULL,1,10.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,0.33333,4,1,0,0,1,0,NULL,0),
-(25,2,5,'aggregation',1791384405,4,4,NULL,NULL,'course',NULL,3,NULL,NULL,NULL,NULL,1,30.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,0.00000,1,0,0,0,1,0,NULL,0);
+(25,2,5,'aggregation',1791384405,4,4,NULL,NULL,'course',NULL,3,NULL,NULL,NULL,NULL,1,30.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,0.00000,1,0,0,0,1,0,NULL,0),
+(26,1,9,'system',1792665167,2,5,NULL,NULL,'course',NULL,4,NULL,NULL,NULL,NULL,1,100.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,0.00000,1,0,0,0,1,0,NULL,0),
+(27,2,9,'aggregation',1792665888,2,5,NULL,NULL,'course',NULL,4,NULL,NULL,NULL,NULL,1,0.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,0.00000,1,0,0,0,1,0,NULL,0),
+(28,1,10,NULL,1792665888,2,5,4,'bai thuc hanh 1','mod','quiz',6,0,NULL,'',NULL,1,10.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,0.00000,2,0,0,0,1,0,NULL,0),
+(29,2,10,NULL,1792665888,2,5,4,'bai thuc hanh 1','mod','quiz',6,0,NULL,'',NULL,1,10.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,1.00000,2,0,0,0,1,0,NULL,0),
+(30,2,9,'aggregation',1792665888,2,5,NULL,NULL,'course',NULL,4,NULL,NULL,NULL,NULL,1,10.00000,0.00000,NULL,NULL,0.00000,1.00000,0.00000,0.00000,0.00000,1,0,0,0,1,0,NULL,0);
 /*!40000 ALTER TABLE `mdl_grade_items_history` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -15721,7 +15762,7 @@ CREATE TABLE `mdl_logstore_standard_log` (
   KEY `mdl_logsstanlog_cou_ix` (`courseid`),
   KEY `mdl_logsstanlog_rea_ix` (`realuserid`),
   KEY `mdl_logsstanlog_rel_ix` (`relateduserid`)
-) ENGINE=InnoDB AUTO_INCREMENT=798 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Standard log table';
+) ENGINE=InnoDB AUTO_INCREMENT=1116 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Standard log table';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -16528,7 +16569,325 @@ INSERT INTO `mdl_logstore_standard_log` VALUES
 (794,'\\core\\event\\user_loggedout','core','loggedout','user','user',3,'r',0,1,10,0,3,0,NULL,0,'{\"sessionid\":\"76b43538fdfc5d97eb73de6a698bf540\"}',1792230708,'web','172.21.0.1',NULL),
 (795,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,0,1,NULL,0,'null',1792230708,'web','172.21.0.1',NULL),
 (796,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792230724,'web','172.21.0.1',NULL),
-(797,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792230724,'web','172.21.0.1',NULL);
+(797,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792230724,'web','172.21.0.1',NULL),
+(798,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,0,1,NULL,0,'null',1792417217,'web','192.168.65.1',NULL),
+(799,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,0,1,NULL,0,'null',1792665049,'web','172.20.0.1',NULL),
+(800,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792665062,'web','172.20.0.1',NULL),
+(801,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792665062,'web','172.20.0.1',NULL),
+(802,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,2,1,NULL,0,'null',1792665067,'web','172.20.0.1',NULL),
+(803,'\\core\\event\\mycourses_viewed','core','viewed','mycourses',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'null',1792665069,'web','172.20.0.1',NULL),
+(804,'\\core\\event\\mycourses_viewed','core','viewed','mycourses',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'null',1792665076,'web','172.20.0.1',NULL),
+(805,'\\core\\event\\course_created','core','created','course','course',5,'c',1,35,50,5,2,5,NULL,0,'{\"shortname\":\"python 2\",\"fullname\":\"python 2\"}',1792665144,'web','172.20.0.1',NULL),
+(806,'\\core\\event\\course_section_created','core','created','course_section','course_sections',17,'c',1,35,50,5,2,5,NULL,0,'{\"sectionnum\":0}',1792665144,'web','172.20.0.1',NULL),
+(807,'\\core\\event\\course_section_created','core','created','course_section','course_sections',18,'c',1,35,50,5,2,5,NULL,0,'{\"sectionnum\":1}',1792665144,'web','172.20.0.1',NULL),
+(808,'\\core\\event\\course_section_created','core','created','course_section','course_sections',19,'c',1,35,50,5,2,5,NULL,0,'{\"sectionnum\":2}',1792665144,'web','172.20.0.1',NULL),
+(809,'\\core\\event\\course_section_created','core','created','course_section','course_sections',20,'c',1,35,50,5,2,5,NULL,0,'{\"sectionnum\":3}',1792665144,'web','172.20.0.1',NULL),
+(810,'\\core\\event\\course_section_created','core','created','course_section','course_sections',21,'c',1,35,50,5,2,5,NULL,0,'{\"sectionnum\":4}',1792665144,'web','172.20.0.1',NULL),
+(811,'\\core\\event\\enrol_instance_created','core','created','enrol_instance','enrol',10,'c',0,35,50,5,2,5,NULL,0,'{\"enrol\":\"manual\"}',1792665144,'web','172.20.0.1',NULL),
+(812,'\\core\\event\\enrol_instance_created','core','created','enrol_instance','enrol',11,'c',0,35,50,5,2,5,NULL,0,'{\"enrol\":\"guest\"}',1792665144,'web','172.20.0.1',NULL),
+(813,'\\core\\event\\enrol_instance_created','core','created','enrol_instance','enrol',12,'c',0,35,50,5,2,5,NULL,0,'{\"enrol\":\"self\"}',1792665144,'web','172.20.0.1',NULL),
+(814,'\\core\\event\\user_enrolment_created','core','created','user_enrolment','user_enrolments',6,'c',0,35,50,5,2,5,2,0,'{\"enrol\":\"manual\"}',1792665144,'web','172.20.0.1',NULL),
+(815,'\\core\\event\\role_assigned','core','assigned','role','role',3,'c',0,35,50,5,2,5,2,0,'{\"id\":6,\"component\":\"\",\"itemid\":0}',1792665144,'web','172.20.0.1',NULL),
+(816,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,2,5,NULL,0,'null',1792665144,'web','172.20.0.1',NULL),
+(817,'\\core\\event\\grade_item_created','core','created','grade_item','grade_items',9,'c',0,35,50,5,2,5,NULL,0,'{\"itemname\":null,\"itemtype\":\"course\",\"itemmodule\":null}',1792665167,'web','172.20.0.1',NULL),
+(818,'\\core\\event\\grade_item_updated','core','updated','grade_item','grade_items',9,'u',0,35,50,5,2,5,NULL,0,'{\"itemname\":null,\"itemtype\":\"course\",\"itemmodule\":null}',1792665888,'web','172.20.0.1',NULL),
+(819,'\\core\\event\\grade_item_created','core','created','grade_item','grade_items',10,'c',0,35,50,5,2,5,NULL,0,'{\"itemname\":\"bai thuc hanh 1\",\"itemtype\":\"mod\",\"itemmodule\":\"quiz\"}',1792665888,'web','172.20.0.1',NULL),
+(820,'\\core\\event\\course_module_created','core','created','course_module','course_modules',12,'c',1,37,70,12,2,5,NULL,0,'{\"modulename\":\"quiz\",\"instanceid\":6,\"name\":\"bai thuc hanh 1\"}',1792665888,'web','172.20.0.1',NULL),
+(821,'\\core\\event\\grade_item_updated','core','updated','grade_item','grade_items',10,'u',0,35,50,5,2,5,NULL,0,'{\"itemname\":\"bai thuc hanh 1\",\"itemtype\":\"mod\",\"itemmodule\":\"quiz\"}',1792665888,'web','172.20.0.1',NULL),
+(822,'\\core\\event\\grade_item_updated','core','updated','grade_item','grade_items',9,'u',0,35,50,5,2,5,NULL,0,'{\"itemname\":null,\"itemtype\":\"course\",\"itemmodule\":null}',1792665888,'web','172.20.0.1',NULL),
+(823,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,2,5,NULL,0,'null',1792665888,'web','172.20.0.1',NULL),
+(824,'\\mod_forum\\event\\course_module_viewed','mod_forum','viewed','course_module','forum',5,'r',2,36,70,11,2,5,NULL,0,'null',1792665893,'web','172.20.0.1',NULL),
+(825,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,2,5,NULL,0,'null',1792665898,'web','172.20.0.1',NULL),
+(826,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,2,5,NULL,0,'null',1792665900,'web','172.20.0.1',NULL),
+(827,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792665905,'web','172.20.0.1',NULL),
+(828,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792718165,'web','172.20.0.1',NULL),
+(829,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792718188,'web','172.20.0.1',NULL),
+(830,'\\mod_quiz\\event\\slot_created','mod_quiz','created','slot','quiz_slots',7,'c',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\",\"slotnumber\":1,\"page\":1}',1792718259,'web','172.20.0.1',NULL),
+(831,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792718259,'web','172.20.0.1',NULL),
+(832,'\\core\\event\\question_created','core','created','question','question',124,'c',1,1,10,0,2,0,NULL,0,'{\"categoryid\":\"2\"}',1792718748,'web','172.20.0.1',NULL),
+(833,'\\core\\event\\question_created','core','created','question','question',125,'c',1,1,10,0,2,0,NULL,0,'{\"categoryid\":\"2\"}',1792718780,'web','172.20.0.1',NULL),
+(834,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792718780,'web','172.20.0.1',NULL),
+(835,'\\core\\event\\question_created','core','created','question','question',126,'c',1,1,10,0,2,0,NULL,0,'{\"categoryid\":\"2\"}',1792719359,'web','172.20.0.1',NULL),
+(836,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792719359,'web','172.20.0.1',NULL),
+(837,'\\core\\event\\question_created','core','created','question','question',127,'c',1,1,10,0,2,0,NULL,0,'{\"categoryid\":\"2\"}',1792719437,'web','172.20.0.1',NULL),
+(838,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792719437,'web','172.20.0.1',NULL),
+(839,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792719987,'web','172.20.0.1',NULL),
+(840,'\\mod_quiz\\event\\slot_deleted','mod_quiz','deleted','slot','quiz_slots',7,'d',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\",\"slotnumber\":\"1\"}',1792719996,'web','172.20.0.1',NULL),
+(841,'\\core\\event\\question_created','core','created','question','question',128,'c',1,35,50,5,2,5,NULL,0,'{\"categoryid\":\"27\"}',1792720708,'web','172.20.0.1',NULL),
+(842,'\\mod_quiz\\event\\slot_created','mod_quiz','created','slot','quiz_slots',8,'c',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\",\"slotnumber\":1,\"page\":1}',1792720708,'web','172.20.0.1',NULL),
+(843,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792720708,'web','172.20.0.1',NULL),
+(844,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,2,5,NULL,0,'null',1792720731,'web','172.20.0.1',NULL),
+(845,'\\core\\event\\course_module_updated','core','updated','course_module','course_modules',12,'u',1,37,70,12,2,5,NULL,0,'{\"modulename\":\"quiz\",\"instanceid\":\"6\",\"name\":\"bai thuc hanh 1\"}',1792720750,'web','172.20.0.1',NULL),
+(846,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,2,5,NULL,0,'null',1792720750,'web','172.20.0.1',NULL),
+(847,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,2,5,NULL,0,'null',1792720774,'web','172.20.0.1',NULL),
+(848,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,2,5,NULL,0,'null',1792720777,'web','172.20.0.1',NULL),
+(849,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792720782,'web','172.20.0.1',NULL),
+(850,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,2,5,NULL,0,'null',1792720783,'web','172.20.0.1',NULL),
+(851,'\\core\\event\\question_viewed','core','viewed','question','question',128,'r',1,37,70,12,2,5,NULL,0,'{\"categoryid\":\"27\"}',1792720787,'web','172.20.0.1',NULL),
+(852,'\\core\\event\\question_viewed','core','viewed','question','question',128,'r',1,37,70,12,2,5,NULL,0,'{\"categoryid\":\"27\"}',1792720796,'web','172.20.0.1',NULL),
+(853,'\\core\\event\\question_viewed','core','viewed','question','question',128,'r',1,37,70,12,2,5,NULL,0,'{\"categoryid\":\"27\"}',1792720832,'web','172.20.0.1',NULL),
+(854,'\\core\\event\\user_loggedout','core','loggedout','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"sessionid\":\"2f97bc2bc1e1500bca05f3f51046533b\"}',1792720907,'web','172.20.0.1',NULL),
+(855,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,0,1,NULL,0,'null',1792720907,'web','172.20.0.1',NULL),
+(856,'\\core\\event\\user_loggedin','core','loggedin','user','user',3,'r',0,1,10,0,3,0,NULL,0,'{\"username\":\"student1\",\"extrauserinfo\":[]}',1792720915,'web','172.20.0.1',NULL),
+(857,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,12,30,3,3,0,3,0,'null',1792720915,'web','172.20.0.1',NULL),
+(858,'\\core\\event\\mycourses_viewed','core','viewed','mycourses',NULL,NULL,'r',0,1,10,0,3,0,NULL,0,'null',1792720921,'web','172.20.0.1',NULL),
+(859,'\\tool_usertours\\event\\tour_started','tool_usertours','started','tour','tool_usertours_tours',4,'r',2,1,10,0,3,0,NULL,0,'{\"pageurl\":\"http:\\/\\/localhost:8080\\/my\\/courses.php\"}',1792720921,'web','172.20.0.1',NULL),
+(860,'\\tool_usertours\\event\\tour_ended','tool_usertours','ended','tour','tool_usertours_tours',4,'c',2,1,10,0,3,0,NULL,0,'{\"pageurl\":\"http:\\/\\/localhost:8080\\/my\\/courses.php\",\"stepid\":8,\"stepindex\":0}',1792720921,'web','172.20.0.1',NULL),
+(861,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,3,1,NULL,0,'null',1792720928,'web','172.20.0.1',NULL),
+(862,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,3,1,NULL,0,'null',1792720937,'web','172.20.0.1',NULL),
+(863,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,0,1,NULL,0,'null',1792720968,'web','172.20.0.1',NULL),
+(864,'\\core\\event\\user_loggedout','core','loggedout','user','user',3,'r',0,1,10,0,3,0,NULL,0,'{\"sessionid\":\"a284d13fa2c9c980ee49590e842b7a69\"}',1792720979,'web','172.20.0.1',NULL),
+(865,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,0,1,NULL,0,'null',1792720979,'web','172.20.0.1',NULL),
+(866,'\\core\\event\\user_loggedin','core','loggedin','user','user',3,'r',0,1,10,0,3,0,NULL,0,'{\"username\":\"student1\",\"extrauserinfo\":[]}',1792720987,'web','172.20.0.1',NULL),
+(867,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,12,30,3,3,0,3,0,'null',1792720987,'web','172.20.0.1',NULL),
+(868,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,3,1,NULL,0,'null',1792720991,'web','172.20.0.1',NULL),
+(869,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792721404,'web','172.20.0.1',NULL),
+(870,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792721404,'web','172.20.0.1',NULL),
+(871,'\\core\\event\\mycourses_viewed','core','viewed','mycourses',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'null',1792721409,'web','172.20.0.1',NULL),
+(872,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,2,5,NULL,0,'null',1792721411,'web','172.20.0.1',NULL),
+(873,'\\core\\event\\user_list_viewed','core','viewed','user_list','course',5,'r',0,35,50,5,2,5,NULL,0,'{\"courseshortname\":\"python 2\",\"coursefullname\":\"python 2\"}',1792721421,'web','172.20.0.1',NULL),
+(874,'\\core\\event\\user_loggedout','core','loggedout','user','user',3,'r',0,1,10,0,3,0,NULL,0,'{\"sessionid\":\"e7f179168ac6b99f6adb7ea06cc25917\"}',1792721453,'web','172.20.0.1',NULL),
+(875,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,0,1,NULL,0,'null',1792721453,'web','172.20.0.1',NULL),
+(876,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792721462,'web','172.20.0.1',NULL),
+(877,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792721462,'web','172.20.0.1',NULL),
+(878,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,4,1,NULL,0,'null',1792721464,'web','172.20.0.1',NULL),
+(879,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,4,1,NULL,0,'null',1792721481,'web','172.20.0.1',NULL),
+(880,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792721692,'web','172.20.0.1',NULL),
+(881,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,2,5,NULL,0,'null',1792721709,'web','172.20.0.1',NULL),
+(882,'\\core\\event\\calendar_event_created','core','created','calendar_event','event',1,'c',0,35,50,5,2,5,NULL,0,'{\"repeatid\":0,\"timestart\":1792721700,\"name\":\"bai thuc hanh 1 opens\"}',1792721744,'web','172.20.0.1',NULL),
+(883,'\\core\\event\\calendar_event_created','core','created','calendar_event','event',2,'c',0,35,50,5,2,5,NULL,0,'{\"repeatid\":0,\"timestart\":1792808100,\"name\":\"bai thuc hanh 1 closes\"}',1792721744,'web','172.20.0.1',NULL),
+(884,'\\core\\event\\course_module_updated','core','updated','course_module','course_modules',12,'u',1,37,70,12,2,5,NULL,0,'{\"modulename\":\"quiz\",\"instanceid\":\"6\",\"name\":\"bai thuc hanh 1\"}',1792721744,'web','172.20.0.1',NULL),
+(885,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,2,5,NULL,0,'null',1792721745,'web','172.20.0.1',NULL),
+(886,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792721749,'web','172.20.0.1',NULL),
+(887,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792721756,'web','172.20.0.1',NULL),
+(888,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792721767,'web','172.20.0.1',NULL),
+(889,'\\core\\event\\user_list_viewed','core','viewed','user_list','course',5,'r',0,35,50,5,2,5,NULL,0,'{\"courseshortname\":\"python 2\",\"coursefullname\":\"python 2\"}',1792721779,'web','172.20.0.1',NULL),
+(890,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792721825,'web','172.20.0.1',NULL),
+(891,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,2,5,NULL,0,'null',1792721897,'web','172.20.0.1',NULL),
+(892,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792721997,'web','172.20.0.1',NULL),
+(893,'\\core\\event\\user_profile_viewed','core','viewed','user_profile','user',4,'r',0,13,30,4,4,0,4,0,'null',1792722005,'web','172.20.0.1',NULL),
+(894,'\\core\\event\\mycourses_viewed','core','viewed','mycourses',NULL,NULL,'r',0,1,10,0,4,0,NULL,0,'null',1792722009,'web','172.20.0.1',NULL),
+(895,'\\tool_usertours\\event\\tour_started','tool_usertours','started','tour','tool_usertours_tours',4,'r',2,1,10,0,4,0,NULL,0,'{\"pageurl\":\"http:\\/\\/localhost:8080\\/my\\/courses.php\"}',1792722009,'web','172.20.0.1',NULL),
+(896,'\\tool_usertours\\event\\tour_ended','tool_usertours','ended','tour','tool_usertours_tours',4,'c',2,1,10,0,4,0,NULL,0,'{\"pageurl\":\"http:\\/\\/localhost:8080\\/my\\/courses.php\",\"stepid\":8,\"stepindex\":0}',1792722009,'web','172.20.0.1',NULL),
+(897,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792722012,'web','172.20.0.1',NULL),
+(898,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792722113,'web','172.20.0.1',NULL),
+(899,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792722113,'web','172.20.0.1',NULL),
+(900,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792722113,'web','172.20.0.1',NULL),
+(901,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792722118,'web','172.20.0.1',NULL),
+(902,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792722118,'web','172.20.0.1',NULL),
+(903,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792722118,'web','172.20.0.1',NULL),
+(904,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792722239,'web','172.20.0.1',NULL),
+(905,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792722248,'web','172.20.0.1',NULL),
+(906,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792722257,'web','172.20.0.1',NULL),
+(907,'\\core\\event\\mycourses_viewed','core','viewed','mycourses',NULL,NULL,'r',0,1,10,0,4,0,NULL,0,'null',1792722261,'web','172.20.0.1',NULL),
+(908,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792722263,'web','172.20.0.1',NULL),
+(909,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792722293,'web','172.20.0.1',NULL),
+(910,'\\core\\event\\user_loggedout','core','loggedout','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"sessionid\":\"f5f0f2fbd34f4621bf1dcceae5403d69\"}',1792722309,'web','172.20.0.1',NULL),
+(911,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,0,1,NULL,0,'null',1792722309,'web','172.20.0.1',NULL),
+(912,'\\core\\event\\user_loggedin','core','loggedin','user','user',3,'r',0,1,10,0,3,0,NULL,0,'{\"username\":\"student1\",\"extrauserinfo\":[]}',1792722316,'web','172.20.0.1',NULL),
+(913,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,12,30,3,3,0,3,0,'null',1792722316,'web','172.20.0.1',NULL),
+(914,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,3,5,NULL,0,'null',1792722321,'web','172.20.0.1',NULL),
+(915,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,3,5,NULL,0,'null',1792722324,'web','172.20.0.1',NULL),
+(916,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,3,5,NULL,0,'null',1792722326,'web','172.20.0.1',NULL),
+(917,'\\mod_quiz\\event\\attempt_started','mod_quiz','started','attempt','quiz_attempts',17,'c',2,37,70,12,3,5,3,0,'null',1792722331,'web','172.20.0.1',NULL),
+(918,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722331,'web','172.20.0.1',NULL),
+(919,'\\mod_quiz\\event\\attempt_updated','mod_quiz','updated','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722336,'web','172.20.0.1',NULL),
+(920,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722336,'web','172.20.0.1',NULL),
+(921,'\\mod_quiz\\event\\attempt_updated','mod_quiz','updated','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722348,'web','172.20.0.1',NULL),
+(922,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722348,'web','172.20.0.1',NULL),
+(923,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792722389,'web','172.20.0.1',NULL),
+(924,'\\core\\event\\question_created','core','created','question','question',129,'c',1,35,50,5,2,5,NULL,0,'{\"categoryid\":\"27\"}',1792722415,'web','172.20.0.1',NULL),
+(925,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792722415,'web','172.20.0.1',NULL),
+(926,'\\mod_quiz\\event\\attempt_updated','mod_quiz','updated','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722420,'web','172.20.0.1',NULL),
+(927,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722420,'web','172.20.0.1',NULL),
+(928,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722428,'web','172.20.0.1',NULL),
+(929,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722429,'web','172.20.0.1',NULL),
+(930,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722430,'web','172.20.0.1',NULL),
+(931,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,3,5,NULL,0,'null',1792722431,'web','172.20.0.1',NULL),
+(932,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,3,5,NULL,0,'null',1792722460,'web','172.20.0.1',NULL),
+(933,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722462,'web','172.20.0.1',NULL),
+(934,'\\mod_quiz\\event\\attempt_updated','mod_quiz','updated','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722469,'web','172.20.0.1',NULL),
+(935,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722469,'web','172.20.0.1',NULL),
+(936,'\\mod_quiz\\event\\attempt_updated','mod_quiz','updated','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722471,'web','172.20.0.1',NULL),
+(937,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722471,'web','172.20.0.1',NULL),
+(938,'\\mod_quiz\\event\\attempt_updated','mod_quiz','updated','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722479,'web','172.20.0.1',NULL),
+(939,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722479,'web','172.20.0.1',NULL),
+(940,'\\mod_quiz\\event\\attempt_updated','mod_quiz','updated','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722490,'web','172.20.0.1',NULL),
+(941,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722490,'web','172.20.0.1',NULL),
+(942,'\\core\\event\\mycourses_viewed','core','viewed','mycourses',NULL,NULL,'r',0,1,10,0,3,0,NULL,0,'null',1792722492,'web','172.20.0.1',NULL),
+(943,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,3,5,NULL,0,'null',1792722494,'web','172.20.0.1',NULL),
+(944,'\\core\\event\\mycourses_viewed','core','viewed','mycourses',NULL,NULL,'r',0,1,10,0,3,0,NULL,0,'null',1792722522,'web','172.20.0.1',NULL),
+(945,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,3,5,NULL,0,'null',1792722524,'web','172.20.0.1',NULL),
+(946,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,3,5,NULL,0,'null',1792722527,'web','172.20.0.1',NULL),
+(947,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722530,'web','172.20.0.1',NULL),
+(948,'\\mod_quiz\\event\\attempt_updated','mod_quiz','updated','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722547,'web','172.20.0.1',NULL),
+(949,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722547,'web','172.20.0.1',NULL),
+(950,'\\mod_quiz\\event\\attempt_updated','mod_quiz','updated','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722583,'web','172.20.0.1',NULL),
+(951,'\\mod_quiz\\event\\attempt_summary_viewed','mod_quiz','viewed','attempt_summary','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\"}',1792722584,'web','172.20.0.1',NULL),
+(952,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,3,5,NULL,0,'null',1792722590,'web','172.20.0.1',NULL),
+(953,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722595,'web','172.20.0.1',NULL),
+(954,'\\mod_quiz\\event\\attempt_updated','mod_quiz','updated','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722599,'web','172.20.0.1',NULL),
+(955,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722599,'web','172.20.0.1',NULL),
+(956,'\\mod_quiz\\event\\attempt_updated','mod_quiz','updated','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722602,'web','172.20.0.1',NULL),
+(957,'\\mod_quiz\\event\\attempt_summary_viewed','mod_quiz','viewed','attempt_summary','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\"}',1792722602,'web','172.20.0.1',NULL),
+(958,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,3,5,NULL,0,'null',1792722604,'web','172.20.0.1',NULL),
+(959,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722624,'web','172.20.0.1',NULL),
+(960,'\\mod_quiz\\event\\attempt_updated','mod_quiz','updated','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722654,'web','172.20.0.1',NULL),
+(961,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722654,'web','172.20.0.1',NULL),
+(962,'\\mod_quiz\\event\\attempt_autosaved','mod_quiz','autosaved','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722722,'web','172.20.0.1',NULL),
+(963,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792722739,'web','172.20.0.1',NULL),
+(964,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792722739,'web','172.20.0.1',NULL),
+(965,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,4,5,NULL,0,'null',1792722739,'web','172.20.0.1',NULL),
+(966,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722981,'web','172.20.0.1',NULL),
+(967,'\\mod_quiz\\event\\attempt_updated','mod_quiz','updated','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722985,'web','172.20.0.1',NULL),
+(968,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722985,'web','172.20.0.1',NULL),
+(969,'\\mod_quiz\\event\\attempt_updated','mod_quiz','updated','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722989,'web','172.20.0.1',NULL),
+(970,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792722989,'web','172.20.0.1',NULL),
+(971,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,3,5,NULL,0,'null',1792722993,'web','172.20.0.1',NULL),
+(972,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792723059,'web','172.20.0.1',NULL),
+(973,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792723059,'web','172.20.0.1',NULL),
+(974,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,4,5,NULL,0,'null',1792723059,'web','172.20.0.1',NULL),
+(975,'\\core\\event\\user_loggedin','core','loggedin','user','user',3,'r',0,1,10,0,3,0,NULL,0,'{\"username\":\"student1\",\"extrauserinfo\":[]}',1792723081,'web','172.20.0.1',NULL),
+(976,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,12,30,3,3,0,3,0,'null',1792723081,'web','172.20.0.1',NULL),
+(977,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792723081,'web','172.20.0.1',NULL),
+(978,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,3,5,NULL,0,'null',1792724184,'web','172.20.0.1',NULL),
+(979,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792724187,'web','172.20.0.1',NULL),
+(980,'\\mod_quiz\\event\\attempt_autosaved','mod_quiz','autosaved','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792725548,'web','172.20.0.1',NULL),
+(981,'\\core\\event\\question_category_viewed','core','viewed','question_category','question_categories',27,'r',1,35,50,5,2,5,NULL,0,'null',1792727243,'web','172.20.0.1',NULL),
+(982,'\\mod_quiz\\event\\attempt_updated','mod_quiz','updated','attempt','quiz_attempts',17,'u',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792727342,'web','172.20.0.1',NULL),
+(983,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792727342,'web','172.20.0.1',NULL),
+(984,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792728922,'web','172.20.0.1',NULL),
+(985,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792728922,'web','172.20.0.1',NULL),
+(986,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792729008,'web','172.20.0.1',NULL),
+(987,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792729008,'web','172.20.0.1',NULL),
+(988,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,2,5,NULL,0,'null',1792729464,'web','172.20.0.1',NULL),
+(989,'\\core\\event\\section_viewed','core','viewed','section','course_sections',17,'r',2,35,50,5,3,5,NULL,0,'null',1792729475,'web','172.20.0.1',NULL),
+(990,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,3,5,NULL,0,'null',1792729477,'web','172.20.0.1',NULL),
+(991,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,3,5,NULL,0,'null',1792729504,'web','172.20.0.1',NULL),
+(992,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,2,5,NULL,0,'null',1792729583,'web','172.20.0.1',NULL),
+(993,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792729595,'web','172.20.0.1',NULL),
+(994,'\\core\\event\\question_category_viewed','core','viewed','question_category','question_categories',27,'r',1,35,50,5,2,5,NULL,0,'null',1792729600,'web','172.20.0.1',NULL),
+(995,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792729604,'web','172.20.0.1',NULL),
+(996,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792730022,'web','172.20.0.1',NULL),
+(997,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,2,5,NULL,0,'null',1792730041,'web','172.20.0.1',NULL),
+(998,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,2,5,NULL,0,'null',1792731301,'web','172.20.0.1',NULL),
+(999,'\\mod_quiz\\event\\attempt_preview_started','mod_quiz','started','attempt_preview','quiz_attempts',18,'c',1,37,70,12,2,5,2,0,'{\"quizid\":\"6\"}',1792731304,'web','172.20.0.1',NULL),
+(1000,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',18,'r',2,37,70,12,2,5,2,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792731304,'web','172.20.0.1',NULL),
+(1001,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792731320,'web','172.20.0.1',NULL),
+(1002,'\\core\\event\\question_category_viewed','core','viewed','question_category','question_categories',27,'r',1,35,50,5,2,5,NULL,0,'null',1792731343,'web','172.20.0.1',NULL),
+(1003,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792731346,'web','172.20.0.1',NULL),
+(1004,'\\mod_quiz\\event\\report_viewed','mod_quiz','viewed','report',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\",\"reportname\":\"overview\"}',1792731351,'web','172.20.0.1',NULL),
+(1005,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792731400,'web','172.20.0.1',NULL),
+(1006,'\\mod_quiz\\event\\edit_page_viewed','mod_quiz','viewed','edit_page',NULL,NULL,'r',1,37,70,12,2,5,NULL,0,'{\"quizid\":\"6\"}',1792731402,'web','172.20.0.1',NULL),
+(1007,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792731409,'web','172.20.0.1',NULL),
+(1008,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,3,5,NULL,0,'null',1792731416,'web','172.20.0.1',NULL),
+(1009,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,3,5,NULL,0,'null',1792731421,'web','172.20.0.1',NULL),
+(1010,'\\mod_quiz\\event\\attempt_viewed','mod_quiz','viewed','attempt','quiz_attempts',17,'r',2,37,70,12,3,5,3,0,'{\"quizid\":\"6\",\"page\":\"0\"}',1792731428,'web','172.20.0.1',NULL),
+(1011,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,3,5,NULL,0,'null',1792731435,'web','172.20.0.1',NULL),
+(1012,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,3,5,NULL,0,'null',1792731439,'web','172.20.0.1',NULL),
+(1013,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',6,'r',2,37,70,12,3,5,NULL,0,'null',1792731472,'web','172.20.0.1',NULL),
+(1014,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,2,5,NULL,0,'null',1792731825,'web','172.20.0.1',NULL),
+(1015,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',7,'r',2,38,70,13,2,5,NULL,0,'null',1792731829,'web','172.20.0.1',NULL),
+(1016,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,12,30,3,3,0,3,0,'null',1792731886,'web','172.20.0.1',NULL),
+(1017,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,2,50,1,3,1,NULL,0,'null',1792731895,'web','172.20.0.1',NULL),
+(1018,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,3,5,NULL,0,'null',1792731897,'web','172.20.0.1',NULL),
+(1019,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',7,'r',2,38,70,13,3,5,NULL,0,'null',1792731900,'web','172.20.0.1',NULL),
+(1020,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792733326,'web','172.20.0.1',NULL),
+(1021,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792733326,'web','172.20.0.1',NULL),
+(1022,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792733331,'web','172.20.0.1',NULL),
+(1023,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792733331,'web','172.20.0.1',NULL),
+(1024,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792733338,'web','172.20.0.1',NULL),
+(1025,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792733338,'web','172.20.0.1',NULL),
+(1026,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792733345,'web','172.20.0.1',NULL),
+(1027,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792733345,'web','172.20.0.1',NULL),
+(1028,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792733368,'web','172.20.0.1',NULL),
+(1029,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792733368,'web','172.20.0.1',NULL),
+(1030,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792733373,'web','172.20.0.1',NULL),
+(1031,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792733373,'web','172.20.0.1',NULL),
+(1032,'\\core\\event\\user_login_failed','core','failed','user_login',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"reason\":3}',1792733381,'web','172.20.0.1',NULL),
+(1033,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792733396,'web','172.20.0.1',NULL),
+(1034,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792733396,'web','172.20.0.1',NULL),
+(1035,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792733507,'web','172.20.0.1',NULL),
+(1036,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792733507,'web','172.20.0.1',NULL),
+(1037,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792733512,'web','172.20.0.1',NULL),
+(1038,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792733512,'web','172.20.0.1',NULL),
+(1039,'\\core\\event\\user_login_failed','core','failed','user_login',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"reason\":3}',1792733520,'web','172.20.0.1',NULL),
+(1040,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792733535,'web','172.20.0.1',NULL),
+(1041,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792733535,'web','172.20.0.1',NULL),
+(1042,'\\core\\event\\user_login_failed','core','failed','user_login',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"reason\":3}',1792733563,'web','172.20.0.1',NULL),
+(1043,'\\core\\event\\user_login_failed','core','failed','user_login',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"reason\":3}',1792733581,'web','172.20.0.1',NULL),
+(1044,'\\core\\event\\user_login_failed','core','failed','user_login',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"reason\":3}',1792733589,'web','172.20.0.1',NULL),
+(1045,'\\core\\event\\user_login_failed','core','failed','user_login',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"reason\":3}',1792733614,'web','172.20.0.1',NULL),
+(1046,'\\core\\event\\user_login_failed','core','failed','user_login',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"reason\":3}',1792733621,'web','172.20.0.1',NULL),
+(1047,'\\core\\event\\user_login_failed','core','failed','user_login',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"reason\":3}',1792733646,'web','172.20.0.1',NULL),
+(1048,'\\core\\event\\user_login_failed','core','failed','user_login',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"reason\":3}',1792733653,'web','172.20.0.1',NULL),
+(1049,'\\core\\event\\user_login_failed','core','failed','user_login',NULL,NULL,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"reason\":3}',1792733658,'web','172.20.0.1',NULL),
+(1050,'\\core\\event\\user_login_failed','core','failed','user_login',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"reason\":3}',1792733709,'web','172.20.0.1',NULL),
+(1051,'\\core\\event\\user_login_failed','core','failed','user_login',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"reason\":3}',1792733769,'web','172.20.0.1',NULL),
+(1052,'\\core\\event\\user_login_failed','core','failed','user_login',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"reason\":3}',1792733775,'web','172.20.0.1',NULL),
+(1053,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792733796,'web','172.20.0.1',NULL),
+(1054,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792733812,'web','172.20.0.1',NULL),
+(1055,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792733812,'web','172.20.0.1',NULL),
+(1056,'\\core\\event\\user_login_failed','core','failed','user_login',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"reason\":3}',1792733820,'web','172.20.0.1',NULL),
+(1057,'\\core\\event\\user_login_failed','core','failed','user_login',NULL,NULL,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"reason\":3}',1792733853,'web','172.20.0.1',NULL),
+(1058,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792733888,'web','172.20.0.1',NULL),
+(1059,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792733888,'web','172.20.0.1',NULL),
+(1060,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792733918,'web','172.20.0.1',NULL),
+(1061,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792733918,'web','172.20.0.1',NULL),
+(1062,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792733924,'web','172.20.0.1',NULL),
+(1063,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792733924,'web','172.20.0.1',NULL),
+(1064,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792733933,'web','172.20.0.1',NULL),
+(1065,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792733933,'web','172.20.0.1',NULL),
+(1066,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792733942,'web','172.20.0.1',NULL),
+(1067,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792733942,'web','172.20.0.1',NULL),
+(1068,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792734464,'web','172.20.0.1',NULL),
+(1069,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792734464,'web','172.20.0.1',NULL),
+(1070,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792734473,'web','172.20.0.1',NULL),
+(1071,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792734474,'web','172.20.0.1',NULL),
+(1072,'\\core\\event\\mycourses_viewed','core','viewed','mycourses',NULL,NULL,'r',0,1,10,0,4,0,NULL,0,'null',1792734474,'web','172.20.0.1',NULL),
+(1073,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792734485,'web','172.20.0.1',NULL),
+(1074,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792734485,'web','172.20.0.1',NULL),
+(1075,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792734485,'web','172.20.0.1',NULL),
+(1076,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792734495,'web','172.20.0.1',NULL),
+(1077,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792734495,'web','172.20.0.1',NULL),
+(1078,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',7,'r',2,38,70,13,4,5,NULL,0,'null',1792734495,'web','172.20.0.1',NULL),
+(1079,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792734536,'web','172.20.0.1',NULL),
+(1080,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792734536,'web','172.20.0.1',NULL),
+(1081,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792734541,'web','172.20.0.1',NULL),
+(1082,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',7,'r',2,38,70,13,4,5,NULL,0,'null',1792734547,'web','172.20.0.1',NULL),
+(1083,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792734584,'web','172.20.0.1',NULL),
+(1084,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792734584,'web','172.20.0.1',NULL),
+(1085,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,2,5,NULL,0,'null',1792734589,'web','172.20.0.1',NULL),
+(1086,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792734618,'web','172.20.0.1',NULL),
+(1087,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792734618,'web','172.20.0.1',NULL),
+(1088,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792735019,'web','172.20.0.1',NULL),
+(1089,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792735019,'web','172.20.0.1',NULL),
+(1090,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792735025,'web','172.20.0.1',NULL),
+(1091,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',7,'r',2,38,70,13,4,5,NULL,0,'null',1792735031,'web','172.20.0.1',NULL),
+(1092,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792735075,'web','172.20.0.1',NULL),
+(1093,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792735075,'web','172.20.0.1',NULL),
+(1094,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,2,5,NULL,0,'null',1792735081,'web','172.20.0.1',NULL),
+(1095,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792735112,'web','172.20.0.1',NULL),
+(1096,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792735112,'web','172.20.0.1',NULL),
+(1097,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792735496,'web','172.20.0.1',NULL),
+(1098,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792735496,'web','172.20.0.1',NULL),
+(1099,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792735502,'web','172.20.0.1',NULL),
+(1100,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',7,'r',2,38,70,13,4,5,NULL,0,'null',1792735509,'web','172.20.0.1',NULL),
+(1101,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792735553,'web','172.20.0.1',NULL),
+(1102,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792735553,'web','172.20.0.1',NULL),
+(1103,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,2,5,NULL,0,'null',1792735559,'web','172.20.0.1',NULL),
+(1104,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792735582,'web','172.20.0.1',NULL),
+(1105,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792735582,'web','172.20.0.1',NULL),
+(1106,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792735625,'web','172.20.0.1',NULL),
+(1107,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792735626,'web','172.20.0.1',NULL),
+(1108,'\\core\\event\\user_loggedin','core','loggedin','user','user',2,'r',0,1,10,0,2,0,NULL,0,'{\"username\":\"admin\",\"extrauserinfo\":[]}',1792735957,'web','172.20.0.1',NULL),
+(1109,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,5,30,2,2,0,2,0,'null',1792735957,'web','172.20.0.1',NULL),
+(1110,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,2,5,NULL,0,'null',1792735961,'web','172.20.0.1',NULL),
+(1111,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',7,'r',2,38,70,13,2,5,NULL,0,'null',1792735968,'web','172.20.0.1',NULL),
+(1112,'\\core\\event\\user_loggedin','core','loggedin','user','user',4,'r',0,1,10,0,4,0,NULL,0,'{\"username\":\"student2\",\"extrauserinfo\":[]}',1792736035,'web','172.20.0.1',NULL),
+(1113,'\\core\\event\\dashboard_viewed','core','viewed','dashboard',NULL,NULL,'r',0,13,30,4,4,0,4,0,'null',1792736035,'web','172.20.0.1',NULL),
+(1114,'\\core\\event\\course_viewed','core','viewed','course',NULL,NULL,'r',2,35,50,5,4,5,NULL,0,'null',1792736038,'web','172.20.0.1',NULL),
+(1115,'\\mod_quiz\\event\\course_module_viewed','mod_quiz','viewed','course_module','quiz',7,'r',2,38,70,13,4,5,NULL,0,'null',1792736046,'web','172.20.0.1',NULL);
 /*!40000 ALTER TABLE `mdl_logstore_standard_log` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -18203,7 +18562,7 @@ CREATE TABLE `mdl_my_pages` (
   `sortorder` mediumint(6) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `mdl_mypage_usepri_ix` (`userid`,`private`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Extra user pages for the My Moodle system';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Extra user pages for the My Moodle system';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -18219,7 +18578,8 @@ INSERT INTO `mdl_my_pages` VALUES
 (3,NULL,'__courses',0,0),
 (4,2,'__default',1,0),
 (5,3,'__default',1,0),
-(6,4,'__default',1,0);
+(6,4,'__default',1,0),
+(7,4,'__default',0,0);
 /*!40000 ALTER TABLE `mdl_my_pages` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -19403,7 +19763,7 @@ CREATE TABLE `mdl_question` (
   KEY `mdl_ques_par_ix` (`parent`),
   KEY `mdl_ques_cre_ix` (`createdby`),
   KEY `mdl_ques_mod_ix` (`modifiedby`)
-) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='This table stores the definition of one version of a questio';
+) ENGINE=InnoDB AUTO_INCREMENT=132 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='This table stores the definition of one version of a questio';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -19536,7 +19896,15 @@ INSERT INTO `mdl_question` VALUES
 (120,0,'PROTOTYPE_python3_testcase_exchange','Prototype câu hỏi trao đổi testcase tự động qua testcase_store.',1,'',1,1.0000000,0.0000000,'coderunner',1,'unknownhost+261006235634+iFS4Hq',1791330994,1791330994,2,2),
 (121,0,'Python AI 1: Giới hạn confidence trong khoảng 0 đến 1','<p>Đọc một số thực. Nếu nhỏ hơn 0, dùng 0; nếu lớn hơn 1, dùng 1. In kết quả với đúng hai chữ số thập phân.</p>',1,'<p>Hãy kiểm tra giá trị biên, ngoài miền và số thập phân thông thường.</p>',1,1.0000000,0.0000000,'coderunner',1,'unknownhost+261007142246+Fnta3w',1791382966,1791382966,2,2),
 (122,0,'Python AI 2: Đếm từ khóa AI trong câu','<p>Đọc một dòng văn bản. Đếm số từ bằng <code>ai</code> không phân biệt hoa thường. Các từ được phân cách bằng khoảng trắng. In số đếm.</p>',1,'<p>Hãy nghĩ đến chuỗi rỗng, nhiều khoảng trắng và cách viết hoa.</p>',1,1.0000000,0.0000000,'coderunner',1,'unknownhost+261007142257+GZ0CXD',1791382977,1791382977,2,2),
-(123,0,'Python AI 3: Tính phần trăm accuracy','<p>Đọc hai số nguyên <code>correct total</code>. Nếu <code>total = 0</code>, in <code>0.00</code>; ngược lại in phần trăm accuracy với hai chữ số thập phân.</p>',1,'<p>Trường hợp total bằng 0 là testcase biên bắt buộc.</p>',1,1.0000000,0.0000000,'coderunner',1,'unknownhost+261007142257+aUMC9T',1791382977,1791382977,2,2);
+(123,0,'Python AI 3: Tính phần trăm accuracy','<p>Đọc hai số nguyên <code>correct total</code>. Nếu <code>total = 0</code>, in <code>0.00</code>; ngược lại in phần trăm accuracy với hai chữ số thập phân.</p>',1,'<p>Trường hợp total bằng 0 là testcase biên bắt buộc.</p>',1,1.0000000,0.0000000,'coderunner',1,'unknownhost+261007142257+aUMC9T',1791382977,1791382977,2,2),
+(124,0,'BUILT_IN_PROTOTYPE_python3','<p>Built-in prototypes are documented in the language strings.</p>',1,'',1,1.0000000,0.0000000,'coderunner',1,'localhost:8080+261023012548+nvPKRs',1792718748,1792718748,2,2),
+(125,0,'tinh de quy','<p>tinh de quy</p>',1,'',1,1.0000000,0.0000000,'coderunner',1,'localhost:8080+261023012620+Nkeqsc',1792718780,1792718780,2,2),
+(126,0,'tinh de quy','<p>tinh de quy</p>',1,'',1,1.0000000,0.0000000,'coderunner',1,'localhost:8080+261023013559+UG3EH9',1792719359,1792719359,2,2),
+(127,0,'tinh de quy','<p>&lt;p&gt;Hãy viết một hàm đệ quy trong Python có tên là &lt;code&gt;tinh_tong(n)&lt;/code&gt; để tính tổng các số nguyên từ 1 đến &lt;code&gt;n&lt;/code&gt; theo công thức:&lt;/p&gt;<br>&lt;p style=\"text-align: center;\"&gt;&lt;strong&gt;S(n) = 1 + 2 + 3 + ... + n&lt;/strong&gt; (Quy ước: &lt;code&gt;tinh_tong(0) = 0&lt;/code&gt;)&lt;/p&gt;</p>\r\n<p>&lt;p&gt;&lt;strong&gt;Yêu cầu:&lt;/strong&gt;&lt;/p&gt;<br>&lt;ul&gt;<br>  &lt;li&gt;Bắt buộc sử dụng &lt;strong&gt;giải thuật đệ quy&lt;/strong&gt; (gồm điều kiện dừng cơ sở và bước gọi đệ quy).&lt;/li&gt;<br>  &lt;li&gt;Không sử dụng vòng lặp &lt;code&gt;for&lt;/code&gt; hoặc &lt;code&gt;while&lt;/code&gt;.&lt;/li&gt;<br>  &lt;li&gt;Sinh viên chỉ cần định nghĩa hàm, không cần viết code nhập xuất hay gọi hàm ngoài.&lt;/li&gt;<br>&lt;/ul&gt;</p>\r\n<p>&lt;p&gt;&lt;strong&gt;Ví dụ:&lt;/strong&gt;&lt;/p&gt;<br>&lt;table border=\"1\" cellpadding=\"6\" style=\"border-collapse: collapse;\"&gt;<br>  &lt;thead&gt;<br>    &lt;tr style=\"background-color: #f2f2f2;\"&gt;&lt;th&gt;Test&lt;/th&gt;&lt;th&gt;Kết quả&lt;/th&gt;&lt;/tr&gt;<br>  &lt;/thead&gt;<br>  &lt;tbody&gt;<br>    &lt;tr&gt;&lt;td&gt;&lt;code&gt;print(tinh_tong(5))&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;15&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;<br>    &lt;tr&gt;&lt;td&gt;&lt;code&gt;print(tinh_tong(1))&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;1&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;<br>  &lt;/tbody&gt;<br>&lt;/table&gt;</p>',1,'',1,1.0000000,0.0000000,'coderunner',1,'localhost:8080+261023013717+BWCkrF',1792719437,1792719437,2,2),
+(128,0,'Bài 1: Tính tổng đệ quy S(n)','<div class=\"\" data-bfc=\"\" data-sfc-cp=\"\" data-sfc-root=\"c\" data-ved=\"2ahUKEwjE3c-suc2XAxVJm-EIHYVnKCQQi4wTegYIAggHEAs\" data-hveid=\"CAIIBxAL\">\r\n<div class=\"ZLzG0d ncoeY E8xBUb\" role=\"heading\" aria-level=\"3\" data-animation-nesting=\"\" data-sfc-cp=\"\" data-wiz-attrbind=\"aria-level=kZZo7c_t/fLk2Md\" data-sfc-root=\"c\">\r\n<p>&lt;p&gt;Hãy viết một hàm trong Python có tên là &lt;code&gt;tinh_tong(n)&lt;/code&gt; để tính tổng các số nguyên dương từ 1 đến &lt;code&gt;n&lt;/code&gt; theo công thức:&lt;/p&gt;</p>\r\n<p>&lt;p style=\"text-align: center; font-size: 1.1em;\"&gt;&lt;strong&gt;S(n) = 1 + 2 + 3 + ... + n&lt;/strong&gt;&lt;/p&gt;</p>\r\n<p>&lt;p&gt;&lt;strong&gt;Quy ước:&lt;/strong&gt; Nếu &lt;code&gt;n &amp;lt;= 0&lt;/code&gt;, hàm trả về &lt;code&gt;0&lt;/code&gt;.&lt;/p&gt;</p>\r\n<p>&lt;p&gt;&lt;strong&gt;Yêu cầu bắt buộc:&lt;/strong&gt;&lt;/p&gt;<br>&lt;ul&gt;<br>  &lt;li&gt;Bắt buộc sử dụng &lt;strong&gt;giải thuật đệ quy&lt;/strong&gt; (gồm điều kiện cơ sở dừng đệ quy và bước gọi đệ quy).&lt;/li&gt;<br>  &lt;li&gt;&lt;strong&gt;Không&lt;/strong&gt; sử dụng vòng lặp &lt;code&gt;for&lt;/code&gt; hoặc &lt;code&gt;while&lt;/code&gt;.&lt;/li&gt;<br>  &lt;li&gt;Sinh viên chỉ cần định nghĩa hàm, không cần viết lệnh &lt;code&gt;input()&lt;/code&gt; hoặc &lt;code&gt;print()&lt;/code&gt; gọi hàm ngoài.&lt;/li&gt;<br>&lt;/ul&gt;</p>\r\n<p>&lt;p&gt;&lt;strong&gt;Ví dụ minh họa:&lt;/strong&gt;&lt;/p&gt;<br>&lt;table border=\"1\" cellpadding=\"6\" style=\"border-collapse: collapse;\"&gt;<br>  &lt;thead&gt;<br>    &lt;tr style=\"background-color: #f2f2f2;\"&gt;&lt;th&gt;Test code&lt;/th&gt;&lt;th&gt;Kết quả in ra (Expected)&lt;/th&gt;&lt;/tr&gt;<br>  &lt;/thead&gt;<br>  &lt;tbody&gt;<br>    &lt;tr&gt;&lt;td&gt;&lt;code&gt;print(tinh_tong(5))&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;15&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;<br>    &lt;tr&gt;&lt;td&gt;&lt;code&gt;print(tinh_tong(1))&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;1&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;<br>  &lt;/tbody&gt;<br>&lt;/table&gt;</p>\r\n<br><!--TgQPHdkZZo7c_3/LL5gb|||[[2,[null,null,null,null,null,null,null,null,null,null,null,null,[351768,null,0]],[],null,1]]--></div>\r\n<!--TgQPHd|||[]--></div>\r\n<div class=\"\" data-bfc=\"\" data-sfc-cp=\"\" data-sfc-root=\"c\" data-ved=\"2ahUKEwjE3c-suc2XAxVJm-EIHYVnKCQQi4wTegYIAggHEA4\" data-hveid=\"CAIIBxAO\"> </div>',1,'',1,1.0000000,0.0000000,'coderunner',1,'localhost:8080+261023015828+7prqrL',1792720708,1792720708,2,2),
+(129,0,'Bài 1: Tính tổng đệ quy S(n)','<div class=\"\" data-bfc=\"\" data-sfc-cp=\"\" data-sfc-root=\"c\" data-ved=\"2ahUKEwjE3c-suc2XAxVJm-EIHYVnKCQQi4wTegYIAggHEAs\" data-hveid=\"CAIIBxAL\">\r\n<div class=\"ZLzG0d ncoeY E8xBUb\" role=\"heading\" aria-level=\"3\" data-animation-nesting=\"\" data-sfc-cp=\"\" data-wiz-attrbind=\"aria-level=kZZo7c_t/fLk2Md\" data-sfc-root=\"c\">\r\n<p>&lt;p&gt;Hãy viết một hàm trong Python có tên là &lt;code&gt;tinh_tong(n)&lt;/code&gt; để tính tổng các số nguyên dương từ 1 đến &lt;code&gt;n&lt;/code&gt; theo công thức:&lt;/p&gt;</p>\r\n<p>&lt;p style=\"text-align: center; font-size: 1.1em;\"&gt;&lt;strong&gt;S(n) = 1 + 2 + 3 + ... + n&lt;/strong&gt;&lt;/p&gt;</p>\r\n<p>&lt;p&gt;&lt;strong&gt;Quy ước:&lt;/strong&gt; Nếu &lt;code&gt;n &amp;lt;= 0&lt;/code&gt;, hàm trả về &lt;code&gt;0&lt;/code&gt;.&lt;/p&gt;</p>\r\n<p>&lt;p&gt;&lt;strong&gt;Yêu cầu bắt buộc:&lt;/strong&gt;&lt;/p&gt;<br>&lt;ul&gt;<br>  &lt;li&gt;Bắt buộc sử dụng &lt;strong&gt;giải thuật đệ quy&lt;/strong&gt; (gồm điều kiện cơ sở dừng đệ quy và bước gọi đệ quy).&lt;/li&gt;<br>  &lt;li&gt;&lt;strong&gt;Không&lt;/strong&gt; sử dụng vòng lặp &lt;code&gt;for&lt;/code&gt; hoặc &lt;code&gt;while&lt;/code&gt;.&lt;/li&gt;<br>  &lt;li&gt;Sinh viên chỉ cần định nghĩa hàm, không cần viết lệnh &lt;code&gt;input()&lt;/code&gt; hoặc &lt;code&gt;print()&lt;/code&gt; gọi hàm ngoài.&lt;/li&gt;<br>&lt;/ul&gt;</p>\r\n<p>&lt;p&gt;&lt;strong&gt;Ví dụ minh họa:&lt;/strong&gt;&lt;/p&gt;<br>&lt;table border=\"1\" cellpadding=\"6\" style=\"border-collapse: collapse;\"&gt;<br>  &lt;thead&gt;<br>    &lt;tr style=\"background-color: #f2f2f2;\"&gt;&lt;th&gt;Test code&lt;/th&gt;&lt;th&gt;Kết quả in ra (Expected)&lt;/th&gt;&lt;/tr&gt;<br>  &lt;/thead&gt;<br>  &lt;tbody&gt;<br>    &lt;tr&gt;&lt;td&gt;&lt;code&gt;print(tinh_tong(5))&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;15&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;<br>    &lt;tr&gt;&lt;td&gt;&lt;code&gt;print(tinh_tong(1))&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;1&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;<br>  &lt;/tbody&gt;<br>&lt;/table&gt;</p>\r\n<br><!--TgQPHdkZZo7c_3/LL5gb|||[[2,[null,null,null,null,null,null,null,null,null,null,null,null,[351768,null,0]],[],null,1]]--></div>\r\n<!--TgQPHd|||[]--></div>\r\n<div class=\"\" data-bfc=\"\" data-sfc-cp=\"\" data-sfc-root=\"c\" data-ved=\"2ahUKEwjE3c-suc2XAxVJm-EIHYVnKCQQi4wTegYIAggHEA4\" data-hveid=\"CAIIBxAO\"> </div>',1,'',1,1.0000000,0.0000000,'coderunner',1,'localhost:8080+261023022655+0lHe5u',1792722415,1792722415,2,2),
+(130,0,'Bài 2: Tính số Fibonacci đệ quy','<p>Hãy viết một hàm trong Python có tên là <code>fibonacci(n)</code> để tính số Fibonacci thứ <code>n</code> theo công thức đệ quy:</p><ul><li><code>F(0) = 0</code></li><li><code>F(1) = 1</code></li><li><code>F(n) = F(n - 1) + F(n - 2)</code> với <code>n &gt;= 2</code></li></ul><p><strong>Quy ước:</strong> Nếu <code>n &lt;= 0</code> thì trả về <code>0</code>.</p><p><strong>Yêu cầu:</strong> Bắt buộc dùng <strong>giải thuật đệ quy</strong>. Không dùng vòng lặp.</p><p><strong>Ví dụ:</strong></p><table border=\"1\" cellpadding=\"6\" style=\"border-collapse: collapse;\"><thead><tr style=\"background-color: #f2f2f2;\"><th>Test code</th><th>Expected</th></tr></thead><tbody><tr><td><code>print(fibonacci(5))</code></td><td><code>5</code></td></tr><tr><td><code>print(fibonacci(1))</code></td><td><code>1</code></td></tr></tbody></table>',1,'',1,1.0000000,0.0000000,'coderunner',1,'unknownhost+261023042310+XPJx1S',1792729390,1792729390,2,2),
+(131,0,'Bài 1: Kiểm tra chuỗi Palindrome (đối xứng)','<p>Viết hàm <code>is_palindrome(s)</code> nhận vào chuỗi <code>s</code> và trả về <code>True</code> nếu là chuỗi đối xứng (bỏ qua hoa thường và các ký tự không phải chữ/số), ngược lại trả về <code>False</code>.</p>',1,'<p>Sử dụng phương thức lọc ký tự và so sánh với chuỗi đảo ngược.</p>',1,10.0000000,0.1000000,'coderunner',1,'unknownhost+261023050013+odtmNK',1792731613,1792731613,2,2);
 /*!40000 ALTER TABLE `mdl_question` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -19588,7 +19956,7 @@ CREATE TABLE `mdl_question_attempt_step_data` (
   `value` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `mdl_quesattestepdata_att_ix` (`attemptstepid`)
-) ENGINE=InnoDB AUTO_INCREMENT=168 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Each question_attempt_step has an associative array of the d';
+) ENGINE=InnoDB AUTO_INCREMENT=222 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Each question_attempt_step has an associative array of the d';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -19655,7 +20023,59 @@ INSERT INTO `mdl_question_attempt_step_data` VALUES
 (164,26,'_testoutcome','O:32:\"qtype_coderunner_testing_outcome\":13:{s:6:\"status\";i:1;s:10:\"isprecheck\";b:0;s:10:\"errorcount\";i:5;s:12:\"errormessage\";s:0:\"\";s:11:\"maxpossmark\";d:5;s:10:\"actualmark\";d:0;s:11:\"testresults\";a:5:{i:0;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:0:\"\";s:5:\"stdin\";s:5:\"0.75\n\";s:8:\"expected\";s:5:\"0.75\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"1\";s:7:\"display\";s:4:\"SHOW\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:0:\"\";}i:1;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:0:\"\";s:5:\"stdin\";s:5:\"-0.2\n\";s:8:\"expected\";s:5:\"0.00\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"1\";s:7:\"display\";s:4:\"SHOW\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:0:\"\";}i:2;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:0:\"\";s:5:\"stdin\";s:4:\"1.4\n\";s:8:\"expected\";s:5:\"1.00\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"HIDE\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:0:\"\";}i:3;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:0:\"\";s:5:\"stdin\";s:2:\"0\n\";s:8:\"expected\";s:5:\"0.00\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"HIDE\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:0:\"\";}i:4;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:0:\"\";s:5:\"stdin\";s:2:\"1\n\";s:8:\"expected\";s:5:\"1.00\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"HIDE\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:0:\"\";}}s:14:\"sourcecodelist\";N;s:11:\"sandboxinfo\";a:2:{s:10:\"jobeserver\";s:11:\"jobe1;jobe2\";s:10:\"jobeapikey\";s:29:\"2AAA7A5415B4A9B394B54BF1D2E9D\";}s:9:\"numerrors\";i:0;s:16:\"numtestsexpected\";i:5;s:11:\"graderstate\";s:0:\"\";s:8:\"failures\";O:10:\"html_table\":19:{s:2:\"id\";N;s:10:\"attributes\";a:1:{s:5:\"class\";s:23:\"coderunner-test-results\";}s:4:\"head\";a:3:{i:0;s:4:\"Test\";i:1;s:8:\"Expected\";i:2;s:3:\"Got\";}s:8:\"headspan\";N;s:5:\"align\";N;s:4:\"size\";N;s:4:\"wrap\";N;s:4:\"data\";a:0:{}s:5:\"width\";N;s:10:\"tablealign\";N;s:11:\"cellpadding\";N;s:11:\"cellspacing\";N;s:10:\"rowclasses\";a:0:{}s:10:\"colclasses\";N;s:7:\"summary\";N;s:7:\"caption\";N;s:11:\"captionhide\";b:0;s:10:\"responsive\";b:1;s:5:\"class\";N;}}'),
 (165,26,'-_try','1'),
 (166,26,'-_precheck','0'),
-(167,26,'-_rawfraction','0');
+(167,26,'-_rawfraction','0'),
+(168,27,'_STUDENT','O:24:\"qtype_coderunner_student\":6:{s:2:\"id\";s:1:\"2\";s:8:\"username\";s:5:\"admin\";s:5:\"email\";s:17:\"admin@example.com\";s:9:\"firstname\";s:5:\"Admin\";s:8:\"lastname\";s:4:\"User\";s:13:\"canviewhidden\";b:1;}'),
+(169,27,'_QUIZ','O:21:\"qtype_coderunner_quiz\":2:{s:4:\"name\";s:15:\"bai thuc hanh 1\";s:4:\"tags\";a:0:{}}'),
+(170,27,'_mtrandseed','1604464800'),
+(171,27,'_template_params_md5','d41d8cd98f00b204e9800998ecf8427e'),
+(172,27,'_template_params_json','{}'),
+(173,27,'_prototype__template_params_md5','d41d8cd98f00b204e9800998ecf8427e'),
+(174,27,'_prototype__template_params_json','{}'),
+(175,28,'-submit','1'),
+(176,28,'answer','def tinh_tong(n):\r\n    # Sinh viên viết code đệ quy tại đây\r\n    pass'),
+(177,29,'-submit','1'),
+(178,29,'answer','def tinh_tong(n):\r\n    return n'),
+(179,29,'_testoutcome','O:32:\"qtype_coderunner_testing_outcome\":13:{s:6:\"status\";i:1;s:10:\"isprecheck\";b:0;s:10:\"errorcount\";i:4;s:12:\"errormessage\";s:0:\"\";s:11:\"maxpossmark\";d:6;s:10:\"actualmark\";d:2;s:11:\"testresults\";a:6:{i:0;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:20:\"print(tinh_tong(5))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:3:\"15\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"1\";s:7:\"display\";s:4:\"SHOW\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:2:\"5\n\";}i:1;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:20:\"print(tinh_tong(3))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:2:\"6\n\";s:5:\"extra\";s:2:\"S\n\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"HIDE\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:2:\"3\n\";}i:2;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:20:\"print(tinh_tong(1))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:2:\"1\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"HIDE\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:1;s:7:\"awarded\";s:5:\"1.000\";s:3:\"got\";s:2:\"1\n\";}i:3;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:20:\"print(tinh_tong(4))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:3:\"10\n\";s:5:\"extra\";s:2:\"S\n\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"HIDE\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:2:\"4\n\";}i:4;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:20:\"print(tinh_tong(0))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:2:\"0\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"SHOW\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:1;s:7:\"awarded\";s:5:\"1.000\";s:3:\"got\";s:2:\"0\n\";}i:5;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:21:\"print(tinh_tong(50))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:5:\"1275\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"SHOW\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:3:\"50\n\";}}s:14:\"sourcecodelist\";N;s:11:\"sandboxinfo\";a:2:{s:10:\"jobeserver\";s:11:\"jobe1;jobe2\";s:10:\"jobeapikey\";s:29:\"2AAA7A5415B4A9B394B54BF1D2E9D\";}s:9:\"numerrors\";i:0;s:16:\"numtestsexpected\";i:6;s:11:\"graderstate\";s:0:\"\";s:8:\"failures\";O:10:\"html_table\":19:{s:2:\"id\";N;s:10:\"attributes\";a:1:{s:5:\"class\";s:23:\"coderunner-test-results\";}s:4:\"head\";a:3:{i:0;s:4:\"Test\";i:1;s:8:\"Expected\";i:2;s:3:\"Got\";}s:8:\"headspan\";N;s:5:\"align\";N;s:4:\"size\";N;s:4:\"wrap\";N;s:4:\"data\";a:0:{}s:5:\"width\";N;s:10:\"tablealign\";N;s:11:\"cellpadding\";N;s:11:\"cellspacing\";N;s:10:\"rowclasses\";a:0:{}s:10:\"colclasses\";N;s:7:\"summary\";N;s:7:\"caption\";N;s:11:\"captionhide\";b:0;s:10:\"responsive\";b:1;s:5:\"class\";N;}}'),
+(180,29,'-_try','1'),
+(181,29,'-_precheck','0'),
+(182,29,'-_rawfraction','0'),
+(183,30,'_STUDENT','O:24:\"qtype_coderunner_student\":6:{s:2:\"id\";s:1:\"3\";s:8:\"username\";s:8:\"student1\";s:5:\"email\";s:20:\"student1@example.com\";s:9:\"firstname\";s:13:\"Nguyễn Văn\";s:8:\"lastname\";s:12:\"Sinh Viên 1\";s:13:\"canviewhidden\";b:0;}'),
+(184,30,'_QUIZ','O:21:\"qtype_coderunner_quiz\":2:{s:4:\"name\";s:15:\"bai thuc hanh 1\";s:4:\"tags\";a:0:{}}'),
+(185,30,'_mtrandseed','544907017'),
+(186,30,'_template_params_md5','d41d8cd98f00b204e9800998ecf8427e'),
+(187,30,'_template_params_json','{}'),
+(188,30,'_prototype__template_params_md5','d41d8cd98f00b204e9800998ecf8427e'),
+(189,30,'_prototype__template_params_json','{}'),
+(190,31,'-submit','1'),
+(191,31,'answer','def tinh_tong(n):\r\n    # Sinh viên viết code đệ quy tại đây\r\n    pass'),
+(192,32,'-submit','1'),
+(193,32,'answer','def tinh_tong(n):\r\n    return n'),
+(194,32,'_testoutcome','O:32:\"qtype_coderunner_testing_outcome\":13:{s:6:\"status\";i:1;s:10:\"isprecheck\";b:0;s:10:\"errorcount\";i:4;s:12:\"errormessage\";s:0:\"\";s:11:\"maxpossmark\";d:6;s:10:\"actualmark\";d:2;s:11:\"testresults\";a:6:{i:0;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:20:\"print(tinh_tong(5))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:3:\"15\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"1\";s:7:\"display\";s:4:\"SHOW\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:2:\"5\n\";}i:1;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:20:\"print(tinh_tong(3))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:2:\"6\n\";s:5:\"extra\";s:2:\"S\n\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"HIDE\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:2:\"3\n\";}i:2;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:20:\"print(tinh_tong(1))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:2:\"1\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"HIDE\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:1;s:7:\"awarded\";s:5:\"1.000\";s:3:\"got\";s:2:\"1\n\";}i:3;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:20:\"print(tinh_tong(4))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:3:\"10\n\";s:5:\"extra\";s:2:\"S\n\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"HIDE\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:2:\"4\n\";}i:4;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:20:\"print(tinh_tong(0))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:2:\"0\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"SHOW\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:1;s:7:\"awarded\";s:5:\"1.000\";s:3:\"got\";s:2:\"0\n\";}i:5;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:21:\"print(tinh_tong(50))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:5:\"1275\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"SHOW\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:3:\"50\n\";}}s:14:\"sourcecodelist\";N;s:11:\"sandboxinfo\";a:2:{s:10:\"jobeserver\";s:11:\"jobe1;jobe2\";s:10:\"jobeapikey\";s:29:\"2AAA7A5415B4A9B394B54BF1D2E9D\";}s:9:\"numerrors\";i:0;s:16:\"numtestsexpected\";i:6;s:11:\"graderstate\";s:0:\"\";s:8:\"failures\";O:10:\"html_table\":19:{s:2:\"id\";N;s:10:\"attributes\";a:1:{s:5:\"class\";s:23:\"coderunner-test-results\";}s:4:\"head\";a:3:{i:0;s:4:\"Test\";i:1;s:8:\"Expected\";i:2;s:3:\"Got\";}s:8:\"headspan\";N;s:5:\"align\";N;s:4:\"size\";N;s:4:\"wrap\";N;s:4:\"data\";a:0:{}s:5:\"width\";N;s:10:\"tablealign\";N;s:11:\"cellpadding\";N;s:11:\"cellspacing\";N;s:10:\"rowclasses\";a:0:{}s:10:\"colclasses\";N;s:7:\"summary\";N;s:7:\"caption\";N;s:11:\"captionhide\";b:0;s:10:\"responsive\";b:1;s:5:\"class\";N;}}'),
+(195,32,'-_try','1'),
+(196,32,'-_precheck','0'),
+(197,32,'-_rawfraction','0'),
+(198,33,'-submit','1'),
+(199,33,'answer','def tinh_tong(n):\r\n    return n + n - 1'),
+(200,33,'_testoutcome','O:32:\"qtype_coderunner_testing_outcome\":13:{s:6:\"status\";i:1;s:10:\"isprecheck\";b:0;s:10:\"errorcount\";i:5;s:12:\"errormessage\";s:0:\"\";s:11:\"maxpossmark\";d:6;s:10:\"actualmark\";d:1;s:11:\"testresults\";a:6:{i:0;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:20:\"print(tinh_tong(5))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:3:\"15\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"1\";s:7:\"display\";s:4:\"SHOW\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:2:\"9\n\";}i:1;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:20:\"print(tinh_tong(3))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:2:\"6\n\";s:5:\"extra\";s:2:\"S\n\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"HIDE\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:2:\"5\n\";}i:2;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:20:\"print(tinh_tong(1))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:2:\"1\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"HIDE\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:1;s:7:\"awarded\";s:5:\"1.000\";s:3:\"got\";s:2:\"1\n\";}i:3;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:20:\"print(tinh_tong(4))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:3:\"10\n\";s:5:\"extra\";s:2:\"S\n\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"HIDE\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:2:\"7\n\";}i:4;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:20:\"print(tinh_tong(0))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:2:\"0\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"SHOW\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:3:\"-1\n\";}i:5;O:28:\"qtype_coderunner_test_result\":12:{s:8:\"testtype\";s:1:\"0\";s:8:\"testcode\";s:21:\"print(tinh_tong(50))\n\";s:5:\"stdin\";s:0:\"\";s:8:\"expected\";s:5:\"1275\n\";s:5:\"extra\";s:0:\"\";s:12:\"useasexample\";s:1:\"0\";s:7:\"display\";s:4:\"SHOW\";s:14:\"hiderestiffail\";s:1:\"0\";s:4:\"mark\";s:5:\"1.000\";s:9:\"iscorrect\";b:0;s:7:\"awarded\";d:0;s:3:\"got\";s:3:\"99\n\";}}s:14:\"sourcecodelist\";N;s:11:\"sandboxinfo\";a:2:{s:10:\"jobeserver\";s:11:\"jobe1;jobe2\";s:10:\"jobeapikey\";s:29:\"2AAA7A5415B4A9B394B54BF1D2E9D\";}s:9:\"numerrors\";i:0;s:16:\"numtestsexpected\";i:6;s:11:\"graderstate\";s:0:\"\";s:8:\"failures\";O:10:\"html_table\":19:{s:2:\"id\";N;s:10:\"attributes\";a:1:{s:5:\"class\";s:23:\"coderunner-test-results\";}s:4:\"head\";a:3:{i:0;s:4:\"Test\";i:1;s:8:\"Expected\";i:2;s:3:\"Got\";}s:8:\"headspan\";N;s:5:\"align\";N;s:4:\"size\";N;s:4:\"wrap\";N;s:4:\"data\";a:0:{}s:5:\"width\";N;s:10:\"tablealign\";N;s:11:\"cellpadding\";N;s:11:\"cellspacing\";N;s:10:\"rowclasses\";a:0:{}s:10:\"colclasses\";N;s:7:\"summary\";N;s:7:\"caption\";N;s:11:\"captionhide\";b:0;s:10:\"responsive\";b:1;s:5:\"class\";N;}}'),
+(201,33,'-_try','2'),
+(202,33,'-_precheck','0'),
+(203,33,'-_rawfraction','0'),
+(206,36,'-submit','1'),
+(207,36,'answer','def tinh_tong(n):\r\n    # Sinh viên viết code đệ quy tại đây\r\n    pass'),
+(208,37,'_STUDENT','O:24:\"qtype_coderunner_student\":6:{s:2:\"id\";s:1:\"2\";s:8:\"username\";s:5:\"admin\";s:5:\"email\";s:17:\"admin@example.com\";s:9:\"firstname\";s:5:\"Admin\";s:8:\"lastname\";s:4:\"User\";s:13:\"canviewhidden\";b:1;}'),
+(209,37,'_QUIZ','O:21:\"qtype_coderunner_quiz\":2:{s:4:\"name\";s:15:\"bai thuc hanh 1\";s:4:\"tags\";a:0:{}}'),
+(210,37,'_mtrandseed','614421335'),
+(211,37,'_template_params_md5','d41d8cd98f00b204e9800998ecf8427e'),
+(212,37,'_template_params_json','{}'),
+(213,37,'_prototype__template_params_md5','d41d8cd98f00b204e9800998ecf8427e'),
+(214,37,'_prototype__template_params_json','{}'),
+(215,38,'_STUDENT','O:24:\"qtype_coderunner_student\":6:{s:2:\"id\";s:1:\"2\";s:8:\"username\";s:5:\"admin\";s:5:\"email\";s:17:\"admin@example.com\";s:9:\"firstname\";s:5:\"Admin\";s:8:\"lastname\";s:4:\"User\";s:13:\"canviewhidden\";b:1;}'),
+(216,38,'_QUIZ','O:21:\"qtype_coderunner_quiz\":2:{s:4:\"name\";s:15:\"bai thuc hanh 1\";s:4:\"tags\";a:0:{}}'),
+(217,38,'_mtrandseed','2112541895'),
+(218,38,'_template_params_md5','d41d8cd98f00b204e9800998ecf8427e'),
+(219,38,'_template_params_json','{}'),
+(220,38,'_prototype__template_params_md5','d41d8cd98f00b204e9800998ecf8427e'),
+(221,38,'_prototype__template_params_json','{}');
 /*!40000 ALTER TABLE `mdl_question_attempt_step_data` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -19680,7 +20100,7 @@ CREATE TABLE `mdl_question_attempt_steps` (
   UNIQUE KEY `mdl_quesattestep_queseq_uix` (`questionattemptid`,`sequencenumber`),
   KEY `mdl_quesattestep_que_ix` (`questionattemptid`),
   KEY `mdl_quesattestep_use_ix` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Stores one step in in a question attempt. As well as the dat';
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Stores one step in in a question attempt. As well as the dat';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -19700,7 +20120,17 @@ INSERT INTO `mdl_question_attempt_steps` VALUES
 (23,17,0,'todo',NULL,1791384666,3),
 (24,17,1,'todo',0.0000000,1791384671,3),
 (25,18,0,'todo',NULL,1791601717,3),
-(26,18,1,'todo',0.0000000,1791601752,3);
+(26,18,1,'todo',0.0000000,1791601752,3),
+(27,19,0,'todo',NULL,1792720787,2),
+(28,19,1,'invalid',NULL,1792720796,2),
+(29,19,2,'todo',0.0000000,1792720831,2),
+(30,20,0,'todo',NULL,1792722331,3),
+(31,20,1,'invalid',NULL,1792722336,3),
+(32,20,2,'todo',0.0000000,1792722347,3),
+(33,20,3,'todo',0.0000000,1792722546,3),
+(36,20,4,'invalid',0.0000000,1792727342,3),
+(37,21,0,'todo',NULL,1792731304,2),
+(38,22,0,'todo',NULL,1792731304,2);
 /*!40000 ALTER TABLE `mdl_question_attempt_steps` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -19733,7 +20163,7 @@ CREATE TABLE `mdl_question_attempts` (
   KEY `mdl_quesatte_beh_ix` (`behaviour`),
   KEY `mdl_quesatte_que_ix` (`questionid`),
   KEY `mdl_quesatte_que2_ix` (`questionusageid`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Each row here corresponds to an attempt at one question, as ';
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Each row here corresponds to an attempt at one question, as ';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -19747,7 +20177,11 @@ INSERT INTO `mdl_question_attempts` VALUES
 (15,13,1,'adaptive_adapted_for_coderunner',121,1,1.0000000,0.0000000,1.0000000,0,'Đọc một số thực. Nếu nhỏ hơn 0, dùng 0; nếu lớn hơn 1, dùng 1. In kết quả với đúng hai chữ số thập phân.\n','score = float(input())\nscore = max(0.0, min(1.0, score))\nprint(f\'{score:.2f}\')','score = float(input())\r\n# TODO: giới hạn score trong [0, 1] rồi in hai chữ số thập phân.',1791384497),
 (16,14,1,'adaptive_adapted_for_coderunner',121,1,1.0000000,0.0000000,1.0000000,0,'Đọc một số thực. Nếu nhỏ hơn 0, dùng 0; nếu lớn hơn 1, dùng 1. In kết quả với đúng hai chữ số thập phân.\n','score = float(input())\nscore = max(0.0, min(1.0, score))\nprint(f\'{score:.2f}\')','score = float(input())\nscore = max(0.0, min(1.0, score))\nprint(f\"{score:.2f}\")',1791384405),
 (17,15,1,'adaptive_adapted_for_coderunner',122,1,1.0000000,0.0000000,1.0000000,0,'Đọc một dòng văn bản. Đếm số từ bằng ai không phân biệt hoa thường. Các từ được phân cách bằng khoảng trắng. In số đếm.\n','words = input().lower().split()\nprint(sum(1 for word in words if word == \'ai\'))','words = input().lower().split()\r\n# TODO: đếm các từ bằng \'ai\'.',1791384676),
-(18,16,1,'adaptive_adapted_for_coderunner',121,1,1.0000000,0.0000000,1.0000000,0,'Đọc một số thực. Nếu nhỏ hơn 0, dùng 0; nếu lớn hơn 1, dùng 1. In kết quả với đúng hai chữ số thập phân.\n','score = float(input())\nscore = max(0.0, min(1.0, score))\nprint(f\'{score:.2f}\')','score = float(input())\r\n# TODO: giới hạn score trong [0, 1] rồi in hai chữ số thập phân.',1791601765);
+(18,16,1,'adaptive_adapted_for_coderunner',121,1,1.0000000,0.0000000,1.0000000,0,'Đọc một số thực. Nếu nhỏ hơn 0, dùng 0; nếu lớn hơn 1, dùng 1. In kết quả với đúng hai chữ số thập phân.\n','score = float(input())\nscore = max(0.0, min(1.0, score))\nprint(f\'{score:.2f}\')','score = float(input())\r\n# TODO: giới hạn score trong [0, 1] rồi in hai chữ số thập phân.',1791601765),
+(19,17,1,'adaptive_adapted_for_coderunner',128,1,1.0000000,0.0000000,1.0000000,0,'<p>Hãy viết một hàm trong Python có tên là <code>tinh_tong[No]</code> để tính tổng các số nguyên dương từ 1 đến <code>n</code> theo công thức:</p>\n\n<p style=\"text-align: center; font-size: 1.1em;\"><strong>S[No] = 1 + 2 + 3 + ... + n</strong></p>\n\n<p><strong>Quy ước:</strong> Nếu <code>n &lt;= 0</code>, hàm trả về <code>0</code>.</p>\n\n<p><strong>Yêu cầu bắt buộc:</strong></p>\n<ul>\n  <li>Bắt buộc sử dụng <strong>giải thuật đệ quy</strong> (gồm điều kiện cơ sở dừng đệ quy và bước gọi đệ quy).</li>\n  <li><strong>Không</strong> sử dụng vòng lặp <code>for</code> hoặc <code>while</code>.</li>\n  <li>Sinh viên chỉ cần định nghĩa hàm, không cần viết lệnh <code>input()</code> hoặc <code>print()</code> gọi hàm ngoài.</li>\n</ul>\n\n<p><strong>Ví dụ minh họa:</strong></p>\n<table border=\"1\" cellpadding=\"6\" style=\"border-collapse: collapse;\">\n  <thead>\n    <tr style=\"background-color: #f2f2f2;\"><th>Test code</th><th>Kết quả in ra (Expected)</th></tr>\n  </thead>\n  <tbody>\n    <tr><td><code>print(tinh_tong(5))</code></td><td><code>15</code></td></tr>\n    <tr><td><code>print(tinh_tong(1))</code></td><td><code>1</code></td></tr>\n  </tbody>\n</table>\n\n ','def tinh_tong(n):\r\n    # 1. Điều kiện dừng cơ sở\r\n    if n <= 0:\r\n        return 0\r\n    # 2. Bước gọi đệ quy\r\n    return n + tinh_tong(n - 1)','def tinh_tong(n):\r\n    return n',1792720832),
+(20,18,1,'adaptive_adapted_for_coderunner',128,1,1.0000000,0.0000000,1.0000000,0,'<p>Hãy viết một hàm trong Python có tên là <code>tinh_tong[No]</code> để tính tổng các số nguyên dương từ 1 đến <code>n</code> theo công thức:</p>\n\n<p style=\"text-align: center; font-size: 1.1em;\"><strong>S[No] = 1 + 2 + 3 + ... + n</strong></p>\n\n<p><strong>Quy ước:</strong> Nếu <code>n &lt;= 0</code>, hàm trả về <code>0</code>.</p>\n\n<p><strong>Yêu cầu bắt buộc:</strong></p>\n<ul>\n  <li>Bắt buộc sử dụng <strong>giải thuật đệ quy</strong> (gồm điều kiện cơ sở dừng đệ quy và bước gọi đệ quy).</li>\n  <li><strong>Không</strong> sử dụng vòng lặp <code>for</code> hoặc <code>while</code>.</li>\n  <li>Sinh viên chỉ cần định nghĩa hàm, không cần viết lệnh <code>input()</code> hoặc <code>print()</code> gọi hàm ngoài.</li>\n</ul>\n\n<p><strong>Ví dụ minh họa:</strong></p>\n<table border=\"1\" cellpadding=\"6\" style=\"border-collapse: collapse;\">\n  <thead>\n    <tr style=\"background-color: #f2f2f2;\"><th>Test code</th><th>Kết quả in ra (Expected)</th></tr>\n  </thead>\n  <tbody>\n    <tr><td><code>print(tinh_tong(5))</code></td><td><code>15</code></td></tr>\n    <tr><td><code>print(tinh_tong(1))</code></td><td><code>1</code></td></tr>\n  </tbody>\n</table>\n\n ','def tinh_tong(n):\r\n    # 1. Điều kiện dừng cơ sở\r\n    if n <= 0:\r\n        return 0\r\n    # 2. Bước gọi đệ quy\r\n    return n + tinh_tong(n - 1)','def tinh_tong(n):\r\n    return n + n - 1',1792727342),
+(21,19,1,'adaptive_adapted_for_coderunner',129,1,1.0000000,0.0000000,1.0000000,0,'<p>Hãy viết một hàm trong Python có tên là <code>tinh_tong[No]</code> để tính tổng các số nguyên dương từ 1 đến <code>n</code> theo công thức:</p>\n\n<p style=\"text-align: center; font-size: 1.1em;\"><strong>S[No] = 1 + 2 + 3 + ... + n</strong></p>\n\n<p><strong>Quy ước:</strong> Nếu <code>n &lt;= 0</code>, hàm trả về <code>0</code>.</p>\n\n<p><strong>Yêu cầu bắt buộc:</strong></p>\n<ul>\n  <li>Bắt buộc sử dụng <strong>giải thuật đệ quy</strong> (gồm điều kiện cơ sở dừng đệ quy và bước gọi đệ quy).</li>\n  <li><strong>Không</strong> sử dụng vòng lặp <code>for</code> hoặc <code>while</code>.</li>\n  <li>Sinh viên chỉ cần định nghĩa hàm, không cần viết lệnh <code>input()</code> hoặc <code>print()</code> gọi hàm ngoài.</li>\n</ul>\n\n<p><strong>Ví dụ minh họa:</strong></p>\n<table border=\"1\" cellpadding=\"6\" style=\"border-collapse: collapse;\">\n  <thead>\n    <tr style=\"background-color: #f2f2f2;\"><th>Test code</th><th>Kết quả in ra (Expected)</th></tr>\n  </thead>\n  <tbody>\n    <tr><td><code>print(tinh_tong(5))</code></td><td><code>15</code></td></tr>\n    <tr><td><code>print(tinh_tong(1))</code></td><td><code>1</code></td></tr>\n  </tbody>\n</table>\n\n ','def tinh_tong(n):\r\n    # 1. Điều kiện dừng cơ sở\r\n    if n <= 0:\r\n        return 0\r\n    # 2. Bước gọi đệ quy\r\n    return n + tinh_tong(n - 1)',NULL,1792731304),
+(22,19,2,'adaptive_adapted_for_coderunner',130,1,1.0000000,0.0000000,1.0000000,0,'Hãy viết một hàm trong Python có tên là fibonacci[No] để tính số Fibonacci thứ n theo công thức đệ quy:\n\n	* F(0) = 0\n	* F(1) = 1\n	* F[No] = F(n - 1) + F(n - 2) với n >= 2\n\nQUY ƯỚC: Nếu n <= 0 thì trả về 0.\n\nYÊU CẦU: Bắt buộc dùng GIẢI THUẬT ĐỆ QUY. Không dùng vòng lặp.\n\nVÍ DỤ:\n\n		TEST CODE\n		EXPECTED\n\n		print(fibonacci(5))\n		5\n\n		print(fibonacci(1))\n		1\n\n','def fibonacci(n):\n    if n <= 0:\n        return 0\n    elif n == 1:\n        return 1\n    return fibonacci(n - 1) + fibonacci(n - 2)',NULL,1792731304);
 /*!40000 ALTER TABLE `mdl_question_attempts` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -19769,7 +20203,7 @@ CREATE TABLE `mdl_question_bank_entries` (
   UNIQUE KEY `mdl_quesbankentr_queidn_uix` (`questioncategoryid`,`idnumber`),
   KEY `mdl_quesbankentr_que_ix` (`questioncategoryid`),
   KEY `mdl_quesbankentr_own_ix` (`ownerid`)
-) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Each question bank entry. This table has one row for each qu';
+) ENGINE=InnoDB AUTO_INCREMENT=127 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Each question bank entry. This table has one row for each qu';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -19902,7 +20336,10 @@ INSERT INTO `mdl_question_bank_entries` VALUES
 (120,2,NULL,2),
 (121,16,'ai-py-confidence',2),
 (122,16,'ai-py-keyword',2),
-(123,16,'ai-py-accuracy',2);
+(123,16,'ai-py-accuracy',2),
+(124,27,NULL,2),
+(125,27,NULL,2),
+(126,27,NULL,2);
 /*!40000 ALTER TABLE `mdl_question_bank_entries` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -20001,7 +20438,7 @@ CREATE TABLE `mdl_question_categories` (
   UNIQUE KEY `mdl_quescate_conidn_uix` (`contextid`,`idnumber`),
   KEY `mdl_quescate_con_ix` (`contextid`),
   KEY `mdl_quescate_par_ix` (`parent`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Categories are for grouping questions';
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Categories are for grouping questions';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20034,7 +20471,11 @@ INSERT INTO `mdl_question_categories` VALUES
 (20,'top',30,'',0,'localhost:8080+261007143232+pmxA4n',0,0,NULL),
 (21,'Default for Quiz 1 — Chuẩn hóa confidence score',30,'The default category for questions shared in context \'Quiz 1 — Chuẩn hóa confidence score\'.',0,'localhost:8080+261007143232+Mj2xvG',20,999,NULL),
 (22,'top',31,'',0,'localhost:8080+261010030323+02DLcs',0,0,NULL),
-(23,'Default for Quiz 2 — Đếm từ khóa AI',31,'The default category for questions shared in context \'Quiz 2 — Đếm từ khóa AI\'.',0,'localhost:8080+261010030323+rC6RQx',22,999,NULL);
+(23,'Default for Quiz 2 — Đếm từ khóa AI',31,'The default category for questions shared in context \'Quiz 2 — Đếm từ khóa AI\'.',0,'localhost:8080+261010030323+rC6RQx',22,999,NULL),
+(24,'top',37,'',0,'localhost:8080+261022104505+oIqlnM',0,0,NULL),
+(25,'Default for bai thuc hanh 1',37,'The default category for questions shared in context \'bai thuc hanh 1\'.',0,'localhost:8080+261022104505+Vzx45u',24,999,NULL),
+(26,'top',35,'',0,'localhost:8080+261022104505+PHB4KA',0,0,NULL),
+(27,'Default for python 2',35,'The default category for questions shared in context \'python 2\'.',0,'localhost:8080+261022104505+fgVLBU',26,999,NULL);
 /*!40000 ALTER TABLE `mdl_question_categories` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -20100,7 +20541,7 @@ CREATE TABLE `mdl_question_coderunner_options` (
   KEY `mdl_quescodeopti_cod_ix` (`coderunnertype`),
   KEY `mdl_quescodeopti_pro_ix` (`prototypetype`),
   KEY `mdl_quescodeopti_que_ix` (`questionid`)
-) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Extension of the coderunner question table';
+) ENGINE=InnoDB AUTO_INCREMENT=132 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Extension of the coderunner question table';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20233,7 +20674,15 @@ INSERT INTO `mdl_question_coderunner_options` VALUES
 (120,120,'python3_testcase_exchange',2,1,0,0,0,5,80,NULL,NULL,1,'0','10 20',1,NULL,NULL,'import pymysql\nimport os\nimport sys\n\nDB_HOST = \"mariadb\"\nDB_USER = \"jobe_user\"\nDB_PASS = \"JobeSecret123!\"\nDB_NAME = \"testcase_store\"\n\ncourse_id = \"{{ COURSE.shortname | default(\'CS101\') }}\"\nquestion_id = {{ QUESTION.id | default(100) }}\nstudent_id = \"{{ STUDENT.username | default(\'student\') }}\"\nstudent_input = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\".strip()\n\ntry:\n    jobe_server = open(\"/etc/hostname\").read().strip()\nexcept:\n    jobe_server = \"jobe\"\n\nif not student_input:\n    print(\"❌ Vui lòng nhập dữ liệu kiểm thử (testcase)!\")\n    sys.exit(0)\n\ntry:\n    conn = pymysql.connect(host=DB_HOST, user=DB_USER, password=DB_PASS, database=DB_NAME)\n    cur = conn.cursor()\n\n    cur.execute(\"SELECT student_id FROM student_testcases WHERE course_id=%s AND question_id=%s AND test_input=%s\", \n                (course_id, question_id, student_input))\n    exist = cur.fetchone()\n\n    if exist:\n        author = exist[0]\n        if author == student_id:\n            print(f\"⚠️ Ban da tung nop testcase \'{student_input}\' cho bai nay roi.\")\n        else:\n            print(f\"❌ TESTCASE BI TRUNG! Da duoc ban [{author}] nop truoc do.\")\n        conn.close()\n        sys.exit(0)\n\n    cur.execute(\"INSERT INTO student_testcases (course_id, question_id, student_id, test_input, jobe_server) VALUES (%s, %s, %s, %s, %s)\",\n                (course_id, question_id, student_id, student_input, jobe_server))\n    conn.commit()\n\n    print(f\"🎉 CHUC MUNG! Testcase \'{student_input}\' cua ban la DOC NHAT!\")\n    print(f\"🖥️ Xu ly boi cum: [{jobe_server}]\")\n\n    cur.execute(\"\"\"\n        SELECT id, student_id, test_input FROM student_testcases\n        WHERE course_id=%s AND question_id=%s AND student_id != %s\n          AND id NOT IN (SELECT testcase_id FROM testcase_exchanges WHERE receiver_student=%s)\n        ORDER BY RAND() LIMIT 1\n    \"\"\", (course_id, question_id, student_id, student_id))\n    gift = cur.fetchone()\n\n    if gift:\n        gift_id, gift_author, gift_input = gift\n        cur.execute(\"INSERT INTO testcase_exchanges (course_id, question_id, receiver_student, testcase_id) VALUES (%s, %s, %s, %s)\",\n                    (course_id, question_id, student_id, gift_id))\n        conn.commit()\n        print(\"\\n🎁 PHAN THUONG TRAO DOI TESTCASE:\")\n        print(f\"Nhan duoc testcase tu ban [{gift_author}]: {gift_input}\")\n\n    conn.close()\nexcept Exception as e:\n    print(f\"⚠️ Loi ket noi: {e}\")\n',1,NULL,NULL,NULL,NULL,NULL,'None',0,'{}',1,1,0,NULL,'python3',NULL,NULL,NULL,'TemplateGrader',NULL,NULL,NULL,0,0,0,NULL,NULL,1,0,NULL),
 (121,121,'python3',0,1,0,0,0,12,100,'score = float(input())\n# TODO: giới hạn score trong [0, 1] rồi in hai chữ số thập phân.','',1,'33.3, 66.7, ...','score = float(input())\nscore = max(0.0, min(1.0, score))\nprint(f\'{score:.2f}\')',0,NULL,NULL,'{{ STUDENT_ANSWER }}\n\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\n\nSEPARATOR = \"#<ab@17943918#@>#\"\n\n{% for TEST in TESTCASES %}\n{{ TEST.testcode }}\n{% if not loop.last %}\nprint(SEPARATOR)\n{% endif %}\n{% endfor %}',1,NULL,0,'|#<ab@17943918#@>#\\n|ms',NULL,'','twig',0,'',0,1,0,'','python3',NULL,NULL,NULL,'EqualityGrader',NULL,NULL,'ace',0,0,0,'','',1,0,NULL),
 (122,122,'python3',0,1,0,0,0,12,100,'words = input().lower().split()\n# TODO: đếm các từ bằng \'ai\'.','',1,'33.3, 66.7, ...','words = input().lower().split()\nprint(sum(1 for word in words if word == \'ai\'))',0,NULL,NULL,'{{ STUDENT_ANSWER }}\n\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\n\nSEPARATOR = \"#<ab@17943918#@>#\"\n\n{% for TEST in TESTCASES %}\n{{ TEST.testcode }}\n{% if not loop.last %}\nprint(SEPARATOR)\n{% endif %}\n{% endfor %}',1,NULL,0,'|#<ab@17943918#@>#\\n|ms',NULL,'','twig',0,'',0,1,0,'','python3',NULL,NULL,NULL,'EqualityGrader',NULL,NULL,'ace',0,0,0,'','',1,0,NULL),
-(123,123,'python3',0,1,0,0,0,12,100,'correct, total = map(int, input().split())\n# TODO: tính accuracy %, xử lý total = 0.','',1,'33.3, 66.7, ...','correct, total = map(int, input().split())\naccuracy = 0.0 if total == 0 else correct * 100.0 / total\nprint(f\'{accuracy:.2f}\')',0,NULL,NULL,'{{ STUDENT_ANSWER }}\n\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\n\nSEPARATOR = \"#<ab@17943918#@>#\"\n\n{% for TEST in TESTCASES %}\n{{ TEST.testcode }}\n{% if not loop.last %}\nprint(SEPARATOR)\n{% endif %}\n{% endfor %}',1,NULL,0,'|#<ab@17943918#@>#\\n|ms',NULL,'','twig',0,'',0,1,0,'','python3',NULL,NULL,NULL,'EqualityGrader',NULL,NULL,'ace',0,0,0,'','',1,0,NULL);
+(123,123,'python3',0,1,0,0,0,12,100,'correct, total = map(int, input().split())\n# TODO: tính accuracy %, xử lý total = 0.','',1,'33.3, 66.7, ...','correct, total = map(int, input().split())\naccuracy = 0.0 if total == 0 else correct * 100.0 / total\nprint(f\'{accuracy:.2f}\')',0,NULL,NULL,'{{ STUDENT_ANSWER }}\n\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\n\nSEPARATOR = \"#<ab@17943918#@>#\"\n\n{% for TEST in TESTCASES %}\n{{ TEST.testcode }}\n{% if not loop.last %}\nprint(SEPARATOR)\n{% endif %}\n{% endfor %}',1,NULL,0,'|#<ab@17943918#@>#\\n|ms',NULL,'','twig',0,'',0,1,0,'','python3',NULL,NULL,NULL,'EqualityGrader',NULL,NULL,'ace',0,0,0,'','',1,0,NULL),
+(124,124,'python3',1,1,0,0,0,18,100,'','',1,'33.3, 66.7, ...','def tinh_tong(n):\r\n  # 1. Điều kiện cơ sở (điều kiện dừng để tránh vòng lặp vô hạn)\r\n  if n == 0:\r\n    return 0\r\n  # 2. Bước đệ quy: gọi lại chính hàm với giá trị nhỏ hơn\r\n  else:\r\n    return n + tinh_tong(n - 1)\r\n\r\n\r\n# Kiểm tra thử hàm\r\nn = 5\r\nprint(f\"Tổng từ 1 đến {n} là: {tinh_tong(n)}\")',0,NULL,NULL,'{{ STUDENT_ANSWER }}\r\n\r\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\r\n\r\nSEPARATOR = \"#<ab@17943918#@>#\"\r\n\r\n{% for TEST in TESTCASES %}\r\n{{ TEST.testcode }}\r\n{% if not loop.last %}\r\nprint(SEPARATOR)\r\n{% endif %}\r\n{% endfor %}',1,NULL,0,'|#<ab@17943918#@>#\\n|ms',NULL,'','twig',0,'{}',0,1,0,'','python3',NULL,NULL,NULL,'EqualityGrader',NULL,NULL,'ace',0,0,0,'','',0,0,NULL),
+(125,125,'python3',0,1,0,0,0,18,100,'','',1,'33.3, 66.7, ...','def tinh_tong(n):\r\n  # 1. Điều kiện cơ sở (điều kiện dừng để tránh vòng lặp vô hạn)\r\n  if n == 0:\r\n    return 0\r\n  # 2. Bước đệ quy: gọi lại chính hàm với giá trị nhỏ hơn\r\n  else:\r\n    return n + tinh_tong(n - 1)\r\n\r\n\r\n# Kiểm tra thử hàm\r\nn = 5\r\nprint(f\"Tổng từ 1 đến {n} là: {tinh_tong(n)}\")',0,NULL,NULL,'{{ STUDENT_ANSWER }}\r\n\r\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\r\n\r\nSEPARATOR = \"#<ab@17943918#@>#\"\r\n\r\n{% for TEST in TESTCASES %}\r\n{{ TEST.testcode }}\r\n{% if not loop.last %}\r\nprint(SEPARATOR)\r\n{% endif %}\r\n{% endfor %}',1,NULL,0,'|#<ab@17943918#@>#\\n|ms',NULL,'','twig',0,'{}',0,1,0,'','python3',NULL,NULL,NULL,'EqualityGrader',NULL,NULL,'ace',0,0,0,'','',0,0,NULL),
+(126,126,'python3',1,1,0,0,0,18,100,'','',1,'33.3, 66.7, ...','def tinh_tong(n):\r\n  # 1. Điều kiện cơ sở (điều kiện dừng để tránh vòng lặp vô hạn)\r\n  if n == 0:\r\n    return 0\r\n  # 2. Bước đệ quy: gọi lại chính hàm với giá trị nhỏ hơn\r\n  else:\r\n    return n + tinh_tong(n - 1)\r\n',0,NULL,NULL,'{{ STUDENT_ANSWER }}\r\n\r\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\r\n\r\nSEPARATOR = \"#<ab@17943918#@>#\"\r\n\r\n{% for TEST in TESTCASES %}\r\n{{ TEST.testcode }}\r\n{% if not loop.last %}\r\nprint(SEPARATOR)\r\n{% endif %}\r\n{% endfor %}',1,NULL,0,'|#<ab@17943918#@>#\\n|ms',NULL,'','twig',0,'{}',0,1,0,'','python3',NULL,NULL,NULL,'EqualityGrader',NULL,NULL,'ace',0,0,0,'','',0,0,NULL),
+(127,127,'python3',1,1,0,0,0,18,100,'','',1,'33.3, 66.7, ...','def tinh_tong(n):\r\n  # 1. Điều kiện cơ sở (điều kiện dừng để tránh vòng lặp vô hạn)\r\n  if n == 0:\r\n    return 0\r\n  # 2. Bước đệ quy: gọi lại chính hàm với giá trị nhỏ hơn\r\n  else:\r\n    return n + tinh_tong(n - 1)\r\n',0,NULL,NULL,'{{ STUDENT_ANSWER }}\r\n\r\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\r\n\r\nSEPARATOR = \"#<ab@17943918#@>#\"\r\n\r\n{% for TEST in TESTCASES %}\r\n{{ TEST.testcode }}\r\n{% if not loop.last %}\r\nprint(SEPARATOR)\r\n{% endif %}\r\n{% endfor %}',1,NULL,0,'|#<ab@17943918#@>#\\n|ms',NULL,'','twig',0,'{}',0,1,0,'','python3',NULL,NULL,NULL,'EqualityGrader',NULL,NULL,'ace',0,0,0,'','',0,0,NULL),
+(128,128,'python3',0,1,0,0,0,18,100,'def tinh_tong(n):\r\n    # Sinh viên viết code đệ quy tại đây\r\n    pass','',NULL,'10, 20, ...','def tinh_tong(n):\r\n    # 1. Điều kiện dừng cơ sở\r\n    if n <= 0:\r\n        return 0\r\n    # 2. Bước gọi đệ quy\r\n    return n + tinh_tong(n - 1)',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'','None',0,'{}',1,1,0,'',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,10240,'','',1,0,NULL),
+(129,129,'python3',0,1,0,0,0,18,100,'def tinh_tong(n):\r\n    # Sinh viên viết code đệ quy tại đây\r\n    pass','',NULL,'10, 20, ...','def tinh_tong(n):\r\n    # 1. Điều kiện dừng cơ sở\r\n    if n <= 0:\r\n        return 0\r\n    # 2. Bước gọi đệ quy\r\n    return n + tinh_tong(n - 1)',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'','None',0,'{}',1,1,0,'',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,10240,'','',1,0,NULL),
+(130,130,'python3',0,1,0,0,0,8,80,'def fibonacci(n):\n    # Sinh viên viết code đệ quy tại đây\n    pass','',NULL,'0','def fibonacci(n):\n    if n <= 0:\n        return 0\n    elif n == 1:\n        return 1\n    return fibonacci(n - 1) + fibonacci(n - 2)',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'','None',0,'{}',1,1,0,'',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,'','',1,0,NULL),
+(131,131,'python3',0,1,0,0,0,15,80,'def is_palindrome(s):\n    # Sinh viên viết code kiểm tra chuỗi đối xứng tại đây\n    pass\n','',NULL,'10, 20, ...','def is_palindrome(s):\n    cleaned = \"\".join(c.lower() for c in s if c.isalnum())\n    return cleaned == cleaned[::-1]\n',1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'','None',0,'{}',1,1,0,'',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,10240,'','',1,0,NULL);
 /*!40000 ALTER TABLE `mdl_question_coderunner_options` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -20260,7 +20709,7 @@ CREATE TABLE `mdl_question_coderunner_tests` (
   `mark` decimal(8,3) NOT NULL DEFAULT 1.000,
   PRIMARY KEY (`id`),
   KEY `mdl_quescodetest_que_ix` (`questionid`)
-) ENGINE=InnoDB AUTO_INCREMENT=506 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Contains tests (usually called ''testcases'') to perform on a ';
+) ENGINE=InnoDB AUTO_INCREMENT=528 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Contains tests (usually called ''testcases'') to perform on a ';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -20773,7 +21222,29 @@ INSERT INTO `mdl_question_coderunner_tests` VALUES
 (502,123,0,'','0 0','0.00','',1,'SHOW',0,1.000),
 (503,123,0,'','1 3','33.33','',0,'HIDE',0,1.000),
 (504,123,0,'','10 10','100.00','',0,'HIDE',0,1.000),
-(505,123,0,'','0 5','0.00','',0,'HIDE',0,1.000);
+(505,123,0,'','0 5','0.00','',0,'HIDE',0,1.000),
+(506,128,0,'print(tinh_tong(5))','','15','',1,'SHOW',0,1.000),
+(507,128,0,'print(tinh_tong(3))','','6','S',0,'HIDE',0,1.000),
+(508,128,0,'print(tinh_tong(1))','','1','',0,'HIDE',0,1.000),
+(509,128,0,'print(tinh_tong(4))','','10','S',0,'HIDE',0,1.000),
+(510,128,0,'print(tinh_tong(0))','','0','',0,'SHOW',0,1.000),
+(511,128,0,'print(tinh_tong(50))','','1275','',0,'SHOW',0,1.000),
+(512,129,0,'print(tinh_tong(5))','','15','',1,'SHOW',0,1.000),
+(513,129,0,'print(tinh_tong(3))','','6','S',0,'HIDE',0,1.000),
+(514,129,0,'print(tinh_tong(1))','','1','',0,'HIDE',0,1.000),
+(515,129,0,'print(tinh_tong(4))','','10','S',0,'HIDE',0,1.000),
+(516,129,0,'print(tinh_tong(0))','','0','',0,'HIDE',0,1.000),
+(517,129,0,'print(tinh_tong(50))','','1275','',0,'HIDE',0,1.000),
+(518,130,NULL,'print(fibonacci(5))','','5','',1,'SHOW',0,1.000),
+(519,130,NULL,'print(fibonacci(1))','','1','',1,'SHOW',0,1.000),
+(520,130,NULL,'print(fibonacci(0))','','0','',0,'HIDE',0,1.000),
+(521,130,NULL,'print(fibonacci(6))','','8','',0,'HIDE',0,1.000),
+(522,130,NULL,'print(fibonacci(10))','','55','',0,'HIDE',0,1.000),
+(523,131,0,'print(is_palindrome(\"racecar\"))','','True\n','',1,'SHOW',0,1.000),
+(524,131,0,'print(is_palindrome(\"hello\"))','','False\n','',1,'SHOW',0,1.000),
+(525,131,0,'print(is_palindrome(\"A man, a plan, a canal: Panama\"))','','True\n','',0,'SHOW',0,1.000),
+(526,131,0,'print(is_palindrome(\"No lemon, no melon\"))','','True\n','',0,'SHOW',0,1.000),
+(527,131,0,'print(is_palindrome(\"12321\"))','','True\n','',0,'SHOW',0,1.000);
 /*!40000 ALTER TABLE `mdl_question_coderunner_tests` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -21109,7 +21580,7 @@ CREATE TABLE `mdl_question_references` (
   UNIQUE KEY `mdl_quesrefe_usicomqueite_uix` (`usingcontextid`,`component`,`questionarea`,`itemid`),
   KEY `mdl_quesrefe_usi_ix` (`usingcontextid`),
   KEY `mdl_quesrefe_que_ix` (`questionbankentryid`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Records where a specific question is used.';
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Records where a specific question is used.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -21123,7 +21594,10 @@ INSERT INTO `mdl_question_references` VALUES
 (2,14,'mod_quiz','slot',2,119,NULL),
 (3,30,'mod_quiz','slot',4,121,NULL),
 (4,31,'mod_quiz','slot',5,122,NULL),
-(5,32,'mod_quiz','slot',6,123,NULL);
+(5,32,'mod_quiz','slot',6,123,NULL),
+(7,37,'mod_quiz','slot',8,124,NULL),
+(8,37,'mod_quiz','slot',9,125,NULL),
+(9,38,'mod_quiz','slot',10,126,NULL);
 /*!40000 ALTER TABLE `mdl_question_references` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -21314,7 +21788,7 @@ CREATE TABLE `mdl_question_usages` (
   `preferredbehaviour` varchar(32) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `mdl_quesusag_con_ix` (`contextid`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='This table''s main purpose it to assign a unique id to each a';
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='This table''s main purpose it to assign a unique id to each a';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -21328,7 +21802,10 @@ INSERT INTO `mdl_question_usages` VALUES
 (13,30,'mod_quiz','adaptive'),
 (14,30,'mod_quiz','adaptive'),
 (15,31,'mod_quiz','adaptive'),
-(16,30,'mod_quiz','adaptive');
+(16,30,'mod_quiz','adaptive'),
+(17,5,'core_question_preview','deferredfeedback'),
+(18,37,'mod_quiz','deferredfeedback'),
+(19,37,'mod_quiz','deferredfeedback');
 /*!40000 ALTER TABLE `mdl_question_usages` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -21350,7 +21827,7 @@ CREATE TABLE `mdl_question_versions` (
   PRIMARY KEY (`id`),
   KEY `mdl_quesvers_que_ix` (`questionbankentryid`),
   KEY `mdl_quesvers_que2_ix` (`questionid`)
-) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='A join table linking the different question version definiti';
+) ENGINE=InnoDB AUTO_INCREMENT=132 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='A join table linking the different question version definiti';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -21483,7 +21960,15 @@ INSERT INTO `mdl_question_versions` VALUES
 (120,120,1,120,'ready'),
 (121,121,1,121,'ready'),
 (122,122,1,122,'ready'),
-(123,123,1,123,'ready');
+(123,123,1,123,'ready'),
+(124,16,2,124,'ready'),
+(125,16,3,125,'ready'),
+(126,16,4,126,'ready'),
+(127,16,5,127,'ready'),
+(128,124,1,128,'ready'),
+(129,124,2,129,'ready'),
+(130,125,1,130,'ready'),
+(131,126,1,131,'ready');
 /*!40000 ALTER TABLE `mdl_question_versions` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -21541,7 +22026,7 @@ CREATE TABLE `mdl_quiz` (
   `allowofflineattempts` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `mdl_quiz_cou_ix` (`course`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='The settings for each quiz.';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='The settings for each quiz.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -21556,7 +22041,9 @@ INSERT INTO `mdl_quiz` VALUES
 (2,3,'Huong dan check so nguyen to','',1,0,0,0,'autosubmit',0,'deferredfeedback',0,0,0,1,2,-1,69888,4352,69888,4352,4352,4352,4352,4352,1,'free',1,0.00000,10.00000,1791114147,1791114147,'','','-',0,0,0,0,0,0,0),
 (3,4,'Quiz 1 — Chuẩn hóa confidence score','<p>Thực hành điều kiện và số thực trên một confidence score của mô hình AI.</p>',1,0,0,0,'autosubmit',0,'adaptive',0,0,0,1,2,-1,65536,65536,0,0,0,65536,0,0,1,'free',0,1.00000,10.00000,1791382977,1791604203,'','','-',0,0,0,0,0,0,0),
 (4,4,'Quiz 2 — Đếm từ khóa AI','<p>Thực hành chuỗi, chuẩn hóa chữ thường và tách từ.</p>',1,0,0,0,'autosubmit',0,'adaptive',0,0,0,1,2,-1,65552,65552,0,65552,0,65536,0,0,1,'free',0,1.00000,10.00000,1791382977,1791382977,'','','',0,0,0,0,0,0,0),
-(5,4,'Quiz 3 — Tính accuracy của mô hình','<p>Thực hành input nhiều giá trị, phép chia và trường hợp đặc biệt.</p>',1,0,0,0,'autosubmit',0,'adaptive',0,0,0,1,2,-1,65552,65552,0,65552,0,65536,0,0,1,'free',0,1.00000,10.00000,1791382977,1791382977,'','','',0,0,0,0,0,0,0);
+(5,4,'Quiz 3 — Tính accuracy của mô hình','<p>Thực hành input nhiều giá trị, phép chia và trường hợp đặc biệt.</p>',1,0,0,0,'autosubmit',0,'adaptive',0,0,0,1,2,-1,65552,65552,0,65552,0,65536,0,0,1,'free',0,1.00000,10.00000,1791382977,1791382977,'','','',0,0,0,0,0,0,0),
+(6,5,'bai thuc hanh 1','',1,1792721700,1792808100,0,'autosubmit',0,'deferredfeedback',0,0,0,1,2,-1,69888,4352,69888,4352,4352,4352,4352,4352,1,'free',1,2.00000,10.00000,1792665888,1792721744,'','','-',0,0,0,0,0,0,0),
+(7,5,'Bài thực hành 2: Xử lý chuỗi và Đối xứng','<p>Bài thực hành kiểm tra kỹ năng chuỗi Python và thuật toán kiểm tra đối xứng.</p>',1,0,0,0,'autosubmit',0,'adaptive',0,0,0,1,2,-1,69888,69888,0,69888,69888,69888,69888,69888,1,'free',0,10.00000,10.00000,1792731574,1792731574,'','','',0,0,0,0,0,0,0);
 /*!40000 ALTER TABLE `mdl_quiz` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -21592,7 +22079,7 @@ CREATE TABLE `mdl_quiz_attempts` (
   KEY `mdl_quizatte_statim_ix` (`state`,`timecheckstate`),
   KEY `mdl_quizatte_qui_ix` (`quiz`),
   KEY `mdl_quizatte_use_ix` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Stores users attempts at quizzes.';
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Stores users attempts at quizzes.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -21606,7 +22093,9 @@ INSERT INTO `mdl_quiz_attempts` VALUES
 (13,3,3,1,13,'1,0',0,0,'finished',1791383878,1791384497,1791384497,0,NULL,0.00000,1791384497),
 (14,3,4,1,14,'1,0',0,0,'finished',1791384386,1791384400,1791384400,0,NULL,1.00000,1791384400),
 (15,4,3,1,15,'1,0',0,0,'inprogress',1791384666,0,1791384671,0,NULL,NULL,NULL),
-(16,3,3,2,16,'1,0',0,0,'inprogress',1791601717,0,1791601765,0,NULL,NULL,NULL);
+(16,3,3,2,16,'1,0',0,0,'inprogress',1791601717,0,1791601765,0,NULL,NULL,NULL),
+(17,6,3,1,18,'1,0',0,0,'inprogress',1792722331,0,1792727342,0,1792808100,NULL,NULL),
+(18,6,2,1,19,'1,2,0',0,1,'inprogress',1792731304,0,1792731304,0,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `mdl_quiz_attempts` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -21628,7 +22117,7 @@ CREATE TABLE `mdl_quiz_feedback` (
   `maxgrade` decimal(10,5) NOT NULL DEFAULT 0.00000,
   PRIMARY KEY (`id`),
   KEY `mdl_quizfeed_qui_ix` (`quizid`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Feedback given to students based on which grade band their o';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Feedback given to students based on which grade band their o';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -21641,7 +22130,8 @@ LOCK TABLES `mdl_quiz_feedback` WRITE;
 INSERT INTO `mdl_quiz_feedback` VALUES
 (1,2,'',1,0.00000,11.00000),
 (3,1,'',1,0.00000,11.00000),
-(4,3,'',1,0.00000,11.00000);
+(4,3,'',1,0.00000,11.00000),
+(7,6,'',1,0.00000,11.00000);
 /*!40000 ALTER TABLE `mdl_quiz_feedback` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -21829,7 +22319,7 @@ CREATE TABLE `mdl_quiz_sections` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `mdl_quizsect_quifir_uix` (`quizid`,`firstslot`),
   KEY `mdl_quizsect_qui_ix` (`quizid`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Stores sections of a quiz with section name (heading), from ';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Stores sections of a quiz with section name (heading), from ';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -21844,7 +22334,8 @@ INSERT INTO `mdl_quiz_sections` VALUES
 (2,2,1,'',0),
 (3,3,1,'',0),
 (4,4,1,'',0),
-(5,5,1,'',0);
+(5,5,1,'',0),
+(6,6,1,'',0);
 /*!40000 ALTER TABLE `mdl_quiz_sections` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -21870,7 +22361,7 @@ CREATE TABLE `mdl_quiz_slots` (
   UNIQUE KEY `mdl_quizslot_quislo_uix` (`quizid`,`slot`),
   KEY `mdl_quizslot_qui_ix` (`quizid`),
   KEY `mdl_quizslot_qui2_ix` (`quizgradeitemid`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Stores the question used in a quiz, with the order, and for ';
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Stores the question used in a quiz, with the order, and for ';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -21884,7 +22375,10 @@ INSERT INTO `mdl_quiz_slots` VALUES
 (2,1,1,1,NULL,0,1.0000000,NULL),
 (4,1,3,1,'1',0,1.0000000,NULL),
 (5,1,4,1,'1',0,1.0000000,NULL),
-(6,1,5,1,'1',0,1.0000000,NULL);
+(6,1,5,1,'1',0,1.0000000,NULL),
+(8,1,6,1,NULL,0,1.0000000,NULL),
+(9,2,6,1,'2',0,1.0000000,NULL),
+(10,1,7,1,NULL,0,10.0000000,NULL);
 /*!40000 ALTER TABLE `mdl_quiz_slots` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -22760,7 +23254,7 @@ CREATE TABLE `mdl_role_assignments` (
   KEY `mdl_roleassi_rol_ix` (`roleid`),
   KEY `mdl_roleassi_con_ix` (`contextid`),
   KEY `mdl_roleassi_use_ix` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='assigning roles in different context';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='assigning roles in different context';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -22775,7 +23269,10 @@ INSERT INTO `mdl_role_assignments` VALUES
 (2,5,11,4,1790344298,0,'',0,0),
 (3,3,26,2,1791114027,2,'',0,0),
 (4,5,29,3,1791382943,0,'',0,0),
-(5,5,29,4,1791382943,0,'',0,0);
+(5,5,29,4,1791382943,0,'',0,0),
+(6,3,35,2,1792665144,2,'',0,0),
+(7,5,35,3,1792721608,2,'',0,0),
+(8,5,35,4,1792721608,2,'',0,0);
 /*!40000 ALTER TABLE `mdl_role_assignments` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -25050,7 +25547,7 @@ CREATE TABLE `mdl_sessions` (
   KEY `mdl_sess_tim_ix` (`timecreated`),
   KEY `mdl_sess_tim2_ix` (`timemodified`),
   KEY `mdl_sess_use_ix` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=130 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Database based session storage - now recommended';
+) ENGINE=InnoDB AUTO_INCREMENT=244 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Database based session storage - now recommended';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -25105,7 +25602,69 @@ INSERT INTO `mdl_sessions` VALUES
 (117,0,'86efa98369c2e31f8b767c9e4d542dbd',0,NULL,1792227735,1792227735,'172.21.0.1','172.21.0.1'),
 (120,0,'30820d1cb0b3fe97dcf253bd2f78b813',2,NULL,1792229720,1792229720,'172.21.0.1','172.21.0.1'),
 (122,0,'c0258007476fbb89062fa67d8aa0a669',2,NULL,1792229821,1792229821,'172.21.0.1','172.21.0.1'),
-(129,0,'c78896039af45025b29583110951630d',0,NULL,1792315471,1792315472,'172.21.0.1','172.21.0.1');
+(129,0,'c78896039af45025b29583110951630d',0,NULL,1792315471,1792315472,'172.21.0.1','172.21.0.1'),
+(130,0,'73f73d7fa7de29bad854566538ece7e9',0,NULL,1792417217,1792417217,'192.168.65.1','192.168.65.1'),
+(131,0,'5f96dba313af8d4e0ec460ff3c69fe4f',0,NULL,1792417218,1792417218,'192.168.65.1','192.168.65.1'),
+(141,0,'7cdd0d14eaa6d679ff0aedc48c99e73b',2,NULL,1792721404,1792732698,'172.20.0.1','172.20.0.1'),
+(145,0,'8acf61445c16f8f58fa8b788300e2bec',4,NULL,1792722113,1792722113,'172.20.0.1','172.20.0.1'),
+(147,0,'ca7a76b442cb69dde7981c35e5ea1c6b',4,NULL,1792722118,1792722118,'172.20.0.1','172.20.0.1'),
+(149,0,'b0b6c9c28d720c5830e45300e12ef144',3,NULL,1792722316,1792732390,'172.20.0.1','172.20.0.1'),
+(151,0,'41c0559a8ff36f5f72d6ee67fc86d930',4,NULL,1792722739,1792722739,'172.20.0.1','172.20.0.1'),
+(153,0,'6c9f663256abd2795dc3c8ee3481b866',4,NULL,1792723059,1792723059,'172.20.0.1','172.20.0.1'),
+(155,0,'b9cc3496de99ad930b006a60d6cd7d11',3,NULL,1792723081,1792723081,'172.20.0.1','172.20.0.1'),
+(157,0,'8e0cd2d3313a94fe789d7780524e6703',2,NULL,1792728922,1792728922,'172.20.0.1','172.20.0.1'),
+(159,0,'f15eca40a5afd51a0f647d7e3a49b5c4',4,NULL,1792729008,1792729011,'172.20.0.1','172.20.0.1'),
+(160,0,'34e9ae1fd21b0a82a8d3576dcbd85c2b',0,NULL,1792733235,1792733235,'172.20.0.1','172.20.0.1'),
+(162,0,'44ebae3f78968013aede69d25675be15',2,NULL,1792733326,1792733327,'172.20.0.1','172.20.0.1'),
+(164,0,'3c865cd28489e39fe7216e41f06666bc',4,NULL,1792733331,1792733332,'172.20.0.1','172.20.0.1'),
+(166,0,'0ffa59de8230602a14535b16a707c744',2,NULL,1792733338,1792733339,'172.20.0.1','172.20.0.1'),
+(168,0,'38bec0a5714907b7039220f76f11372b',4,NULL,1792733345,1792733346,'172.20.0.1','172.20.0.1'),
+(170,0,'b902f0a05e8ef20ea854e45419e7b445',2,NULL,1792733368,1792733369,'172.20.0.1','172.20.0.1'),
+(172,0,'1d590accf06829d92f1f56df0e072f11',4,NULL,1792733373,1792733374,'172.20.0.1','172.20.0.1'),
+(173,0,'744ce145a9cfb6802e3489f722606bda',0,NULL,1792733380,1792733381,'172.20.0.1','172.20.0.1'),
+(175,0,'2698080eb2c68be785e616c66db8a9e2',4,NULL,1792733396,1792733397,'172.20.0.1','172.20.0.1'),
+(177,0,'24561145011043dba5510d3396d3cf4e',2,NULL,1792733507,1792733508,'172.20.0.1','172.20.0.1'),
+(179,0,'dd3f724ba429e859f5f1e954c45f69a7',4,NULL,1792733512,1792733513,'172.20.0.1','172.20.0.1'),
+(180,0,'b44dcd21408897fb11b3824717fdbfe9',0,NULL,1792733520,1792733521,'172.20.0.1','172.20.0.1'),
+(182,0,'92bd8516b823dca7069cad27041d3ae2',4,NULL,1792733535,1792733536,'172.20.0.1','172.20.0.1'),
+(183,0,'31629a97d26bbf8bf5420228b609b3fb',0,NULL,1792733563,1792733564,'172.20.0.1','172.20.0.1'),
+(184,0,'7dea7af7baaeac991bc77f6f4c257c2a',0,NULL,1792733574,1792733574,'172.20.0.1','172.20.0.1'),
+(185,0,'b546c07c7c39fe9e3818d69dca1a191d',0,NULL,1792733581,1792733581,'172.20.0.1','172.20.0.1'),
+(186,0,'3f30233a0778115ae2ebd465b1d7e870',0,NULL,1792733588,1792733589,'172.20.0.1','172.20.0.1'),
+(187,0,'83ab2a12ae6828732ebae853f4e7c6da',0,NULL,1792733613,1792733614,'172.20.0.1','172.20.0.1'),
+(188,0,'d9e54f2d588e6285011823ab8a35f143',0,NULL,1792733621,1792733621,'172.20.0.1','172.20.0.1'),
+(189,0,'201a779b9de6b16ff9cd039fabf8e938',0,NULL,1792733646,1792733646,'172.20.0.1','172.20.0.1'),
+(190,0,'586946cd8616ffcd4e535f3da679487c',0,NULL,1792733652,1792733653,'172.20.0.1','172.20.0.1'),
+(191,0,'e939fbe382357f5f0152388f60ccbe58',0,NULL,1792733658,1792733658,'172.20.0.1','172.20.0.1'),
+(192,0,'172629c6d1ee94e8c403be44da1c8658',0,NULL,1792733709,1792733709,'172.20.0.1','172.20.0.1'),
+(193,0,'6528cfea752f3e45d5ab33a8d4a7dbe5',0,NULL,1792733769,1792733769,'172.20.0.1','172.20.0.1'),
+(194,0,'12f84b44e267cda59409347bb9dd4bdd',0,NULL,1792733775,1792733775,'172.20.0.1','172.20.0.1'),
+(197,0,'0e5064b08de0b6a043ba67f001f6c2b6',2,NULL,1792733812,1792733812,'172.20.0.1','172.20.0.1'),
+(198,0,'31d6f1c49bb103d21aed7548b5fc0a6d',0,NULL,1792733819,1792733820,'172.20.0.1','172.20.0.1'),
+(199,0,'a70fb5ad9ea8b639a8a29a48810e320f',0,NULL,1792733853,1792733853,'172.20.0.1','172.20.0.1'),
+(200,0,'43e2cc2b6e57404c20bec656c92bb963',0,NULL,1792733869,1792733870,'172.20.0.1','172.20.0.1'),
+(201,0,'80c7beda8c0fae5b11c51e70eae7f071',0,NULL,1792733878,1792733879,'172.20.0.1','172.20.0.1'),
+(203,0,'ff21da6d6d0b8158a4c45d898c59d24b',2,NULL,1792733888,1792733888,'172.20.0.1','172.20.0.1'),
+(205,0,'1c2e234aaf9a1dd78ee76550875aece4',2,NULL,1792733918,1792733919,'172.20.0.1','172.20.0.1'),
+(207,0,'e071cb1a4543d4f37fbb8781aa9638ae',4,NULL,1792733924,1792733925,'172.20.0.1','172.20.0.1'),
+(209,0,'5d8b7c9072bbc4de2f3b02b3b1a4e3ce',2,NULL,1792733933,1792733934,'172.20.0.1','172.20.0.1'),
+(211,0,'9fa7c9bed9b94f6123c39e372af40d22',4,NULL,1792733942,1792733943,'172.20.0.1','172.20.0.1'),
+(213,0,'412a71983596267f245e95f30db3f545',4,NULL,1792734464,1792734464,'172.20.0.1','172.20.0.1'),
+(215,0,'bda5bba7cf84ec61a9d4afdc082164a5',4,NULL,1792734473,1792734474,'172.20.0.1','172.20.0.1'),
+(217,0,'ba50f32b3b3fa4babb0212aa851849d7',4,NULL,1792734485,1792734485,'172.20.0.1','172.20.0.1'),
+(219,0,'90a3d50190ad697c689848ab9ca1e88b',4,NULL,1792734495,1792734495,'172.20.0.1','172.20.0.1'),
+(221,0,'0b700bcf8e7835299a1a0214f48ba240',4,NULL,1792734536,1792734565,'172.20.0.1','172.20.0.1'),
+(223,0,'6d68aa6fc6e8a7f255147e7b3a435812',2,NULL,1792734584,1792734606,'172.20.0.1','172.20.0.1'),
+(225,0,'1931b3320e02884114ef0f1884e61728',4,NULL,1792734618,1792734619,'172.20.0.1','172.20.0.1'),
+(227,0,'0134ba93038e1dd4b4f6a86b7ddd5b83',4,NULL,1792735019,1792735052,'172.20.0.1','172.20.0.1'),
+(229,0,'f9f970c6aa427c54f949d6d3f247442d',2,NULL,1792735075,1792735103,'172.20.0.1','172.20.0.1'),
+(231,0,'ac80653c27dfc4f8549f2552835fa47d',4,NULL,1792735112,1792735118,'172.20.0.1','172.20.0.1'),
+(233,0,'34a3eeccaf06a75954dd889d3cbf946d',4,NULL,1792735496,1792735531,'172.20.0.1','172.20.0.1'),
+(235,0,'11e49b266c0e9145cfc1b759dafda12d',2,NULL,1792735553,1792735559,'172.20.0.1','172.20.0.1'),
+(237,0,'6afa32c5c23a604906ba96b188bc4d1c',4,NULL,1792735582,1792735588,'172.20.0.1','172.20.0.1'),
+(239,0,'db5f4a5944d8ffba14ae1a7d76e28d68',4,NULL,1792735625,1792735626,'172.20.0.1','172.20.0.1'),
+(241,0,'10f41be8dcc3db0bebcb957b411adca7',2,NULL,1792735957,1792736021,'172.20.0.1','172.20.0.1'),
+(243,0,'f3fc259daeae3312d3e32b6099f83ccb',4,NULL,1792736035,1792736092,'172.20.0.1','172.20.0.1');
 /*!40000 ALTER TABLE `mdl_sessions` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -25743,7 +26302,7 @@ CREATE TABLE `mdl_task_adhoc` (
   KEY `mdl_taskadho_nex_ix` (`nextruntime`),
   KEY `mdl_taskadho_tim_ix` (`timestarted`),
   KEY `mdl_taskadho_use_ix` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='List of adhoc tasks waiting to run.';
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='List of adhoc tasks waiting to run.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -25765,7 +26324,8 @@ INSERT INTO `mdl_task_adhoc` VALUES
 (9,'quiz_statistics','\\quiz_statistics\\task\\recalculate',1791387325,0,'{\"quizid\":5}',NULL,1791383725,NULL,NULL,NULL,12,NULL),
 (10,'core','\\core\\task\\send_login_notifications',1791617765,0,'{\"ismoodleapp\":false,\"useragent\":\"python-requests\\/2.33.1\",\"loginip\":\"172.21.0.1\",\"logintime\":1791617766}',2,1791617766,NULL,NULL,NULL,12,NULL),
 (11,'core','\\core\\task\\send_login_notifications',1791618061,0,'{\"ismoodleapp\":false,\"useragent\":\"python-requests\\/2.33.1\",\"loginip\":\"192.168.65.1\",\"logintime\":1791618062}',2,1791618062,NULL,NULL,NULL,12,NULL),
-(12,'core','\\core\\task\\send_login_notifications',1792229719,0,'{\"ismoodleapp\":false,\"useragent\":\"curl\\/8.7.1\",\"loginip\":\"172.21.0.1\",\"logintime\":1792229720}',2,1792229720,NULL,NULL,NULL,12,NULL);
+(12,'core','\\core\\task\\send_login_notifications',1792229719,0,'{\"ismoodleapp\":false,\"useragent\":\"curl\\/8.7.1\",\"loginip\":\"172.21.0.1\",\"logintime\":1792229720}',2,1792229720,NULL,NULL,NULL,12,NULL),
+(13,'core','\\core\\task\\send_login_notifications',1792665061,0,'{\"ismoodleapp\":false,\"useragent\":\"Mozilla\\/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit\\/537.36 (KHTML, like Gecko) Chrome\\/155.0.0.0 Safari\\/537.36\",\"loginip\":\"172.20.0.1\",\"logintime\":1792665062}',2,1792665062,NULL,NULL,NULL,12,NULL);
 /*!40000 ALTER TABLE `mdl_task_adhoc` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -25984,7 +26544,7 @@ CREATE TABLE `mdl_tiny_autosave` (
   `timemodified` bigint(10) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `mdl_tinyauto_eleconusepag_uix` (`elementid`,`contextid`,`userid`,`pagehash`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='The content of the textarea saved during autosave operations';
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='The content of the textarea saved during autosave operations';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -26009,7 +26569,16 @@ INSERT INTO `mdl_tiny_autosave` VALUES
 (20,'id_feedbacktext_0',31,'87d2e9a9b77ab2b6acbf643e348700452bfca678',2,'',167971665,'7ffc3585fc594b5bef6e315707c54c50',1791383802),
 (21,'id_description',5,'',2,'',693826462,'',1791616778),
 (22,'id_feedbacktext_0',30,'30e221134ee05f78fe5394e9a162377b7ef3f584',2,'',443866913,'c95779150fa63e921359d3a7f8dfb59a',1791617829),
-(23,'id_s__summary',2,'',2,'',NULL,'',1791618481);
+(23,'id_s__summary',2,'',2,'',NULL,'',1791618481),
+(28,'id_message',36,'f10d117f39a57bc7853654616cf7310688c35e8b',2,'',852335257,'7f9f75661b48383888ea3e74d51205c8',1792665894),
+(40,'id_generalfeedback',1,'edfcbd8505d1815fc18ea25e9ffac714930ff801',2,'',332104297,'4d3d1e56d63246abb0291ca9430aa072',1792719954),
+(41,'id_questiontext',1,'52f012acc1b9190f4e834344b11e8001eaed33bb',2,'<p>&lt;p&gt;Hãy viết một hàm đệ quy trong Python có tên là &lt;code&gt;tinh_tong(n)&lt;/code&gt; để tính tổng các số nguyên từ 1 đến &lt;code&gt;n&lt;/code&gt; theo công thức:&lt;/p&gt;<br>&lt;p style=\"text-align: center;\"&gt;&lt;strong&gt;S(n) = 1 + 2 + 3 + ... + n&lt;/strong&gt; (Quy ước: &lt;code&gt;tinh_tong(0) = 0&lt;/code&gt;)&lt;/p&gt;</p>\n<p>&lt;p&gt;&lt;strong&gt;Yêu cầu:&lt;/strong&gt;&lt;/p&gt;<br>&lt;ul&gt;<br>  &lt;li&gt;Bắt buộc sử dụng &lt;strong&gt;giải thuật đệ quy&lt;/strong&gt; (gồm điều kiện dừng cơ sở và bước gọi đệ quy).&lt;/li&gt;<br>  &lt;li&gt;Không sử dụng vòng lặp &lt;code&gt;for&lt;/code&gt; hoặc &lt;code&gt;while&lt;/code&gt;.&lt;/li&gt;<br>  &lt;li&gt;Sinh viên chỉ cần định nghĩa hàm, không cần viết code nhập xuất hay gọi hàm ngoài.&lt;/li&gt;<br>&lt;/ul&gt;</p>\n<p>&lt;p&gt;&lt;strong&gt;Ví dụ:&lt;/strong&gt;&lt;/p&gt;<br>&lt;table border=\"1\" cellpadding=\"6\" style=\"border-collapse: collapse;\"&gt;<br>  &lt;thead&gt;<br>    &lt;tr style=\"background-color: #f2f2f2;\"&gt;&lt;th&gt;Test&lt;/th&gt;&lt;th&gt;Kết quả&lt;/th&gt;&lt;/tr&gt;<br>  &lt;/thead&gt;<br>  &lt;tbody&gt;<br>    &lt;tr&gt;&lt;td&gt;&lt;code&gt;print(tinh_tong(5))&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;15&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;<br>    &lt;tr&gt;&lt;td&gt;&lt;code&gt;print(tinh_tong(1))&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;1&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;<br>  &lt;/tbody&gt;<br>&lt;/table&gt;</p>',NULL,'48821c5e0a7547167e2dc7aebcec4c57',1792719863),
+(48,'id_introeditor',37,'4fd0b46d13b2afe7124acd753b66b8d9776104d5',2,'',762437839,'24803f48cc924fd116a189a148c0beba',1792729598),
+(49,'id_feedbacktext_0',37,'4fd0b46d13b2afe7124acd753b66b8d9776104d5',2,'',168141338,'e5dae296d77993935a0ba62d8f4c8c5b',1792729598),
+(51,'id_generalfeedback',35,'c32477fca14b625cd503f78fb43bcb2cbccff897',2,'',575918231,'0e263d9464d732d74d19143b68cf9a7a',1792727238),
+(52,'id_generalfeedback',35,'4b4218d9e97ea7cfb709ee6d86f9207d5c2a3070',2,'',204420697,'ac9a47cf5549f687d937df971b8cea93',1792727328),
+(53,'id_questiontext',35,'9f50fa268ffb963c547f337cbd34a6e3a6888209',2,'<div class=\"\" data-bfc=\"\" data-sfc-cp=\"\" data-sfc-root=\"c\" data-ved=\"2ahUKEwjE3c-suc2XAxVJm-EIHYVnKCQQi4wTegYIAggHEAs\" data-hveid=\"CAIIBxAL\">\n<div class=\"ZLzG0d ncoeY E8xBUb\" role=\"heading\" aria-level=\"3\" data-animation-nesting=\"\" data-sfc-cp=\"\" data-wiz-attrbind=\"aria-level=kZZo7c_t/fLk2Md\" data-sfc-root=\"c\">\n<p>&lt;p&gt;Hãy viết một hàm trong Python có tên là &lt;code&gt;tinh_tong(n)&lt;/code&gt; để tính tổng các số nguyên dương từ 1 đến &lt;code&gt;n&lt;/code&gt; theo công thức:&lt;/p&gt;</p>\n<p>&lt;p style=\"text-align: center; font-size: 1.1em;\"&gt;&lt;strong&gt;S(n) = 1 + 2 + 3 + ... + n&lt;/strong&gt;&lt;/p&gt;</p>\n<p>&lt;p&gt;&lt;strong&gt;Quy ước:&lt;/strong&gt; Nếu &lt;code&gt;n &amp;lt;= 0&lt;/code&gt;, hàm trả về &lt;code&gt;0&lt;/code&gt;.&lt;/p&gt;</p>\n<p>&lt;p&gt;&lt;strong&gt;Yêu cầu bắt buộc:&lt;/strong&gt;&lt;/p&gt;<br>&lt;ul&gt;<br>  &lt;li&gt;Bắt buộc sử dụng &lt;strong&gt;giải thuật đệ quy&lt;/strong&gt; (gồm điều kiện cơ sở dừng đệ quy và bước gọi đệ quy).&lt;/li&gt;<br>  &lt;li&gt;&lt;strong&gt;Không&lt;/strong&gt; sử dụng vòng lặp &lt;code&gt;for&lt;/code&gt; hoặc &lt;code&gt;while&lt;/code&gt;.&lt;/li&gt;<br>  &lt;li&gt;Sinh viên chỉ cần định nghĩa hàm, không cần viết lệnh &lt;code&gt;input()&lt;/code&gt; hoặc &lt;code&gt;print()&lt;/code&gt; gọi hàm ngoài.&lt;/li&gt;<br>&lt;/ul&gt;</p>\n<p>&lt;p&gt;&lt;strong&gt;Ví dụ minh họa:&lt;/strong&gt;&lt;/p&gt;<br>&lt;table border=\"1\" cellpadding=\"6\" style=\"border-collapse: collapse;\"&gt;<br>  &lt;thead&gt;<br>    &lt;tr style=\"background-color: #f2f2f2;\"&gt;&lt;th&gt;Test code&lt;/th&gt;&lt;th&gt;Kết quả in ra (Expected)&lt;/th&gt;&lt;/tr&gt;<br>  &lt;/thead&gt;<br>  &lt;tbody&gt;<br>    &lt;tr&gt;&lt;td&gt;&lt;code&gt;print(tinh_tong(5))&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;15&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;<br>    &lt;tr&gt;&lt;td&gt;&lt;code&gt;print(tinh_tong(1))&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code&gt;1&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;<br>  &lt;/tbody&gt;<br>&lt;/table&gt;</p>\n<br><!--TgQPHdkZZo7c_3/LL5gb|||[[2,[null,null,null,null,null,null,null,null,null,null,null,null,[351768,null,0]],[],null,1]]--></div>\n<!--TgQPHd|||[]--></div>\n<div class=\"\" data-bfc=\"\" data-sfc-cp=\"\" data-sfc-root=\"c\" data-ved=\"2ahUKEwjE3c-suc2XAxVJm-EIHYVnKCQQi4wTegYIAggHEA4\" data-hveid=\"CAIIBxAO\"> </div>',NULL,'480aaee4d70e0987403d92ae85223c34',1792727328),
+(54,'id_generalfeedback',35,'f1f2ea689cbc2c59a6928a7c0de94b633dcea85a',2,'',802622498,'aa3b6802ef7838772e0bb21c3c972fb8',1792731335);
 /*!40000 ALTER TABLE `mdl_tiny_autosave` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -28847,9 +29416,9 @@ LOCK TABLES `mdl_user` WRITE;
 /*!40000 ALTER TABLE `mdl_user` DISABLE KEYS */;
 INSERT INTO `mdl_user` VALUES
 (1,'manual',1,0,0,0,1,'guest','$6$rounds=10000$o/MKbxczQc8zhSI4$pp1e8LmfRdmolIva5DSTurhEK1mmJaEAW4imb1O2lik9hlkXcTO3fGRaHzqpif/huTKkR2obsg1fQIs7W9efH0','','Guest user',' ','root@localhost',0,'','','','','','','','en','gregorian','','99',0,0,0,0,'','',0,'This user is a special user that allows read-only access to some courses.',1,1,0,2,1,0,0,1790344224,0,NULL,NULL,NULL,NULL,NULL,NULL),
-(2,'manual',1,0,0,0,1,'admin','$6$rounds=10000$iCkHEtlHtDBXrHQn$8rnq35yuR2oxol7HroCDxCboceTmk13.ctfuweS9KFJamCJXdy5Wj7s9daxEOAZmzMFrRPC5acUMmQNFlNYYj0','','Admin','User','admin@example.com',0,'','','','','','','','en','gregorian','','99',1790344812,1792230724,1792229827,1792230724,'172.21.0.1','',0,NULL,1,1,0,1,1,0,0,1790344224,0,NULL,NULL,NULL,NULL,NULL,NULL),
-(3,'manual',1,1,0,0,1,'student1','$6$rounds=10000$wEr9WanmWK0PmLKI$HcDDHwKfyphtUqaOJR/fsNPwKA3eFgi.UZHRfIpxeBI9t89vI0Qke60fwJ3tTpXZIlvw38rg.K4zbH5sFXIIh.','','Nguyễn Văn','Sinh Viên 1','student1@example.com',0,'','','','','','','','en','gregorian','','99',1790345263,1792230686,1792229922,1792229975,'172.21.0.1','',0,NULL,1,1,0,2,1,0,1790344298,1790344298,0,NULL,NULL,NULL,NULL,NULL,NULL),
-(4,'manual',1,1,0,0,1,'student2','$6$rounds=10000$wvb6wN1xHctccOLx$On9Lrh/1hVSEdNU8to2/3/zXCblUDGqWAi0CZhf/uujwph.tEeezJSbNOERFndeM9Gj6pie/SevVjjDCn70tB/','','Trần Thị','Sinh Viên 2','student2@example.com',0,'','','','','','','','en','gregorian','','99',1790949011,1791384615,1791383182,1791384009,'172.21.0.1','',0,NULL,1,1,0,2,1,0,1790344298,1790344298,0,NULL,NULL,NULL,NULL,NULL,NULL);
+(2,'manual',1,0,0,0,1,'admin','$6$rounds=10000$hjiS1OkMa5/W.Ajh$hX3ko.ZlyPvEqSByLCrxx9zh3T1C6NDHDymfRNoqD3L3DsmghNc2bEO/2T.U/LhCVoYEV80FQJLlxbXt6Gg/x.','','Admin','User','admin@example.com',0,'','','','','','','','en','gregorian','','99',1790344812,1792736021,1792735553,1792735957,'172.20.0.1','',0,NULL,1,1,0,1,1,0,0,1790344224,0,NULL,NULL,NULL,NULL,NULL,NULL),
+(3,'manual',1,1,0,0,1,'student1','$6$rounds=10000$wEr9WanmWK0PmLKI$HcDDHwKfyphtUqaOJR/fsNPwKA3eFgi.UZHRfIpxeBI9t89vI0Qke60fwJ3tTpXZIlvw38rg.K4zbH5sFXIIh.','','Nguyễn Văn','Sinh Viên 1','student1@example.com',0,'','','','','','','','en','gregorian','','99',1790345263,1792732390,1792722316,1792723081,'172.20.0.1','',0,NULL,1,1,0,2,1,0,1790344298,1790344298,0,NULL,NULL,NULL,NULL,NULL,NULL),
+(4,'manual',1,1,0,0,1,'student2','$6$rounds=10000$xU5giM/Vg2YKuBmF$CeZzNWiTgS7bTUyZ4sy2TwPo8DFbn8m/cCVTGEuGQlmPFaM1S9jU6tA.bvlqSqp2jlkjIhRrBpyKSvYdqkXw61','','Trần Thị','Sinh Viên 2','student2@example.com',0,'','','','','','','','en','gregorian','','99',1790949011,1792736035,1792735625,1792736035,'172.20.0.1','',0,NULL,1,1,0,2,1,0,1790344298,1790344298,0,NULL,NULL,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `mdl_user` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -28916,7 +29485,7 @@ CREATE TABLE `mdl_user_enrolments` (
   KEY `mdl_userenro_enr_ix` (`enrolid`),
   KEY `mdl_userenro_use_ix` (`userid`),
   KEY `mdl_userenro_mod_ix` (`modifierid`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Users participating in courses (aka enrolled users) - everyb';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Users participating in courses (aka enrolled users) - everyb';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -28931,7 +29500,10 @@ INSERT INTO `mdl_user_enrolments` VALUES
 (2,0,1,4,0,0,0,1790344298,1790344298),
 (3,0,4,2,0,0,2,1791114027,1791114027),
 (4,0,7,3,0,0,0,1791382943,1791382943),
-(5,0,7,4,0,0,0,1791382943,1791382943);
+(5,0,7,4,0,0,0,1791382943,1791382943),
+(6,0,10,2,0,0,2,1792665144,1792665144),
+(7,0,10,3,1792721608,0,2,1792721608,1792721608),
+(8,0,10,4,1792721608,0,2,1792721608,1792721608);
 /*!40000 ALTER TABLE `mdl_user_enrolments` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -29054,7 +29626,7 @@ CREATE TABLE `mdl_user_lastaccess` (
   UNIQUE KEY `mdl_userlast_usecou_uix` (`userid`,`courseid`),
   KEY `mdl_userlast_use_ix` (`userid`),
   KEY `mdl_userlast_cou_ix` (`courseid`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='To keep track of course page access times, used in online pa';
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='To keep track of course page access times, used in online pa';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29071,7 +29643,10 @@ INSERT INTO `mdl_user_lastaccess` VALUES
 (4,2,3,1791210812),
 (5,3,4,1792230686),
 (6,4,4,1791384464),
-(7,2,4,1791619129);
+(7,2,4,1791619129),
+(8,2,5,1792735961),
+(9,4,5,1792736038),
+(10,3,5,1792731897);
 /*!40000 ALTER TABLE `mdl_user_lastaccess` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -29151,7 +29726,7 @@ CREATE TABLE `mdl_user_preferences` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `mdl_userpref_usenam_uix` (`userid`,`name`),
   KEY `mdl_userpref_nam_ix` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Allows modules to store arbitrary user preferences';
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED COMMENT='Allows modules to store arbitrary user preferences';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -29176,7 +29751,7 @@ INSERT INTO `mdl_user_preferences` VALUES
 (12,3,'tool_usertours_tour_completion_time_2','1790345274'),
 (13,3,'drawer-open-index','0'),
 (14,2,'drawer-open-index','1'),
-(15,2,'qbank_managecategories_includesubcategories_filter_default','0'),
+(15,2,'qbank_managecategories_includesubcategories_filter_default','1'),
 (16,3,'drawer-open-block','0'),
 (17,4,'core_message_migrate_data','1'),
 (18,4,'core_user_welcome','1790949011'),
@@ -29187,7 +29762,11 @@ INSERT INTO `mdl_user_preferences` VALUES
 (23,2,'tool_usertours_tour_completion_time_4','1791107630'),
 (24,4,'tool_usertours_tour_completion_time_2','1791384011'),
 (25,2,'drawer-open-block','0'),
-(26,2,'coursesectionspreferences_4','{\"contentcollapsed\":[],\"indexcollapsed\":[]}');
+(26,2,'coursesectionspreferences_4','{\"contentcollapsed\":[],\"indexcollapsed\":[]}'),
+(27,2,'qtype_coderunner_defaultmark','1'),
+(28,3,'tool_usertours_tour_completion_time_4','1792720921'),
+(29,4,'coursesectionspreferences_5','{\"contentcollapsed\":[]}'),
+(30,4,'tool_usertours_tour_completion_time_4','1792722009');
 /*!40000 ALTER TABLE `mdl_user_preferences` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -30014,7 +30593,7 @@ CREATE TABLE `contribution_reviews` (
   `rating_reason` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_review_contribution` (`contribution_id`,`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30032,7 +30611,26 @@ INSERT INTO `contribution_reviews` VALUES
 (5,16,2,'submitted','approved','Pilot review: input có mục đích rõ và oracle chạy thành công.','2026-10-07 14:25:04',NULL,NULL),
 (6,17,2,'submitted','approved','Pilot review: input có mục đích rõ và oracle chạy thành công.','2026-10-07 14:25:04',NULL,NULL),
 (7,1,2,'approved','approved','Trường hợp biên xuất sắc!','2026-10-10 07:04:27',5,''),
-(8,19,2,'submitted','approved','Testcase biên tuyệt vời!','2026-10-17 09:01:27',5,'edge_case');
+(8,19,2,'submitted','approved','Testcase biên tuyệt vời!','2026-10-17 09:01:27',5,'edge_case'),
+(11,34,0,'submitted','approved','Automatically approved by Quiz policy','2026-10-23 04:17:46',NULL,''),
+(12,35,2,'submitted','approved','Chấp thuận ban đầu','2026-10-23 05:16:48',NULL,''),
+(13,35,2,'approved','approved','Testcase xuất sắc! Đã kiểm tra đầy đủ dấu câu.','2026-10-23 05:16:48',5,''),
+(14,34,2,'approved','approved','Automatically approved by Quiz policy','2026-10-23 05:18:18',3,''),
+(15,34,2,'approved','approved','Automatically approved by Quiz policy','2026-10-23 05:18:26',3,''),
+(16,35,2,'approved','approved','Comment dài hơn nhiều: Testcase kiểm tra chuỗi đối xứng rất tốt!','2026-10-23 05:21:19',4,''),
+(17,35,2,'approved','approved','Cập nhật bởi GV: Testcase rất sáng tạo, xứng đáng 5 sao!','2026-10-23 05:29:03',4,''),
+(18,38,0,'submitted','duplicate','Exact fingerprint duplicate','2026-10-23 05:38:50',NULL,''),
+(19,37,2,'submitted','approved','Testcase xuất sắc! Đã kiểm tra đầy đủ các góc cạnh.','2026-10-23 05:38:57',5,''),
+(20,37,2,'approved','approved','Cập nhật bởi GV: Testcase rất sáng tạo, xứng đáng 5 sao!','2026-10-23 05:38:59',5,''),
+(21,39,2,'submitted','approved','Xuất sắc! Testcase câu văn dài có dấu câu rất sáng tạo.','2026-10-23 05:50:02',5,''),
+(22,39,2,'approved','approved','Đã duyệt: Testcase mẫu mực, thưởng trọn 5 sao!','2026-10-23 05:50:11',5,''),
+(23,36,2,'submitted','approved','Chấp thuận ca kiểm thử số 36','2026-10-23 05:53:50',5,''),
+(24,40,2,'submitted','approved','Xuất sắc! Testcase câu ngắn gọn, bao quát tốt hoa thường.','2026-10-23 05:58:12',5,''),
+(25,40,2,'approved','approved','Đã duyệt: Testcase mẫu mực, thưởng trọn 5 sao!','2026-10-23 05:58:23',5,''),
+(26,41,0,'submitted','duplicate','Exact fingerprint duplicate','2026-10-23 06:05:41',NULL,''),
+(27,40,2,'approved','approved','Đã duyệt: Testcase mẫu mực, thưởng trọn 5 sao!','2026-10-23 06:06:13',5,''),
+(28,36,2,'submitted','approved','Xuất sắc! Ca kiểm thử biên rất sáng tạo và có giải thích rõ ràng.','2026-10-23 06:13:29',5,''),
+(29,36,2,'approved','approved','Nhận xét của GV: Testcase mẫu mực, cộng 5 sao vào Bảng xếp hạng!','2026-10-23 06:13:41',5,'');
 /*!40000 ALTER TABLE `contribution_reviews` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -30070,7 +30668,8 @@ INSERT INTO `question_policies` VALUES
 (119,1,'template','System.out.println(isPrime({{INPUT}}));','trim','normal,boundary,invalid,large,branch,other',2,'2026-10-07 00:42:27'),
 (121,3,'stdin','','trim','normal,boundary,empty,invalid,large,branch,other',2,'2026-10-07 14:22:57'),
 (122,4,'stdin','','trim','normal,boundary,empty,invalid,large,branch,other',2,'2026-10-07 14:22:57'),
-(123,5,'stdin','','trim','normal,boundary,empty,invalid,large,branch,other',2,'2026-10-07 14:22:57');
+(123,5,'stdin','','trim','normal,boundary,empty,invalid,large,branch,other',2,'2026-10-07 14:22:57'),
+(129,6,'testcode','','trim','normal,boundary,other',2,'2026-10-23 04:15:22');
 /*!40000 ALTER TABLE `question_policies` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -30098,10 +30697,12 @@ CREATE TABLE `question_seed_testcases` (
   `category` varchar(64) NOT NULL DEFAULT 'seed',
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `source_type` varchar(32) NOT NULL DEFAULT 'manual',
+  `purpose` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_seed_fingerprint` (`course_id`,`quiz_id`,`question_id`,`input_fingerprint`),
   KEY `idx_seed_scope` (`course_id`,`quiz_id`,`question_id`,`is_active`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30112,8 +30713,18 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `question_seed_testcases` WRITE;
 /*!40000 ALTER TABLE `question_seed_testcases` DISABLE KEYS */;
 INSERT INTO `question_seed_testcases` VALUES
-(1,4,3,121,493,'','1.4','1.4','1.4','1a948f1b4374f4e3f02501c7feb43784021718a93c1ed5f9f19adf357bb2d20e','1.00','seed',1,'2026-10-17 08:59:57'),
-(2,4,3,121,494,'','0','0','0','5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9','0.00','seed',1,'2026-10-17 08:59:57');
+(1,4,3,121,493,'','1.4','1.4','1.4','1a948f1b4374f4e3f02501c7feb43784021718a93c1ed5f9f19adf357bb2d20e','1.00','seed',1,'2026-10-17 08:59:57','manual',NULL),
+(2,4,3,121,494,'','0','0','0','5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9','0.00','seed',1,'2026-10-17 08:59:57','manual',NULL),
+(3,5,6,129,NULL,'print(tinh_tong(10))','','print(tinh_tong(10))','print(tinh_tong(10))','c64f398852dc9da50fa8ff8c612a9f1acfc79fb849288c61115ba22eda95d3bd','55','seed',1,'2026-10-23 04:16:17','manual','Hạt giống thủ công: n=10'),
+(4,5,6,129,NULL,'print(tinh_tong(20))','','print(tinh_tong(20))','print(tinh_tong(20))','2389908ea1133c155c4fcadc762c0cf915c479241594cfe00690ed038d0cf8c2','210','seed',1,'2026-10-23 04:16:25','xml_import','Imported from Moodle XML (seed_from_xml_20)'),
+(5,5,6,129,NULL,'print(tinh_tong(30))','','print(tinh_tong(30))','print(tinh_tong(30))','5788b005a56bd887371528e2e435330d784426f37c5d87d7fee37e71ca27e2d0','465','seed',1,'2026-10-23 04:16:25','xml_import','Imported from Moodle XML (seed_from_xml_30)'),
+(6,5,6,130,NULL,'print(fibonacci(7))','','print(fibonacci(7))','print(fibonacci(7))','16a9ceb74f55447683c61b051698980ccce551b7e2b3d37d254a8c3fb9a9847b','13','seed',1,'2026-10-23 04:23:10','manual','Hạt giống n=7'),
+(7,5,6,130,NULL,'print(fibonacci(8))','','print(fibonacci(8))','print(fibonacci(8))','3ab8de7e0c40550a3377de67cbf981ca626862302cee555cb025a4ad1aeaf235','21','seed',1,'2026-10-23 04:23:10','manual','Hạt giống n=8'),
+(8,5,6,130,NULL,'print(fibonacci(12))','','print(fibonacci(12))','print(fibonacci(12))','d3fb54ba86722439f8389553b0e34c051457942139c048ab169ee26f25a1aa28','144','seed',1,'2026-10-23 04:23:10','manual','Hạt giống n=12 kiểm tra đệ quy sâu'),
+(9,5,6,130,NULL,'print(fibonacci(15))','','print(fibonacci(15))','print(fibonacci(15))','f969e10921e062c838f0ed9a3bbd43ac419ad3c609d9d2a1e61c24ae28316c63','610','seed',1,'2026-10-23 04:23:10','manual','Hạt giống n=15'),
+(10,5,7,131,NULL,'print(is_palindrome(\"Level\"))','','print(is_palindrome(\"Level\"))','print(is_palindrome(\"Level\"))','7fb10c0e3c5425cb38665ee06e69d8d61f9da9878a7418ac61ea1a947dce50f2','True','seed',1,'2026-10-23 05:28:49','manual','Hạt giống tự động hóa: Kiểm tra hoa thường 1 từ'),
+(14,5,7,131,NULL,'2','print(is_palindrome(\"Never odd or even\"))','print(is_palindrome(\"Never odd or even\"))','print(is_palindrome(\"Never odd or even\"))','605b369cb3d61a082fc7fc164ce09922f74e23da33bfe7012d35deccefa03fb9','','seed',1,'2026-10-23 05:56:24','Testcase đối xứng 4 từ','True'),
+(15,5,7,131,NULL,'print(is_palindrome(\"Mr. Owl ate my metal worm\"))','','print(is_palindrome(\"Mr. Owl ate my metal worm\"))','print(is_palindrome(\"Mr. Owl ate my metal worm\"))','5deb2e40fc3f599439b1fa2a15532b215bfb6b420a47f3e1c766a9656e5d7d4a','True','seed',1,'2026-10-23 06:13:13','manual','Kiểm tra câu đối xứng có dấu chấm và khoảng trắng');
 /*!40000 ALTER TABLE `question_seed_testcases` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -30140,7 +30751,7 @@ CREATE TABLE `question_solution_versions` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_solution_ver` (`course_id`,`quiz_id`,`question_id`,`solution_hash`),
   KEY `idx_sol_scope` (`course_id`,`quiz_id`,`question_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30151,7 +30762,10 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `question_solution_versions` WRITE;
 /*!40000 ALTER TABLE `question_solution_versions` DISABLE KEYS */;
 INSERT INTO `question_solution_versions` VALUES
-(1,4,3,121,1,'score = float(input())\nscore = max(0.0, min(1.0, score))\nprint(f\'{score:.2f}\')','eecb456f370dedafa7162ee2d64a2745c4d977381f7b40588c953ec4882c4c68','{{ STUDENT_ANSWER }}\n\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\n\nSEPARATOR = \"#<ab@17943918#@>#\"\n\n{% for TEST in TESTCASES %}\n{{ TEST.testcode }}\n{% if not loop.last %}\nprint(SEPARATOR)\n{% endif %}\n{% endfor %}',2,'2026-10-17 09:02:05');
+(1,4,3,121,1,'score = float(input())\nscore = max(0.0, min(1.0, score))\nprint(f\'{score:.2f}\')','eecb456f370dedafa7162ee2d64a2745c4d977381f7b40588c953ec4882c4c68','{{ STUDENT_ANSWER }}\n\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\n\nSEPARATOR = \"#<ab@17943918#@>#\"\n\n{% for TEST in TESTCASES %}\n{{ TEST.testcode }}\n{% if not loop.last %}\nprint(SEPARATOR)\n{% endif %}\n{% endfor %}',2,'2026-10-17 09:02:05'),
+(2,5,6,129,2,'def tinh_tong(n):\r\n    # 1. Điều kiện dừng cơ sở\r\n    if n <= 0:\r\n        return 0\r\n    # 2. Bước gọi đệ quy\r\n    return n + tinh_tong(n - 1)','e1b223504f055c63b741337df5911ba35566cc91a77bc62264b78333a0d3e3f3','{{ STUDENT_ANSWER }}\r\n\r\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\r\n\r\nSEPARATOR = \"#<ab@17943918#@>#\"\r\n\r\n{% for TEST in TESTCASES %}\r\n{{ TEST.testcode }}\r\n{% if not loop.last %}\r\nprint(SEPARATOR)\r\n{% endif %}\r\n{% endfor %}',0,'2026-10-23 04:16:51'),
+(3,5,6,130,1,'def fibonacci(n):\n    if n <= 0:\n        return 0\n    elif n == 1:\n        return 1\n    return fibonacci(n - 1) + fibonacci(n - 2)','6d615ca07c4f1b573fddaa6597cf832fcf68d580e0ca5321687dcb36706cfa3f','{{ STUDENT_ANSWER }}\r\n\r\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\r\n\r\nSEPARATOR = \"#<ab@17943918#@>#\"\r\n\r\n{% for TEST in TESTCASES %}\r\n{{ TEST.testcode }}\r\n{% if not loop.last %}\r\nprint(SEPARATOR)\r\n{% endif %}\r\n{% endfor %}',0,'2026-10-23 04:37:15'),
+(4,5,7,131,1,'def is_palindrome(s):\n    cleaned = \"\".join(c.lower() for c in s if c.isalnum())\n    return cleaned == cleaned[::-1]\n','84c9d6bda1a894c9b7eb9e369e13c07dcc1e1c54a1f7f4bdacee71cc51d32759','{{ STUDENT_ANSWER }}\r\n\r\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\r\n\r\nSEPARATOR = \"#<ab@17943918#@>#\"\r\n\r\n{% for TEST in TESTCASES %}\r\n{{ TEST.testcode }}\r\n{% if not loop.last %}\r\nprint(SEPARATOR)\r\n{% endif %}\r\n{% endfor %}',0,'2026-10-23 05:01:19');
 /*!40000 ALTER TABLE `question_solution_versions` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -30191,7 +30805,9 @@ INSERT INTO `quiz_settings` VALUES
 (1,1,'2026-10-07 00:41:59',1,'teacher','one_for_one',1,1,10,8192,NULL),
 (3,1,'2026-10-17 08:57:34',1,'teacher','one_for_one',0,1,10,4096,2),
 (4,1,'2026-10-07 14:22:57',1,'teacher','disabled',0,0,10,4096,2),
-(5,1,'2026-10-07 14:22:57',1,'teacher','disabled',0,0,10,4096,2);
+(5,1,'2026-10-07 14:22:57',1,'teacher','disabled',0,0,10,4096,2),
+(6,1,'2026-10-23 04:15:22',1,'auto','one_for_one',0,0,10,8192,2),
+(7,1,'2026-10-23 05:01:10',1,'teacher','one_for_one',0,1,10,8192,2);
 /*!40000 ALTER TABLE `quiz_settings` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -30252,7 +30868,7 @@ CREATE TABLE `student_code_revisions` (
   PRIMARY KEY (`id`),
   KEY `idx_rev_user` (`course_id`,`quiz_id`,`question_id`,`user_id`,`created_at`),
   KEY `idx_rev_hash` (`user_id`,`question_id`,`code_hash`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30265,7 +30881,9 @@ LOCK TABLES `student_code_revisions` WRITE;
 INSERT INTO `student_code_revisions` VALUES
 (1,4,1,119,3,10,20,1,'int isPrime(int n) { return n > 1; }','f146b7e762a9b936bf22edb84797b7ef58a25ebbccc7e20c049ea15e71b1321c','check',NULL,NULL,'2026-10-17 08:52:39'),
 (2,4,1,119,3,10,20,3,'int isPrime(int n) { if (n <= 1) return 0; for (int i=2; i*i<=n; i++) if (n%i==0) return 0; return 1; }','a0dcc3d80fe7458b5fd3a6fb6ce23833b1a51d25f520b2817651100254f3e7c2','check',NULL,NULL,'2026-10-17 08:52:39'),
-(3,4,3,121,3,16,16,0,'score = float(input())\r\n# TODO: giới hạn score trong [0, 1] rồi in hai chữ số thập phân.','e52f82e4af85cd6985fcc76f45f4e3b45dc2d1439263de08cf3e0fca0708ae41','check',NULL,NULL,'2026-10-17 09:39:44');
+(3,4,3,121,3,16,16,0,'score = float(input())\r\n# TODO: giới hạn score trong [0, 1] rồi in hai chữ số thập phân.','e52f82e4af85cd6985fcc76f45f4e3b45dc2d1439263de08cf3e0fca0708ae41','check',NULL,NULL,'2026-10-17 09:39:44'),
+(4,5,6,128,3,17,18,0,'def tinh_tong(n):\r\n    # Sinh viên viết code đệ quy tại đây\r\n    pass','c74b401f4cedff50075d27c93eb182fa4221615aa1874b70c043212518c4d938','check',NULL,NULL,'2026-10-23 02:25:36'),
+(5,5,6,128,3,17,18,0,'def tinh_tong(n):\r\n    return n','7289318715b2f54508d02d53f2771794dfc54fd0b7642ace86ef4ad9f39f1210','check',NULL,NULL,'2026-10-23 02:25:48');
 /*!40000 ALTER TABLE `student_code_revisions` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -30335,7 +30953,7 @@ CREATE TABLE `testcase_canonical_keys` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_canonical` (`course_id`,`quiz_id`,`question_id`,`input_fingerprint`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30363,7 +30981,14 @@ INSERT INTO `testcase_canonical_keys` VALUES
 (15,4,3,121,'c171d4ec282b23db89a99880cd624e9ba2940c1d894783602edab5d7481dc1ea',15,'2026-10-07 14:24:59'),
 (16,4,4,122,'5ef430e131036d1be027e4f4d55ce2b7d1551855e2a02dd53757337a0e39fc41',16,'2026-10-07 14:25:01'),
 (17,4,5,123,'4b81040de10260eb4c748dc7f27294c708952e1680d59c3ad1554863918a12b9',17,'2026-10-07 14:25:04'),
-(19,4,3,121,'b4af4e0d40391d3a00179d935c63b7e15ba8cd3dfa29f218dedc270bd3eb3e79',19,'2026-10-10 03:10:53');
+(19,4,3,121,'b4af4e0d40391d3a00179d935c63b7e15ba8cd3dfa29f218dedc270bd3eb3e79',19,'2026-10-10 03:10:53'),
+(33,5,6,129,'20b1a5422f3ed3b1e070008ba5272cbb5638723e498540902377e9d8b6d04eda',34,'2026-10-23 04:17:46'),
+(34,5,7,131,'070aba5ddc1d4009e890dc2514303ad02a552a7732deec0921fc80607c9787bb',35,'2026-10-23 05:01:19'),
+(35,5,7,131,'8e9ef2b2482ab46d96cb551d2b4f3fdc16c4e8dfd5bb468ca4b489b21ef8fcd6',36,'2026-10-23 05:29:39'),
+(36,5,7,131,'806e2a6d7f28d6bbced9670013b354cce831f169dc94d9355ad499b3f0482351',37,'2026-10-23 05:31:58'),
+(38,5,7,131,'fd020bf8554b551c0bfc4338bea99069da405bc969de6415f8db8b37528149d4',39,'2026-10-23 05:49:34'),
+(39,5,7,131,'5ef28e59701ebe7d3eab3d05eb6b60f2b9caa651b75fce3fa2130fc6ccbbe60b',40,'2026-10-23 05:57:43'),
+(41,5,7,131,'4591e8c04c9cecf797942471a94039a3e1c576fde41d9c8796fce82d957ae6cb',42,'2026-10-23 06:14:40');
 /*!40000 ALTER TABLE `testcase_canonical_keys` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -30400,7 +31025,7 @@ CREATE TABLE `testcase_contributions` (
   UNIQUE KEY `uq_contribution_legacy` (`legacy_source_id`),
   KEY `idx_contribution_scope` (`course_id`,`quiz_id`,`question_id`,`status`),
   KEY `idx_contribution_owner` (`user_id`,`submitted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30429,7 +31054,11 @@ INSERT INTO `testcase_contributions` VALUES
 (16,NULL,18,4,4,122,4,'AI-powered AI','5ef430e131036d1be027e4f4d55ce2b7d1551855e2a02dd53757337a0e39fc41','1','Phân biệt từ AI với từ ghép có dấu gạch nối.','branch','approved',NULL,'2026-10-07 14:25:01','2026-10-07 14:25:04',NULL,NULL),
 (17,NULL,19,4,5,123,4,'999 1000','4b81040de10260eb4c748dc7f27294c708952e1680d59c3ad1554863918a12b9','99.90','Kiểm tra tập dữ liệu lớn gần accuracy tuyệt đối.','large','approved',NULL,'2026-10-07 14:25:04','2026-10-07 14:25:04',NULL,NULL),
 (19,NULL,23,4,3,121,3,'0.6','b4af4e0d40391d3a00179d935c63b7e15ba8cd3dfa29f218dedc270bd3eb3e79','0.60','','other','approved',NULL,'2026-10-10 03:10:53','2026-10-17 09:01:27',5,'Testcase biên tuyệt vời!'),
-(31,NULL,999,4,3,121,4,'1000 -500\n','a19e9fba3de3d79927abc4fe6d387f8ef13424bf1d84b7b983fa6dc4fa4ea4e9','500\n','Kiểm tra số lớn và số âm trong cùng phép tính','boundary','submitted',NULL,'2026-10-17 09:34:30','2026-10-17 09:34:30',NULL,NULL);
+(31,NULL,999,4,3,121,4,'1000 -500\n','a19e9fba3de3d79927abc4fe6d387f8ef13424bf1d84b7b983fa6dc4fa4ea4e9','500\n','Kiểm tra số lớn và số âm trong cùng phép tính','boundary','submitted',NULL,'2026-10-17 09:34:30','2026-10-17 09:34:30',NULL,NULL),
+(34,NULL,39,5,6,129,4,'print(tinh_tong(7))','20b1a5422f3ed3b1e070008ba5272cbb5638723e498540902377e9d8b6d04eda','28','Test số nguyên dương n=7','normal','approved',NULL,'2026-10-23 04:17:46','2026-10-23 05:18:18',3,'Automatically approved by Quiz policy'),
+(35,NULL,42,5,7,131,4,'print(is_palindrome(\"Red rum, sir, is murder\"))','070aba5ddc1d4009e890dc2514303ad02a552a7732deec0921fc80607c9787bb','True','Kiem tra cau Palindrome kinh dien co nhieu dau cau va khoang trang','boundary','approved',NULL,'2026-10-23 05:01:19','2026-10-23 05:29:03',4,'Cập nhật bởi GV: Testcase rất sáng tạo, xứng đáng 5 sao!'),
+(36,NULL,44,5,7,131,4,'print(is_palindrome(\"Step on no pets\"))','8e9ef2b2482ab46d96cb551d2b4f3fdc16c4e8dfd5bb468ca4b489b21ef8fcd6','True','Kiểm tra câu Palindrome dài có khoảng trắng','boundary','approved',NULL,'2026-10-23 05:29:39','2026-10-23 06:13:41',5,'Nhận xét của GV: Testcase mẫu mực, cộng 5 sao vào Bảng xếp hạng!'),
+(42,NULL,50,5,7,131,4,'print(is_palindrome(\"Yo, Banana Boy!\"))','4591e8c04c9cecf797942471a94039a3e1c576fde41d9c8796fce82d957ae6cb','True','Kiểm tra chuỗi đối xứng có dấu phẩy và dấu chấm than ở cuối','boundary','submitted',NULL,'2026-10-23 06:14:40','2026-10-23 06:14:40',NULL,NULL);
 /*!40000 ALTER TABLE `testcase_contributions` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -30488,7 +31117,7 @@ CREATE TABLE `testcase_rewards` (
   `quiz_id` bigint(20) NOT NULL,
   `question_id` bigint(20) NOT NULL,
   `receiver_user_id` bigint(20) NOT NULL,
-  `contribution_id` bigint(20) NOT NULL,
+  `contribution_id` bigint(20) DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `reward_source` varchar(24) NOT NULL DEFAULT 'contribution',
   `seed_id` bigint(20) DEFAULT NULL,
@@ -30497,8 +31126,9 @@ CREATE TABLE `testcase_rewards` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_reward` (`receiver_user_id`,`contribution_id`),
   UNIQUE KEY `uq_reward_legacy` (`legacy_source_id`),
+  UNIQUE KEY `uq_reward_seed` (`receiver_user_id`,`seed_id`),
   KEY `idx_reward_scope` (`course_id`,`quiz_id`,`question_id`,`receiver_user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30513,7 +31143,11 @@ INSERT INTO `testcase_rewards` VALUES
 (2,2,2,1,119,3,2,'2026-10-02 13:23:25','contribution',NULL,0,NULL),
 (3,3,2,1,119,4,5,'2026-10-02 13:50:56','contribution',NULL,0,NULL),
 (4,4,2,1,119,3,10,'2026-10-02 14:15:46','contribution',NULL,0,NULL),
-(10,NULL,4,3,121,3,15,'2026-10-17 09:01:27','contribution',NULL,1,'2026-10-17 10:01:27');
+(10,NULL,4,3,121,3,15,'2026-10-17 09:01:27','contribution',NULL,1,'2026-10-17 10:01:27'),
+(11,NULL,5,6,129,4,NULL,'2026-10-23 04:17:46','seed',5,1,'2026-10-23 05:17:59'),
+(17,NULL,5,7,131,4,NULL,'2026-10-23 05:56:16','seed',10,0,NULL),
+(18,NULL,5,7,131,4,NULL,'2026-10-23 05:58:12','seed',14,0,NULL),
+(19,NULL,5,7,131,4,NULL,'2026-10-23 06:13:29','seed',15,1,'2026-10-23 07:14:52');
 /*!40000 ALTER TABLE `testcase_rewards` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -30562,7 +31196,7 @@ CREATE TABLE `testcase_runs` (
   UNIQUE KEY `uq_run_legacy` (`legacy_source_id`),
   KEY `idx_runs_owner` (`course_id`,`quiz_id`,`question_id`,`user_id`,`created_at`),
   KEY `idx_runs_fingerprint` (`course_id`,`quiz_id`,`question_id`,`input_fingerprint`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30596,7 +31230,14 @@ INSERT INTO `testcase_runs` VALUES
 (23,NULL,4,3,121,3,NULL,NULL,'0.6','0.6','b4af4e0d40391d3a00179d935c63b7e15ba8cd3dfa29f218dedc270bd3eb3e79','0.6','','0.60','success','success','','other','','jobe1;jobe2','e52f82e4af85cd6985fcc76f45f4e3b45dc2d1439263de08cf3e0fca0708ae41','2026-10-10 03:10:10',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (24,NULL,4,3,121,3,NULL,NULL,'0.4','0.4','f3e360d89952f40d3b79d0b07dd0b94f1cbf9017cba5d2a5f8128e4146d6e3c1','0.5','','0.40','success','success','','other','','jobe1;jobe2','e52f82e4af85cd6985fcc76f45f4e3b45dc2d1439263de08cf3e0fca0708ae41','2026-10-10 03:54:24',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (25,NULL,999,999,999,999,NULL,NULL,'5 10','5 10','11cc8f8d58edcb74efe4f2ea1c78c1ed5fb333a8da238d6aba3d4310bccb1ec9','15','15','15','success','success',NULL,NULL,NULL,NULL,'1332bda51cd9fb74c67db60c0768b9cc52baeded3afd11b1e109c576dc21de19','2026-10-10 07:03:20','a, b = map(int, input().split())\nprint(a + b)','x, y = map(int, input().split())\nprint(x + y)',NULL,'{\"coderunnertype\":\"python3\",\"input_mode\":\"stdin\",\"normalization_mode\":\"trim\",\"jobe_server\":\"test_jobe:4001\",\"timestamp\":\"2026-10-10T08:03:20+01:00\"}',NULL,NULL,NULL,NULL,NULL),
-(26,NULL,4,3,121,3,NULL,NULL,'0.855','0.855','2c64181823d70156161c2af0dbf0986a52f49e9d26d33504b2b8bda4418f1d86','0.86','0.85','0.85','success','success','Kiểm tra giá trị thập phân làm tròn 2 chữ số','boundary','Học được cách format float trong Python','jobe1;jobe2','984895cd41a9a0d2394d0f3ac60a4947bec60905ccf807a27fd6f0e6d255e0a1','2026-10-10 07:07:00','score = float(input())\nscore = max(0.0, min(1.0, score))\nprint(f\"{score:.2f}\")','score = float(input())\nscore = max(0.0, min(1.0, score))\nprint(f\'{score:.2f}\')','','{\"coderunnertype\":\"python3\",\"input_mode\":\"stdin\",\"normalization_mode\":\"trim\",\"jobe_server\":\"jobe1;jobe2\",\"timestamp\":\"2026-10-10T08:07:00+01:00\"}',NULL,NULL,NULL,NULL,NULL);
+(26,NULL,4,3,121,3,NULL,NULL,'0.855','0.855','2c64181823d70156161c2af0dbf0986a52f49e9d26d33504b2b8bda4418f1d86','0.86','0.85','0.85','success','success','Kiểm tra giá trị thập phân làm tròn 2 chữ số','boundary','Học được cách format float trong Python','jobe1;jobe2','984895cd41a9a0d2394d0f3ac60a4947bec60905ccf807a27fd6f0e6d255e0a1','2026-10-10 07:07:00','score = float(input())\nscore = max(0.0, min(1.0, score))\nprint(f\"{score:.2f}\")','score = float(input())\nscore = max(0.0, min(1.0, score))\nprint(f\'{score:.2f}\')','','{\"coderunnertype\":\"python3\",\"input_mode\":\"stdin\",\"normalization_mode\":\"trim\",\"jobe_server\":\"jobe1;jobe2\",\"timestamp\":\"2026-10-10T08:07:00+01:00\"}',NULL,NULL,NULL,NULL,NULL),
+(38,NULL,5,6,129,4,NULL,NULL,'print(tinh_tong(5))','print(tinh_tong(5))','178c7a1fdac9c494fcd7dec4dd71a8ce1de2a277340474953027a3576d016042','15','9','15','success','success','Test số 5 với code sai','normal','','jobe1;jobe2','81d278429af515bca5ecbf2fc0032e85d92a000821566511279f7050d1e01afd','2026-10-23 04:16:51','def tinh_tong(n):\n    return n + n - 1','def tinh_tong(n):\r\n    # 1. Điều kiện dừng cơ sở\r\n    if n <= 0:\r\n        return 0\r\n    # 2. Bước gọi đệ quy\r\n    return n + tinh_tong(n - 1)','{{ STUDENT_ANSWER }}\r\n\r\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\r\n\r\nSEPARATOR = \"#<ab@17943918#@>#\"\r\n\r\n{% for TEST in TESTCASES %}\r\n{{ TEST.testcode }}\r\n{% if not loop.last %}\r\nprint(SEPARATOR)\r\n{% endif %}\r\n{% endfor %}','{\"coderunnertype\":\"python3\",\"input_mode\":\"testcode\",\"normalization_mode\":\"trim\",\"jobe_server\":\"jobe1;jobe2\",\"timestamp\":\"2026-10-23T05:16:51+01:00\"}',2,'EqualityGrader','e1b223504f055c63b741337df5911ba35566cc91a77bc62264b78333a0d3e3f3','91afab3a9462846477e24c018e635ae659fec92659d0537002ed6097896b850f','{\"cputimelimitsecs\":null,\"memlimitmb\":null,\"allornothing\":\"1\",\"sandbox\":null}'),
+(39,NULL,5,6,129,4,NULL,NULL,'print(tinh_tong(7))','print(tinh_tong(7))','20b1a5422f3ed3b1e070008ba5272cbb5638723e498540902377e9d8b6d04eda','28','28','28','success','success','Test số nguyên dương n=7','normal','','jobe1;jobe2','486fc0353b0c7cff584af97d6fa296a58aa6b7325ea48da5f628f144f1736118','2026-10-23 04:16:53','def tinh_tong(n):\n    if n <= 0:\n        return 0\n    return n + tinh_tong(n - 1)','def tinh_tong(n):\r\n    # 1. Điều kiện dừng cơ sở\r\n    if n <= 0:\r\n        return 0\r\n    # 2. Bước gọi đệ quy\r\n    return n + tinh_tong(n - 1)','{{ STUDENT_ANSWER }}\r\n\r\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\r\n\r\nSEPARATOR = \"#<ab@17943918#@>#\"\r\n\r\n{% for TEST in TESTCASES %}\r\n{{ TEST.testcode }}\r\n{% if not loop.last %}\r\nprint(SEPARATOR)\r\n{% endif %}\r\n{% endfor %}','{\"coderunnertype\":\"python3\",\"input_mode\":\"testcode\",\"normalization_mode\":\"trim\",\"jobe_server\":\"jobe1;jobe2\",\"timestamp\":\"2026-10-23T05:16:53+01:00\"}',2,'EqualityGrader','e1b223504f055c63b741337df5911ba35566cc91a77bc62264b78333a0d3e3f3','91afab3a9462846477e24c018e635ae659fec92659d0537002ed6097896b850f','{\"cputimelimitsecs\":null,\"memlimitmb\":null,\"allornothing\":\"1\",\"sandbox\":null}'),
+(40,NULL,5,6,130,2,NULL,NULL,'print(fibonacci(7))','print(fibonacci(7))','16a9ceb74f55447683c61b051698980ccce551b7e2b3d37d254a8c3fb9a9847b','13','13','13','success','success','Kiem tra so fibonacci thu 7','boundary','Tu suy luan','jobe1;jobe2','1c611964cbda450f57b01c30410af557bd08ceab501ef8b3675b6d83ec8a5fa6','2026-10-23 04:37:15','def fibonacci(n):\n    if n <= 0: return 0\n    elif n == 1: return 1\n    return fibonacci(n - 1) + fibonacci(n - 2)\n','def fibonacci(n):\n    if n <= 0:\n        return 0\n    elif n == 1:\n        return 1\n    return fibonacci(n - 1) + fibonacci(n - 2)','{{ STUDENT_ANSWER }}\r\n\r\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\r\n\r\nSEPARATOR = \"#<ab@17943918#@>#\"\r\n\r\n{% for TEST in TESTCASES %}\r\n{{ TEST.testcode }}\r\n{% if not loop.last %}\r\nprint(SEPARATOR)\r\n{% endif %}\r\n{% endfor %}','{\"coderunnertype\":\"python3\",\"input_mode\":\"testcode\",\"normalization_mode\":\"trim\",\"jobe_server\":\"jobe1;jobe2\",\"timestamp\":\"2026-10-23T05:37:15+01:00\"}',1,'EqualityGrader','6d615ca07c4f1b573fddaa6597cf832fcf68d580e0ca5321687dcb36706cfa3f','8476e09c5b39641ee7fa520a0c1b20d53b326f7aabdb850249f265c5507b4321','{\"cputimelimitsecs\":null,\"memlimitmb\":null,\"allornothing\":\"1\",\"sandbox\":null}'),
+(41,NULL,5,6,130,2,NULL,NULL,'print(fibonacci(7))','print(fibonacci(7))','16a9ceb74f55447683c61b051698980ccce551b7e2b3d37d254a8c3fb9a9847b','13','13','13','success','success','Kiem tra so fibonacci thu 7','boundary','Tu suy luan','jobe1;jobe2','1c611964cbda450f57b01c30410af557bd08ceab501ef8b3675b6d83ec8a5fa6','2026-10-23 04:37:32','def fibonacci(n):\n    if n <= 0: return 0\n    elif n == 1: return 1\n    return fibonacci(n - 1) + fibonacci(n - 2)\n','def fibonacci(n):\n    if n <= 0:\n        return 0\n    elif n == 1:\n        return 1\n    return fibonacci(n - 1) + fibonacci(n - 2)','{{ STUDENT_ANSWER }}\r\n\r\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\r\n\r\nSEPARATOR = \"#<ab@17943918#@>#\"\r\n\r\n{% for TEST in TESTCASES %}\r\n{{ TEST.testcode }}\r\n{% if not loop.last %}\r\nprint(SEPARATOR)\r\n{% endif %}\r\n{% endfor %}','{\"coderunnertype\":\"python3\",\"input_mode\":\"testcode\",\"normalization_mode\":\"trim\",\"jobe_server\":\"jobe1;jobe2\",\"timestamp\":\"2026-10-23T05:37:32+01:00\"}',1,'EqualityGrader','6d615ca07c4f1b573fddaa6597cf832fcf68d580e0ca5321687dcb36706cfa3f','8476e09c5b39641ee7fa520a0c1b20d53b326f7aabdb850249f265c5507b4321','{\"cputimelimitsecs\":null,\"memlimitmb\":null,\"allornothing\":\"1\",\"sandbox\":null}'),
+(42,NULL,5,7,131,4,NULL,NULL,'print(is_palindrome(\"Red rum, sir, is murder\"))','print(is_palindrome(\"Red rum, sir, is murder\"))','070aba5ddc1d4009e890dc2514303ad02a552a7732deec0921fc80607c9787bb','True','True','True','success','success','Kiem tra cau Palindrome kinh dien co nhieu dau cau va khoang trang','boundary','Em dung cau nay de test xem ham co xu ly tot dau phay va khoang trang khong','jobe1;jobe2','47a311cd33cd0cf8e113d61f8b2ce24d995c9fdd335e9ab11ddec3ac3183fc04','2026-10-23 05:01:19','def is_palindrome(s):\n    cleaned = \"\".join(c.lower() for c in s if c.isalnum())\n    return cleaned == cleaned[::-1]\n','def is_palindrome(s):\n    cleaned = \"\".join(c.lower() for c in s if c.isalnum())\n    return cleaned == cleaned[::-1]\n','{{ STUDENT_ANSWER }}\r\n\r\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\r\n\r\nSEPARATOR = \"#<ab@17943918#@>#\"\r\n\r\n{% for TEST in TESTCASES %}\r\n{{ TEST.testcode }}\r\n{% if not loop.last %}\r\nprint(SEPARATOR)\r\n{% endif %}\r\n{% endfor %}','{\"coderunnertype\":\"python3\",\"input_mode\":\"testcode\",\"normalization_mode\":\"trim\",\"jobe_server\":\"jobe1;jobe2\",\"timestamp\":\"2026-10-23T06:01:19+01:00\"}',1,'EqualityGrader','47a311cd33cd0cf8e113d61f8b2ce24d995c9fdd335e9ab11ddec3ac3183fc04','f0382737f0c76a770f00dc21835100bf01ef37c0796d07e8827af7ae23f347b7','{\"cputimelimitsecs\":null,\"memlimitmb\":null,\"allornothing\":\"1\",\"sandbox\":null}'),
+(43,NULL,5,7,131,4,NULL,NULL,'print(is_palindrome(\"Step on no pets\"))','print(is_palindrome(\"Step on no pets\"))','8e9ef2b2482ab46d96cb551d2b4f3fdc16c4e8dfd5bb468ca4b489b21ef8fcd6','True','True','True','success','success','Kiểm tra câu Palindrome dài có khoảng trắng','boundary','','jobe1;jobe2','40d77c52d6c65e4c4a33f2df5503a813becbe85fdd72de8c1ba57e2d6c417fd5','2026-10-23 05:28:56','def is_palindrome(s):\r\n    cleaned = \'\'.join(c.lower() for c in s if c.isalnum())\r\n    return cleaned == cleaned[::-1]\r\n','def is_palindrome(s):\n    cleaned = \"\".join(c.lower() for c in s if c.isalnum())\n    return cleaned == cleaned[::-1]\n','{{ STUDENT_ANSWER }}\r\n\r\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\r\n\r\nSEPARATOR = \"#<ab@17943918#@>#\"\r\n\r\n{% for TEST in TESTCASES %}\r\n{{ TEST.testcode }}\r\n{% if not loop.last %}\r\nprint(SEPARATOR)\r\n{% endif %}\r\n{% endfor %}','{\"coderunnertype\":\"python3\",\"input_mode\":\"testcode\",\"normalization_mode\":\"trim\",\"jobe_server\":\"jobe1;jobe2\",\"timestamp\":\"2026-10-23T06:28:56+01:00\"}',1,'EqualityGrader','47a311cd33cd0cf8e113d61f8b2ce24d995c9fdd335e9ab11ddec3ac3183fc04','f0382737f0c76a770f00dc21835100bf01ef37c0796d07e8827af7ae23f347b7','{\"cputimelimitsecs\":null,\"memlimitmb\":null,\"allornothing\":\"1\",\"sandbox\":null}'),
+(50,NULL,5,7,131,4,NULL,NULL,'print(is_palindrome(\"Yo, Banana Boy!\"))','print(is_palindrome(\"Yo, Banana Boy!\"))','4591e8c04c9cecf797942471a94039a3e1c576fde41d9c8796fce82d957ae6cb','True','True','True','success','success','Kiểm tra chuỗi đối xứng có dấu phẩy và dấu chấm than ở cuối','boundary','','jobe1;jobe2','625d069ad094808317201ec507dbdc1fd1b81396519138bac8913472cb79185d','2026-10-23 06:14:34','def is_palindrome(s):\r\n    # Lọc chỉ giữ chữ cái và chữ số, chuyển về chữ thường\r\n    cleaned = \'\'.join(c.lower() for c in s if c.isalnum())\r\n    return cleaned == cleaned[::-1]\r\n','def is_palindrome(s):\n    cleaned = \"\".join(c.lower() for c in s if c.isalnum())\n    return cleaned == cleaned[::-1]\n','{{ STUDENT_ANSWER }}\r\n\r\n__student_answer__ = \"\"\"{{ STUDENT_ANSWER | e(\'py\') }}\"\"\"\r\n\r\nSEPARATOR = \"#<ab@17943918#@>#\"\r\n\r\n{% for TEST in TESTCASES %}\r\n{{ TEST.testcode }}\r\n{% if not loop.last %}\r\nprint(SEPARATOR)\r\n{% endif %}\r\n{% endfor %}','{\"coderunnertype\":\"python3\",\"input_mode\":\"testcode\",\"normalization_mode\":\"trim\",\"jobe_server\":\"jobe1;jobe2\",\"timestamp\":\"2026-10-23T07:14:34+01:00\"}',1,'EqualityGrader','47a311cd33cd0cf8e113d61f8b2ce24d995c9fdd335e9ab11ddec3ac3183fc04','f0382737f0c76a770f00dc21835100bf01ef37c0796d07e8827af7ae23f347b7','{\"cputimelimitsecs\":null,\"memlimitmb\":null,\"allornothing\":\"1\",\"sandbox\":null}');
 /*!40000 ALTER TABLE `testcase_runs` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -30621,7 +31262,7 @@ CREATE TABLE `testcase_view_logs` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `idx_view_user` (`course_id`,`user_id`,`action`,`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -30633,7 +31274,11 @@ LOCK TABLES `testcase_view_logs` WRITE;
 /*!40000 ALTER TABLE `testcase_view_logs` DISABLE KEYS */;
 INSERT INTO `testcase_view_logs` VALUES
 (1,4,1,119,3,9,15,'claim_reward','2026-10-17 09:52:17'),
-(2,4,3,121,3,10,15,'claim_reward','2026-10-17 10:01:27');
+(2,4,3,121,3,10,15,'claim_reward','2026-10-17 10:01:27'),
+(3,5,6,129,4,11,0,'claim_reward','2026-10-23 05:17:59'),
+(4,5,7,131,4,18,0,'claim_reward','2026-10-23 06:58:47'),
+(5,5,7,131,4,17,0,'claim_reward','2026-10-23 07:06:38'),
+(6,5,7,131,4,19,0,'claim_reward','2026-10-23 07:14:52');
 /*!40000 ALTER TABLE `testcase_view_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -30656,7 +31301,7 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-10-19 13:35:01
+-- Dump completed on 2026-10-23  6:30:32
 
 -- =================================================================
 -- Cấp quyền người dùng cho testcase_store và Moodle integration
