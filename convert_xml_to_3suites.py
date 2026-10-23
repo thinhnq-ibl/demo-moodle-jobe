@@ -52,19 +52,19 @@ def convert_quiz_xml(input_path, output_path):
                 # Suite 1: Sample
                 tc.set('useasexample', '1')
                 disp_text.text = 'SHOW'
-                extra_text.text = 'sample'
+                extra_text.text = ''
                 suite1_count += 1
             elif idx in (2, 3) and num_tests >= 3:
-                # Suite 2: Reward Bank
+                # Suite 2: Reward Bank Seed (S)
                 tc.set('useasexample', '0')
-                disp_text.text = 'SHOW'
-                extra_text.text = 'reward_bank'
+                disp_text.text = 'HIDE'
+                extra_text.text = 'S'
                 suite2_count += 1
             else:
                 # Suite 3: Hidden Grading
                 tc.set('useasexample', '0')
                 disp_text.text = 'HIDE'
-                extra_text.text = 'grading'
+                extra_text.text = ''
                 suite3_count += 1
 
     tree.write(output_path, encoding='utf-8', xml_declaration=True)

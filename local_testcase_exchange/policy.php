@@ -75,22 +75,22 @@ if (data_submitted()) {
                 \core\output\notification::NOTIFY_SUCCESS
             );
         } else if ($action === 'auto_partition') {
-            // Auto partition legacy tests into 3 suites: Test 1 -> example, Test 2,3 -> seed reward, Test 4,5 -> HIDE
+            // Auto partition legacy tests into 3 suites: Test 1 -> example, Test 2,3 -> seed reward (S), Test 4,5 -> HIDE
             $tests = $DB->get_records('question_coderunner_tests', ['questionid' => $selected->questionid], 'id ASC');
             $idx = 1;
             foreach ($tests as $t) {
                 if ($idx === 1) {
                     $t->useasexample = 1;
                     $t->display = 'SHOW';
-                    $t->extra = 'sample';
+                    $t->extra = '';
                 } else if ($idx <= 3) {
                     $t->useasexample = 0;
-                    $t->display = 'SHOW';
-                    $t->extra = 'reward_bank';
+                    $t->display = 'HIDE';
+                    $t->extra = 'S';
                 } else {
                     $t->useasexample = 0;
                     $t->display = 'HIDE';
-                    $t->extra = 'grading';
+                    $t->extra = '';
                 }
                 $DB->update_record('question_coderunner_tests', $t);
                 $idx++;

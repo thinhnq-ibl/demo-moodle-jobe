@@ -814,7 +814,8 @@ final class testcase_service {
         $synced = 0;
         foreach ($tests as $t) {
             $extra = strtolower(trim((string) ($t->extra ?? '')));
-            $is_reward_seed = in_array($extra, ['reward_bank', 'seed', 'suite2'], true) ||
+            // Accept 's', 'seed', 'reward_bank', 'suite2' or extra containing 'reward'.
+            $is_reward_seed = in_array($extra, ['s', 'seed', 'reward_bank', 'suite2'], true) ||
                               (strpos($extra, 'reward') !== false && (int) $t->useasexample === 0);
 
             if (!$is_reward_seed) {

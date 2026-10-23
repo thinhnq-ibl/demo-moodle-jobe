@@ -115,7 +115,6 @@ class quizaccess_testcaseexchange extends access_rule_base {
      * Display informative banner and action button on Quiz view page when rule is enabled.
      */
     public function description() {
-        return "";
         global $CFG;
 
         $quizid = $this->quiz->id;
