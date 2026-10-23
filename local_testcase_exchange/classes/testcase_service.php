@@ -1009,10 +1009,7 @@ final class testcase_service {
                 $mycount = $count;
             }
 
-            $starsdisplay = '';
-            for ($s = 0; $s < min($stars, 20); $s++) {
-                $starsdisplay .= '⭐';
-            }
+            $starsdisplay = $stars . ' ⭐';
 
             $leaderboard[] = [
                 'rank' => $rank,
@@ -1114,7 +1111,7 @@ final class testcase_service {
                   ORDER BY RAND() LIMIT 1"
             );
             $stmt->bind_param(
-                'iiiiiiiiii',
+                'iiiiiiiii',
                 $courseid, $quizid, $questionid,
                 $ownerid, $courseid, $questionid,
                 $ownerid, $courseid, $questionid
@@ -1130,7 +1127,7 @@ final class testcase_service {
 
         $source = (string) $candidate['source'];
         $targetid = (int) $candidate['id'];
-        $contribid = ($source === 'contribution') ? $targetid : 0;
+        $contribid = ($source === 'contribution') ? $targetid : null;
         $seedid = ($source === 'seed') ? $targetid : null;
 
         $insert = $this->connection->prepare(
@@ -1215,6 +1212,194 @@ final class testcase_service {
             ];
         }
         return $summary;
+    }
+
+    /**
+     * List all seed testcases for a specific question.
+     *
+     * @param int $courseid Course ID.
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @return array List of active seed testcases.
+     */
+    public function list_seed_testcases(int $courseid, int $quizid, int $questionid): array {
+        $stmt = $this->connection->prepare(
+            'SELECT id, testcode, stdin, expected_output, purpose, source_type, created_at
+               FROM question_seed_testcases
+              WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND is_active = 1
+              ORDER BY id ASC'
+        );
+        $stmt->bind_param('iii', $courseid, $quizid, $questionid);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $seeds = [];
+        while ($row = $res->fetch_assoc()) {
+            $seeds[] = $row;
+        }
+        $stmt->close();
+        return $seeds;
+    }
+
+    /**
+     * Add a manual seed testcase for a question.
+     *
+     * @param int $courseid Course ID.
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @param string $testcode Test code (e.g., print(tinh_tong(10))).
+     * @param string $stdin Standard input.
+     * @param string $expected Expected output.
+     * @param string $purpose Purpose or pedagogical note.
+     * @param string $sourcetype 'manual' or 'xml_import'.
+     * @return array Added seed record details.
+     */
+    public function add_manual_seed(
+        int $courseid,
+        int $quizid,
+        int $questionid,
+        string $testcode,
+        string $stdin,
+        string $expected,
+        string $purpose = '',
+        string $sourcetype = 'manual'
+    ): array {
+        $rawinput = trim($stdin);
+        if ($rawinput === '') {
+            $rawinput = trim($testcode);
+        }
+        $normalized = normalizer::normalize($rawinput, 'trim');
+        $fingerprint = normalizer::fingerprint($normalized);
+
+        $stmt = $this->connection->prepare(
+            'INSERT INTO question_seed_testcases
+            (course_id, quiz_id, question_id, testcode, stdin, input_raw, input_normalized, input_fingerprint, expected_output, category, is_active, source_type, purpose)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, "seed", 1, ?, ?)
+            ON DUPLICATE KEY UPDATE
+                testcode = VALUES(testcode),
+                stdin = VALUES(stdin),
+                input_raw = VALUES(input_raw),
+                input_normalized = VALUES(input_normalized),
+                expected_output = VALUES(expected_output),
+                purpose = VALUES(purpose),
+                source_type = VALUES(source_type),
+                is_active = 1'
+        );
+        $stmt->bind_param(
+            'iiissssssss',
+            $courseid,
+            $quizid,
+            $questionid,
+            $testcode,
+            $stdin,
+            $rawinput,
+            $normalized,
+            $fingerprint,
+            $expected,
+            $sourcetype,
+            $purpose
+        );
+        $stmt->execute();
+        $insertid = (int) $this->connection->insert_id;
+        $stmt->close();
+
+        return [
+            'id' => $insertid,
+            'testcode' => $testcode,
+            'expected_output' => $expected,
+            'fingerprint' => $fingerprint,
+        ];
+    }
+
+    /**
+     * Delete (deactivate) a seed testcase.
+     *
+     * @param int $seedid Seed ID.
+     * @param int $courseid Course ID for authorization check.
+     * @return bool
+     */
+    public function delete_seed_testcase(int $seedid, int $courseid): bool {
+        $stmt = $this->connection->prepare(
+            'DELETE FROM question_seed_testcases WHERE id = ? AND course_id = ?'
+        );
+        $stmt->bind_param('ii', $seedid, $courseid);
+        $ok = $stmt->execute();
+        $stmt->close();
+        return $ok;
+    }
+
+    /**
+     * Import seed testcases from uploaded Moodle XML file content.
+     *
+     * @param int $courseid Course ID.
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @param string $xmlcontent XML file content.
+     * @return int Number of imported seed testcases.
+     */
+    public function import_seeds_from_xml_content(
+        int $courseid,
+        int $quizid,
+        int $questionid,
+        string $xmlcontent
+    ): int {
+        libxml_use_internal_errors(true);
+        $xml = simplexml_load_string($xmlcontent);
+        if (!$xml) {
+            libxml_clear_errors();
+            throw new \moodle_exception('invalidxml', 'local_testcase_exchange', '', 'Invalid Moodle XML format');
+        }
+
+        $imported = 0;
+        $testcase_elements = $xml->xpath('//testcase');
+        if (empty($testcase_elements)) {
+            $testcase_elements = $xml->xpath('//testcases/testcase');
+        }
+
+        foreach ($testcase_elements as $tc) {
+            $testcode = '';
+            if (isset($tc->testcode->text)) {
+                $testcode = (string) $tc->testcode->text;
+            } else if (isset($tc->testcode)) {
+                $testcode = (string) $tc->testcode;
+            }
+
+            $stdin = '';
+            if (isset($tc->stdin->text)) {
+                $stdin = (string) $tc->stdin->text;
+            } else if (isset($tc->stdin)) {
+                $stdin = (string) $tc->stdin;
+            }
+
+            $expected = '';
+            if (isset($tc->expected->text)) {
+                $expected = (string) $tc->expected->text;
+            } else if (isset($tc->expected)) {
+                $expected = (string) $tc->expected;
+            }
+
+            $purpose = 'Imported from Moodle XML';
+            if (isset($tc->extra->text) && trim((string) $tc->extra->text) !== '') {
+                $purpose .= ' (' . trim((string) $tc->extra->text) . ')';
+            }
+
+            if (trim($testcode) === '' && trim($stdin) === '') {
+                continue;
+            }
+
+            $this->add_manual_seed(
+                $courseid,
+                $quizid,
+                $questionid,
+                trim($testcode),
+                trim($stdin),
+                trim($expected),
+                $purpose,
+                'xml_import'
+            );
+            $imported++;
+        }
+
+        return $imported;
     }
 }
 

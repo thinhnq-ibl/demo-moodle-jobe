@@ -38,3 +38,8 @@ dist.zip
 moodle_portable_full_package.zip
 portable_dist/moodle_stack_images.tar.gz
 
+
+e2e/node_modules/*
+e2e/recordings/*.webm
+e2e/test-results/*
+e2e/playwright-report/*

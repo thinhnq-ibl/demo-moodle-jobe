@@ -66,6 +66,60 @@ if (data_submitted()) {
     }
     try {
         $action = optional_param('action', 'save_policy', PARAM_ALPHAEXT);
+        if ($action === 'add_manual_seed') {
+            $testcode = required_param('seed_testcode', PARAM_RAW);
+            $stdin = optional_param('seed_stdin', '', PARAM_RAW);
+            $expected = required_param('seed_expected', PARAM_RAW);
+            $purpose = optional_param('seed_purpose', '', PARAM_TEXT);
+            $service->add_manual_seed(
+                $courseid,
+                (int) $selected->quizid,
+                (int) $selected->questionid,
+                $testcode,
+                $stdin,
+                $expected,
+                $purpose,
+                'manual'
+            );
+            redirect(
+                new moodle_url($PAGE->url, ['question' => $selection]),
+                'Đã thêm testcase hạt giống thủ công thành công!',
+                null,
+                \core\output\notification::NOTIFY_SUCCESS
+            );
+        }
+
+        if ($action === 'delete_seed') {
+            $seedid = required_param('seed_id', PARAM_INT);
+            $service->delete_seed_testcase($seedid, $courseid);
+            redirect(
+                new moodle_url($PAGE->url, ['question' => $selection]),
+                'Đã xóa testcase hạt giống thành công!',
+                null,
+                \core\output\notification::NOTIFY_SUCCESS
+            );
+        }
+
+        if ($action === 'import_xml_seeds') {
+            if (!empty($_FILES['xml_file']['tmp_name']) && is_uploaded_file($_FILES['xml_file']['tmp_name'])) {
+                $content = file_get_contents($_FILES['xml_file']['tmp_name']);
+                $count = $service->import_seeds_from_xml_content(
+                    $courseid,
+                    (int) $selected->quizid,
+                    (int) $selected->questionid,
+                    $content
+                );
+                redirect(
+                    new moodle_url($PAGE->url, ['question' => $selection]),
+                    "Đã trích xuất và nhập thành công {$count} hạt giống từ file XML Moodle!",
+                    null,
+                    \core\output\notification::NOTIFY_SUCCESS
+                );
+            } else {
+                throw new moodle_exception('nofile', 'local_testcase_exchange', '', 'Vui lòng chọn file XML hợp lệ!');
+            }
+        }
+
         if ($action === 'sync_seeds') {
             $count = $service->sync_question_testsuites($courseid, (int) $selected->quizid, (int) $selected->questionid);
             redirect(
@@ -146,6 +200,7 @@ $policy = $selected ? $service->question_policy(
     (int) $selected->questionid,
     (string) $selected->coderunnertype
 ) : [];
+$seedlist = $selected ? $service->list_seed_testcases($courseid, (int) $selected->quizid, (int) $selected->questionid) : [];
 
 echo $OUTPUT->header();
 echo html_writer::link(
@@ -185,6 +240,9 @@ $templatedata = [
     'normalization_trim' => ($policy['normalization_mode'] ?? '') === 'trim',
     'normalization_json' => ($policy['normalization_mode'] ?? '') === 'json',
     'categories' => $policy['categories'] ?? '',
+    'seeds' => $seedlist,
+    'has_seeds' => !empty($seedlist),
+    'seeds_count' => count($seedlist),
 ];
 echo $OUTPUT->render_from_template('local_testcase_exchange/policy', $templatedata);
 $connection->close();

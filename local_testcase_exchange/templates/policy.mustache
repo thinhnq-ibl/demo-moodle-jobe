@@ -14,25 +14,101 @@
 <div class="card mb-3"><div class="card-header"><strong>{{#str}} questionpolicy, local_testcase_exchange {{/str}}</strong></div><div class="card-body">
 <label>{{#str}} inputmode, local_testcase_exchange {{/str}}</label><select class="form-control mb-2" name="input_mode"><option value="stdin" {{#input_stdin}}selected{{/input_stdin}}>stdin</option><option value="testcode" {{#input_testcode}}selected{{/input_testcode}}>testcode</option><option value="template" {{#input_template}}selected{{/input_template}}>template</option></select>
 <label>{{#str}} testcodetemplate, local_testcase_exchange {{/str}}</label><textarea class="form-control mb-2" name="testcode_template" rows="4">{{testcode_template}}</textarea><label>{{#str}} normalization, local_testcase_exchange {{/str}}</label><select class="form-control mb-2" name="normalization_mode"><option value="raw" {{#normalization_raw}}selected{{/normalization_raw}}>raw</option><option value="trim" {{#normalization_trim}}selected{{/normalization_trim}}>trim</option><option value="json" {{#normalization_json}}selected{{/normalization_json}}>json</option></select><label>{{#str}} categories, local_testcase_exchange {{/str}}</label><input class="form-control" name="categories" value="{{categories}}"></div></div>
-<div class="card mb-3 border-info">
-    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-        <strong>⚙️ Quản Lý 3 Bộ Testcase & Ngân Hàng Hạt Giống (3-Suite Management)</strong>
-        <span class="badge badge-light text-dark">Suite 1 (Mẫu) + Suite 2 (Thưởng) + Suite 3 (Chấm điểm)</span>
+<div class="card mb-3 border-primary">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <strong>🌱 Kho Hạt Giống Thưởng Độc Lập (Seed Testcase Bank)</strong>
+        <span class="badge badge-light text-dark">{{seeds_count}} hạt giống</span>
     </div>
     <div class="card-body">
-        <p class="card-text text-muted small">
-            Đồng bộ các ca kiểm thử từ câu hỏi CodeRunner vào <strong>Suite 2 (Kho hạt giống thưởng)</strong> của môn học hiện tại. Hệ thống nhận diện các testcase có trường <code>Extra: reward_bank</code> để nạp vào ngân hàng thưởng.
+        <p class="text-muted small">
+            Các ca kiểm thử hạt giống được lưu trữ riêng trong hệ thống, độc lập với bài thi Quiz. Dùng làm phần thưởng ban đầu khi sinh viên đóng góp testcase thành công.
         </p>
-        <div class="d-flex flex-wrap">
-            <button type="submit" name="action" value="sync_seeds" class="btn btn-outline-info font-weight-bold mr-2 mb-2">
-                🔄 Quét & Đồng bộ Testcase Thưởng (Suite 2) vào Kho
-            </button>
-            <button type="submit" name="action" value="auto_partition" class="btn btn-outline-warning text-dark font-weight-bold mr-2 mb-2" onclick="return confirm('Bạn có chắc muốn tự động chia 5 testcase của câu hỏi này thành: Test 1 làm Mẫu, Test 2-3 làm Thưởng (Suite 2), Test 4-5 làm Chấm thi bí mật (Suite 3 - HIDE)?');">
-                ⚡ Tự động Phân bổ 3 Suite (Dành cho Đề XML Cũ)
-            </button>
+
+        {{#has_seeds}}
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered table-sm table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th style="width: 50px;">ID</th>
+                        <th>Test Code</th>
+                        <th>Expected Output</th>
+                        <th>Ghi chú / Mục đích</th>
+                        <th style="width: 100px;">Nguồn</th>
+                        <th style="width: 70px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#seeds}}
+                    <tr>
+                        <td><strong>#{{id}}</strong></td>
+                        <td><code>{{testcode}}</code></td>
+                        <td><code>{{expected_output}}</code></td>
+                        <td><small class="text-muted">{{purpose}}</small></td>
+                        <td><span class="badge badge-secondary">{{source_type}}</span></td>
+                        <td>
+                            <button type="submit" name="action" value="delete_seed" onclick="document.getElementById('hidden_seed_id').value='{{id}}'; return confirm('Xóa hạt giống này?');" class="btn btn-sm btn-outline-danger py-0 px-1">Xóa</button>
+                        </td>
+                    </tr>
+                    {{/seeds}}
+                </tbody>
+            </table>
+        </div>
+        {{/has_seeds}}
+        {{^has_seeds}}
+        <div class="alert alert-light border text-center text-muted py-3 mb-3">
+            Chưa có hạt giống nào cho bài tập này. Thầy/Cô hãy thêm hạt giống bằng tay hoặc tải file XML lên bên dưới.
+        </div>
+        {{/has_seeds}}
+
+        <input type="hidden" id="hidden_seed_id" name="seed_id" value="0">
+
+        <!-- Tab thêm thủ công & import XML -->
+        <div class="row">
+            <div class="col-md-7 mb-3">
+                <div class="border rounded p-3 bg-light h-100">
+                    <h6 class="font-weight-bold text-dark mb-2">➕ Thêm Hạt Giống Thủ Công</h6>
+                    <div class="form-group mb-2">
+                        <label class="small mb-1"><strong>Test Code (Lệnh gọi hàm/biểu thức):</strong></label>
+                        <textarea class="form-control form-control-sm font-monospace" name="seed_testcode" rows="2" placeholder="Ví dụ: print(tinh_tong(10))"></textarea>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label class="small mb-1"><strong>Expected Output (Kết quả in ra):</strong></label>
+                        <textarea class="form-control form-control-sm font-monospace" name="seed_expected" rows="1" placeholder="Ví dụ: 55"></textarea>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label class="small mb-1">Standard Input (nếu có, để trống nếu viết hàm):</label>
+                        <input type="text" class="form-control form-control-sm font-monospace" name="seed_stdin" placeholder="(để trống nếu không dùng input)">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="small mb-1">Mục đích kiểm thử / Ghi chú sư phạm:</label>
+                        <input type="text" class="form-control form-control-sm" name="seed_purpose" placeholder="Ví dụ: Kiểm tra số nguyên dương n=10">
+                    </div>
+                    <button type="submit" name="action" value="add_manual_seed" class="btn btn-success btn-sm font-weight-bold">
+                        ➕ Thêm Hạt Giống Này
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-5 mb-3">
+                <div class="border rounded p-3 bg-light h-100">
+                    <h6 class="font-weight-bold text-dark mb-2">📥 Nhập từ File XML Moodle</h6>
+                    <p class="small text-muted mb-2">
+                        Tải lên file <code>.xml</code> xuất từ Ngân hàng câu hỏi Moodle. Hệ thống sẽ tự động quét và trích xuất các testcase đưa vào kho Hạt giống.
+                    </p>
+                    <div class="form-group mb-3">
+                        <input type="file" class="form-control-file border p-1 bg-white" name="xml_file" accept=".xml">
+                    </div>
+                    <button type="submit" name="action" value="import_xml_seeds" class="btn btn-info btn-sm font-weight-bold" onclick="this.form.enctype='multipart/form-data';">
+                        🚀 Tải lên & Trích xuất Hạt Giống
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<button class="btn btn-primary" type="submit" name="action" value="save_policy">{{#str}} savechanges {{/str}}</button></form>
+<div class="d-flex justify-content-between align-items-center mt-3">
+    <button class="btn btn-primary font-weight-bold px-4" type="submit" name="action" value="save_policy">💾 Lưu Cấu Hình Chính Sách</button>
+</div>
+</form>
 {{/has_questions}}

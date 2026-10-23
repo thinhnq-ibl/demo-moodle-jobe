@@ -418,6 +418,14 @@ foreach ($runs as &$run) {
     $run['show_oracle'] = !empty($runsettings['show_oracle_output']);
     $run['display_status'] = $existing['status'] ?? ($run['oracle_outcome'] !== 'success' ? 'invalid' : 'private');
     $run['can_contribute'] = $cancontribute && !$existing && $run['oracle_outcome'] === 'success';
+
+    // Bổ sung trạng thái thẩm định & so khớp vi sai cho sinh viên quan sát
+    $run['oracle_valid'] = ($run['oracle_outcome'] === 'success');
+    $student_out = trim((string) ($run['student_run_output'] ?? ''));
+    $predicted_out = trim((string) ($run['predicted_output'] ?? ''));
+    $run['has_student_output'] = ($student_out !== '');
+    $run['student_matches_expected'] = ($student_out !== '' && $student_out === $predicted_out);
+    $run['student_differs_expected'] = ($student_out !== '' && $student_out !== $predicted_out);
 }
 unset($run);
 foreach ($contributions as &$contribution) {
@@ -474,9 +482,9 @@ $templatedata = [
     'categories' => $viewcategories,
     'student_code' => $studentcode,
     'has_prefilled_code' => $hasattemptcode,
-    'show_run_form' => $hasattemptcode || $canmanage,
-    'show_code_editor' => $canmanage && !$hasattemptcode,
-    'use_attempt_context' => $hasattemptcode,
+    'show_run_form' => true,
+    'show_code_editor' => true,
+    'use_attempt_context' => false,
     'selected_question_value' => $requestedselection,
     'current_quiz_name' => $selectedquestion->quizname ?? '',
     'current_question_name' => $selectedquestion->questionname ?? '',

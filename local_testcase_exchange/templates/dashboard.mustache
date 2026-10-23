@@ -34,34 +34,89 @@
 </div>
 {{/can_manage_or_review}}
 {{#can_run}}
-<div class="card mb-4"><div class="card-header"><strong>{{#str}} privateexploration, local_testcase_exchange {{/str}}</strong></div><div class="card-body">
-{{#has_return_url}}<a class="btn btn-secondary mb-3" href="{{return_url}}">{{#str}} backtocurrentquiz, local_testcase_exchange {{/str}}</a>{{/has_return_url}}
-{{^has_questions}}<div class="alert alert-warning">{{#str}} nocoderunnerquestions, local_testcase_exchange {{/str}}</div>{{/has_questions}}
-{{#has_questions}}{{#show_run_form}}
-{{#use_attempt_context}}
-<div class="alert alert-primary" role="status">
-    <strong>{{#str}} contributingtestcasefor, local_testcase_exchange {{/str}}</strong>
-    <div><strong>{{#str}} currentquiz, local_testcase_exchange {{/str}}:</strong> {{current_quiz_name}}</div>
-    <div><strong>{{#str}} currentquestion, local_testcase_exchange {{/str}}:</strong> {{current_question_name}}</div>
+<div class="card mb-4 border-primary shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <strong>🧪 Phòng Thí Nghiệm Kiểm Thử Vi Sai (Differential Testing Playground)</strong>
+        <span class="badge badge-light text-dark">Thử nghiệm tự do — Không tính điểm phạt</span>
+    </div>
+    <div class="card-body">
+        <p class="text-muted small mb-3">
+            Tại đây bạn có thể dán mã nguồn chương trình, tự thiết kế testcase và chạy thử nghiệm. Hệ thống sẽ đối chiếu kết quả giữa <strong>Chương trình của bạn</strong> và <strong>Đáp án chuẩn của Thầy/Cô (Solution)</strong> để giúp bạn phát hiện lỗi logic trước khi nộp bài thi Quiz.
+        </p>
+
+        {{#has_return_url}}
+        <a class="btn btn-outline-secondary btn-sm mb-3" href="{{return_url}}">
+            &larr; {{#str}} backtocurrentquiz, local_testcase_exchange {{/str}}
+        </a>
+        {{/has_return_url}}
+
+        {{^has_questions}}
+        <div class="alert alert-warning">{{#str}} nocoderunnerquestions, local_testcase_exchange {{/str}}</div>
+        {{/has_questions}}
+
+        {{#has_questions}}
+        <form method="post">
+            <input type="hidden" name="sesskey" value="{{sesskey}}">
+            <input type="hidden" name="action" value="run">
+
+            <div class="form-group mb-3">
+                <label for="question"><strong>🎯 {{#str}} selectquestion, local_testcase_exchange {{/str}}:</strong></label>
+                <select class="form-control font-weight-bold" id="question" name="question" required>
+                    {{#questions}}
+                    <option value="{{value}}" {{#disabled}}disabled{{/disabled}} {{#selected}}selected{{/selected}}>{{label}}</option>
+                    {{/questions}}
+                </select>
+            </div>
+
+            <!-- Khung soạn thảo / dán mã nguồn sinh viên -->
+            <div class="form-group mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label for="student_code" class="mb-0"><strong>💻 Mã nguồn chương trình của bạn (Student Source Code):</strong></label>
+                    <small class="text-muted">Bạn có thể tự do dán (paste) hoặc gõ code mới vào đây để thử nghiệm</small>
+                </div>
+                <textarea class="form-control font-monospace text-dark bg-light" id="student_code" name="student_code" rows="7" required placeholder="def tinh_tong(n):&#10;    # Dán mã nguồn Python của bạn vào đây&#10;    pass" style="font-family: Consolas, Monaco, monospace; font-size: 0.95rem;">{{student_code}}</textarea>
+            </div>
+
+            <!-- Khung định nghĩa Testcase theo phong cách CodeRunner -->
+            <div class="card bg-light border p-3 mb-3">
+                <h6 class="font-weight-bold text-dark mb-3">📝 Định nghĩa Ca kiểm thử (Testcase Definition):</h6>
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label for="test_input"><strong>Test Code (Lệnh gọi hàm kiểm thử):</strong></label>
+                        <textarea class="form-control font-monospace" id="test_input" name="test_input" rows="3" required placeholder="Ví dụ: print(tinh_tong(10))" style="font-family: Consolas, monospace;"></textarea>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="predicted_output"><strong>Expected Output (Kết quả bạn kỳ vọng in ra):</strong></label>
+                        <textarea class="form-control font-monospace" id="predicted_output" name="predicted_output" rows="3" required placeholder="Ví dụ: 55" style="font-family: Consolas, monospace;"></textarea>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 form-group">
+                        <label for="category">Phân loại ca kiểm thử:</label>
+                        <select class="form-control" id="category" name="category">
+                            {{#categories}}
+                            <option value="{{value}}">{{label}}</option>
+                            {{/categories}}
+                        </select>
+                    </div>
+                    <div class="col-md-8 form-group">
+                        <label for="purpose">Mục đích kiểm thử (Giải thích lý do bạn thiết kế test này):</label>
+                        <input class="form-control" id="purpose" name="purpose" maxlength="1000" placeholder="Ví dụ: Kiểm tra trường hợp số nguyên dương lớn n=10">
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <button class="btn btn-primary font-weight-bold px-4 py-2 shadow-sm" type="submit">
+                    ▶️ Chạy Thử Nghiệm Vi Sai (Run Test)
+                </button>
+                <small class="text-muted">Hệ thống sẽ chạy song song trên Code của bạn và Solution của Thầy/Cô</small>
+            </div>
+        </form>
+        {{/has_questions}}
+    </div>
 </div>
-{{/use_attempt_context}}
-<form method="post"><input type="hidden" name="sesskey" value="{{sesskey}}"><input type="hidden" name="action" value="run">
-{{#use_attempt_context}}<input type="hidden" name="question" value="{{selected_question_value}}"><input type="hidden" name="student_code" value="{{student_code}}">{{/use_attempt_context}}
-{{^use_attempt_context}}
-<div class="form-group"><label for="question"><strong>{{#str}} selectquestion, local_testcase_exchange {{/str}}</strong></label><select class="form-control" id="question" name="question" required>{{#questions}}<option value="{{value}}" {{#disabled}}disabled{{/disabled}} {{#selected}}selected{{/selected}}>{{label}}</option>{{/questions}}</select></div>
-{{#show_code_editor}}
-<div class="form-group"><label for="student_code"><strong>{{#str}} studentsource, local_testcase_exchange {{/str}}</strong></label><textarea class="form-control" id="student_code" name="student_code" rows="10" required>{{student_code}}</textarea></div>
-{{/show_code_editor}}
-{{/use_attempt_context}}
-<div class="row"><div class="col-md-6 form-group"><label for="test_input"><strong>{{#str}} testinput, local_testcase_exchange {{/str}}</strong></label><textarea class="form-control" id="test_input" name="test_input" rows="4" required></textarea></div><div class="col-md-6 form-group"><label for="predicted_output"><strong>{{#str}} predictedoutput, local_testcase_exchange {{/str}}</strong></label><textarea class="form-control" id="predicted_output" name="predicted_output" rows="4"></textarea></div></div>
-{{^use_attempt_context}}
-<div class="row"><div class="col-md-4 form-group"><label for="category">{{#str}} category, local_testcase_exchange {{/str}}</label><select class="form-control" id="category" name="category">{{#categories}}<option value="{{value}}">{{label}}</option>{{/categories}}</select></div><div class="col-md-8 form-group"><label for="purpose">{{#str}} purpose, local_testcase_exchange {{/str}}</label><input class="form-control" id="purpose" name="purpose" maxlength="1000"></div></div>
-<div class="form-group"><label for="reflection">{{#str}} reflection, local_testcase_exchange {{/str}}</label><input class="form-control" id="reflection" name="reflection" maxlength="1000"></div><button class="btn btn-primary" type="submit">{{#str}} runprivate, local_testcase_exchange {{/str}}</button>
-{{/use_attempt_context}}
-{{#use_attempt_context}}<button class="btn btn-primary" type="submit">{{#str}} runprivate, local_testcase_exchange {{/str}}</button>{{/use_attempt_context}}
-</form>{{/show_run_form}}
-{{^show_run_form}}<div class="alert alert-info">{{#str}} submitcodebeforetesting, local_testcase_exchange {{/str}}</div>{{/show_run_form}}
-{{/has_questions}}</div></div>
 {{/can_run}}
 {{! Personal Rank & Stats Banner }}
 <div class="card bg-light border-primary mb-4 shadow-sm">
@@ -134,7 +189,67 @@
         </tbody></table></div>
     </div>
     {{/is_teacher}}
-    <div class="tab-pane {{^is_teacher}}active{{/is_teacher}}" id="runs"><div class="table-responsive"><table class="table table-sm table-striped"><thead><tr><th>ID</th><th>Input</th><th>{{#str}} predictedoutput, local_testcase_exchange {{/str}}</th><th>{{#str}} studentoutput, local_testcase_exchange {{/str}}</th><th>{{#str}} oracleoutput, local_testcase_exchange {{/str}}</th><th>{{#str}} status {{/str}}</th><th></th></tr></thead><tbody>{{#runs}}<tr><td>{{id}}</td><td><pre class="mb-0">{{input_raw}}</pre></td><td><pre class="mb-0">{{predicted_output}}</pre></td><td><pre class="mb-0">{{student_run_output}}</pre><small>{{student_outcome}}</small></td><td>{{#show_oracle}}<pre class="mb-0">{{oracle_output}}</pre>{{/show_oracle}}{{^show_oracle}}—{{/show_oracle}}<small>{{oracle_outcome}}</small></td><td>{{display_status}}</td><td>{{#can_contribute}}<form method="post"><input type="hidden" name="sesskey" value="{{sesskey}}"><input type="hidden" name="action" value="contribute"><input type="hidden" name="run_id" value="{{id}}"><button class="btn btn-sm btn-success" type="submit">{{#str}} proposesharing, local_testcase_exchange {{/str}}</button></form>{{/can_contribute}}</td></tr>{{/runs}}</tbody></table></div></div>
+    <div class="tab-pane {{^is_teacher}}active{{/is_teacher}}" id="runs">
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th style="width: 50px;">ID</th>
+                        <th>Test Code (Input)</th>
+                        <th>Kỳ vọng (Expected)</th>
+                        <th>Code của bạn in ra (Got)</th>
+                        <th style="width: 150px;">Thẩm định Solution</th>
+                        <th style="width: 130px;">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{^runs}}
+                    <tr><td colspan="6" class="text-center text-muted py-3">Chưa có lượt chạy thử nghiệm nào. Hãy dán code và nhập testcase ở trên để chạy thử!</td></tr>
+                    {{/runs}}
+                    {{#runs}}
+                    <tr>
+                        <td><strong>#{{id}}</strong></td>
+                        <td><pre class="mb-0 font-monospace bg-light p-1 border rounded">{{input_raw}}</pre></td>
+                        <td><pre class="mb-0 font-monospace bg-light p-1 border rounded">{{predicted_output}}</pre></td>
+                        <td>
+                            <pre class="mb-1 font-monospace p-1 border rounded {{#student_matches_expected}}bg-success text-white{{/student_matches_expected}}{{#student_differs_expected}}bg-danger text-white{{/student_differs_expected}}">{{student_run_output}}</pre>
+                            {{#student_matches_expected}}<span class="badge badge-success">✓ Khớp kỳ vọng</span>{{/student_matches_expected}}
+                            {{#student_differs_expected}}<span class="badge badge-danger">❌ Lệch kỳ vọng</span>{{/student_differs_expected}}
+                            <small class="text-muted d-block mt-1">Status: {{student_outcome}}</small>
+                        </td>
+                        <td>
+                            {{#oracle_valid}}
+                            <span class="badge badge-success p-2 d-block text-wrap">✓ ĐÚNG CHUẨN ĐỀ</span>
+                            {{/oracle_valid}}
+                            {{^oracle_valid}}
+                            <span class="badge badge-danger p-2 d-block text-wrap">❌ SAI QUY ƯỚC</span>
+                            {{/oracle_valid}}
+                            {{#show_oracle}}
+                            <pre class="mb-0 mt-1 small bg-dark text-white p-1 rounded">{{oracle_output}}</pre>
+                            {{/show_oracle}}
+                            <small class="text-muted d-block mt-1">Oracle: {{oracle_outcome}}</small>
+                        </td>
+                        <td class="align-middle text-center">
+                            {{#can_contribute}}
+                            <form method="post" class="m-0">
+                                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                                <input type="hidden" name="action" value="contribute">
+                                <input type="hidden" name="run_id" value="{{id}}">
+                                <button class="btn btn-sm btn-success font-weight-bold shadow-sm" type="submit">
+                                    🚀 Đề xuất Đóng góp
+                                </button>
+                            </form>
+                            {{/can_contribute}}
+                            {{^can_contribute}}
+                            <span class="badge badge-secondary p-1">{{display_status}}</span>
+                            {{/can_contribute}}
+                        </td>
+                    </tr>
+                    {{/runs}}
+                </tbody>
+            </table>
+        </div>
+    </div>
     <div class="tab-pane" id="contributions"><div class="table-responsive"><table class="table table-sm table-striped"><thead><tr><th>ID</th><th>Input</th><th>{{#str}} category, local_testcase_exchange {{/str}}</th><th>{{#str}} status {{/str}}</th><th>{{#str}} starrating, local_testcase_exchange {{/str}} / {{#str}} teachercomment, local_testcase_exchange {{/str}}</th><th>{{#str}} time {{/str}}</th></tr></thead><tbody>{{#contributions}}<tr><td>{{id}}</td><td><pre class="mb-0">{{input_normalized}}</pre></td><td>{{category}}</td><td><span class="{{status_badge_class}}">{{status_label}}</span>{{#can_explain}}<form method="post" class="mt-2"><input type="hidden" name="sesskey" value="{{sesskey}}"><input type="hidden" name="action" value="explain"><input type="hidden" name="contribution_id" value="{{id}}"><input class="form-control form-control-sm mb-1" name="explanation" required><button class="btn btn-sm btn-primary">{{#str}} resubmitexplanation, local_testcase_exchange {{/str}}</button></form>{{/can_explain}}</td><td>{{#has_rating}}<div title="{{rating_val}}/5 sao"><span class="text-warning font-weight-bold">{{stars_emoji}}</span> <span class="badge badge-warning text-dark ml-1">{{rating_val}}/5 ★</span></div>{{/has_rating}}{{^has_rating}}<span class="text-muted small">—</span>{{/has_rating}}{{#has_teacher_comment}}<div class="small text-muted mt-1 bg-light p-1 rounded border">💬 {{teacher_comment}}</div>{{/has_teacher_comment}}</td><td>{{submitted_at}}</td></tr>{{/contributions}}</tbody></table></div></div>
     
     {{! Tab Rewards with Claim Button }}
@@ -221,8 +336,9 @@
                             <small class="text-muted">{{username}}</small>
                         </td>
                         <td>
-                            <span class="text-warning font-weight-bold" style="font-size: 1.1rem;">{{stars_display}}</span>
-                            <span class="badge badge-warning text-dark ml-1 font-weight-bold">{{total_stars}} ⭐</span>
+                            <span class="badge badge-warning text-dark font-weight-bold px-2 py-1" style="font-size: 0.95rem;">
+                                {{total_stars}} ⭐
+                            </span>
                         </td>
                         <td><span class="badge badge-secondary p-1">{{approved_count}} testcases</span></td>
                         <td><small class="text-muted">{{first_submitted_at}}</small></td>

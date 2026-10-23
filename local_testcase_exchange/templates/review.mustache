@@ -153,11 +153,10 @@
                     {{/is_pending}}
                     {{^is_pending}}
                     <div class="border p-2 rounded bg-light mb-2">
-                        <form method="post" class="mb-2">
+                        <form method="post" class="mb-0">
                             <input type="hidden" name="sesskey" value="{{sesskey}}">
                             <input type="hidden" name="contribution_id" value="{{id}}">
-                            <input type="hidden" name="decision" value="rate_only">
-                            <div class="input-group input-group-sm mb-1">
+                            <div class="mb-2">
                                 <select class="form-control form-control-sm" name="rating">
                                     <option value="0">-- {{#str}} starrating, local_testcase_exchange {{/str}} --</option>
                                     <option value="5" {{#is_rating_5}}selected{{/is_rating_5}}>⭐⭐⭐⭐⭐ 5 {{#str}} stars, local_testcase_exchange {{/str}}</option>
@@ -167,38 +166,30 @@
                                     <option value="1" {{#is_rating_1}}selected{{/is_rating_1}}>⭐ 1 {{#str}} stars, local_testcase_exchange {{/str}}</option>
                                 </select>
                             </div>
-                            <div class="input-group input-group-sm">
+                            <div class="mb-2">
                                 <input class="form-control form-control-sm" name="review_note" placeholder="{{#str}} teachercomment, local_testcase_exchange {{/str}}..." value="{{teacher_comment}}">
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-primary" type="submit">{{#str}} saverating, local_testcase_exchange {{/str}}</button>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {{#is_approved}}
+                                    <button class="btn btn-sm btn-outline-danger" type="submit" name="decision" value="rejected">
+                                        {{#str}} rejectcontribution, local_testcase_exchange {{/str}}
+                                    </button>
+                                    {{/is_approved}}
+                                    {{#is_rejected}}
+                                    <button class="btn btn-sm btn-outline-success" type="submit" name="decision" value="approved">
+                                        {{#str}} approvecontribution, local_testcase_exchange {{/str}}
+                                    </button>
+                                    {{/is_rejected}}
+                                    {{#is_duplicate}}
+                                    <span class="text-muted small">Duplicate of #{{duplicate_of}}</span>
+                                    {{/is_duplicate}}
                                 </div>
+                                <button class="btn btn-sm btn-primary" type="submit" name="decision" value="rate_only">
+                                    Save
+                                </button>
                             </div>
                         </form>
-                        <div class="d-flex justify-content-between align-items-center">
-                            {{#is_approved}}
-                            <form method="post" class="d-inline">
-                                <input type="hidden" name="sesskey" value="{{sesskey}}">
-                                <input type="hidden" name="contribution_id" value="{{id}}">
-                                <input type="hidden" name="review_note" value="Rejecting previously approved testcase">
-                                <button class="btn btn-sm btn-outline-danger" name="decision" value="rejected">
-                                    {{#str}} rejectcontribution, local_testcase_exchange {{/str}}
-                                </button>
-                            </form>
-                            {{/is_approved}}
-                            {{#is_rejected}}
-                            <form method="post" class="d-inline">
-                                <input type="hidden" name="sesskey" value="{{sesskey}}">
-                                <input type="hidden" name="contribution_id" value="{{id}}">
-                                <input type="hidden" name="review_note" value="Approving previously rejected testcase">
-                                <button class="btn btn-sm btn-outline-success" name="decision" value="approved">
-                                    {{#str}} approvecontribution, local_testcase_exchange {{/str}}
-                                </button>
-                            </form>
-                            {{/is_rejected}}
-                            {{#is_duplicate}}
-                            <span class="text-muted small">Duplicate of #{{duplicate_of}}</span>
-                            {{/is_duplicate}}
-                        </div>
                     </div>
                     {{/is_pending}}
                 </td>
