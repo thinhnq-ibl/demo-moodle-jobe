@@ -1,0 +1,42 @@
+=== KIEM CHUNG TIEN TRINH BIEN DONG DIEM SO VA PENALTY TRUOC - SAU RUN VA CHECK ===
+
+[1. KHOI TAO ATTEMPT (TRUOC MOI THAO TAC)]
+  - Question State: todo
+  - Question Fraction (Raw Mark): NULL
+  - QA Max Mark: 1.0000000
+  - Step Sequence: 0
+  - Quiz Attempt Sumgrades: NULL
+  - Quiz Gradebook Grade: 0.00000
+--------------------------------------------------------------------------------
+[2. SAU KHI BAM RUN 5 LAN TREN SCRATCHPAD]
+  - Question State: todo
+  - Question Fraction (Raw Mark): NULL
+  - QA Max Mark: 1.0000000
+  - Step Sequence: 0
+  - Quiz Attempt Sumgrades: NULL
+  - Quiz Gradebook Grade: 0.00000
+--------------------------------------------------------------------------------
+[3. SAU KHI BAM CHECK LAN 1 (CODE SAI, Q794 - allornothing=1, penalty=0.1)]
+  - Question State: todo
+  - Question Fraction (Raw Mark): '0.0000000'
+  - QA Max Mark: 1.0000000
+  - Step Sequence: 1
+  - Quiz Attempt Sumgrades: NULL
+  - Quiz Gradebook Grade: 0.00000
+--------------------------------------------------------------------------------
+[4. SAU KHI BAM CHECK LAN 2 (SUA CODE DUNG)]
+  - Question State: todo
+  - Question Fraction (Raw Mark): '0.0000000'
+  - QA Max Mark: 1.0000000
+  - Step Sequence: 2
+  - Quiz Attempt Sumgrades: NULL
+  - Quiz Gradebook Grade: 0.00000
+--------------------------------------------------------------------------------
+[5. SAU KHI FINISH ATTEMPT & LUU GRADEBOOK]
+  - Question State: gradedwrong
+  - Question Fraction (Raw Mark): '0.0000000'
+  - QA Max Mark: 1.0000000
+  - Step Sequence: 3
+  - Quiz Attempt Sumgrades: '0.00000'
+  - Quiz Gradebook Grade: 0.00000
+--------------------------------------------------------------------------------
