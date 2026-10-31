@@ -113,6 +113,8 @@ final class schema_manager {
             "ALTER TABLE testcase_runs ADD COLUMN IF NOT EXISTS oracle_version_hash CHAR(64) NULL",
             "ALTER TABLE testcase_runs ADD COLUMN IF NOT EXISTS test_suite_version_hash CHAR(64) NULL",
             "ALTER TABLE testcase_runs ADD COLUMN IF NOT EXISTS execution_limits TEXT NULL",
+            "ALTER TABLE testcase_runs ADD COLUMN IF NOT EXISTS code_revision_id BIGINT NULL",
+            "ALTER TABLE testcase_runs ADD INDEX IF NOT EXISTS idx_runs_code_rev (code_revision_id)",
             "CREATE TABLE IF NOT EXISTS testcase_contributions (
                 id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 legacy_source_id BIGINT NULL,
@@ -252,6 +254,17 @@ final class schema_manager {
             $connection->query($sql);
         }
         $connection->query("UPDATE quiz_settings SET enabled = is_enabled WHERE enabled = 0 AND is_enabled = 1");
+        $connection->query(
+            "UPDATE testcase_runs r
+               JOIN student_code_revisions rev
+                 ON rev.course_id = r.course_id
+                AND rev.quiz_id = r.quiz_id
+                AND rev.question_id = r.question_id
+                AND rev.user_id = r.user_id
+                AND rev.code_hash = r.student_source_hash
+                SET r.code_revision_id = rev.id
+              WHERE r.code_revision_id IS NULL"
+        );
 
         $version = $connection->real_escape_string(self::VERSION);
         $exists = $connection->query("SELECT version FROM schema_migrations WHERE version = '{$version}'");

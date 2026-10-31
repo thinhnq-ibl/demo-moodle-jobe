@@ -40,6 +40,19 @@ final class testcase_service {
     }
 
     /**
+     * Unescape literal \n or \r\n characters if a string was flattened without real newlines.
+     *
+     * @param string $text Source text.
+     * @return string Sanitized text with real newlines.
+     */
+    public static function sanitize_multiline_text(string $text): string {
+        if (strpos($text, "\n") === false && strpos($text, "\\n") !== false) {
+            return str_replace(["\\r\\n", "\\n", "\\r"], "\n", $text);
+        }
+        return $text;
+    }
+
+    /**
      * Return settings for a Quiz.
      *
      * @param int $quizid Quiz ID.
@@ -112,6 +125,8 @@ final class testcase_service {
         string $category,
         string $reflection
     ): array {
+        $studentsource = self::sanitize_multiline_text($studentsource);
+        $input = self::sanitize_multiline_text($input);
         $settings = $this->quiz_settings((int) $quiz->id);
         if (empty($settings['enabled'])) {
             throw new \moodle_exception('featuredisabled', 'local_testcase_exchange');
@@ -131,15 +146,76 @@ final class testcase_service {
             throw new \moodle_exception('invalidjsoninput', 'local_testcase_exchange');
         }
         $fingerprint = normalizer::fingerprint($normalized);
+        $sourcehash = hash('sha256', $studentsource);
+
+        // Kiểm tra chống spam & giảm tải: Nếu sinh viên chạy trùng testcase với mã nguồn hiện tại của chính họ
+        $duplicatestmt = $this->connection->prepare(
+            'SELECT id, student_run_output, oracle_output, student_outcome, oracle_outcome,
+                    predicted_output, jobe_server, created_at, code_revision_id
+               FROM testcase_runs
+              WHERE user_id = ?
+                AND question_id = ?
+                AND input_fingerprint = ?
+                AND student_source_hash = ?
+              ORDER BY id DESC LIMIT 1'
+        );
+        $qid = (int) $questioncontext->questionid;
+        $duplicatestmt->bind_param('iiss', $userid, $qid, $fingerprint, $sourcehash);
+        $duplicatestmt->execute();
+        $existingrun = $duplicatestmt->get_result()->fetch_assoc();
+        $duplicatestmt->close();
+
+        if ($existingrun) {
+            // Không gửi yêu cầu sang Jobe Sandbox! Tái sử dụng kết quả lượt chạy trước để giảm tải và chống spam.
+            return [
+                'id' => (int) $existingrun['id'],
+                'is_duplicate_run' => true,
+                'student' => [
+                    'outcome' => $existingrun['student_outcome'],
+                    'output' => $existingrun['student_run_output'],
+                    'server' => $existingrun['jobe_server'],
+                ],
+                'oracle' => [
+                    'outcome' => $existingrun['oracle_outcome'],
+                    'output' => $existingrun['oracle_output'],
+                    'server' => $existingrun['jobe_server'],
+                ],
+                'input' => $input,
+                'normalized' => $normalized,
+                'fingerprint' => $fingerprint,
+                'code_revision_id' => $existingrun['code_revision_id'],
+            ];
+        }
+
+        // Tra cứu bộ nhớ đệm kết quả Solution (Oracle Output Caching) để tránh chạy lại Solution trên Jobe
+        $cachedoracle = null;
+        $oraclestmt = $this->connection->prepare(
+            'SELECT oracle_output, oracle_outcome, jobe_server 
+               FROM testcase_runs 
+              WHERE question_id = ? AND input_fingerprint = ? AND oracle_outcome = "success" 
+              ORDER BY id DESC LIMIT 1'
+        );
+        $oraclestmt->bind_param('is', $qid, $fingerprint);
+        $oraclestmt->execute();
+        $oraclerow = $oraclestmt->get_result()->fetch_assoc();
+        $oraclestmt->close();
+        if ($oraclerow && trim((string)$oraclerow['oracle_output']) !== '') {
+            $cachedoracle = [
+                'outcome' => $oraclerow['oracle_outcome'],
+                'output' => $oraclerow['oracle_output'],
+                'server' => $oraclerow['jobe_server'] ?: 'cached',
+            ];
+        }
+
         $results = execution_service::run_pair(
             (int) $questioncontext->questionid,
             $studentsource,
             $input,
             $policy,
-            $quiz
+            $quiz,
+            $cachedoracle
         );
         $server = $results['student']['server'] ?: $results['oracle']['server'];
-        $sourcehash = hash('sha256', $studentsource);
         $studentsnapshot = $studentsource;
         $oraclesnapshot = (string) ($results['oracle_solution'] ?? '');
         $templatesnapshot = (string) ($results['template'] ?? '');
@@ -168,14 +244,23 @@ final class testcase_service {
             );
         }
 
+        $revinfo = $this->record_or_get_code_revision(
+            $courseid,
+            (int) $quiz->id,
+            (int) $questioncontext->questionid,
+            $userid,
+            $studentsource
+        );
+        $coderevisionid = $revinfo['id'] !== null ? (int) $revinfo['id'] : null;
+
         $stmt = $this->connection->prepare(
             'INSERT INTO testcase_runs
-            (course_id, quiz_id, question_id, user_id, input_raw, input_normalized, input_fingerprint,
+            (course_id, quiz_id, question_id, user_id, code_revision_id, input_raw, input_normalized, input_fingerprint,
              predicted_output, student_run_output, oracle_output, student_outcome, oracle_outcome,
              purpose, category, reflection, jobe_server, student_source_hash,
              student_code_snapshot, oracle_solution_snapshot, template_snapshot, runtime_context,
              question_version, grader_type, oracle_version_hash, test_suite_version_hash, execution_limits)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $quizid = (int) $quiz->id;
         $questionid = (int) $questioncontext->questionid;
@@ -184,11 +269,12 @@ final class testcase_service {
         $studentoutcome = $results['student']['outcome'];
         $oracleoutcome = $results['oracle']['outcome'];
         $stmt->bind_param(
-            'iiiisssssssssssssssssissss',
+            'iiiiisssssssssssssssssissss',
             $courseid,
             $quizid,
             $questionid,
             $userid,
+            $coderevisionid,
             $input,
             $normalized,
             $fingerprint,
@@ -243,6 +329,11 @@ final class testcase_service {
         if ($run['oracle_outcome'] !== 'success') {
             throw new \moodle_exception('oraclenotsuccessful', 'local_testcase_exchange');
         }
+        if (trim((string) $run['predicted_output']) === '' ||
+            trim((string) $run['predicted_output']) !== trim((string) $run['oracle_output'])) {
+            throw new \moodle_exception('predictionmismatchoracle', 'local_testcase_exchange', '',
+                'Kết quả kỳ vọng (Expected Output) không khớp với Solution của Thầy/Cô nên không thể đề xuất đóng góp!');
+        }
         $settings = $this->quiz_settings((int) $run['quiz_id']);
         $this->connection->begin_transaction();
         try {
@@ -294,16 +385,28 @@ final class testcase_service {
                 $contributionid
             );
             $claim->execute();
+            $isownduplicate = false;
+            $canonical = null;
             if ($claim->affected_rows === 0) {
                 $canonical = $this->canonical_id($run);
                 $status = 'duplicate';
+
+                $ownerstmt = $this->connection->prepare('SELECT user_id FROM testcase_contributions WHERE id = ?');
+                $ownerstmt->bind_param('i', $canonical);
+                $ownerstmt->execute();
+                $canonicaluser = (int) ($ownerstmt->get_result()->fetch_assoc()['user_id'] ?? 0);
+                $ownerstmt->close();
+                $isownduplicate = ($canonicaluser === $userid);
+
                 $update = $this->connection->prepare(
                     'UPDATE testcase_contributions SET status = ?, duplicate_of = ? WHERE id = ?'
                 );
                 $update->bind_param('sii', $status, $canonical, $contributionid);
                 $update->execute();
                 $update->close();
-                $this->insert_review($contributionid, 0, 'submitted', 'duplicate', 'Exact fingerprint duplicate');
+
+                $note = $isownduplicate ? 'Duplicate of own contribution #' . $canonical : 'Exact fingerprint duplicate';
+                $this->insert_review($contributionid, 0, 'submitted', 'duplicate', $note);
             } else if ($settings['review_mode'] === 'auto') {
                 $status = 'approved';
                 $update = $this->connection->prepare('UPDATE testcase_contributions SET status = ? WHERE id = ?');
@@ -315,7 +418,12 @@ final class testcase_service {
             }
             $claim->close();
             $this->connection->commit();
-            return ['id' => $contributionid, 'status' => $status];
+            return [
+                'id' => $contributionid,
+                'status' => $status,
+                'is_own_duplicate' => $isownduplicate,
+                'canonical_id' => $canonical,
+            ];
         } catch (\Throwable $e) {
             $this->connection->rollback();
             throw $e;
@@ -512,7 +620,7 @@ final class testcase_service {
     }
 
     /**
-     * Return private runs for a user.
+     * Return private runs for a user, enriched with code revision step numbers.
      *
      * @param int $courseid Course ID.
      * @param int $userid User ID.
@@ -520,13 +628,213 @@ final class testcase_service {
      */
     public function runs_for_user(int $courseid, int $userid): array {
         $stmt = $this->connection->prepare(
-            'SELECT * FROM testcase_runs WHERE course_id = ? AND user_id = ? ORDER BY id DESC LIMIT 100'
+            'SELECT r.*,
+                    rev.step_number AS revision_step,
+                    rev.created_at AS revision_created_at
+               FROM testcase_runs r
+          LEFT JOIN student_code_revisions rev ON rev.id = r.code_revision_id
+              WHERE r.course_id = ? AND r.user_id = ?
+           ORDER BY r.id DESC LIMIT 100'
         );
         $stmt->bind_param('ii', $courseid, $userid);
         $stmt->execute();
         $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
         return $rows;
+    }
+
+    /**
+     * Record a new code revision if the submitted code differs from the immediately preceding revision.
+     * If code is identical to the preceding revision, return existing revision info.
+     *
+     * @param int $courseid Course ID.
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @param int $userid User ID.
+     * @param string $codecontent Code content.
+     * @return array{id: ?int, step_number: int, is_new: bool}
+     */
+    public function record_or_get_code_revision(
+        int $courseid,
+        int $quizid,
+        int $questionid,
+        int $userid,
+        string $codecontent
+    ): array {
+        $trimmed = trim(self::sanitize_multiline_text($codecontent));
+        if ($trimmed === '') {
+            return ['id' => null, 'step_number' => 0, 'is_new' => false];
+        }
+
+        $codehash = hash('sha256', $trimmed);
+
+        // Find the immediately preceding revision for this user on this specific question
+        $stmt = $this->connection->prepare(
+            'SELECT id, code_hash, step_number FROM student_code_revisions
+              WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND user_id = ?
+              ORDER BY id DESC LIMIT 1'
+        );
+        $stmt->bind_param('iiii', $courseid, $quizid, $questionid, $userid);
+        $stmt->execute();
+        $last = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        // If the immediately preceding revision has the exact same hash, reuse it
+        if ($last && (string) $last['code_hash'] === $codehash) {
+            return [
+                'id' => (int) $last['id'],
+                'step_number' => (int) $last['step_number'],
+                'is_new' => false,
+            ];
+        }
+
+        // Code differs from the immediately preceding revision (or this is the very first revision)
+        // Calculate the next step number (e.g. 1, 2, 3...)
+        $newstep = $last ? ((int) $last['step_number'] + 1) : 1;
+        $mode = 'playground';
+        $ins = $this->connection->prepare(
+            'INSERT INTO student_code_revisions
+            (course_id, quiz_id, question_id, user_id, step_number, code_content, code_hash, execution_mode)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+        );
+        $ins->bind_param(
+            'iiiiisss',
+            $courseid,
+            $quizid,
+            $questionid,
+            $userid,
+            $newstep,
+            $trimmed,
+            $codehash,
+            $mode
+        );
+        $ins->execute();
+        $newid = (int) $ins->insert_id;
+        $ins->close();
+
+        return [
+            'id' => $newid,
+            'step_number' => $newstep,
+            'is_new' => true,
+        ];
+    }
+
+    /**
+     * Get the latest run context (code, inputs) for prefilling the playground form.
+     *
+     * @param int $courseid Course ID.
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @param int $userid User ID.
+     * @return array|null Latest run record or revision.
+     */
+    public function get_latest_student_run_context(int $courseid, int $quizid, int $questionid, int $userid): ?array {
+        $stmt = $this->connection->prepare(
+            'SELECT r.student_code_snapshot, r.input_raw, r.predicted_output, r.purpose, r.category,
+                    rev.step_number AS revision_step, rev.code_content AS revision_code
+               FROM testcase_runs r
+          LEFT JOIN student_code_revisions rev ON rev.id = r.code_revision_id
+              WHERE r.course_id = ? AND r.quiz_id = ? AND r.question_id = ? AND r.user_id = ?
+              ORDER BY r.id DESC LIMIT 1'
+        );
+        $stmt->bind_param('iiii', $courseid, $quizid, $questionid, $userid);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        if ($row) {
+            return $row;
+        }
+
+        // Fallback to latest revision if no runs yet
+        $stmt2 = $this->connection->prepare(
+            'SELECT code_content AS revision_code, step_number AS revision_step
+               FROM student_code_revisions
+              WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND user_id = ?
+              ORDER BY id DESC LIMIT 1'
+        );
+        $stmt2->bind_param('iiii', $courseid, $quizid, $questionid, $userid);
+        $stmt2->execute();
+        $row2 = $stmt2->get_result()->fetch_assoc();
+        $stmt2->close();
+        return $row2 ?: null;
+    }
+
+    /**
+     * Get summary of code revisions and their associated testcases for a user and question.
+     *
+     * @param int $courseid Course ID.
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @param int $userid User ID.
+     * @return array List of code revisions with linked testcases and timestamps.
+     */
+    public function code_revisions_summary(int $courseid, int $quizid, int $questionid, int $userid): array {
+        $stmt = $this->connection->prepare(
+            'SELECT id, step_number, code_content, code_hash, created_at
+               FROM student_code_revisions
+              WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND user_id = ?
+              ORDER BY step_number DESC'
+        );
+        $stmt->bind_param('iiii', $courseid, $quizid, $questionid, $userid);
+        $stmt->execute();
+        $revisions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+
+        if (empty($revisions)) {
+            return [];
+        }
+
+        $stmtruns = $this->connection->prepare(
+            'SELECT id, code_revision_id, input_raw, student_run_output, oracle_outcome,
+                    student_outcome, created_at
+               FROM testcase_runs
+              WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND user_id = ?
+              ORDER BY id ASC'
+        );
+        $stmtruns->bind_param('iiii', $courseid, $quizid, $questionid, $userid);
+        $stmtruns->execute();
+        $allruns = $stmtruns->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmtruns->close();
+
+        $runsbyrevision = [];
+        foreach ($allruns as $r) {
+            $revid = (int) ($r['code_revision_id'] ?? 0);
+            if ($revid > 0) {
+                $runsbyrevision[$revid][] = $r;
+            }
+        }
+
+        $result = [];
+        foreach ($revisions as $idx => $rev) {
+            $revid = (int) $rev['id'];
+            $linkedruns = $runsbyrevision[$revid] ?? [];
+            $runids = array_column($linkedruns, 'id');
+            $testcaselabels = array_map(function($id) {
+                return '#' . $id;
+            }, $runids);
+
+            $snippetlines = explode("\n", trim($rev['code_content']));
+            $snippet = implode("\n", array_slice($snippetlines, 0, 3));
+            if (count($snippetlines) > 3) {
+                $snippet .= "\n...";
+            }
+
+            $result[] = [
+                'id' => $revid,
+                'step_number' => (int) $rev['step_number'],
+                'created_at' => $rev['created_at'],
+                'created_at_formatted' => date('H:i:s - d/m/Y', strtotime($rev['created_at'])),
+                'code_content' => $rev['code_content'],
+                'code_content_json' => json_encode($rev['code_content']),
+                'code_snippet' => $snippet,
+                'testcase_count' => count($linkedruns),
+                'testcase_ids_string' => !empty($testcaselabels) ? implode(', ', $testcaselabels) : 'Chưa chạy testcase nào',
+                'has_testcases' => !empty($linkedruns),
+                'is_latest' => ($idx === 0),
+            ];
+        }
+
+        return $result;
     }
 
     /**
@@ -714,6 +1022,53 @@ final class testcase_service {
         if ($count >= $limit) {
             throw new \moodle_exception('ratelimited', 'local_testcase_exchange');
         }
+    }
+
+    /**
+     * Get existing canonical testcases and seeds for a course.
+     *
+     * @param int $courseid Course ID.
+     * @return array<string, array{type: string, id: int}> Map of 'qid:fingerprint' => info.
+     */
+    public function existing_fingerprints_for_course(int $courseid): array {
+        $map = [];
+        $stmt = $this->connection->prepare(
+            'SELECT question_id, input_fingerprint, canonical_contribution_id 
+               FROM testcase_canonical_keys 
+              WHERE course_id = ?'
+        );
+        $stmt->bind_param('i', $courseid);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        while ($row = $res->fetch_assoc()) {
+            $key = (int) $row['question_id'] . ':' . (string) $row['input_fingerprint'];
+            $map[$key] = [
+                'type' => 'contribution',
+                'id' => (int) $row['canonical_contribution_id'],
+            ];
+        }
+        $stmt->close();
+
+        $stmt2 = $this->connection->prepare(
+            'SELECT id, question_id, input_fingerprint 
+               FROM question_seed_testcases 
+              WHERE course_id = ? AND is_active = 1'
+        );
+        $stmt2->bind_param('i', $courseid);
+        $stmt2->execute();
+        $res2 = $stmt2->get_result();
+        while ($row2 = $res2->fetch_assoc()) {
+            $key = (int) $row2['question_id'] . ':' . (string) $row2['input_fingerprint'];
+            if (!isset($map[$key])) {
+                $map[$key] = [
+                    'type' => 'seed',
+                    'id' => (int) $row2['id'],
+                ];
+            }
+        }
+        $stmt2->close();
+
+        return $map;
     }
 
     /**

@@ -68,26 +68,88 @@
                 </select>
             </div>
 
+            {{#has_code_revisions}}
+            <!-- Lịch sử Phiên bản Code & Testcase đã thử nghiệm -->
+            <div class="card border-info mb-3 bg-light">
+                <div class="card-header bg-info text-white py-2 d-flex flex-wrap justify-content-between align-items-center">
+                    <div>
+                        <span class="font-weight-bold">🕒 Lịch sử Phiên bản Code & Testcase đã thử nghiệm</span>
+                        <span class="badge badge-light text-dark font-weight-bold ml-2">{{code_revisions_count}} phiên bản</span>
+                    </div>
+                    <div class="my-1">
+                        <a href="{{export_timeline_csv_url}}" class="btn btn-sm btn-light text-primary font-weight-bold shadow-sm" title="Xuất dữ liệu dòng thời gian học tập & kiểm thử">
+                            📥 Xuất Timeline (CSV)
+                        </a>
+                        <a href="{{export_timeline_json_url}}" class="btn btn-sm btn-outline-light ml-1" title="Xuất toàn bộ payload dạng JSON">
+                            JSON
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-2">
+                    <div class="small text-muted mb-2">
+                        Mỗi khi bạn thay đổi mã nguồn, hệ thống tự động ghi nhận phiên bản mới theo mốc thời gian và liên kết các testcase được chạy tương ứng:
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {{#code_revisions}}
+                        <div class="list-group-item bg-transparent px-2 py-2 d-flex flex-wrap justify-content-between align-items-center border-bottom">
+                            <div class="mr-2 mb-1">
+                                <span class="badge badge-primary font-weight-bold p-1">🏷️ Code v{{step_number}}</span>
+                                <span class="text-muted small ml-1">Lưu lúc: <strong>{{created_at_formatted}}</strong></span>
+                                {{#is_latest}}
+                                <span class="badge badge-success ml-1">Mới nhất</span>
+                                {{/is_latest}}
+                                <div class="mt-1">
+                                    <span class="small font-weight-bold text-dark">Testcase liên kết:</span>
+                                    {{#has_testcases}}
+                                    <span class="badge badge-secondary p-1">{{testcase_ids_string}}</span>
+                                    <small class="text-muted">({{testcase_count}} ca)</small>
+                                    {{/has_testcases}}
+                                    {{^has_testcases}}
+                                    <span class="small text-muted font-italic">Chưa chạy testcase nào</span>
+                                    {{/has_testcases}}
+                                </div>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-primary font-weight-bold btn-apply-revision" title="Dán mã nguồn của phiên bản này vào khung soạn thảo">
+                                    📋 Nạp code v{{step_number}} vào Editor
+                                </button>
+                                <textarea class="d-none revision-full-code">{{code_content}}</textarea>
+                            </div>
+                        </div>
+                        {{/code_revisions}}
+                    </div>
+                </div>
+            </div>
+            {{/has_code_revisions}}
+
             <!-- Khung soạn thảo / dán mã nguồn sinh viên -->
             <div class="form-group mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <label for="student_code" class="mb-0"><strong>💻 Mã nguồn chương trình của bạn (Student Source Code):</strong></label>
-                    <small class="text-muted">Bạn có thể tự do dán (paste) hoặc gõ code mới vào đây để thử nghiệm</small>
+                <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap">
+                    <div>
+                        <label for="student_code" class="mb-0"><strong>💻 Mã nguồn chương trình của bạn (Student Source Code):</strong></label>
+                        <span id="storageStatusBadge" class="small text-muted font-italic ml-2"></span>
+                    </div>
+                    <small class="text-muted">Code và testcase được tự động lưu trạng thái trên trình duyệt (LocalStorage)</small>
                 </div>
                 <textarea class="form-control font-monospace text-dark bg-light" id="student_code" name="student_code" rows="7" required placeholder="def tinh_tong(n):&#10;    # Dán mã nguồn Python của bạn vào đây&#10;    pass" style="font-family: Consolas, Monaco, monospace; font-size: 0.95rem;">{{student_code}}</textarea>
             </div>
 
             <!-- Khung định nghĩa Testcase theo phong cách CodeRunner -->
             <div class="card bg-light border p-3 mb-3">
-                <h6 class="font-weight-bold text-dark mb-3">📝 Định nghĩa Ca kiểm thử (Testcase Definition):</h6>
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+                    <h6 class="font-weight-bold text-dark mb-0">📝 Định nghĩa Ca kiểm thử (Testcase Definition):</h6>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnClearTestInputs" title="Xóa nội dung testcode và output kỳ vọng để nhập ca mới (vẫn giữ nguyên code của bạn)">
+                        🧹 Nhập testcase mới (Xóa input/output)
+                    </button>
+                </div>
                 <div class="row">
                     <div class="col-md-6 form-group">
                         <label for="test_input"><strong>Test Code (Lệnh gọi hàm kiểm thử):</strong></label>
-                        <textarea class="form-control font-monospace" id="test_input" name="test_input" rows="3" required placeholder="Ví dụ: print(tinh_tong(10))" style="font-family: Consolas, monospace;"></textarea>
+                        <textarea class="form-control font-monospace" id="test_input" name="test_input" rows="3" required placeholder="Ví dụ: print(tinh_tong(10))" style="font-family: Consolas, monospace;">{{last_test_input}}</textarea>
                     </div>
                     <div class="col-md-6 form-group">
                         <label for="predicted_output"><strong>Expected Output (Kết quả bạn kỳ vọng in ra):</strong></label>
-                        <textarea class="form-control font-monospace" id="predicted_output" name="predicted_output" rows="3" required placeholder="Ví dụ: 55" style="font-family: Consolas, monospace;"></textarea>
+                        <textarea class="form-control font-monospace" id="predicted_output" name="predicted_output" rows="3" required placeholder="Ví dụ: 55" style="font-family: Consolas, monospace;">{{last_predicted_output}}</textarea>
                     </div>
                 </div>
 
@@ -96,13 +158,13 @@
                         <label for="category">Phân loại ca kiểm thử:</label>
                         <select class="form-control" id="category" name="category">
                             {{#categories}}
-                            <option value="{{value}}">{{label}}</option>
+                            <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
                             {{/categories}}
                         </select>
                     </div>
                     <div class="col-md-8 form-group">
                         <label for="purpose">Mục đích kiểm thử (Giải thích lý do bạn thiết kế test này):</label>
-                        <input class="form-control" id="purpose" name="purpose" maxlength="1000" placeholder="Ví dụ: Kiểm tra trường hợp số nguyên dương lớn n=10">
+                        <input class="form-control" id="purpose" name="purpose" maxlength="1000" value="{{last_purpose}}" placeholder="Ví dụ: Kiểm tra trường hợp số nguyên dương lớn n=10">
                     </div>
                 </div>
             </div>
@@ -195,6 +257,7 @@
                 <thead class="thead-light">
                     <tr>
                         <th style="width: 50px;">ID</th>
+                        <th style="width: 140px;">Phiên bản & Thời gian</th>
                         <th>Test Code (Input)</th>
                         <th>Kỳ vọng (Expected)</th>
                         <th>Code của bạn in ra (Got)</th>
@@ -204,11 +267,24 @@
                 </thead>
                 <tbody>
                     {{^runs}}
-                    <tr><td colspan="6" class="text-center text-muted py-3">Chưa có lượt chạy thử nghiệm nào. Hãy dán code và nhập testcase ở trên để chạy thử!</td></tr>
+                    <tr><td colspan="7" class="text-center text-muted py-3">Chưa có lượt chạy thử nghiệm nào. Hãy dán code và nhập testcase ở trên để chạy thử!</td></tr>
                     {{/runs}}
                     {{#runs}}
                     <tr>
                         <td><strong>#{{id}}</strong></td>
+                        <td>
+                            {{#has_revision}}
+                            <span class="badge badge-info p-1 font-weight-bold">{{revision_badge}}</span>
+                            {{/has_revision}}
+                            {{^has_revision}}
+                            <span class="badge badge-light border text-muted p-1">Lần chạy đơn</span>
+                            {{/has_revision}}
+                            <div class="small text-muted mt-1" style="font-size: 0.78rem;">{{created_at_formatted}}</div>
+                            {{#has_code_snapshot}}
+                            <button type="button" class="btn btn-outline-secondary btn-xs py-0 px-1 mt-1 btn-load-run-code" style="font-size: 0.75rem;" title="Nạp code của lượt chạy này vào khung soạn thảo">📋 Nạp code</button>
+                            <textarea class="d-none run-code-content">{{student_code_snapshot}}</textarea>
+                            {{/has_code_snapshot}}
+                        </td>
                         <td><pre class="mb-0 font-monospace bg-light p-1 border rounded">{{input_raw}}</pre></td>
                         <td><pre class="mb-0 font-monospace bg-light p-1 border rounded">{{predicted_output}}</pre></td>
                         <td>
@@ -241,7 +317,7 @@
                             </form>
                             {{/can_contribute}}
                             {{^can_contribute}}
-                            <span class="badge badge-secondary p-1">{{display_status}}</span>
+                            <span class="{{#display_status_class}}{{display_status_class}}{{/display_status_class}}{{^display_status_class}}badge badge-secondary p-1{{/display_status_class}}">{{display_status}}</span>
                             {{/can_contribute}}
                         </td>
                     </tr>
@@ -349,3 +425,203 @@
         </div>
     </div>
 </div>
+
+<script>
+(function() {
+    var courseId = '{{course_id}}' || (new URLSearchParams(window.location.search)).get('course') || '0';
+    var selectedQuestionVal = '{{selected_question_value}}' || '';
+    var questionSelect = document.getElementById('question');
+    if (!selectedQuestionVal && questionSelect) {
+        selectedQuestionVal = questionSelect.value;
+    }
+
+    var codeEl = document.getElementById('student_code');
+    var inputEl = document.getElementById('test_input');
+    var predictedEl = document.getElementById('predicted_output');
+    var categoryEl = document.getElementById('category');
+    var purposeEl = document.getElementById('purpose');
+    var statusBadge = document.getElementById('storageStatusBadge');
+
+    function getStorageKey(qVal) {
+        var q = qVal || (questionSelect ? questionSelect.value : selectedQuestionVal);
+        return 'tc_draft_' + courseId + '_' + String(q).replace(/[^a-zA-Z0-9_-]/g, '_');
+    }
+
+    function updateStatus(msg, isSuccess) {
+        if (!statusBadge) return;
+        statusBadge.textContent = msg;
+        statusBadge.className = isSuccess ? 'small font-italic text-success ml-2' : 'small font-italic text-muted ml-2';
+    }
+
+    function sanitizeMultiline(str) {
+        if (!str) return '';
+        if (typeof str !== 'string') str = String(str);
+        if (str.indexOf('\n') === -1 && str.indexOf('\\n') !== -1) {
+            return str.replace(/\\r\\n|\\n|\\r/g, '\n');
+        }
+        return str;
+    }
+
+    // Save draft to localStorage
+    function saveDraft() {
+        if (!codeEl && !inputEl && !predictedEl) return;
+        var key = getStorageKey();
+        var data = {
+            code: codeEl ? sanitizeMultiline(codeEl.value) : '',
+            input: inputEl ? sanitizeMultiline(inputEl.value) : '',
+            predicted: predictedEl ? sanitizeMultiline(predictedEl.value) : '',
+            category: categoryEl ? categoryEl.value : 'normal',
+            purpose: purposeEl ? purposeEl.value : '',
+            updated_at: new Date().toLocaleTimeString()
+        };
+        try {
+            localStorage.setItem(key, JSON.stringify(data));
+            updateStatus('💾 Đã lưu nháp tự động lúc ' + data.updated_at, true);
+        } catch (e) {
+            console.warn('LocalStorage error', e);
+        }
+    }
+
+    // Restore draft from localStorage
+    function restoreDraft() {
+        // Clean current values in DOM if they contain literal \n
+        if (codeEl) codeEl.value = sanitizeMultiline(codeEl.value);
+        if (inputEl) inputEl.value = sanitizeMultiline(inputEl.value);
+        if (predictedEl) predictedEl.value = sanitizeMultiline(predictedEl.value);
+
+        var key = getStorageKey();
+        try {
+            var raw = localStorage.getItem(key);
+            if (!raw) return;
+            var data = JSON.parse(raw);
+            if (!data) return;
+
+            var restored = false;
+            var savedCode = sanitizeMultiline(data.code);
+            var savedInput = sanitizeMultiline(data.input);
+            var savedPredicted = sanitizeMultiline(data.predicted);
+
+            // Restore code if currently empty or has bad literal \n
+            if (codeEl && (!codeEl.value.trim() || codeEl.value.indexOf('\\n') !== -1) && savedCode && savedCode.trim()) {
+                codeEl.value = savedCode;
+                restored = true;
+            }
+            // Restore test_input if currently empty or has bad literal \n
+            if (inputEl && (!inputEl.value.trim() || inputEl.value.indexOf('\\n') !== -1) && savedInput && savedInput.trim()) {
+                inputEl.value = savedInput;
+                restored = true;
+            }
+            // Restore predicted_output if currently empty
+            if (predictedEl && (!predictedEl.value.trim() || predictedEl.value.indexOf('\\n') !== -1) && savedPredicted && savedPredicted.trim()) {
+                predictedEl.value = savedPredicted;
+                restored = true;
+            }
+            if (purposeEl && !purposeEl.value.trim() && data.purpose) {
+                purposeEl.value = data.purpose;
+            }
+            if (categoryEl && data.category && (!categoryEl.value || categoryEl.value === 'normal')) {
+                categoryEl.value = data.category;
+            }
+
+            // Immediately save clean newlines back to localStorage
+            saveDraft();
+
+            if (restored) {
+                updateStatus('✓ Đã khôi phục bản nháp từ trình duyệt (' + (data.updated_at || 'trước đó') + ')', true);
+            }
+        } catch (e) {
+            console.warn('LocalStorage error', e);
+        }
+    }
+
+    // Debounced listener on inputs
+    var saveTimer = null;
+    function queueSave() {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(saveDraft, 400);
+    }
+
+    if (codeEl) codeEl.addEventListener('input', queueSave);
+    if (inputEl) inputEl.addEventListener('input', queueSave);
+    if (predictedEl) predictedEl.addEventListener('input', queueSave);
+    if (purposeEl) purposeEl.addEventListener('input', queueSave);
+    if (categoryEl) categoryEl.addEventListener('change', queueSave);
+
+    // Save immediately on form submit
+    var allForms = document.querySelectorAll('form');
+    allForms.forEach(function(f) {
+        var actionInput = f.querySelector('input[name="action"][value="run"]');
+        if (actionInput) {
+            f.addEventListener('submit', function() {
+                saveDraft();
+            });
+        }
+    });
+
+    // Handle question select change: save current, then switch URL
+    if (questionSelect) {
+        questionSelect.addEventListener('change', function() {
+            saveDraft();
+            var newQ = this.value;
+            if (newQ) {
+                var url = new URL(window.location.href);
+                url.searchParams.set('question', newQ);
+                window.location.href = url.toString();
+            }
+        });
+    }
+
+    // Handle "Nạp code" from Revisions list
+    document.querySelectorAll('.btn-apply-revision').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var container = this.closest('.list-group-item') || this.parentElement;
+            var ta = container.querySelector('.revision-full-code');
+            if (ta && codeEl) {
+                codeEl.value = sanitizeMultiline(ta.value);
+                saveDraft();
+                codeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                codeEl.focus();
+                updateStatus('✓ Đã nạp code từ phiên bản vào khung soạn thảo!', true);
+            }
+        });
+    });
+
+    // Handle "Nạp code" from Runs table
+    document.querySelectorAll('.btn-load-run-code').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var row = this.closest('tr');
+            var ta = row ? row.querySelector('.run-code-content') : null;
+            if (ta && codeEl) {
+                codeEl.value = sanitizeMultiline(ta.value);
+                saveDraft();
+                codeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                codeEl.focus();
+                updateStatus('✓ Đã nạp code từ lượt chạy vào khung soạn thảo!', true);
+            }
+        });
+    });
+                saveDraft();
+                codeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                codeEl.focus();
+                updateStatus('✓ Đã nạp code từ lượt chạy vào khung soạn thảo!', true);
+            }
+        });
+    });
+
+    // Button: Clear Testcase inputs only (keep student code)
+    var btnClearTest = document.getElementById('btnClearTestInputs');
+    if (btnClearTest) {
+        btnClearTest.addEventListener('click', function() {
+            if (inputEl) inputEl.value = '';
+            if (predictedEl) predictedEl.value = '';
+            if (purposeEl) purposeEl.value = '';
+            saveDraft();
+            if (inputEl) inputEl.focus();
+            updateStatus('Đã làm sạch ô Test Code và Expected Output để nhập mới.', false);
+        });
+    }
+
+    // Initial restore on page load
+    restoreDraft();
+})();
+</script>

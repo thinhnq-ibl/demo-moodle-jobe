@@ -42,7 +42,8 @@ final class execution_service {
         string $studentsource,
         string $input,
         array $policy,
-        \stdClass $quiz
+        \stdClass $quiz,
+        ?array $cachedoracle = null
     ): array {
         global $CFG, $USER;
 
@@ -73,7 +74,7 @@ final class execution_service {
 
         $testcase = self::make_testcase($question, $input, $policy);
         $student = self::run_source($question, $testcase, $studentsource, $quiz, $USER);
-        $oracle = self::run_source($question, $testcase, (string) $question->answer, $quiz, $USER);
+        $oracle = ($cachedoracle !== null) ? $cachedoracle : self::run_source($question, $testcase, (string) $question->answer, $quiz, $USER);
         return [
             'student' => $student,
             'oracle' => $oracle,

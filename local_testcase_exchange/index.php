@@ -301,7 +301,11 @@ if ($service && data_submitted()) {
                 optional_param('category', 'other', PARAM_ALPHANUMEXT),
                 optional_param('reflection', '', PARAM_TEXT)
             );
-            if ($run['oracle']['outcome'] !== 'success') {
+            if (!empty($run['is_duplicate_run'])) {
+                $message = 'Bạn đã chạy thử nghiệm testcase này với mã nguồn hiện tại ở lượt chạy #' . $run['id'] .
+                    ' rồi. Để giảm tải hệ thống và chống spam, hệ thống không chạy lại trên Sandbox.';
+                $notifytype = \core\output\notification::NOTIFY_WARNING;
+            } else if ($run['oracle']['outcome'] !== 'success') {
                 $message = get_string('runcreatedoraclefailed', 'local_testcase_exchange', $run['oracle']['outcome']);
                 $notifytype = \core\output\notification::NOTIFY_ERROR;
             } else if ($run['student']['outcome'] !== 'success') {
@@ -321,13 +325,15 @@ if ($service && data_submitted()) {
         } else if ($action === 'contribute') {
             require_capability('local/testcase_exchange:contribute', $context);
             $result = $service->submit_contribution(required_param('run_id', PARAM_INT), (int) $USER->id);
-            redirect(
-                $PAGE->url,
-                get_string('contributionstatus', 'local_testcase_exchange', $result['status']),
-                null,
-                $result['status'] === 'duplicate' ?
-                    \core\output\notification::NOTIFY_WARNING : \core\output\notification::NOTIFY_SUCCESS
-            );
+            if (!empty($result['is_own_duplicate'])) {
+                $message = 'Bạn đã đóng góp testcase này trước đó rồi (Đóng góp #' . $result['canonical_id'] . '). Hệ thống không tạo đề xuất mới.';
+                $notifytype = \core\output\notification::NOTIFY_WARNING;
+            } else {
+                $message = get_string('contributionstatus', 'local_testcase_exchange', $result['status']);
+                $notifytype = ($result['status'] === 'duplicate') ?
+                    \core\output\notification::NOTIFY_WARNING : \core\output\notification::NOTIFY_SUCCESS;
+            }
+            redirect($PAGE->url, $message, null, $notifytype);
         } else if ($action === 'explain') {
             require_capability('local/testcase_exchange:contribute', $context);
             $service->resubmit_explanation(
@@ -380,6 +386,7 @@ $contributionbyrun = [];
 foreach ($contributions as $contribution) {
     $contributionbyrun[(int) $contribution['run_id']] = $contribution;
 }
+$existingfingerprints = $service ? $service->existing_fingerprints_for_course($courseid) : [];
 
 if ($databaseerror) {
     echo $OUTPUT->header();
@@ -399,6 +406,41 @@ $enrichedcoursecontributions = $isteacher ?
 $counts = ($service && $isteacher) ?
     $service->contribution_counts($courseid) : ['pending' => 0, 'all' => 0];
 
+$lasttestinput = '';
+$lastpredictedoutput = '';
+$lastpurpose = '';
+$lastcategory = 'normal';
+$coderevisions = [];
+
+if ($selectedquestion && $service) {
+    $latestrunctx = $service->get_latest_student_run_context(
+        $courseid,
+        (int) $selectedquestion->quizid,
+        (int) $selectedquestion->questionid,
+        (int) $USER->id
+    );
+    if ($latestrunctx) {
+        if ($studentcode === '') {
+            $studentcode = $latestrunctx['revision_code'] ?? ($latestrunctx['student_code_snapshot'] ?? '');
+        }
+        $lasttestinput = $latestrunctx['input_raw'] ?? '';
+        $lastpredictedoutput = $latestrunctx['predicted_output'] ?? '';
+        $lastpurpose = $latestrunctx['purpose'] ?? '';
+        $lastcategory = $latestrunctx['category'] ?? 'normal';
+    }
+
+    $studentcode = \local_testcase_exchange\testcase_service::sanitize_multiline_text($studentcode);
+    $lasttestinput = \local_testcase_exchange\testcase_service::sanitize_multiline_text($lasttestinput);
+    $lastpredictedoutput = \local_testcase_exchange\testcase_service::sanitize_multiline_text($lastpredictedoutput);
+
+    $coderevisions = $service->code_revisions_summary(
+        $courseid,
+        (int) $selectedquestion->quizid,
+        (int) $selectedquestion->questionid,
+        (int) $USER->id
+    );
+}
+
 $hasattemptcode = $studentcode !== '';
 $viewquestions = [];
 foreach ($questions as $question) {
@@ -415,17 +457,60 @@ foreach ($questions as $question) {
 foreach ($runs as &$run) {
     $existing = $contributionbyrun[(int) $run['id']] ?? null;
     $runsettings = $service->quiz_settings((int) $run['quiz_id']);
-    $run['show_oracle'] = !empty($runsettings['show_oracle_output']);
-    $run['display_status'] = $existing['status'] ?? ($run['oracle_outcome'] !== 'success' ? 'invalid' : 'private');
-    $run['can_contribute'] = $cancontribute && !$existing && $run['oracle_outcome'] === 'success';
+    // Thẩm định solution không hiển thị output cho sinh viên, chỉ ghi đúng/sai
+    $run['show_oracle'] = $isteacher && !empty($runsettings['show_oracle_output']);
 
-    // Bổ sung trạng thái thẩm định & so khớp vi sai cho sinh viên quan sát
-    $run['oracle_valid'] = ($run['oracle_outcome'] === 'success');
+    $oracle_valid = ($run['oracle_outcome'] === 'success');
+    $run['oracle_valid'] = $oracle_valid;
     $student_out = trim((string) ($run['student_run_output'] ?? ''));
     $predicted_out = trim((string) ($run['predicted_output'] ?? ''));
+    $oracle_out = trim((string) ($run['oracle_output'] ?? ''));
+
     $run['has_student_output'] = ($student_out !== '');
     $run['student_matches_expected'] = ($student_out !== '' && $student_out === $predicted_out);
     $run['student_differs_expected'] = ($student_out !== '' && $student_out !== $predicted_out);
+
+    // Kiểm tra xem Expected output có khớp với kết quả Solution của Thầy/Cô hay không
+    $expected_matches_oracle = ($oracle_valid && $predicted_out !== '' && $predicted_out === $oracle_out);
+    $run['expected_matches_oracle'] = $expected_matches_oracle;
+
+    // Kiểm tra chủ động xem testcase này đã tồn tại trong kho (canonical keys hoặc seeds) hay chưa
+    $run_fp = (string) ($run['input_fingerprint'] ?? '');
+    $fp_key = (int) $run['question_id'] . ':' . $run_fp;
+    $existing_canonical = ($run_fp !== '' && isset($existingfingerprints[$fp_key])) ? $existingfingerprints[$fp_key] : null;
+    $is_duplicate = ($existing_canonical !== null);
+
+    // Chỉ cho phép đề xuất đóng góp khi:
+    // 1. Solution chạy thành công
+    // 2. Expected output của sinh viên khớp chuẩn với kết quả Solution
+    // 3. Lần chạy này chưa từng đóng góp
+    // 4. Testcase này chưa từng tồn tại trong kho (không trùng lặp)
+    // 5. Có capability contribute
+    $run['can_contribute'] = $cancontribute && !$existing && !$is_duplicate && $expected_matches_oracle;
+
+    if ($existing) {
+        $run['display_status'] = $existing['status'];
+        $run['display_status_class'] = 'badge badge-secondary p-1';
+    } else if ($is_duplicate) {
+        $label = ($existing_canonical['type'] === 'seed') ? 'Trùng testcase Đề thi' : ('Đã có trong kho (#' . $existing_canonical['id'] . ')');
+        $run['display_status'] = $label;
+        $run['display_status_class'] = 'badge badge-secondary p-1';
+    } else if (!$oracle_valid) {
+        $run['display_status'] = 'invalid';
+        $run['display_status_class'] = 'badge badge-danger p-1';
+    } else if (!$expected_matches_oracle) {
+        $run['display_status'] = 'Lệch Solution';
+        $run['display_status_class'] = 'badge badge-warning text-dark p-1';
+    } else {
+        $run['display_status'] = 'private';
+        $run['display_status_class'] = 'badge badge-secondary p-1';
+    }
+
+    // Bổ sung phiên bản code và mốc thời gian
+    $run['has_revision'] = !empty($run['revision_step']);
+    $run['revision_badge'] = !empty($run['revision_step']) ? 'Code v' . $run['revision_step'] : null;
+    $run['created_at_formatted'] = date('H:i:s d/m/Y', strtotime($run['created_at']));
+    $run['has_code_snapshot'] = !empty($run['student_code_snapshot']);
 }
 unset($run);
 foreach ($contributions as &$contribution) {
@@ -438,6 +523,7 @@ foreach (['normal', 'boundary', 'empty', 'invalid', 'large', 'branch', 'other'] 
     $viewcategories[] = [
         'value' => $category,
         'label' => get_string('category_' . $category, 'local_testcase_exchange'),
+        'selected' => ($category === $lastcategory),
     ];
 }
 
@@ -460,6 +546,8 @@ foreach ($rawcourses as $rc) {
 
 $templatedata = [
     'sesskey' => sesskey(),
+    'course_id' => $courseid,
+    'quiz_id' => $quizid,
     'can_manage' => $canmanage,
     'can_review' => $canreview,
     'can_manage_or_review' => $isteacher,
@@ -471,6 +559,8 @@ $templatedata = [
     'show_course_switcher' => (count($availablecourselist) > 1 || $issiteadmin),
 
     'can_run' => has_capability('local/testcase_exchange:run', $context),
+    'export_timeline_csv_url' => (new moodle_url('/local/testcase_exchange/export.php', ['course' => $courseid, 'quiz' => $quizid, 'format' => 'csv']))->out(false),
+    'export_timeline_json_url' => (new moodle_url('/local/testcase_exchange/export.php', ['course' => $courseid, 'quiz' => $quizid, 'format' => 'json']))->out(false),
     'policy_url' => (new moodle_url('/local/testcase_exchange/policy.php', ['course' => $courseid]))->out(false),
     'review_url' => (new moodle_url('/local/testcase_exchange/review.php', ['course' => $courseid]))->out(false),
     'pending_contribution_count' => $counts['pending'] ?? 0,
@@ -481,6 +571,12 @@ $templatedata = [
     'has_questions' => !empty($viewquestions),
     'categories' => $viewcategories,
     'student_code' => $studentcode,
+    'last_test_input' => $lasttestinput,
+    'last_predicted_output' => $lastpredictedoutput,
+    'last_purpose' => $lastpurpose,
+    'code_revisions' => $coderevisions,
+    'has_code_revisions' => !empty($coderevisions),
+    'code_revisions_count' => count($coderevisions),
     'has_prefilled_code' => $hasattemptcode,
     'show_run_form' => true,
     'show_code_editor' => true,
