@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2026 Nguyen Quoc Thinh
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class db_gateway {
+class db_gateway {
 
     /** @var \moodle_database Core database instance. */
     private \moodle_database $db;

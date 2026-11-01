@@ -1231,7 +1231,7 @@ final class testcase_service {
             $tx->allow_commit();
             return true;
         } catch (\Throwable $e) {
-            return false;
+            $tx->rollback($e);
         }
     }
 
@@ -1336,6 +1336,13 @@ final class testcase_service {
         } catch (\Throwable $e) {
             $samplefingerprints = [];
         }
+
+        // Lock recipient row to serialize concurrent reward allocations for the same user,
+        // preventing race conditions where multiple contributions of the same user compete for candidates.
+        $this->db->fetch_row(
+            'SELECT id FROM {user} WHERE id = ? FOR UPDATE',
+            [$ownerid]
+        );
 
         // 1. Peer Pool candidates
         $peerrows = $this->db->fetch_all(
@@ -1460,7 +1467,21 @@ final class testcase_service {
                 'timecreated' => $timenow,
             ]);
         } catch (\Throwable $e) {
-            // Idempotent duplicate reward suppression
+            $msg = $e->getMessage();
+            $isdup = (stripos($msg, 'Duplicate') !== false ||
+                      stripos($msg, 'unique') !== false ||
+                      stripos($msg, '1062') !== false ||
+                      stripos($msg, '23505') !== false);
+            if (!$isdup && $e instanceof \dml_write_exception && isset($e->error)) {
+                $isdup = (stripos($e->error, 'Duplicate') !== false || stripos($e->error, 'unique') !== false);
+            }
+            if ($isdup) {
+                // Benign duplicate reward race condition suppressed idempotently.
+                debugging('Suppressed duplicate reward race condition: ' . $msg, DEBUG_DEVELOPER);
+            } else {
+                // Unexpected DB failure: rethrow so parent review transaction cleanly rolls back.
+                throw $e;
+            }
         }
     }
 

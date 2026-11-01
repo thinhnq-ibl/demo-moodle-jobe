@@ -52,5 +52,14 @@ function xmldb_local_testcase_exchange_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026110102, 'local', 'testcase_exchange');
     }
 
+    if ($oldversion < 2026110103) {
+        $table = new xmldb_table('local_tce_rewards');
+        $indexseed = new xmldb_index('idx_reward_unique_seed', XMLDB_INDEX_UNIQUE, ['receiver_user_id', 'question_id', 'seed_id']);
+        if (!$dbman->index_exists($table, $indexseed)) {
+            $dbman->add_index($table, $indexseed);
+        }
+        upgrade_plugin_savepoint(true, 2026110103, 'local', 'testcase_exchange');
+    }
+
     return true;
 }
