@@ -1462,7 +1462,7 @@ final class testcase_service {
     }
 
     /**
-     * Return summary statistics for all courses in testcase_contributions.
+     * Return summary statistics for all courses in local_tce_contributions.
      */
     public function courses_summary(): array {
         $rows = $this->db->fetch_all(

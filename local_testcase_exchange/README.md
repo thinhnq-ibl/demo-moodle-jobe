@@ -17,27 +17,21 @@ Testcase được duyệt không tự động thay đổi bộ test chấm chín
 
 ## Cài đặt và cấu hình
 
-Đặt thư mục tại `moodle/local/testcase_exchange`, sau đó chạy Moodle upgrade. Cấu hình tại:
+Đặt thư mục tại `moodle/local/testcase_exchange`, sau đó chạy Moodle upgrade (`php admin/cli/upgrade.php` hoặc qua giao diện web).
 
+Cấu hình quản trị tại:
 **Site administration > Plugins > Local plugins > CodeRunner Testcase Exchange**
 
-Cần cung cấp MariaDB host/port/database/user/password. Tài khoản DB phải có quyền đọc, ghi và tạo/cập nhật schema trong lần migration đầu. Kho ngoài hiện hỗ trợ MariaDB/MySQL, không hỗ trợ PostgreSQL.
+> **Lưu ý phát hành:** Bản phát hành chuẩn hóa này sử dụng cơ chế cài đặt mới (fresh install) với các bảng dữ liệu chuyên dụng `{local_tce_*}` trực tiếp trong CSDL Moodle, được quản lý vòng đời bởi Moodle XMLDB API. Bản phát hành chưa hỗ trợ công cụ tự động chuyển đổi dữ liệu từ các bản thử nghiệm nội bộ cũ.
 
-Việc chạy code dùng cấu hình Jobe của `qtype_coderunner`. Trường Jobe trong local plugin phục vụ health check và mặc định kế thừa `jobe_host` của CodeRunner; nếu nhập riêng thì hai cấu hình phải trỏ cùng cluster.
+Plugin không yêu cầu thông tin đăng nhập hoặc kết nối CSDL bên ngoài. Việc thực thi kiểm thử mã nguồn được thực hiện hoàn toàn độc lập thông qua Jobe sandbox REST API (tự động kế thừa `jobe_host` từ CodeRunner hoặc cấu hình tùy chỉnh qua trường `jobe_servers`).
 
-Với Docker Compose, tạo `.env` cạnh `docker-compose.yml`:
+Với Docker Compose, có thể cung cấp `.env`:
 
 ```dotenv
-TESTCASE_DB_HOST=mariadb
-TESTCASE_DB_PORT=3306
-TESTCASE_DB_NAME=testcase_store
-TESTCASE_DB_USER=moodle_app_writer
-TESTCASE_DB_PASSWORD=replace-with-a-secret
 TESTCASE_JOBE_SERVERS=jobe1;jobe2
 TESTCASE_JOBE_API_KEY=
 ```
-
-Entrypoint đồng bộ các biến này vào cấu hình Moodle khi container khởi động. Mật khẩu/API key không xuất hiện trên trang health check.
 
 ## Sử dụng
 

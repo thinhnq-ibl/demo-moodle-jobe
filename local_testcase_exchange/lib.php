@@ -22,24 +22,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 /**
- * Return the external testcase database configuration.
- *
- * @return array{host:string, port:int, user:string, pass:string, name:string}
- */
-function local_testcase_exchange_get_db_config(): array {
-    $port = (int) get_config('local_testcase_exchange', 'db_port');
-    $password = get_config('local_testcase_exchange', 'db_pass');
-
-    return [
-        'host' => get_config('local_testcase_exchange', 'db_host') ?: 'mariadb',
-        'port' => $port > 0 && $port <= 65535 ? $port : 3306,
-        'user' => get_config('local_testcase_exchange', 'db_user') ?: 'moodle_app_writer',
-        'pass' => $password === false ? '' : (string) $password,
-        'name' => get_config('local_testcase_exchange', 'db_name') ?: 'testcase_store',
-    ];
-}
-
-/**
  * Return configured Jobe servers with a ready-to-use runs endpoint.
  *
  * The setting accepts the same semicolon-separated host format as CodeRunner,

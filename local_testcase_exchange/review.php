@@ -127,9 +127,6 @@ if ($courseid === 0) {
         'total_approved_contributions' => $totalapprovedcontributions,
         'courses' => $availablecourses,
     ]);
-    if (isset($connection) && $connection) {
-        $connection->close();
-    }
     echo $OUTPUT->footer();
     exit;
 }
@@ -297,5 +294,4 @@ echo $OUTPUT->render_from_template('local_testcase_exchange/review', [
     'has_items' => !empty($enricheditems),
     'total_count' => count($enricheditems),
 ]);
-$connection->close();
 echo $OUTPUT->footer();

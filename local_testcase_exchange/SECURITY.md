@@ -15,7 +15,7 @@ General bugs and feature requests belong in the [public issue tracker](https://g
 ## Deployment expectations
 
 - Serve Moodle and Jobe over trusted networks; expose Jobe publicly only behind authentication and rate limiting.
-- Use a dedicated least-privilege MariaDB account for `testcase_store`.
-- Keep Jobe off the database network.
+- Plugin business data resides in dedicated `{local_tce_*}` tables inside Moodle database, protected by standard Moodle DML parameterization and capability checks.
+- Keep Jobe sandboxes isolated on a dedicated sandbox host or network with zero database access.
 - Store secrets in the deployment secret manager or `.env`; never commit them.
 - Restrict the health page to site administrators and review capabilities to trusted staff.

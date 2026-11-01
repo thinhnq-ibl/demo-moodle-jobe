@@ -237,14 +237,19 @@ class provider implements
         if (empty($userids)) {
             return [];
         }
-        [$insql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'uid');
-        $sql = "SELECT course_id FROM {local_tce_runs} WHERE user_id {$insql}
+        [$in1, $p1] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'u1');
+        [$in2, $p2] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'u2');
+        [$in3, $p3] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'u3');
+        [$in4, $p4] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'u4');
+        $params = array_merge($p1, $p2, $p3, $p4);
+
+        $sql = "SELECT course_id FROM {local_tce_runs} WHERE user_id {$in1}
                 UNION
-                SELECT course_id FROM {local_tce_contributions} WHERE user_id {$insql}
+                SELECT course_id FROM {local_tce_contributions} WHERE user_id {$in2}
                 UNION
-                SELECT course_id FROM {local_tce_rewards} WHERE receiver_user_id {$insql}
+                SELECT course_id FROM {local_tce_rewards} WHERE receiver_user_id {$in3}
                 UNION
-                SELECT course_id FROM {local_tce_revisions} WHERE user_id {$insql}";
+                SELECT course_id FROM {local_tce_revisions} WHERE user_id {$in4}";
         $records = $DB->get_records_sql($sql, $params);
         $courseids = [];
         foreach ($records as $r) {

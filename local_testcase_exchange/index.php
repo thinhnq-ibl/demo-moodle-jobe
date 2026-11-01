@@ -129,9 +129,6 @@ if ($courseid === 0) {
         'total_approved_contributions' => $totalapprovedcontributions,
         'courses' => $availablecourses,
     ]);
-    if (isset($connection) && $connection) {
-        $connection->close();
-    }
     echo $OUTPUT->footer();
     exit;
 }
@@ -389,11 +386,7 @@ if ($service && data_submitted()) {
             require_capability('local/testcase_exchange:review', $context);
             $contribid = required_param('contribution_id', PARAM_INT);
             // Strict course scope validation: verify contribution belongs to this course
-            $stmt = $connection->prepare('SELECT id FROM testcase_contributions WHERE id = ? AND course_id = ?');
-            $stmt->bind_param('ii', $contribid, $courseid);
-            $stmt->execute();
-            $contribexists = (bool) $stmt->get_result()->fetch_assoc();
-            $stmt->close();
+            $contribexists = $DB->record_exists('local_tce_contributions', ['id' => $contribid, 'course_id' => $courseid]);
             if (!$contribexists) {
                 throw new moodle_exception('invalidcontribution', 'local_testcase_exchange', '', 'Đóng góp không thuộc môn học hiện tại.');
             }
@@ -476,11 +469,7 @@ if ($service && data_submitted()) {
             require_capability('local/testcase_exchange:manage', $context);
             $seedid = required_param('seed_id', PARAM_INT);
             // Strict course scope validation: verify seed belongs to this course
-            $stmt = $connection->prepare('SELECT id FROM question_seed_testcases WHERE id = ? AND course_id = ?');
-            $stmt->bind_param('ii', $seedid, $courseid);
-            $stmt->execute();
-            $seedexists = (bool) $stmt->get_result()->fetch_assoc();
-            $stmt->close();
+            $seedexists = $DB->record_exists('local_tce_seeds', ['id' => $seedid, 'course_id' => $courseid]);
             if (!$seedexists) {
                 throw new moodle_exception('invalidcontext', 'local_testcase_exchange', '', 'Testcase hạt giống không thuộc môn học hiện tại.');
             }
@@ -971,7 +960,4 @@ if ($is_student_view) {
 
 echo $OUTPUT->header();
 echo $OUTPUT->render_from_template('local_testcase_exchange/dashboard', $templatedata);
-if ($connection) {
-    $connection->close();
-}
 echo $OUTPUT->footer();

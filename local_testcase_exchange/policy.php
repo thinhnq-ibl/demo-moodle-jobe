@@ -240,5 +240,4 @@ $templatedata = [
     'seeds_count' => count($seedlist),
 ];
 echo $OUTPUT->render_from_template('local_testcase_exchange/policy', $templatedata);
-$connection->close();
 echo $OUTPUT->footer();
