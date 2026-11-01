@@ -1,0 +1,22 @@
+Git Commit: 5b7abd0d534ad80753782e4b52aea56a8160639d
+Git Commit Short: 5b7abd0
+Timestamp: 2026-11-01 18:12:48 +07
+Branch: feature/implement_full
+
+
+Running 8 tests using 1 worker
+
+  ✓  1 [chromium] › test_ui_separation_teacher_student.spec.js:36:3 › Phân tách rõ nét View Sinh viên và View Giáo viên (UI Separation) › 1. View Sinh viên: Tài khoản student1 vào thẳng trang làm bài mặc định, không lộ chức năng quản lý (5.0s)
+  ✓  2 [chromium] › test_ui_separation_teacher_student.spec.js:72:3 › Phân tách rõ nét View Sinh viên và View Giáo viên (UI Separation) › 2. An toàn & Phân quyền Backend: Sinh viên bị chặn khi truy cập URL quản lý của giáo viên (5.5s)
+  ✓  3 [chromium] › test_ui_separation_teacher_student.spec.js:88:3 › Phân tách rõ nét View Sinh viên và View Giáo viên (UI Separation) › 3. View Giáo viên thông thường (teacher1, Non-Admin): Mặc định vào Management Hub 5 Tabs (5.0s)
+  ✓  4 [chromium] › test_ui_separation_teacher_student.spec.js:141:3 › Phân tách rõ nét View Sinh viên và View Giáo viên (UI Separation) › 4. Chế độ Xem thử (Teacher Preview Mode): Giáo viên xem góc nhìn học viên và quay lại an toàn (7.2s)
+
+  ✓  5 [chromium] › test_ui_separation_teacher_student.spec.js:175:3 › Phân tách rõ nét View Sinh viên và View Giáo viên (UI Separation) › 5. Sinh viên bị chặn khi gửi POST các action quản trị (save_policy, teacher_review, add_manual_seed, delete_seed) và dữ liệu bảo toàn (5.8s)
+
+  ✓  6 [chromium] › test_ui_separation_teacher_student.spec.js:261:3 › Phân tách rõ nét View Sinh viên và View Giáo viên (UI Separation) › 6. Giáo viên lưu cấu hình chính sách (Tab 5), chặn Quiz ngoài quyền (Quiz 2 thuộc Course 3), và bảo toàn roundtrip (11.3s)
+
+  ✓  7 [chromium] › test_ui_separation_teacher_student.spec.js:343:3 › Phân tách rõ nét View Sinh viên và View Giáo viên (UI Separation) › 7. Ca duyệt đóng góp: Tạo fixture riêng, bắt buộc tìm thấy form thẩm định, lưu duyệt và xác nhận MariaDB (6.3s)
+
+  ✓  8 [chromium] › test_ui_separation_teacher_student.spec.js:390:3 › Phân tách rõ nét View Sinh viên và View Giáo viên (UI Separation) › 8. Chế độ Xem thử: Gửi POST run trực tiếp với preview=1 bị chặn, nút UI vô hiệu hóa & không gây ô nhiễm số liệu sinh viên (7.2s)
+
+  8 passed (54.4s)
