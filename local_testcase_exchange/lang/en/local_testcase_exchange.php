@@ -218,3 +218,32 @@ $string['unclaimed_rewards_alert'] = 'New reward waiting for you to claim';
 $string['ready_for_check'] = 'Ready for Check execution';
 $string['norewardsfound'] = 'You have no rewards yet. Contribute new testcases to earn rewards!';
 
+// Teacher Hub and Student View separation.
+$string['teacherview_title'] = 'Teacher Management Hub';
+$string['studentview_title'] = 'Differential Testing Playground';
+$string['view_as_student'] = 'Preview as Student';
+$string['previewmode_banner'] = 'Preview Mode — Teacher Account: You are experiencing the interface from a student\'s perspective. All questions, playground runs, and gating behave exactly as seen by students.';
+$string['previewmode_exit'] = 'Return to Management';
+$string['previewmode_contribute_notice'] = 'Preview Mode: Teacher test contributions are blocked from entering the live pool to preserve authentic student learning data.';
+$string['previewmode_reward_notice'] = 'Preview Mode: Student rewards cannot be claimed in preview mode.';
+$string['previewmode_run_disabled_notice'] = 'Preview Mode: Differential test execution is disabled in preview mode to protect student statistics from contamination.';
+$string['tab_overview'] = 'Overview';
+$string['tab_review'] = 'Contributions & Review';
+$string['tab_bank'] = 'Testcase Bank';
+$string['tab_activity'] = 'Student Activity & Export';
+$string['tab_policy'] = 'Policy Configuration';
+$string['tab_solve'] = 'Solve & Test';
+$string['tab_my_contributions'] = 'My Contributions';
+$string['tab_my_rewards'] = 'Claimed Rewards';
+$string['question_prompt_title'] = 'Question Prompt';
+$string['public_samples_title'] = 'Public Sample Testcases';
+$string['public_samples_desc'] = 'Examples provided directly in the CodeRunner question description. Automatically excluded from student rewards and peer contribution pool.';
+$string['seed_bank_title'] = 'Teacher Seed Bank';
+$string['seed_bank_desc'] = 'Pre-configured testcases seeded by teachers, used to kickstart reciprocal rewards before peer submissions are available.';
+$string['approved_peer_title'] = 'Approved Peer Contributions';
+$string['approved_peer_desc'] = 'High-quality testcases submitted by peers and approved by teachers, circulating in the active reward pool.';
+$string['all_students'] = 'All students';
+$string['filter_by_student'] = 'Filter by student';
+$string['filter_by_status'] = 'Filter by status';
+
+

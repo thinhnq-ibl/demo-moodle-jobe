@@ -45,7 +45,38 @@ final class execution_service {
         \stdClass $quiz,
         ?array $cachedoracle = null
     ): array {
-        global $CFG, $USER;
+        global $USER;
+
+        $ctx = self::resolve_context($questionid, $policy);
+        $question = $ctx['question'];
+
+        $testcase = self::make_testcase($question, $input, $policy);
+        $student = self::run_source($question, $testcase, $studentsource, $quiz, $USER);
+        $oracle = ($cachedoracle !== null) ? $cachedoracle : self::run_source($question, $testcase, (string) $question->answer, $quiz, $USER);
+        return [
+            'student' => $student,
+            'oracle' => $oracle,
+            'oracle_solution' => $ctx['oracle_solution'],
+            'template' => $ctx['template'],
+            'coderunnertype' => $ctx['coderunnertype'],
+            'question_version' => $ctx['question_version'],
+            'grader_type' => $ctx['grader_type'],
+            'oracle_version_hash' => $ctx['oracle_version_hash'],
+            'test_suite_version_hash' => $ctx['test_suite_version_hash'],
+            'execution_limits' => $ctx['execution_limits'],
+            'sample_fingerprints' => $ctx['sample_fingerprints'],
+        ];
+    }
+
+    /**
+     * Resolve question execution context, oracle version hash and sample testcases.
+     *
+     * @param int $questionid Question ID.
+     * @param array $policy Question policy.
+     * @return array Context configuration.
+     */
+    public static function resolve_context(int $questionid, array $policy): array {
+        global $CFG;
 
         require_once($CFG->libdir . '/questionlib.php');
         \question_bank::load_question_definition_classes('coderunner');
@@ -63,21 +94,32 @@ final class execution_service {
         }
         $grader = (string) ($question->grader ?: 'EqualityGrader');
         $qversion = isset($question->version) ? (int) $question->version : 1;
-        $oraclehash = hash('sha256', (string) $question->answer);
-        $testsuitehash = hash('sha256', json_encode($question->testcases ?? []));
         $limits = [
             'cputimelimitsecs' => $question->cputimelimitsecs,
             'memlimitmb' => $question->memlimitmb,
             'allornothing' => $question->allornothing ?? 1,
             'sandbox' => $question->sandbox,
         ];
+        // Bao quát đầy đủ: Lời giải mẫu, template, limits, coderunnertype để đảm bảo cache invalidation chính xác
+        $oraclehash = hash('sha256', (string) $question->answer . '||' . $template . '||' . json_encode($limits) . '||' . ($question->coderunnertype ?? ''));
+        $testsuitehash = hash('sha256', json_encode($question->testcases ?? []));
 
-        $testcase = self::make_testcase($question, $input, $policy);
-        $student = self::run_source($question, $testcase, $studentsource, $quiz, $USER);
-        $oracle = ($cachedoracle !== null) ? $cachedoracle : self::run_source($question, $testcase, (string) $question->answer, $quiz, $USER);
+        // Trích xuất danh sách fingerprint của các testcase mẫu công khai (useasexample = 1)
+        $samplefingerprints = [];
+        if (!empty($question->testcases)) {
+            foreach ($question->testcases as $tc) {
+                if (!empty($tc->useasexample)) {
+                    $raw = !empty($tc->stdin) ? $tc->stdin : (!empty($tc->testcode) ? $tc->testcode : '');
+                    if ($raw !== '') {
+                        $norm = normalizer::normalize($raw, (string) ($policy['normalization_mode'] ?? 'trim'));
+                        $samplefingerprints[] = normalizer::fingerprint($norm);
+                    }
+                }
+            }
+        }
+
         return [
-            'student' => $student,
-            'oracle' => $oracle,
+            'question' => $question,
             'oracle_solution' => (string) $question->answer,
             'template' => $template,
             'coderunnertype' => (string) ($question->coderunnertype ?? ''),
@@ -86,6 +128,7 @@ final class execution_service {
             'oracle_version_hash' => $oraclehash,
             'test_suite_version_hash' => $testsuitehash,
             'execution_limits' => json_encode($limits, JSON_UNESCAPED_SLASHES),
+            'sample_fingerprints' => array_values(array_unique($samplefingerprints)),
         ];
     }
 

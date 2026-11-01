@@ -147,55 +147,101 @@ final class testcase_service {
         }
         $fingerprint = normalizer::fingerprint($normalized);
         $sourcehash = hash('sha256', $studentsource);
+        $rawinputhash = hash('sha256', $input);
+        $qid = (int) $questioncontext->questionid;
 
-        // Kiểm tra chống spam & giảm tải: Nếu sinh viên chạy trùng testcase với mã nguồn hiện tại của chính họ
+        // Tải context để lấy oracle_version_hash và sample testcases
+        $execcontext = execution_service::resolve_context($qid, $policy);
+        $oracleversionhash = (string) $execcontext['oracle_version_hash'];
+
+        // Kiểm tra chống spam & giảm tải: Khóa tra cứu bao quát input thô, mã sinh viên và phiên bản oracle
         $duplicatestmt = $this->connection->prepare(
             'SELECT id, student_run_output, oracle_output, student_outcome, oracle_outcome,
                     predicted_output, jobe_server, created_at, code_revision_id
                FROM testcase_runs
               WHERE user_id = ?
                 AND question_id = ?
-                AND input_fingerprint = ?
+                AND input_raw_hash = ?
                 AND student_source_hash = ?
+                AND oracle_version_hash = ?
               ORDER BY id DESC LIMIT 1'
         );
-        $qid = (int) $questioncontext->questionid;
-        $duplicatestmt->bind_param('iiss', $userid, $qid, $fingerprint, $sourcehash);
+        $duplicatestmt->bind_param('iisss', $userid, $qid, $rawinputhash, $sourcehash, $oracleversionhash);
         $duplicatestmt->execute();
         $existingrun = $duplicatestmt->get_result()->fetch_assoc();
         $duplicatestmt->close();
 
         if ($existingrun) {
-            // Không gửi yêu cầu sang Jobe Sandbox! Tái sử dụng kết quả lượt chạy trước để giảm tải và chống spam.
-            return [
-                'id' => (int) $existingrun['id'],
-                'is_duplicate_run' => true,
+            $is_same_prediction = (trim((string) $existingrun['predicted_output']) === trim((string) $predicted));
+            if ($is_same_prediction) {
+                // Toàn bộ code, input và expected đều giống hệt -> Chặn hoàn toàn và trả lại lượt chạy cũ
+                return [
+                    'id' => (int) $existingrun['id'],
+                    'is_duplicate_run' => true,
+                    'student' => [
+                        'outcome' => $existingrun['student_outcome'],
+                        'output' => $existingrun['student_run_output'],
+                        'server' => $existingrun['jobe_server'],
+                    ],
+                    'oracle' => [
+                        'outcome' => $existingrun['oracle_outcome'],
+                        'output' => $existingrun['oracle_output'],
+                        'server' => $existingrun['jobe_server'],
+                    ],
+                    'input' => $input,
+                    'normalized' => $normalized,
+                    'fingerprint' => $fingerprint,
+                    'code_revision_id' => $existingrun['code_revision_id'],
+                ];
+            }
+
+            // Sinh viên điều chỉnh Expected Output: Tái sử dụng 100% kết quả thực thi Jobe cũ nhưng ghi nhận dự đoán mới
+            $cached_results = [
                 'student' => [
                     'outcome' => $existingrun['student_outcome'],
                     'output' => $existingrun['student_run_output'],
-                    'server' => $existingrun['jobe_server'],
+                    'server' => 'cached',
                 ],
                 'oracle' => [
                     'outcome' => $existingrun['oracle_outcome'],
                     'output' => $existingrun['oracle_output'],
-                    'server' => $existingrun['jobe_server'],
+                    'server' => 'cached',
                 ],
-                'input' => $input,
-                'normalized' => $normalized,
-                'fingerprint' => $fingerprint,
-                'code_revision_id' => $existingrun['code_revision_id'],
+                'oracle_solution' => (string) ($execcontext['oracle_solution'] ?? ''),
+                'template' => (string) ($execcontext['template'] ?? ''),
+                'question_version' => (int) ($execcontext['question_version'] ?? 1),
+                'grader_type' => (string) ($execcontext['grader_type'] ?? 'EqualityGrader'),
+                'oracle_version_hash' => $oracleversionhash,
+                'test_suite_version_hash' => (string) ($execcontext['test_suite_version_hash'] ?? ''),
+                'execution_limits' => (string) ($execcontext['execution_limits'] ?? ''),
             ];
+            $server = 'cached';
+            $runtimecontext = json_encode([
+                'coderunnertype' => (string) ($questioncontext->coderunnertype ?? ''),
+                'input_mode' => (string) ($policy['input_mode'] ?? 'testcode'),
+                'normalization_mode' => (string) ($policy['normalization_mode'] ?? 'trim'),
+                'jobe_server' => 'cached',
+                'prediction_updated' => true,
+                'timestamp' => date('c'),
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+            return $this->persist_run_record(
+                $courseid, $quiz, $questioncontext, $userid,
+                $studentsource, $input, $normalized, $fingerprint, $rawinputhash, $sourcehash,
+                $predicted, $purpose, $category, $reflection,
+                $cached_results, $server, $runtimecontext
+            );
         }
 
-        // Tra cứu bộ nhớ đệm kết quả Solution (Oracle Output Caching) để tránh chạy lại Solution trên Jobe
+        // Tra cứu bộ nhớ đệm kết quả Solution: Khóa cache phải khớp input thô và phiên bản Lời giải mẫu
         $cachedoracle = null;
         $oraclestmt = $this->connection->prepare(
             'SELECT oracle_output, oracle_outcome, jobe_server 
                FROM testcase_runs 
-              WHERE question_id = ? AND input_fingerprint = ? AND oracle_outcome = "success" 
+              WHERE question_id = ? AND input_raw_hash = ? AND oracle_version_hash = ? AND oracle_outcome = "success" 
               ORDER BY id DESC LIMIT 1'
         );
-        $oraclestmt->bind_param('is', $qid, $fingerprint);
+        $oraclestmt->bind_param('iss', $qid, $rawinputhash, $oracleversionhash);
         $oraclestmt->execute();
         $oraclerow = $oraclestmt->get_result()->fetch_assoc();
         $oraclestmt->close();
@@ -203,7 +249,7 @@ final class testcase_service {
             $cachedoracle = [
                 'outcome' => $oraclerow['oracle_outcome'],
                 'output' => $oraclerow['oracle_output'],
-                'server' => $oraclerow['jobe_server'] ?: 'cached',
+                'server' => 'cached',
             ];
         }
 
@@ -226,11 +272,44 @@ final class testcase_service {
             'jobe_server' => $server,
             'timestamp' => date('c'),
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        return $this->persist_run_record(
+            $courseid, $quiz, $questioncontext, $userid,
+            $studentsource, $input, $normalized, $fingerprint, $rawinputhash, $sourcehash,
+            $predicted, $purpose, $category, $reflection,
+            $results, $server, $runtimecontext
+        );
+    }
+
+    /**
+     * Persist run execution record and calculate prediction matching.
+     */
+    private function persist_run_record(
+        int $courseid,
+        \stdClass $quiz,
+        \stdClass $questioncontext,
+        int $userid,
+        string $studentsource,
+        string $input,
+        string $normalized,
+        string $fingerprint,
+        string $rawinputhash,
+        string $sourcehash,
+        string $predicted,
+        string $purpose,
+        string $category,
+        string $reflection,
+        array $results,
+        string $server,
+        string $runtimecontext
+    ): array {
         $qversion = (int) ($results['question_version'] ?? 1);
         $gradertype = (string) ($results['grader_type'] ?? 'EqualityGrader');
         $oracleversionhash = (string) ($results['oracle_version_hash'] ?? '');
         $testsuiteversionhash = (string) ($results['test_suite_version_hash'] ?? '');
         $executionlimits = (string) ($results['execution_limits'] ?? '');
+        $oraclesnapshot = (string) ($results['oracle_solution'] ?? '');
+        $templatesnapshot = (string) ($results['template'] ?? '');
+        $studentsnapshot = $studentsource;
 
         // Persist solution version immutably
         if ($oraclesnapshot !== '') {
@@ -255,12 +334,12 @@ final class testcase_service {
 
         $stmt = $this->connection->prepare(
             'INSERT INTO testcase_runs
-            (course_id, quiz_id, question_id, user_id, code_revision_id, input_raw, input_normalized, input_fingerprint,
+            (course_id, quiz_id, question_id, user_id, code_revision_id, input_raw, input_raw_hash, input_normalized, input_fingerprint,
              predicted_output, student_run_output, oracle_output, student_outcome, oracle_outcome,
              purpose, category, reflection, jobe_server, student_source_hash,
              student_code_snapshot, oracle_solution_snapshot, template_snapshot, runtime_context,
              question_version, grader_type, oracle_version_hash, test_suite_version_hash, execution_limits)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $quizid = (int) $quiz->id;
         $questionid = (int) $questioncontext->questionid;
@@ -269,13 +348,14 @@ final class testcase_service {
         $studentoutcome = $results['student']['outcome'];
         $oracleoutcome = $results['oracle']['outcome'];
         $stmt->bind_param(
-            'iiiiisssssssssssssssssissss',
+            'iiiiissssssssssssssssssissss',
             $courseid,
             $quizid,
             $questionid,
             $userid,
             $coderevisionid,
             $input,
+            $rawinputhash,
             $normalized,
             $fingerprint,
             $predicted,
@@ -301,10 +381,16 @@ final class testcase_service {
         $stmt->execute();
         $runid = (int) $stmt->insert_id;
         $stmt->close();
-        return ['id' => $runid, 'student' => $results['student'], 'oracle' => $results['oracle'],
+
+        return [
+            'id' => $runid,
+            'is_duplicate_run' => false,
+            'student' => $results['student'],
+            'oracle' => $results['oracle'],
             'prediction_matches_oracle' => $oracleoutcome === 'success' &&
                 trim($predicted) !== '' &&
-                trim($predicted) === trim($oracleoutput)];
+                trim($predicted) === trim($oracleoutput),
+        ];
     }
 
     /**
@@ -605,12 +691,24 @@ final class testcase_service {
      * @param array $values Submitted values.
      */
     public function save_question_policy(int $quizid, int $questionid, int $userid, array $values): void {
-        $mode = in_array($values['input_mode'], ['stdin', 'testcode', 'template'], true) ?
-            $values['input_mode'] : 'testcode';
-        $normalization = in_array($values['normalization_mode'], ['raw', 'trim', 'json'], true) ?
-            $values['normalization_mode'] : 'trim';
-        $template = (string) $values['testcode_template'];
-        $categories = (string) $values['categories'];
+        // Fetch current policy to preserve fields that are not explicitly provided in $values
+        $stmt_curr = $this->connection->prepare(
+            'SELECT input_mode, testcode_template, normalization_mode, categories FROM question_policies WHERE question_id = ?'
+        );
+        $stmt_curr->bind_param('i', $questionid);
+        $stmt_curr->execute();
+        $curr = $stmt_curr->get_result()->fetch_assoc() ?: [];
+        $stmt_curr->close();
+
+        $mode_val = array_key_exists('input_mode', $values) ? $values['input_mode'] : ($curr['input_mode'] ?? 'testcode');
+        $mode = in_array($mode_val, ['stdin', 'testcode', 'template'], true) ? $mode_val : 'testcode';
+
+        $norm_val = array_key_exists('normalization_mode', $values) ? $values['normalization_mode'] : ($curr['normalization_mode'] ?? 'trim');
+        $normalization = in_array($norm_val, ['raw', 'trim', 'json'], true) ? $norm_val : 'trim';
+
+        $template = array_key_exists('testcode_template', $values) ? (string) $values['testcode_template'] : (string) ($curr['testcode_template'] ?? '');
+        $categories = array_key_exists('categories', $values) ? (string) $values['categories'] : (string) ($curr['categories'] ?? '');
+
         $stmt = $this->connection->prepare(
             'INSERT INTO question_policies
             (question_id, quiz_id, input_mode, testcode_template, normalization_mode, categories, updated_by)
@@ -1424,9 +1522,27 @@ final class testcase_service {
         $questionid = (int) $contribution['question_id'];
         $ownerid = (int) $contribution['user_id'];
 
-        // Find candidate from approved peer contributions (prioritize higher star rating)
-        $stmt = $this->connection->prepare(
-            "SELECT c.id, c.input_fingerprint, 'contribution' AS source
+        // Lấy danh sách fingerprint của testcase mẫu công khai (public sample testcases) từ câu hỏi
+        $policy = $this->question_policy($quizid, $questionid);
+        $samplefingerprints = [];
+        try {
+            $execcontext = execution_service::resolve_context($questionid, $policy);
+            $samplefingerprints = $execcontext['sample_fingerprints'] ?? [];
+        } catch (\Throwable $e) {
+            $samplefingerprints = [];
+        }
+        $samplecond = '';
+        if (!empty($samplefingerprints)) {
+            $escaped = array_map(function($f) {
+                return "'" . $this->connection->real_escape_string($f) . "'";
+            }, $samplefingerprints);
+            $samplecond = ' AND input_fingerprint NOT IN (' . implode(',', $escaped) . ')';
+        }
+
+        // 1. Tìm ứng viên từ kho đóng góp của bạn học (Peer Pool)
+        // Điều kiện: approved, khác user, chưa nhận thưởng, không phải bài mình, CHƯA TỪNG CHẠY trên Playground, KHÔNG PHẢI testcase mẫu công khai
+        // Sắp xếp: ORDER BY RAND() để phân phối ngẫu nhiên đồng đều (Pure Random)
+        $peerpeerquery = "SELECT c.id, c.input_fingerprint, 'contribution' AS source
                FROM testcase_contributions c
               WHERE c.course_id = ? AND c.quiz_id = ? AND c.question_id = ?
                 AND c.status = 'approved' AND c.user_id <> ?
@@ -1440,22 +1556,29 @@ final class testcase_service {
                      WHERE own.user_id = ? AND own.course_id = ? AND own.question_id = ?
                        AND own.input_fingerprint = c.input_fingerprint
                 )
-              ORDER BY COALESCE(c.rating, 0) DESC, RAND() LIMIT 1"
-        );
+                AND NOT EXISTS (
+                    SELECT 1 FROM testcase_runs tr
+                     WHERE tr.user_id = ? AND tr.question_id = ?
+                       AND tr.input_fingerprint = c.input_fingerprint
+                )" . str_replace('input_fingerprint', 'c.input_fingerprint', $samplecond) . "
+              ORDER BY RAND() LIMIT 1";
+
+        $stmt = $this->connection->prepare($peerpeerquery);
         $stmt->bind_param(
-            'iiiiiiiiii',
+            'iiiiiiiiiiii',
             $courseid, $quizid, $questionid, $ownerid,
             $ownerid, $courseid, $questionid,
-            $ownerid, $courseid, $questionid
+            $ownerid, $courseid, $questionid,
+            $ownerid, $questionid
         );
         $stmt->execute();
         $candidate = $stmt->get_result()->fetch_assoc();
         $stmt->close();
 
-        // If no peer contribution available, fallback to seed testcase bank (Cold-start guardrail)
+        // 2. Nếu kho peer không có ứng viên hợp lệ, fallback sang Kho hạt giống (Seed Bank)
+        // Điều kiện: is_active, chưa nhận thưởng, không trùng bài mình, CHƯA TỪNG CHẠY trên Playground, KHÔNG PHẢI mẫu công khai
         if (!$candidate) {
-            $stmt = $this->connection->prepare(
-                "SELECT s.id, s.input_fingerprint, 'seed' AS source
+            $seedquery = "SELECT s.id, s.input_fingerprint, 'seed' AS source
                    FROM question_seed_testcases s
                   WHERE s.course_id = ? AND s.quiz_id = ? AND s.question_id = ? AND s.is_active = 1
                     AND NOT EXISTS (
@@ -1468,13 +1591,20 @@ final class testcase_service {
                          WHERE own.user_id = ? AND own.course_id = ? AND own.question_id = ?
                            AND own.input_fingerprint = s.input_fingerprint
                     )
-                  ORDER BY RAND() LIMIT 1"
-            );
+                    AND NOT EXISTS (
+                        SELECT 1 FROM testcase_runs tr
+                         WHERE tr.user_id = ? AND tr.question_id = ?
+                           AND tr.input_fingerprint = s.input_fingerprint
+                    )" . str_replace('input_fingerprint', 's.input_fingerprint', $samplecond) . "
+                  ORDER BY RAND() LIMIT 1";
+
+            $stmt = $this->connection->prepare($seedquery);
             $stmt->bind_param(
-                'iiiiiiiii',
+                'iiiiiiiiiii',
                 $courseid, $quizid, $questionid,
                 $ownerid, $courseid, $questionid,
-                $ownerid, $courseid, $questionid
+                $ownerid, $courseid, $questionid,
+                $ownerid, $questionid
             );
             $stmt->execute();
             $candidate = $stmt->get_result()->fetch_assoc();
@@ -1760,6 +1890,276 @@ final class testcase_service {
         }
 
         return $imported;
+    }
+
+    /**
+     * Get total runs count for course, optional quiz and question, isolated to enrolled students.
+     *
+     * @param int $courseid Course ID.
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @param array $studentuserids Optional array of student user IDs to isolate from teacher runs.
+     * @return int Total run count.
+     */
+    public function total_runs_count(int $courseid, int $quizid = 0, int $questionid = 0, ?array $studentuserids = null): int {
+        // Empty student list must strictly return 0, never fall back to "everyone"
+        if ($studentuserids !== null && empty($studentuserids)) {
+            return 0;
+        }
+        $conditions = ['course_id = ?'];
+        $params = [$courseid];
+        $types = 'i';
+        if ($quizid > 0) {
+            $conditions[] = 'quiz_id = ?';
+            $params[] = $quizid;
+            $types .= 'i';
+        }
+        if ($questionid > 0) {
+            $conditions[] = 'question_id = ?';
+            $params[] = $questionid;
+            $types .= 'i';
+        }
+        if ($studentuserids !== null && !empty($studentuserids)) {
+            $safeids = array_map('intval', $studentuserids);
+            $conditions[] = 'user_id IN (' . implode(',', $safeids) . ')';
+        }
+        $where = implode(' AND ', $conditions);
+        $stmt = $this->connection->prepare("SELECT COUNT(*) FROM testcase_runs WHERE {$where}");
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res->fetch_row();
+        $stmt->close();
+        return (int) ($row[0] ?? 0);
+    }
+
+    /**
+     * Get rewards statistics for course, optional quiz and question.
+     *
+     * @param int $courseid Course ID.
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @param array|null $studentuserids Optional array of student user IDs.
+     * @return array Total, claimed and unclaimed counts.
+     */
+    public function total_rewards_count(int $courseid, int $quizid = 0, int $questionid = 0, ?array $studentuserids = null): array {
+        // Empty student list must strictly return 0, never fall back to "everyone"
+        if ($studentuserids !== null && empty($studentuserids)) {
+            return [
+                'total' => 0,
+                'claimed' => 0,
+                'unclaimed' => 0,
+            ];
+        }
+        $conditions = ['course_id = ?'];
+        $params = [$courseid];
+        $types = 'i';
+        if ($quizid > 0) {
+            $conditions[] = 'quiz_id = ?';
+            $params[] = $quizid;
+            $types .= 'i';
+        }
+        if ($questionid > 0) {
+            $conditions[] = 'question_id = ?';
+            $params[] = $questionid;
+            $types .= 'i';
+        }
+        if ($studentuserids !== null && !empty($studentuserids)) {
+            $safeids = array_map('intval', $studentuserids);
+            $conditions[] = 'receiver_user_id IN (' . implode(',', $safeids) . ')';
+        }
+        $where = implode(' AND ', $conditions);
+        $stmt = $this->connection->prepare(
+            "SELECT COUNT(*) AS total, SUM(CASE WHEN is_claimed = 1 THEN 1 ELSE 0 END) AS claimed FROM testcase_rewards WHERE {$where}"
+        );
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res->fetch_assoc();
+        $stmt->close();
+        $total = (int) ($row['total'] ?? 0);
+        $claimed = (int) ($row['claimed'] ?? 0);
+        return [
+            'total' => $total,
+            'claimed' => $claimed,
+            'unclaimed' => max(0, $total - $claimed),
+        ];
+    }
+
+    /**
+     * Aggregated student activity for a course, quiz and question, isolated to enrolled students.
+     *
+     * @param int $courseid Course ID.
+     * @param int $quizid Quiz ID.
+     * @param int $questionid Question ID.
+     * @param array|null $studentuserids Optional array of student user IDs to exclude teacher preview runs.
+     * @return array List of student records with runs, contributions and rewards counts.
+     */
+    public function student_activity_summary(int $courseid, int $quizid = 0, int $questionid = 0, ?array $studentuserids = null): array {
+        // Empty student list must strictly return empty array, never fall back to "everyone"
+        if ($studentuserids !== null && empty($studentuserids)) {
+            return [];
+        }
+        $studentfilterclause = '';
+        $safeids = [];
+        if ($studentuserids !== null && !empty($studentuserids)) {
+            $safeids = array_map('intval', $studentuserids);
+            $studentfilterclause = ' AND user_id IN (' . implode(',', $safeids) . ')';
+        }
+
+        // 1. Runs per user
+        $runconds = ['course_id = ?'];
+        $runparams = [$courseid];
+        $runtypes = 'i';
+        if ($quizid > 0) {
+            $runconds[] = 'quiz_id = ?';
+            $runparams[] = $quizid;
+            $runtypes .= 'i';
+        }
+        if ($questionid > 0) {
+            $runconds[] = 'question_id = ?';
+            $runparams[] = $questionid;
+            $runtypes .= 'i';
+        }
+        $runwhere = implode(' AND ', $runconds) . $studentfilterclause;
+        $runsql = "SELECT user_id, COUNT(*) AS total_runs, MAX(created_at) AS last_run_at FROM testcase_runs WHERE {$runwhere} GROUP BY user_id";
+        $stmt = $this->connection->prepare($runsql);
+        $stmt->bind_param($runtypes, ...$runparams);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $users = [];
+        while ($row = $res->fetch_assoc()) {
+            $uid = (int) $row['user_id'];
+            $users[$uid] = [
+                'user_id' => $uid,
+                'total_runs' => (int) $row['total_runs'],
+                'last_run_at' => $row['last_run_at'],
+                'total_contributions' => 0,
+                'approved_contributions' => 0,
+                'pending_contributions' => 0,
+                'total_stars' => 0,
+                'claimed_rewards' => 0,
+                'total_rewards' => 0,
+            ];
+        }
+        $stmt->close();
+
+        // 2. Contributions per user
+        $cconds = ['course_id = ?'];
+        $cparams = [$courseid];
+        $ctypes = 'i';
+        if ($quizid > 0) {
+            $cconds[] = 'quiz_id = ?';
+            $cparams[] = $quizid;
+            $ctypes .= 'i';
+        }
+        if ($questionid > 0) {
+            $cconds[] = 'question_id = ?';
+            $cparams[] = $questionid;
+            $ctypes .= 'i';
+        }
+        $cwhere = implode(' AND ', $cconds) . $studentfilterclause;
+        $csql = "SELECT user_id,
+                        COUNT(*) AS total_c,
+                        SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) AS approved_c,
+                        SUM(CASE WHEN status IN ('submitted', 'needs_explanation') THEN 1 ELSE 0 END) AS pending_c,
+                        SUM(CASE WHEN status = 'approved' THEN COALESCE(rating, 0) ELSE 0 END) AS total_s
+                   FROM testcase_contributions
+                  WHERE {$cwhere}
+                  GROUP BY user_id";
+        $stmt = $this->connection->prepare($csql);
+        $stmt->bind_param($ctypes, ...$cparams);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        while ($row = $res->fetch_assoc()) {
+            $uid = (int) $row['user_id'];
+            if (!isset($users[$uid])) {
+                $users[$uid] = [
+                    'user_id' => $uid,
+                    'total_runs' => 0,
+                    'last_run_at' => null,
+                    'total_contributions' => 0,
+                    'approved_contributions' => 0,
+                    'pending_contributions' => 0,
+                    'total_stars' => 0,
+                    'claimed_rewards' => 0,
+                    'total_rewards' => 0,
+                ];
+            }
+            $users[$uid]['total_contributions'] = (int) $row['total_c'];
+            $users[$uid]['approved_contributions'] = (int) $row['approved_c'];
+            $users[$uid]['pending_contributions'] = (int) $row['pending_c'];
+            $users[$uid]['total_stars'] = (int) $row['total_s'];
+        }
+        $stmt->close();
+
+        // 3. Rewards per user
+        $rconds = ['course_id = ?'];
+        $rparams = [$courseid];
+        $rtypes = 'i';
+        if ($quizid > 0) {
+            $rconds[] = 'quiz_id = ?';
+            $rparams[] = $quizid;
+            $rtypes .= 'i';
+        }
+        if ($questionid > 0) {
+            $rconds[] = 'question_id = ?';
+            $rparams[] = $questionid;
+            $rtypes .= 'i';
+        }
+        $rstudentfilterclause = '';
+        if (!empty($studentuserids)) {
+            $safeids = array_map('intval', $studentuserids);
+            $rstudentfilterclause = ' AND receiver_user_id IN (' . implode(',', $safeids) . ')';
+        }
+        $rwhere = implode(' AND ', $rconds) . $rstudentfilterclause;
+        $rsql = "SELECT receiver_user_id AS user_id,
+                        COUNT(*) AS total_r,
+                        SUM(CASE WHEN is_claimed = 1 THEN 1 ELSE 0 END) AS claimed_r
+                   FROM testcase_rewards
+                  WHERE {$rwhere}
+                  GROUP BY receiver_user_id";
+        $stmt = $this->connection->prepare($rsql);
+        $stmt->bind_param($rtypes, ...$rparams);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        while ($row = $res->fetch_assoc()) {
+            $uid = (int) $row['user_id'];
+            if (!isset($users[$uid])) {
+                $users[$uid] = [
+                    'user_id' => $uid,
+                    'total_runs' => 0,
+                    'last_run_at' => null,
+                    'total_contributions' => 0,
+                    'approved_contributions' => 0,
+                    'pending_contributions' => 0,
+                    'total_stars' => 0,
+                    'claimed_rewards' => 0,
+                    'total_rewards' => 0,
+                ];
+            }
+            $users[$uid]['total_rewards'] = (int) $row['total_r'];
+            $users[$uid]['claimed_rewards'] = (int) $row['claimed_r'];
+        }
+        $stmt->close();
+
+        // If studentuserids was passed, ensure no non-students leak in
+        if (!empty($studentuserids)) {
+            $safeidlookup = array_flip($safeids);
+            $users = array_filter($users, function($u) use ($safeidlookup) {
+                return isset($safeidlookup[$u['user_id']]);
+            });
+        }
+
+        // Sort by total_contributions DESC, total_runs DESC
+        usort($users, function($a, $b) {
+            if ($b['total_contributions'] !== $a['total_contributions']) {
+                return $b['total_contributions'] - $a['total_contributions'];
+            }
+            return $b['total_runs'] - $a['total_runs'];
+        });
+
+        return array_values($users);
     }
 }
 

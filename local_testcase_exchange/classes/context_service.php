@@ -38,7 +38,7 @@ final class context_service {
         $sql = "
             SELECT CONCAT(qz.id, '-', q.id) AS rowid,
                    qz.id AS quizid, qz.name AS quizname, q.id AS questionid,
-                   q.name AS questionname, qo.coderunnertype
+                   q.name AS questionname, qo.coderunnertype, q.questiontext, q.questiontextformat
               FROM {course_modules} cm
               JOIN {modules} m ON m.id = cm.module AND m.name = 'quiz'
               JOIN {quiz} qz ON qz.id = cm.instance
@@ -476,6 +476,53 @@ final class context_service {
             debugging('Failed to record student code revision: ' . $e->getMessage(), DEBUG_DEVELOPER);
             return false;
         }
+    }
+
+    /**
+     * Enrich student activity records with Moodle user fullnames, usernames, and emails.
+     *
+     * @param array $activity Raw activity summaries.
+     * @param int $courseid Course ID.
+     * @return array Enriched activity records.
+     */
+    public static function enrich_student_activity(array $activity, int $courseid): array {
+        global $DB;
+        if (empty($activity)) {
+            return [];
+        }
+
+        $userids = array_unique(array_column($activity, 'user_id'));
+        $users = [];
+        if (!empty($userids)) {
+            [$insql, $inparams] = $DB->get_in_or_equal($userids);
+            $records = $DB->get_records_select('user', "id $insql", $inparams, '', 'id, username, firstname, lastname, email');
+            foreach ($records as $u) {
+                $users[(int) $u->id] = $u;
+            }
+        }
+
+        foreach ($activity as &$item) {
+            $uid = (int) $item['user_id'];
+            if (isset($users[$uid])) {
+                $u = $users[$uid];
+                $item['fullname'] = fullname($u);
+                $item['username'] = $u->username;
+                $item['email'] = $u->email;
+            } else {
+                $item['fullname'] = 'User #' . $uid;
+                $item['username'] = '#' . $uid;
+                $item['email'] = '';
+            }
+            if (!empty($item['last_run_at'])) {
+                $item['last_run_formatted'] = date('H:i:s d/m/Y', strtotime($item['last_run_at']));
+            } else {
+                $item['last_run_formatted'] = '—';
+            }
+            $item['stars_emoji'] = str_repeat('⭐', min(5, (int) ($item['total_stars'] ?? 0)));
+        }
+        unset($item);
+
+        return $activity;
     }
 }
 

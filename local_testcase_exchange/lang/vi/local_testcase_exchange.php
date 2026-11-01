@@ -218,3 +218,32 @@ $string['unclaimed_rewards_alert'] = 'Phần thưởng mới chờ bạn nhận'
 $string['ready_for_check'] = 'Sẵn sàng dùng cho nút Check';
 $string['norewardsfound'] = 'Bạn chưa có phần thưởng nào. Hãy đóng góp testcase mới để được thưởng!';
 
+// Phân tách Teacher Hub và Student View.
+$string['teacherview_title'] = 'Trung Tâm Quản Lý Giáo Viên';
+$string['studentview_title'] = 'Phòng Thí Nghiệm Kiểm Thử Vi Sai';
+$string['view_as_student'] = 'Xem thử như sinh viên';
+$string['previewmode_banner'] = 'Chế độ xem thử — Tài khoản giáo viên: Bạn đang trải nghiệm giao diện với tư cách sinh viên. Trình soạn thảo, chạy vi sai và kiểm tra điều kiện hoạt động đúng góc nhìn của người học.';
+$string['previewmode_exit'] = 'Quay lại quản lý';
+$string['previewmode_contribute_notice'] = 'Chế độ xem thử: Thao tác đóng góp của giáo viên không được ghi nhận vào kho thật để bảo vệ dữ liệu học tập của sinh viên.';
+$string['previewmode_reward_notice'] = 'Chế độ xem thử: Không thể nhận thưởng của sinh viên trong chế độ xem thử.';
+$string['previewmode_run_disabled_notice'] = 'Chế độ xem thử: Thao tác chạy thử nghiệm vi sai bị vô hiệu hóa trong chế độ xem thử để bảo vệ dữ liệu thống kê của sinh viên.';
+$string['tab_overview'] = 'Tổng quan';
+$string['tab_review'] = 'Đóng góp & Thẩm định';
+$string['tab_bank'] = 'Kho testcase';
+$string['tab_activity'] = 'Hoạt động sinh viên & Xuất';
+$string['tab_policy'] = 'Cấu hình chính sách';
+$string['tab_solve'] = 'Làm bài';
+$string['tab_my_contributions'] = 'Đóng góp của tôi';
+$string['tab_my_rewards'] = 'Testcase nhận được';
+$string['question_prompt_title'] = 'Đề bài';
+$string['public_samples_title'] = 'Testcase Mẫu / Công Khai';
+$string['public_samples_desc'] = 'Các ca kiểm thử hiển thị trực tiếp trong đề bài CodeRunner. Được hệ thống loại trừ tự động, không dùng để trao thưởng và không cho phép đóng góp lại.';
+$string['seed_bank_title'] = 'Kho Testcase Mầm (Giảng Viên)';
+$string['seed_bank_desc'] = 'Các ca kiểm thử do Giảng viên chuẩn bị sẵn, dùng để trao thưởng ban đầu khi kho đóng góp của bạn học chưa đủ dữ liệu.';
+$string['approved_peer_title'] = 'Testcase Bạn Học Đã Duyệt';
+$string['approved_peer_desc'] = 'Các ca kiểm thử chất lượng cao do sinh viên đóng góp và Giảng viên đã duyệt, đang luân chuyển trong kho phần thưởng.';
+$string['all_students'] = 'Tất cả sinh viên';
+$string['filter_by_student'] = 'Lọc theo sinh viên';
+$string['filter_by_status'] = 'Lọc theo trạng thái';
+
+

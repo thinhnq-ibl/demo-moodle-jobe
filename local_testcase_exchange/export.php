@@ -64,6 +64,24 @@ if ($targetuserid > 0) {
     $whereclauses[] = 'tl.user_id = ?';
     $params[] = (int)$targetuserid;
     $types .= 'i';
+} else {
+    // Teacher exporting class timeline: isolate strictly to authentic enrolled students (excluding teachers and admins)
+    $enrolled = get_enrolled_users($context, 'local/testcase_exchange:run');
+    $student_ids = [];
+    foreach ($enrolled as $eu) {
+        if (!has_capability('local/testcase_exchange:manage', $context, $eu) &&
+            !has_capability('local/testcase_exchange:review', $context, $eu) &&
+            !is_siteadmin($eu->id)) {
+            $student_ids[] = (int) $eu->id;
+        }
+    }
+    if (empty($student_ids)) {
+        // Empty student list: must match NO ONE (return empty), never treat as everyone!
+        $whereclauses[] = '1 = 0';
+    } else {
+        $safeids = array_map('intval', $student_ids);
+        $whereclauses[] = 'tl.user_id IN (' . implode(',', $safeids) . ')';
+    }
 }
 
 $wheresql = 'WHERE ' . implode(' AND ', $whereclauses);
