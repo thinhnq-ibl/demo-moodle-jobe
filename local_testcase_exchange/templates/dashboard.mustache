@@ -869,7 +869,7 @@
                             <tr><td colspan="7" class="text-center text-muted py-4">Chưa có lượt chạy thử nghiệm nào. Hãy nhập mã nguồn và testcase ở trên để bắt đầu!</td></tr>
                             {{/runs}}
                             {{#runs}}
-                            <tr>
+                            <tr id="run-{{id}}">
                                 <td><strong>#{{id}}</strong></td>
                                 <td>
                                     {{#has_revision}}
@@ -911,12 +911,26 @@
                                     </form>
                                     {{/can_contribute}}
                                     {{^can_contribute}}
+                                    {{#is_older_duplicate}}
+                                    <a href="#run-{{rep_id}}" class="badge badge-secondary p-1 text-wrap text-decoration-none shadow-sm font-weight-bold" title="Bấm để nhảy tới lượt đại diện mới nhất đủ điều kiện">
+                                        🔗 Trùng testcase ở lượt #{{rep_id}}
+                                    </a>
+                                    {{/is_older_duplicate}}
+                                    {{^is_older_duplicate}}
                                     <span class="{{#display_status_class}}{{display_status_class}}{{/display_status_class}}{{^display_status_class}}badge badge-secondary p-1{{/display_status_class}}">{{display_status}}</span>
+                                    {{#has_eligible_peer}}
+                                    <div class="mt-1">
+                                        <a href="#run-{{rep_id}}" class="badge badge-light border text-primary" style="font-size: 0.75rem;" title="Bấm để tới lượt đã đạt">
+                                            👉 Có lượt đạt ở #{{rep_id}}
+                                        </a>
+                                    </div>
+                                    {{/has_eligible_peer}}
                                     {{#pending_code_fix}}
                                     <div class="small text-info text-wrap mt-1 text-left" style="max-width: 170px; font-size: 0.72rem; line-height: 1.25;">
                                         💡 {{pending_fix_message}}
                                     </div>
                                     {{/pending_code_fix}}
+                                    {{/is_older_duplicate}}
                                     {{/can_contribute}}
                                 </td>
                             </tr>
@@ -1266,3 +1280,11 @@
     restoreDraft();
 })();
 </script>
+
+<style>
+tr[id^="run-"]:target {
+    background-color: #fff3cd !important;
+    outline: 2px solid #ffc107;
+    transition: background-color 0.4s ease;
+}
+</style>

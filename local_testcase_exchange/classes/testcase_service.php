@@ -410,8 +410,43 @@ final class testcase_service {
         $existing = $existingstmt->get_result()->fetch_assoc();
         $existingstmt->close();
         if ($existing) {
-            return ['id' => (int) $existing['id'], 'status' => $existing['status']];
+            return ['id' => (int) $existing['id'], 'status' => $existing['status'], 'is_own_duplicate' => false];
         }
+
+        // Also check if user already contributed this exact testcase fingerprint for this question from another run
+        $existingfpstmt = $this->connection->prepare(
+            'SELECT id, status FROM testcase_contributions 
+              WHERE user_id = ? AND question_id = ? AND input_fingerprint = ? 
+           ORDER BY id ASC LIMIT 1'
+        );
+        $existingfpstmt->bind_param('iis', $userid, $run['question_id'], $run['input_fingerprint']);
+        $existingfpstmt->execute();
+        $existingfp = $existingfpstmt->get_result()->fetch_assoc();
+        $existingfpstmt->close();
+        if ($existingfp) {
+            return [
+                'id' => (int) $existingfp['id'],
+                'status' => $existingfp['status'],
+                'is_own_duplicate' => true,
+                'canonical_id' => (int) $existingfp['id'],
+            ];
+        }
+
+        // Check if testcase is already in the teacher seed bank
+        $seedstmt = $this->connection->prepare(
+            'SELECT id FROM question_seed_testcases 
+              WHERE course_id = ? AND question_id = ? AND input_fingerprint = ? AND is_active = 1
+              LIMIT 1'
+        );
+        $seedstmt->bind_param('iis', $run['course_id'], $run['question_id'], $run['input_fingerprint']);
+        $seedstmt->execute();
+        $seedexists = $seedstmt->get_result()->fetch_assoc();
+        $seedstmt->close();
+        if ($seedexists) {
+            throw new \moodle_exception('cannotcontributeseedtestcase', 'local_testcase_exchange', '',
+                'Testcase này đã thuộc bộ đề thi hoặc ngân hàng mẫu của giáo viên, không thể đề xuất đóng góp!');
+        }
+
         if ($run['oracle_outcome'] !== 'success') {
             throw new \moodle_exception('oraclenotsuccessful', 'local_testcase_exchange');
         }
@@ -1714,7 +1749,7 @@ final class testcase_service {
      */
     public function list_seed_testcases(int $courseid, int $quizid, int $questionid): array {
         $stmt = $this->connection->prepare(
-            'SELECT id, testcode, stdin, expected_output, purpose, source_type, created_at
+            'SELECT id, testcode, stdin, input_raw, expected_output, purpose, source_type, created_at
                FROM question_seed_testcases
               WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND is_active = 1
               ORDER BY id ASC'

@@ -1,0 +1,43 @@
+1
+00:00:01,000 --> 00:00:18,000
+Tự tạo testcase, kiểm tra, đóng góp và nhận testcase từ kho chung.
+
+2
+00:00:21,000 --> 00:01:07,000
+Giáo viên quản lý bài tập và đóng góp. Sinh viên tập trung vào làm bài.
+
+3
+00:01:11,000 --> 00:02:09,000
+Expected chưa khớp tham chiếu. Testcase chưa đủ điều kiện đóng góp.
+
+4
+00:02:13,000 --> 00:02:56,000
+Có thể sửa dự đoán mà giữ nguyên code và input.
+
+5
+00:03:00,000 --> 00:03:58,000
+Dự đoán đúng chưa đủ: chương trình cũng phải vượt qua testcase.
+
+6
+00:04:02,000 --> 00:05:00,000
+Đóng góp được tiếp nhận khi cả dự đoán và kết quả chương trình đều phù hợp.
+
+7
+00:05:04,000 --> 00:06:18,000
+Giáo viên xem xét đóng góp và phản hồi trực tiếp cho sinh viên.
+
+8
+00:06:22,000 --> 00:07:20,000
+Testcase thưởng được chọn từ kho đủ điều kiện, loại các testcase đã tiếp cận theo chính sách.
+
+9
+00:07:24,000 --> 00:08:06,000
+Kho nhận diện đóng góp trùng theo quy tắc chuẩn hóa đã cấu hình.
+
+10
+00:08:10,000 --> 00:09:01,000
+Lịch sử tương tác có thể được xuất để phân tích quá trình sử dụng.
+
+11
+00:09:05,000 --> 00:09:34,000
+Chế độ xem thử giúp kiểm tra giao diện sinh viên mà không thực hiện lượt chạy.
