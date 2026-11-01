@@ -22,8 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use local_testcase_exchange\context_service;
-use local_testcase_exchange\external_database;
-use local_testcase_exchange\schema_manager;
 use local_testcase_exchange\testcase_service;
 
 require_once(__DIR__ . '/../../config.php');
@@ -42,15 +40,12 @@ $PAGE->set_context($context);
 $PAGE->set_title(get_string('managepolicies', 'local_testcase_exchange'));
 $PAGE->set_heading($course->fullname . ' — ' . get_string('managepolicies', 'local_testcase_exchange'));
 
-$connection = null;
 try {
-    $connection = external_database::connect();
-    schema_manager::migrate($connection);
+    $service = new testcase_service();
 } catch (Throwable $e) {
     debugging($e->getMessage(), DEBUG_DEVELOPER);
     throw new moodle_exception('databaseunavailable', 'local_testcase_exchange');
 }
-$service = new testcase_service($connection);
 $questions = context_service::questions_for_course($courseid);
 $questionmap = [];
 foreach ($questions as $question) {

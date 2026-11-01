@@ -17,27 +17,31 @@
 /**
  * Plugin upgrade steps.
  *
- * @package local_testcase_exchange
- * @copyright 2026 Nguyen Quoc Thinh
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    local_testcase_exchange
+ * @copyright  2026 Nguyen Quoc Thinh
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die();
+
 /**
- * Upgrade hook for external testcase repository migrations.
+ * Upgrade hook for local_testcase_exchange migrations.
  *
  * @param int $oldversion Previously installed plugin version.
  * @return bool
  */
 function xmldb_local_testcase_exchange_upgrade($oldversion) {
-    if ($oldversion < 2026101801) {
-        try {
-            $connection = \local_testcase_exchange\external_database::connect();
-            \local_testcase_exchange\schema_manager::migrate($connection);
-            $connection->close();
-        } catch (Throwable $e) {
-            mtrace('External testcase_store migration deferred; use the plugin health check after upgrade.');
-            debugging($e->getMessage(), DEBUG_DEVELOPER);
+    global $DB;
+
+    $dbman = $DB->get_manager();
+
+    if ($oldversion < 2026110101) {
+        $installxml = __DIR__ . '/install.xml';
+        if (file_exists($installxml)) {
+            $dbman->install_from_xmldb_file($installxml);
         }
-        upgrade_plugin_savepoint(true, 2026101801, 'local', 'testcase_exchange');
+        upgrade_plugin_savepoint(true, 2026110101, 'local', 'testcase_exchange');
     }
+
     return true;
 }

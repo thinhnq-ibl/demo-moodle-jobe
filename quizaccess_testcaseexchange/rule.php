@@ -1,4 +1,19 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
 defined('MOODLE_INTERNAL') || die();
 
 use mod_quiz\local\access_rule_base;
@@ -8,11 +23,18 @@ use mod_quiz\quiz_settings;
  * Access rule to toggle student testcase contribution and exchange per quiz.
  *
  * @package    quizaccess_testcaseexchange
+ * @copyright  2026 Nguyen Quoc Thinh
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class quizaccess_testcaseexchange extends access_rule_base {
 
     /**
      * Factory method: Returns rule instance if enabled for this quiz.
+     *
+     * @param quiz_settings $quizobj Quiz settings object.
+     * @param int $timenow Current timestamp.
+     * @param bool $canignoretimelimits Whether time limits can be ignored.
+     * @return quizaccess_testcaseexchange|null
      */
     public static function make(quiz_settings $quizobj, $timenow, $canignoretimelimits) {
         $quiz = $quizobj->get_quiz();
@@ -24,108 +46,130 @@ class quizaccess_testcaseexchange extends access_rule_base {
 
     /**
      * Check if testcase exchange is enabled for a given quiz ID.
+     *
+     * @param int $quizid Quiz ID.
+     * @return bool
      */
-    public static function is_quiz_enabled($quizid) {
-        $db_host = getenv('MOODLE_DB_HOST') ?: 'mariadb';
-        $conn = @new mysqli($db_host, 'moodle_app_writer', 'JobeSecret123!', 'testcase_store', 3306);
-        if ($conn->connect_error) {
+    public static function is_quiz_enabled(int $quizid): bool {
+        global $DB;
+
+        try {
+            if (!$DB->get_manager()->table_exists('local_tce_quiz_settings')) {
+                return false;
+            }
+            $record = $DB->get_record('local_tce_quiz_settings', ['quiz_id' => $quizid], 'is_enabled, enabled');
+            if ($record) {
+                return (!empty($record->is_enabled) || !empty($record->enabled));
+            }
+        } catch (\Throwable $e) {
             return false;
         }
-
-        $enabled = false;
-        $stmt = $conn->prepare("SELECT is_enabled FROM quiz_settings WHERE quiz_id = ?");
-        if ($stmt) {
-            $stmt->bind_param('i', $quizid);
-            $stmt->execute();
-            $stmt->bind_result($val);
-            if ($stmt->fetch()) {
-                $enabled = ((int)$val === 1);
-            }
-            $stmt->close();
-        }
-        $conn->close();
-        return $enabled;
+        return false;
     }
 
     /**
      * Add settings elements to the quiz settings form (mod_form).
+     *
+     * @param mod_quiz_mod_form $quizform Quiz form object.
+     * @param MoodleQuickForm $mform QuickForm form.
      */
     public static function add_settings_form_fields(mod_quiz_mod_form $quizform, MoodleQuickForm $mform) {
         $mform->addElement('header', 'testcaseexchangehdr', get_string('testcaseexchangehdr', 'quizaccess_testcaseexchange'));
-        
+
         $mform->addElement('selectyesno', 'enable_testcase_exchange', get_string('enabletestcaseexchange', 'quizaccess_testcaseexchange'));
         $mform->addHelpButton('enable_testcase_exchange', 'enabletestcaseexchange', 'quizaccess_testcaseexchange');
-        
-        // Load current setting if editing existing quiz
-        $default_val = 0;
-        $current_quiz = $quizform->get_current();
-        if (!empty($current_quiz->id)) {
-            $default_val = self::is_quiz_enabled($current_quiz->id) ? 1 : 0;
+
+        // Load current setting if editing existing quiz.
+        $defaultval = 0;
+        $currentquiz = $quizform->get_current();
+        if (!empty($currentquiz->id)) {
+            $defaultval = self::is_quiz_enabled((int)$currentquiz->id) ? 1 : 0;
         }
-        $mform->setDefault('enable_testcase_exchange', $default_val);
+        $mform->setDefault('enable_testcase_exchange', $defaultval);
     }
 
     /**
      * Save the settings when the quiz form is submitted.
+     *
+     * @param stdClass $quiz Quiz object.
      */
     public static function save_settings($quiz) {
+        global $DB, $USER;
+
         if (!isset($quiz->enable_testcase_exchange)) {
             return;
         }
 
         $quizid = (int)$quiz->id;
         $isenabled = !empty($quiz->enable_testcase_exchange) ? 1 : 0;
+        $timenow = time();
 
-        $db_host = getenv('MOODLE_DB_HOST') ?: 'mariadb';
-        $conn = @new mysqli($db_host, 'moodle_app_writer', 'JobeSecret123!', 'testcase_store', 3306);
-        if ($conn->connect_error) {
-            return;
-        }
+        try {
+            if (!$DB->get_manager()->table_exists('local_tce_quiz_settings')) {
+                return;
+            }
 
-        $stmt = $conn->prepare("INSERT INTO quiz_settings (quiz_id, is_enabled, enabled) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE is_enabled = VALUES(is_enabled), enabled = VALUES(enabled)");
-        if ($stmt) {
-            $stmt->bind_param('iii', $quizid, $isenabled, $isenabled);
-            $stmt->execute();
-            $stmt->close();
+            $existing = $DB->get_record('local_tce_quiz_settings', ['quiz_id' => $quizid]);
+            if ($existing) {
+                $existing->is_enabled = $isenabled;
+                $existing->enabled = $isenabled;
+                $existing->updated_by = $USER->id ?? null;
+                $existing->timemodified = $timenow;
+                $DB->update_record('local_tce_quiz_settings', $existing);
+            } else {
+                $record = new \stdClass();
+                $record->quiz_id = $quizid;
+                $record->is_enabled = $isenabled;
+                $record->enabled = $isenabled;
+                $record->review_mode = 'teacher';
+                $record->reward_policy = 'one_for_one';
+                $record->show_oracle_output = 1;
+                $record->leaderboard_enabled = 1;
+                $record->max_runs_per_minute = 10;
+                $record->max_input_bytes = 8192;
+                $record->updated_by = $USER->id ?? null;
+                $record->timecreated = $timenow;
+                $record->timemodified = $timenow;
+                $DB->insert_record('local_tce_quiz_settings', $record);
+            }
+        } catch (\Throwable $e) {
+            debugging('Error saving testcase exchange settings: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
-        $conn->close();
     }
 
     /**
      * Delete settings when the quiz is deleted.
+     *
+     * @param stdClass $quiz Quiz object.
      */
     public static function delete_settings($quiz) {
-        $quizid = (int)$quiz->id;
-        $db_host = getenv('MOODLE_DB_HOST') ?: 'mariadb';
-        $conn = @new mysqli($db_host, 'moodle_app_writer', 'JobeSecret123!', 'testcase_store', 3306);
-        if ($conn->connect_error) {
-            return;
-        }
+        global $DB;
 
-        $stmt = $conn->prepare("DELETE FROM quiz_settings WHERE quiz_id = ?");
-        if ($stmt) {
-            $stmt->bind_param('i', $quizid);
-            $stmt->execute();
-            $stmt->close();
+        $quizid = (int)$quiz->id;
+        try {
+            if ($DB->get_manager()->table_exists('local_tce_quiz_settings')) {
+                $DB->delete_records('local_tce_quiz_settings', ['quiz_id' => $quizid]);
+            }
+        } catch (\Throwable $e) {
+            debugging('Error deleting testcase exchange settings: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
-        $conn->close();
     }
 
     /**
      * Display informative banner and action button on Quiz view page when rule is enabled.
+     *
+     * @return string
      */
     public function description() {
-        global $CFG;
-
         $quizid = $this->quiz->id;
         $courseid = $this->quiz->course;
 
-        $dashboardurl = new moodle_url('/local/testcase_exchange/index.php', [
+        $dashboardurl = new \moodle_url('/local/testcase_exchange/index.php', [
             'course' => $courseid,
             'quiz' => $quizid,
         ]);
 
-        $btn = html_writer::link(
+        $btn = \html_writer::link(
             $dashboardurl,
             get_string('gotodashboard', 'quizaccess_testcaseexchange'),
             ['class' => 'btn btn-outline-primary font-weight-bold text-nowrap']
@@ -134,7 +178,7 @@ class quizaccess_testcaseexchange extends access_rule_base {
         $headertext = get_string('testcasebanner', 'quizaccess_testcaseexchange');
         $desctext = get_string('testcasebanner_desc', 'quizaccess_testcaseexchange');
 
-        $content = html_writer::div(
+        $content = \html_writer::div(
             '<div class="d-flex align-items-center justify-content-between flex-wrap">' .
                 '<div class="mr-3 mb-2 mb-md-0">' .
                     '<div class="font-weight-bold text-dark mb-1">' . $headertext . '</div>' .

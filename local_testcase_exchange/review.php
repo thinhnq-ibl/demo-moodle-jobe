@@ -22,8 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use local_testcase_exchange\context_service;
-use local_testcase_exchange\external_database;
-use local_testcase_exchange\schema_manager;
 use local_testcase_exchange\testcase_service;
 
 require_once(__DIR__ . '/../../config.php');
@@ -39,11 +37,8 @@ if ($courseid === 0) {
     $PAGE->set_heading(get_string('coursehub_review_title', 'local_testcase_exchange'));
 
     $coursesummaries = [];
-    $connection = null;
     try {
-        $connection = external_database::connect();
-        schema_manager::migrate($connection);
-        $service = new testcase_service($connection);
+        $service = new testcase_service();
         $coursesummaries = $service->courses_summary();
     } catch (Throwable $e) {
         debugging($e->getMessage(), DEBUG_DEVELOPER);
@@ -143,15 +138,12 @@ $course = get_course($courseid);
 $context = context_course::instance($courseid);
 require_capability('local/testcase_exchange:review', $context);
 
-$connection = null;
 try {
-    $connection = external_database::connect();
-    schema_manager::migrate($connection);
+    $service = new testcase_service();
 } catch (Throwable $e) {
     debugging($e->getMessage(), DEBUG_DEVELOPER);
     throw new moodle_exception('databaseunavailable', 'local_testcase_exchange');
 }
-$service = new testcase_service($connection);
 
 
 if (data_submitted()) {

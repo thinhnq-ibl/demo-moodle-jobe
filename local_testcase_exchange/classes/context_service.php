@@ -429,48 +429,38 @@ final class context_service {
 
         $codehash = hash('sha256', $trimmed);
 
-        try {
-            $connection = external_database::connect();
-            // Check previous hash for this user and question
-            $stmt = $connection->prepare(
-                'SELECT code_hash FROM student_code_revisions
-                  WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND user_id = ?
-                  ORDER BY id DESC LIMIT 1'
-            );
-            $stmt->bind_param('iiii', $courseid, $quizid, $questionid, $userid);
-            $stmt->execute();
-            $last = $stmt->get_result()->fetch_assoc();
-            $stmt->close();
+        global $DB;
 
-            if ($last && (string) $last['code_hash'] === $codehash) {
-                $connection->close();
+        try {
+            // Check previous hash for this user and question
+            $last = $DB->get_record_sql(
+                'SELECT code_hash FROM {local_tce_revisions}
+                  WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND user_id = ?
+                  ORDER BY id DESC',
+                [$courseid, $quizid, $questionid, $userid],
+                IGNORE_MULTIPLE
+            );
+
+            if ($last && (string) $last->code_hash === $codehash) {
                 return false; // Deduplicated! Code hasn't changed.
             }
 
-            $ins = $connection->prepare(
-                'INSERT INTO student_code_revisions
-                (course_id, quiz_id, question_id, user_id, quiz_attempt_id, question_attempt_id,
-                 step_number, code_content, code_hash, execution_mode, passed_count, total_count)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-            );
-            $ins->bind_param(
-                'iiiiiiisssii',
-                $courseid,
-                $quizid,
-                $questionid,
-                $userid,
-                $attemptid,
-                $questionattemptid,
-                $stepnumber,
-                $trimmed,
-                $codehash,
-                $executionmode,
-                $passedcount,
-                $totalcount
-            );
-            $ins->execute();
-            $ins->close();
-            $connection->close();
+            $record = (object) [
+                'course_id' => $courseid,
+                'quiz_id' => $quizid,
+                'question_id' => $questionid,
+                'user_id' => $userid,
+                'quiz_attempt_id' => $attemptid,
+                'question_attempt_id' => $questionattemptid,
+                'step_number' => $stepnumber,
+                'code_content' => $trimmed,
+                'code_hash' => $codehash,
+                'execution_mode' => $executionmode,
+                'passed_count' => $passedcount,
+                'total_count' => $totalcount,
+                'timecreated' => time(),
+            ];
+            $DB->insert_record('local_tce_revisions', $record);
             return true;
         } catch (\Throwable $e) {
             debugging('Failed to record student code revision: ' . $e->getMessage(), DEBUG_DEVELOPER);

@@ -22,8 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use local_testcase_exchange\context_service;
-use local_testcase_exchange\external_database;
-use local_testcase_exchange\schema_manager;
 use local_testcase_exchange\testcase_service;
 
 require_once(__DIR__ . '/../../config.php');
@@ -40,11 +38,8 @@ if ($courseid === 0) {
     $PAGE->set_heading(get_string('coursehub', 'local_testcase_exchange'));
 
     $coursesummaries = [];
-    $connection = null;
     try {
-        $connection = external_database::connect();
-        schema_manager::migrate($connection);
-        $service = new testcase_service($connection);
+        $service = new testcase_service();
         $coursesummaries = $service->courses_summary();
     } catch (Throwable $e) {
         debugging($e->getMessage(), DEBUG_DEVELOPER);
@@ -284,13 +279,10 @@ if ($returnurl === '') {
     }
 }
 
-$connection = null;
 $service = null;
 $databaseerror = '';
 try {
-    $connection = external_database::connect();
-    schema_manager::migrate($connection);
-    $service = new testcase_service($connection);
+    $service = new testcase_service();
 } catch (Throwable $e) {
     $databaseerror = get_string('databaseunavailable', 'local_testcase_exchange');
     debugging($e->getMessage(), DEBUG_DEVELOPER);

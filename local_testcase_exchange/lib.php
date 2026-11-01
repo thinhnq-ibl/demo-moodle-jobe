@@ -258,10 +258,8 @@ function local_testcase_exchange_before_footer(): string {
     }
 
     try {
-        $connection = \local_testcase_exchange\external_database::connect();
-        $service = new \local_testcase_exchange\testcase_service($connection);
+        $service = new \local_testcase_exchange\testcase_service();
         $settings = $service->quiz_settings((int) $cm->instance);
-        $connection->close();
         if (empty($settings['enabled'])) {
             return '';
         }

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * CLI script to export student learning and testcase timeline.
+ * CLI tool to export student learning and testcase timeline.
  *
  * @package    local_testcase_exchange
  * @copyright  2026 Nguyen Quoc Thinh
@@ -26,17 +26,16 @@ define('CLI_SCRIPT', true);
 
 require(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/clilib.php');
-require_once(__DIR__ . '/../classes/external_database.php');
 
-list($options, $unrecognized) = cli_get_params([
-    'help' => false,
-    'course' => null,
-    'quiz' => null,
-    'userid' => null,
-    'username' => null,
-    'format' => 'csv',
+[$options, $unrecognized] = cli_get_params([
+    'help'         => false,
+    'course'       => 0,
+    'quiz'         => 0,
+    'userid'       => 0,
+    'username'     => '',
+    'format'       => 'csv',
     'include-code' => false,
-    'out' => null,
+    'out'          => '',
 ], [
     'h' => 'help',
     'c' => 'course',
@@ -48,15 +47,15 @@ list($options, $unrecognized) = cli_get_params([
 
 if ($options['help']) {
     $help = <<<EOF
-CLI script to export chronological student learning and testcase timeline.
+CLI tool to export student learning and testcase timeline.
 
 Options:
--h, --help            Print out this help.
--c, --course=ID       Filter by Course ID.
--q, --quiz=ID         Filter by Quiz ID.
--u, --userid=ID       Filter by Moodle User ID.
-    --username=NAME   Filter by Moodle username (e.g. student1).
--f, --format=csv|json Output format: csv (default) or json.
+-h, --help            Print this help.
+-c, --course=ID       Filter by Course ID (optional).
+-q, --quiz=ID         Filter by Quiz ID (optional).
+-u, --userid=ID       Filter by Moodle User ID (optional).
+    --username=STRING Filter by Moodle Username (optional).
+-f, --format=FORMAT   Export format: 'csv' (default) or 'json'.
     --include-code    Include source code snapshot, input, and output in CSV.
 -o, --out=PATH        Output file path (default: stdout).
 
@@ -71,35 +70,27 @@ EOF;
     exit(0);
 }
 
-try {
-    $conn = \local_testcase_exchange\external_database::connect();
-} catch (\Throwable $e) {
-    cli_error('Cannot connect to testcase_store: ' . $e->getMessage());
-}
-
 $whereclauses = [];
 $params = [];
-$types = '';
 
 if (!empty($options['course'])) {
-    $whereclauses[] = 'tl.course_id = ?';
-    $params[] = (int)$options['course'];
-    $types .= 'i';
+    $whereclauses[] = 'tl.course_id = :courseid';
+    $params['courseid'] = (int)$options['course'];
 }
 if (!empty($options['quiz'])) {
-    $whereclauses[] = 'tl.quiz_id = ?';
-    $params[] = (int)$options['quiz'];
-    $types .= 'i';
+    $whereclauses[] = 'tl.quiz_id = :quizid';
+    $params['quizid'] = (int)$options['quiz'];
 }
 if (!empty($options['userid'])) {
-    $whereclauses[] = 'tl.user_id = ?';
-    $params[] = (int)$options['userid'];
-    $types .= 'i';
-}
-if (!empty($options['username'])) {
-    $whereclauses[] = 'u.username = ?';
-    $params[] = (string)$options['username'];
-    $types .= 's';
+    $whereclauses[] = 'tl.user_id = :userid';
+    $params['userid'] = (int)$options['userid'];
+} else if (!empty($options['username'])) {
+    $userrec = $DB->get_record('user', ['username' => trim($options['username'])]);
+    if (!$userrec) {
+        cli_error("User with username '{$options['username']}' not found.");
+    }
+    $whereclauses[] = 'tl.user_id = :userid';
+    $params['userid'] = (int)$userrec->id;
 }
 
 $wheresql = !empty($whereclauses) ? ('WHERE ' . implode(' AND ', $whereclauses)) : '';
@@ -109,7 +100,7 @@ SELECT
     tl.event_time,
     tl.user_id,
     u.username,
-    CONCAT(u.firstname, ' ', u.lastname) AS fullname,
+    " . $DB->sql_fullname('u.firstname', 'u.lastname') . " AS fullname,
     tl.course_id,
     tl.quiz_id,
     tl.question_id,
@@ -126,7 +117,7 @@ SELECT
 FROM (
     -- 1. Playground test runs
     SELECT 
-        tr.created_at AS event_time,
+        tr.timecreated AS event_time,
         tr.user_id,
         tr.course_id,
         tr.quiz_id,
@@ -137,19 +128,23 @@ FROM (
         tr.student_outcome AS status,
         NULL AS rating,
         NULL AS comment,
-        CONCAT('Mục đích: ', COALESCE(tr.purpose, 'N/A'), ' | Phân loại: ', COALESCE(tr.category, 'N/A'), 
-               ' | Kết quả SV: ', tr.student_outcome, ' | Kết quả Oracle: ', tr.oracle_outcome) AS details,
+        " . $DB->sql_concat(
+            "'Mục đích: '", "COALESCE(tr.purpose, 'N/A')",
+            "' | Phân loại: '", "COALESCE(tr.category, 'N/A')",
+            "' | Kết quả SV: '", "tr.student_outcome",
+            "' | Kết quả Oracle: '", "tr.oracle_outcome"
+        ) . " AS details,
         tr.student_code_snapshot AS code_snapshot,
         tr.input_raw AS test_input,
         tr.student_run_output AS test_output
-    FROM testcase_store.testcase_runs tr
-    LEFT JOIN testcase_store.student_code_revisions scr ON tr.code_revision_id = scr.id
+    FROM {local_tce_runs} tr
+    LEFT JOIN {local_tce_revisions} scr ON tr.code_revision_id = scr.id
 
     UNION ALL
 
     -- 2. Testcase contributions
     SELECT 
-        tc.submitted_at AS event_time,
+        tc.timecreated AS event_time,
         tc.user_id,
         tc.course_id,
         tc.quiz_id,
@@ -160,17 +155,21 @@ FROM (
         tc.status AS status,
         NULL AS rating,
         NULL AS comment,
-        CONCAT('Testcase #', tc.id, ' | Mục đích: ', COALESCE(tc.purpose, 'N/A'), ' | Phân loại: ', COALESCE(tc.category, 'N/A')) AS details,
+        " . $DB->sql_concat(
+            "'Testcase #' ", "tc.id",
+            "' | Mục đích: '", "COALESCE(tc.purpose, 'N/A')",
+            "' | Phân loại: '", "COALESCE(tc.category, 'N/A')"
+        ) . " AS details,
         NULL AS code_snapshot,
         tc.input_normalized AS test_input,
         tc.oracle_output AS test_output
-    FROM testcase_store.testcase_contributions tc
+    FROM {local_tce_contributions} tc
 
     UNION ALL
 
     -- 3. Testcase reviews, accept/reject, rating & teacher comment
     SELECT 
-        cr.created_at AS event_time,
+        cr.timecreated AS event_time,
         tc.user_id,
         tc.course_id,
         tc.quiz_id,
@@ -186,20 +185,23 @@ FROM (
         cr.to_status AS status,
         cr.rating AS rating,
         cr.review_note AS comment,
-        CONCAT('Testcase #', tc.id, ' [', cr.from_status, ' -> ', cr.to_status, ']', 
-               IF(cr.rating IS NOT NULL, CONCAT(' | Đánh giá: ', cr.rating, ' sao (', COALESCE(cr.rating_reason, ''), ')'), ''),
-               IF(cr.review_note IS NOT NULL AND cr.review_note != '', CONCAT(' | Nhận xét GV: ', cr.review_note), '')) AS details,
+        " . $DB->sql_concat(
+            "'Testcase #' ", "tc.id",
+            "' ['", "cr.from_status", "' -> '", "cr.to_status", "']'",
+            "CASE WHEN cr.rating IS NOT NULL THEN " . $DB->sql_concat("' | Đánh giá: '", "cr.rating", "' sao'") . " ELSE '' END",
+            "CASE WHEN cr.review_note IS NOT NULL AND cr.review_note <> '' THEN " . $DB->sql_concat("' | Nhận xét GV: '", "cr.review_note") . " ELSE '' END"
+        ) . " AS details,
         NULL AS code_snapshot,
         tc.input_normalized AS test_input,
         tc.oracle_output AS test_output
-    FROM testcase_store.contribution_reviews cr
-    JOIN testcase_store.testcase_contributions tc ON cr.contribution_id = tc.id
+    FROM {local_tce_reviews} cr
+    JOIN {local_tce_contributions} tc ON cr.contribution_id = tc.id
 
     UNION ALL
 
     -- 4. Testcase rewards
     SELECT 
-        COALESCE(trw.claimed_at, trw.created_at) AS event_time,
+        COALESCE(trw.claimed_at, trw.timecreated) AS event_time,
         trw.receiver_user_id AS user_id,
         trw.course_id,
         trw.quiz_id,
@@ -207,21 +209,24 @@ FROM (
         'TESTCASE_REWARD' AS event_type,
         'Nhận testcase thưởng (Kho chung)' AS event_name,
         NULL AS code_version,
-        IF(trw.is_claimed = 1, 'claimed', 'unclaimed') AS status,
+        CASE WHEN trw.is_claimed = 1 THEN 'claimed' ELSE 'unclaimed' END AS status,
         NULL AS rating,
         NULL AS comment,
-        CONCAT('Nhận Testcase #', trw.contribution_id, ' từ nguồn: ', trw.reward_source, 
-               IF(trw.is_claimed = 1, ' (Đã mở khóa)', ' (Chưa mở khóa)')) AS details,
+        " . $DB->sql_concat(
+            "'Nhận Testcase #' ", "COALESCE(trw.contribution_id, trw.seed_id, 0)",
+            "' từ nguồn: '", "trw.reward_source",
+            "CASE WHEN trw.is_claimed = 1 THEN ' (Đã mở khóa)' ELSE ' (Chưa mở khóa)' END"
+        ) . " AS details,
         NULL AS code_snapshot,
         NULL AS test_input,
         NULL AS test_output
-    FROM testcase_store.testcase_rewards trw
+    FROM {local_tce_rewards} trw
 
     UNION ALL
 
     -- 5. Quiz submissions
     SELECT 
-        FROM_UNIXTIME(qa.timefinish) AS event_time,
+        qa.timefinish AS event_time,
         qa.userid AS user_id,
         q.course AS course_id,
         qa.quiz AS quiz_id,
@@ -232,72 +237,85 @@ FROM (
         qa.state AS status,
         NULL AS rating,
         NULL AS comment,
-        CONCAT('Lần nộp thi #', qa.attempt, ' | Điểm đạt: ', COALESCE(qa.sumgrades, 0), ' / ', q.sumgrades) AS details,
+        " . $DB->sql_concat(
+            "'Lần nộp thi #' ", "qa.attempt",
+            "' | Điểm đạt: '", "COALESCE(qa.sumgrades, 0)",
+            "' / '", "q.sumgrades"
+        ) . " AS details,
         NULL AS code_snapshot,
         NULL AS test_input,
         NULL AS test_output
-    FROM moodle.mdl_quiz_attempts qa
-    JOIN moodle.mdl_quiz q ON qa.quiz = q.id
+    FROM {quiz_attempts} qa
+    JOIN {quiz} q ON qa.quiz = q.id
     WHERE qa.timefinish > 0
-) AS tl
-JOIN moodle.mdl_user u ON tl.user_id = u.id
+) tl
+JOIN {user} u ON tl.user_id = u.id
 {$wheresql}
-ORDER BY tl.event_time ASC;
+ORDER BY tl.event_time ASC
 ";
 
-$stmt = $conn->prepare($sql);
-if (!$stmt) {
-    cli_error('Prepare SQL failed: ' . $conn->error);
-}
-
-if (!empty($params)) {
-    $stmt->bind_param($types, ...$params);
-}
-
-$stmt->execute();
-$result = $stmt->get_result();
+$records = $DB->get_recordset_sql($sql, $params);
 $rows = [];
-while ($row = $result->fetch_assoc()) {
-    $rows[] = $row;
+foreach ($records as $rec) {
+    $arr = (array)$rec;
+    $timeint = (int)($arr['event_time'] ?? 0);
+    $arr['event_time'] = $timeint ? date('Y-m-d H:i:s', $timeint) : '';
+    $rows[] = $arr;
 }
-$stmt->close();
-$conn->close();
+$records->close();
 
-$format = strtolower((string)$options['format']);
+if (empty($rows)) {
+    cli_writeln("No activity found matching the criteria.");
+    exit(0);
+}
+
+$format = strtolower($options['format']);
+$outfile = $options['out'];
 $includecode = !empty($options['include-code']);
-$outfile = !empty($options['out']) ? (string)$options['out'] : null;
-
-$handle = $outfile ? fopen($outfile, 'w') : STDOUT;
-if (!$handle) {
-    cli_error('Cannot open output file: ' . $outfile);
-}
 
 if ($format === 'json') {
-    fwrite($handle, json_encode($rows, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n");
-} else {
-    // CSV output.
-    $headers = [
-        'event_time', 'username', 'fullname', 'course_id', 'quiz_id', 'question_id',
-        'event_type', 'event_name', 'code_version', 'status', 'rating', 'comment', 'details'
-    ];
-    if ($includecode) {
-        $headers[] = 'code_snapshot';
-        $headers[] = 'test_input';
-        $headers[] = 'test_output';
+    $json = json_encode($rows, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    if (!empty($outfile)) {
+        file_put_contents($outfile, $json);
+        cli_writeln("Exported " . count($rows) . " events to JSON: {$outfile}");
+    } else {
+        echo $json . "\n";
     }
-
-    fputcsv($handle, $headers);
-    foreach ($rows as $r) {
-        $rowdata = [];
-        foreach ($headers as $h) {
-            $rowdata[] = $r[$h] ?? '';
-        }
-        fputcsv($handle, $rowdata);
-    }
+    exit(0);
 }
 
-if ($outfile) {
+// CSV format
+$headers = [
+    'event_time', 'username', 'fullname', 'course_id', 'quiz_id', 'question_id',
+    'event_type', 'event_name', 'code_version', 'status', 'rating', 'comment', 'details'
+];
+if ($includecode) {
+    $headers[] = 'code_snapshot';
+    $headers[] = 'test_input';
+    $headers[] = 'test_output';
+}
+
+$handle = !empty($outfile) ? fopen($outfile, 'w') : fopen('php://stdout', 'w');
+if (!$handle) {
+    cli_error("Cannot open output destination for writing.");
+}
+
+// Add UTF-8 BOM
+fwrite($handle, "\xEF\xBB\xBF");
+fputcsv($handle, $headers);
+
+foreach ($rows as $r) {
+    $rowdata = [];
+    foreach ($headers as $h) {
+        $rowdata[] = $r[$h] ?? '';
+    }
+    fputcsv($handle, $rowdata);
+}
+
+if (!empty($outfile)) {
     fclose($handle);
-    cli_writeln("Exported " . count($rows) . " timeline events to: {$outfile}");
+    cli_writeln("Exported " . count($rows) . " events to CSV: {$outfile}");
+} else {
+    fclose($handle);
 }
 exit(0);

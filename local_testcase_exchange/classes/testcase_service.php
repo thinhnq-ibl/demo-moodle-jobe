@@ -23,20 +23,28 @@
  */
 namespace local_testcase_exchange;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Application service for private runs, contributions, review and rewards.
  */
 final class testcase_service {
-    /** @var \mysqli External repository connection. */
-    private \mysqli $connection;
+    /** @var db_gateway Database access gateway. */
+    private db_gateway $db;
 
     /**
      * Create the workflow service.
      *
-     * @param \mysqli $connection External repository connection.
+     * @param mixed $db Optional db_gateway, moodle_database or null.
      */
-    public function __construct(\mysqli $connection) {
-        $this->connection = $connection;
+    public function __construct($db = null) {
+        if ($db instanceof db_gateway) {
+            $this->db = $db;
+        } else if ($db instanceof \moodle_database) {
+            $this->db = new db_gateway($db);
+        } else {
+            $this->db = new db_gateway();
+        }
     }
 
     /**
@@ -59,11 +67,7 @@ final class testcase_service {
      * @return array Quiz settings.
      */
     public function quiz_settings(int $quizid): array {
-        $stmt = $this->connection->prepare('SELECT * FROM quiz_settings WHERE quiz_id = ?');
-        $stmt->bind_param('i', $quizid);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
+        $row = $this->db->fetch_row('SELECT * FROM {local_tce_quiz_settings} WHERE quiz_id = ?', [$quizid]);
         return $row ?: [
             'quiz_id' => $quizid, 'enabled' => 0, 'review_mode' => 'teacher',
             'reward_policy' => 'one_for_one', 'show_oracle_output' => 1,
@@ -80,22 +84,19 @@ final class testcase_service {
      * @return array Question policy.
      */
     public function question_policy(int $quizid, int $questionid, string $coderunnertype = ''): array {
-        $stmt = $this->connection->prepare('SELECT * FROM question_policies WHERE quiz_id = ? AND question_id = ?');
-        $stmt->bind_param('ii', $quizid, $questionid);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-        if ($row) {
-            return $row;
-        }
-        return [
-            'quiz_id' => $quizid,
+        $row = $this->db->fetch_row(
+            'SELECT * FROM {local_tce_policies} WHERE quiz_id = ? AND question_id = ?',
+            [$quizid, $questionid]
+        );
+        $defaults = [
             'question_id' => $questionid,
-            'input_mode' => str_contains($coderunnertype, 'program') ? 'stdin' : 'testcode',
+            'quiz_id' => $quizid,
+            'input_mode' => 'testcode',
             'testcode_template' => '',
             'normalization_mode' => 'trim',
-            'categories' => 'normal,boundary,empty,invalid,large,branch,other',
+            'categories' => "edge_case\nrandom\nperformance\nsyntax",
         ];
+        return $row ?: $defaults;
     }
 
     /**
@@ -155,25 +156,22 @@ final class testcase_service {
         $oracleversionhash = (string) $execcontext['oracle_version_hash'];
 
         // Kiểm tra chống spam & giảm tải: Khóa tra cứu bao quát input thô, mã sinh viên và phiên bản oracle
-        $duplicatestmt = $this->connection->prepare(
+        $existingrun = $this->db->fetch_row(
             'SELECT id, student_run_output, oracle_output, student_outcome, oracle_outcome,
-                    predicted_output, jobe_server, created_at, code_revision_id
-               FROM testcase_runs
+                    predicted_output, jobe_server, timecreated, code_revision_id
+               FROM {local_tce_runs}
               WHERE user_id = ?
                 AND question_id = ?
                 AND input_raw_hash = ?
                 AND student_source_hash = ?
                 AND oracle_version_hash = ?
-              ORDER BY id DESC LIMIT 1'
+              ORDER BY id DESC',
+            [$userid, $qid, $rawinputhash, $sourcehash, $oracleversionhash]
         );
-        $duplicatestmt->bind_param('iisss', $userid, $qid, $rawinputhash, $sourcehash, $oracleversionhash);
-        $duplicatestmt->execute();
-        $existingrun = $duplicatestmt->get_result()->fetch_assoc();
-        $duplicatestmt->close();
 
         if ($existingrun) {
-            $is_same_prediction = (trim((string) $existingrun['predicted_output']) === trim((string) $predicted));
-            if ($is_same_prediction) {
+            $issameprediction = (trim((string) $existingrun['predicted_output']) === trim((string) $predicted));
+            if ($issameprediction) {
                 // Toàn bộ code, input và expected đều giống hệt -> Chặn hoàn toàn và trả lại lượt chạy cũ
                 return [
                     'id' => (int) $existingrun['id'],
@@ -195,8 +193,8 @@ final class testcase_service {
                 ];
             }
 
-            // Sinh viên điều chỉnh Expected Output: Tái sử dụng 100% kết quả thực thi Jobe cũ nhưng ghi nhận dự đoán mới
-            $cached_results = [
+            // Sinh viên điều chỉnh Expected Output: Tái sử dụng kết quả Jobe cũ nhưng ghi nhận dự đoán mới
+            $cachedresults = [
                 'student' => [
                     'outcome' => $existingrun['student_outcome'],
                     'output' => $existingrun['student_run_output'],
@@ -229,42 +227,30 @@ final class testcase_service {
                 $courseid, $quiz, $questioncontext, $userid,
                 $studentsource, $input, $normalized, $fingerprint, $rawinputhash, $sourcehash,
                 $predicted, $purpose, $category, $reflection,
-                $cached_results, $server, $runtimecontext
+                $cachedresults, $server, $runtimecontext
             );
         }
 
         // Tra cứu bộ nhớ đệm kết quả Solution: Khóa cache phải khớp input thô và phiên bản Lời giải mẫu
         $cachedoracle = null;
-        $oraclestmt = $this->connection->prepare(
+        $oraclerow = $this->db->fetch_row(
             'SELECT oracle_output, oracle_outcome, jobe_server 
-               FROM testcase_runs 
+               FROM {local_tce_runs} 
               WHERE question_id = ? AND input_raw_hash = ? AND oracle_version_hash = ? AND oracle_outcome = "success" 
-              ORDER BY id DESC LIMIT 1'
+              ORDER BY id DESC',
+            [$qid, $rawinputhash, $oracleversionhash]
         );
-        $oraclestmt->bind_param('iss', $qid, $rawinputhash, $oracleversionhash);
-        $oraclestmt->execute();
-        $oraclerow = $oraclestmt->get_result()->fetch_assoc();
-        $oraclestmt->close();
         if ($oraclerow && trim((string)$oraclerow['oracle_output']) !== '') {
             $cachedoracle = [
                 'outcome' => $oraclerow['oracle_outcome'],
                 'output' => $oraclerow['oracle_output'],
-                'server' => 'cached',
+                'server' => (string) ($oraclerow['jobe_server'] ?? 'cached_oracle'),
+                'error' => '',
             ];
         }
 
-        $results = execution_service::run_pair(
-            (int) $questioncontext->questionid,
-            $studentsource,
-            $input,
-            $policy,
-            $quiz,
-            $cachedoracle
-        );
-        $server = $results['student']['server'] ?: $results['oracle']['server'];
-        $studentsnapshot = $studentsource;
-        $oraclesnapshot = (string) ($results['oracle_solution'] ?? '');
-        $templatesnapshot = (string) ($results['template'] ?? '');
+        $results = execution_service::run_pair($qid, $studentsource, $input, $policy, $quiz, $cachedoracle);
+        $server = $results['student']['server'] ?: ($results['oracle']['server'] ?: 'jobe1');
         $runtimecontext = json_encode([
             'coderunnertype' => (string) ($questioncontext->coderunnertype ?? ''),
             'input_mode' => (string) ($policy['input_mode'] ?? 'testcode'),
@@ -272,6 +258,7 @@ final class testcase_service {
             'jobe_server' => $server,
             'timestamp' => date('c'),
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
         return $this->persist_run_record(
             $courseid, $quiz, $questioncontext, $userid,
             $studentsource, $input, $normalized, $fingerprint, $rawinputhash, $sourcehash,
@@ -281,7 +268,7 @@ final class testcase_service {
     }
 
     /**
-     * Persist run execution record and calculate prediction matching.
+     * Persist run execution record to the local_tce_runs table.
      */
     private function persist_run_record(
         int $courseid,
@@ -302,127 +289,79 @@ final class testcase_service {
         string $server,
         string $runtimecontext
     ): array {
-        $qversion = (int) ($results['question_version'] ?? 1);
-        $gradertype = (string) ($results['grader_type'] ?? 'EqualityGrader');
-        $oracleversionhash = (string) ($results['oracle_version_hash'] ?? '');
-        $testsuiteversionhash = (string) ($results['test_suite_version_hash'] ?? '');
-        $executionlimits = (string) ($results['execution_limits'] ?? '');
-        $oraclesnapshot = (string) ($results['oracle_solution'] ?? '');
-        $templatesnapshot = (string) ($results['template'] ?? '');
-        $studentsnapshot = $studentsource;
-
-        // Persist solution version immutably
-        if ($oraclesnapshot !== '') {
-            $this->ensure_solution_version(
-                $courseid,
-                (int) $quiz->id,
-                (int) $questioncontext->questionid,
-                $oraclesnapshot,
-                $templatesnapshot,
-                $qversion
-            );
-        }
-
-        $revinfo = $this->record_or_get_code_revision(
-            $courseid,
-            (int) $quiz->id,
-            (int) $questioncontext->questionid,
-            $userid,
-            $studentsource
-        );
-        $coderevisionid = $revinfo['id'] !== null ? (int) $revinfo['id'] : null;
-
-        $stmt = $this->connection->prepare(
-            'INSERT INTO testcase_runs
-            (course_id, quiz_id, question_id, user_id, code_revision_id, input_raw, input_raw_hash, input_normalized, input_fingerprint,
-             predicted_output, student_run_output, oracle_output, student_outcome, oracle_outcome,
-             purpose, category, reflection, jobe_server, student_source_hash,
-             student_code_snapshot, oracle_solution_snapshot, template_snapshot, runtime_context,
-             question_version, grader_type, oracle_version_hash, test_suite_version_hash, execution_limits)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-        );
         $quizid = (int) $quiz->id;
-        $questionid = (int) $questioncontext->questionid;
-        $studentoutput = $results['student']['output'];
-        $oracleoutput = $results['oracle']['output'];
-        $studentoutcome = $results['student']['outcome'];
-        $oracleoutcome = $results['oracle']['outcome'];
-        $stmt->bind_param(
-            'iiiiissssssssssssssssssissss',
-            $courseid,
-            $quizid,
-            $questionid,
-            $userid,
-            $coderevisionid,
-            $input,
-            $rawinputhash,
-            $normalized,
-            $fingerprint,
-            $predicted,
-            $studentoutput,
-            $oracleoutput,
-            $studentoutcome,
-            $oracleoutcome,
-            $purpose,
-            $category,
-            $reflection,
-            $server,
-            $sourcehash,
-            $studentsnapshot,
-            $oraclesnapshot,
-            $templatesnapshot,
-            $runtimecontext,
-            $qversion,
-            $gradertype,
-            $oracleversionhash,
-            $testsuiteversionhash,
-            $executionlimits
-        );
-        $stmt->execute();
-        $runid = (int) $stmt->insert_id;
-        $stmt->close();
+        $qid = (int) $questioncontext->questionid;
+
+        // Auto-track or link to student's code revision
+        $revinfo = $this->record_or_get_code_revision($courseid, $quizid, $qid, $userid, $studentsource);
+        $coderevid = $revinfo['id'];
+
+        $runid = $this->db->insert('local_tce_runs', [
+            'course_id' => $courseid,
+            'quiz_id' => $quizid,
+            'question_id' => $qid,
+            'user_id' => $userid,
+            'code_revision_id' => $coderevid,
+            'quiz_attempt_id' => null,
+            'question_attempt_id' => null,
+            'input_raw' => $input,
+            'input_normalized' => $normalized,
+            'input_fingerprint' => $fingerprint,
+            'input_raw_hash' => $rawinputhash,
+            'predicted_output' => $predicted,
+            'student_run_output' => $results['student']['output'],
+            'oracle_output' => $results['oracle']['output'],
+            'student_outcome' => $results['student']['outcome'],
+            'oracle_outcome' => $results['oracle']['outcome'],
+            'purpose' => $purpose,
+            'category' => $category,
+            'reflection' => $reflection,
+            'jobe_server' => $server,
+            'student_source_hash' => $sourcehash,
+            'student_code_snapshot' => $studentsource,
+            'oracle_solution_snapshot' => (string) ($results['oracle_solution'] ?? ''),
+            'template_snapshot' => (string) ($results['template'] ?? ''),
+            'runtime_context' => $runtimecontext,
+            'question_version' => (int) ($results['question_version'] ?? 1),
+            'grader_type' => (string) ($results['grader_type'] ?? 'EqualityGrader'),
+            'oracle_version_hash' => (string) ($results['oracle_version_hash'] ?? ''),
+            'test_suite_version_hash' => (string) ($results['test_suite_version_hash'] ?? ''),
+            'execution_limits' => (string) ($results['execution_limits'] ?? ''),
+            'timecreated' => time(),
+        ]);
 
         return [
             'id' => $runid,
             'is_duplicate_run' => false,
             'student' => $results['student'],
             'oracle' => $results['oracle'],
-            'prediction_matches_oracle' => $oracleoutcome === 'success' &&
-                trim($predicted) !== '' &&
-                trim($predicted) === trim($oracleoutput),
+            'input' => $input,
+            'normalized' => $normalized,
+            'fingerprint' => $fingerprint,
+            'code_revision_id' => $coderevid,
         ];
     }
 
     /**
-     * Submit an owned private run as a contribution.
-     *
-     * @param int $runid Run ID.
-     * @param int $userid Owner user ID.
-     * @return array Contribution ID and status.
+     * Submit a private run as a public contribution candidate.
      */
     public function submit_contribution(int $runid, int $userid): array {
         $run = $this->owned_run($runid, $userid);
-        $existingstmt = $this->connection->prepare(
-            'SELECT id, status FROM testcase_contributions WHERE run_id = ?'
+        $existing = $this->db->fetch_row(
+            'SELECT id, status FROM {local_tce_contributions} WHERE run_id = ?',
+            [$runid]
         );
-        $existingstmt->bind_param('i', $runid);
-        $existingstmt->execute();
-        $existing = $existingstmt->get_result()->fetch_assoc();
-        $existingstmt->close();
         if ($existing) {
             return ['id' => (int) $existing['id'], 'status' => $existing['status'], 'is_own_duplicate' => false];
         }
 
-        // Also check if user already contributed this exact testcase fingerprint for this question from another run
-        $existingfpstmt = $this->connection->prepare(
-            'SELECT id, status FROM testcase_contributions 
+        // Check if user already contributed this exact testcase fingerprint for this question from another run
+        $existingfp = $this->db->fetch_row(
+            'SELECT id, status FROM {local_tce_contributions} 
               WHERE user_id = ? AND question_id = ? AND input_fingerprint = ? 
-           ORDER BY id ASC LIMIT 1'
+           ORDER BY id ASC',
+            [$userid, $run['question_id'], $run['input_fingerprint']]
         );
-        $existingfpstmt->bind_param('iis', $userid, $run['question_id'], $run['input_fingerprint']);
-        $existingfpstmt->execute();
-        $existingfp = $existingfpstmt->get_result()->fetch_assoc();
-        $existingfpstmt->close();
         if ($existingfp) {
             return [
                 'id' => (int) $existingfp['id'],
@@ -433,15 +372,11 @@ final class testcase_service {
         }
 
         // Check if testcase is already in the teacher seed bank
-        $seedstmt = $this->connection->prepare(
-            'SELECT id FROM question_seed_testcases 
-              WHERE course_id = ? AND question_id = ? AND input_fingerprint = ? AND is_active = 1
-              LIMIT 1'
+        $seedexists = $this->db->fetch_row(
+            'SELECT id FROM {local_tce_seeds} 
+              WHERE course_id = ? AND question_id = ? AND input_fingerprint = ? AND is_active = 1',
+            [$run['course_id'], $run['question_id'], $run['input_fingerprint']]
         );
-        $seedstmt->bind_param('iis', $run['course_id'], $run['question_id'], $run['input_fingerprint']);
-        $seedstmt->execute();
-        $seedexists = $seedstmt->get_result()->fetch_assoc();
-        $seedstmt->close();
         if ($seedexists) {
             throw new \moodle_exception('cannotcontributeseedtestcase', 'local_testcase_exchange', '',
                 'Testcase này đã thuộc bộ đề thi hoặc ngân hàng mẫu của giáo viên, không thể đề xuất đóng góp!');
@@ -460,90 +395,90 @@ final class testcase_service {
             throw new \moodle_exception('studentcodenotpassing', 'local_testcase_exchange', '',
                 'Kết quả mong đợi của bạn đã được xác nhận. Chương trình hiện tại chưa vượt qua testcase này. Hãy sửa chương trình và chạy lại để đủ điều kiện đóng góp.');
         }
+
         $settings = $this->quiz_settings((int) $run['quiz_id']);
-        $this->connection->begin_transaction();
+        $tx = $this->db->start_transaction();
         try {
             $status = 'submitted';
             $runpk = (int) $run['id'];
             $courseid = (int) $run['course_id'];
             $quizid = (int) $run['quiz_id'];
             $questionid = (int) $run['question_id'];
-            $normalized = (string) $run['input_normalized'];
             $fingerprint = (string) $run['input_fingerprint'];
-            $oracleoutput = (string) $run['oracle_output'];
-            $purpose = (string) $run['purpose'];
-            $category = (string) $run['category'];
-            $stmt = $this->connection->prepare(
-                'INSERT INTO testcase_contributions
-                (run_id, course_id, quiz_id, question_id, user_id, input_normalized, input_fingerprint,
-                 oracle_output, purpose, category, status)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-            );
-            $stmt->bind_param(
-                'iiiiissssss',
-                $runpk,
-                $courseid,
-                $quizid,
-                $questionid,
-                $userid,
-                $normalized,
-                $fingerprint,
-                $oracleoutput,
-                $purpose,
-                $category,
-                $status
-            );
-            $stmt->execute();
-            $contributionid = (int) $stmt->insert_id;
-            $stmt->close();
+            $timenow = time();
 
-            $claim = $this->connection->prepare(
-                'INSERT IGNORE INTO testcase_canonical_keys
-                (course_id, quiz_id, question_id, input_fingerprint, canonical_contribution_id)
-                VALUES (?, ?, ?, ?, ?)'
+            $contributionid = $this->db->insert('local_tce_contributions', [
+                'run_id' => $runpk,
+                'course_id' => $courseid,
+                'quiz_id' => $quizid,
+                'question_id' => $questionid,
+                'user_id' => $userid,
+                'input_normalized' => (string) $run['input_normalized'],
+                'input_fingerprint' => $fingerprint,
+                'oracle_output' => (string) $run['oracle_output'],
+                'purpose' => (string) $run['purpose'],
+                'category' => (string) $run['category'],
+                'status' => $status,
+                'timecreated' => $timenow,
+                'timemodified' => $timenow,
+            ]);
+
+            // Attempt to claim canonical key
+            $isduplicate = false;
+            $canonicalrec = $this->db->fetch_row(
+                'SELECT canonical_contribution_id FROM {local_tce_canonical}
+                  WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND input_fingerprint = ?',
+                [$courseid, $quizid, $questionid, $fingerprint]
             );
-            $claim->bind_param(
-                'iiisi',
-                $courseid,
-                $quizid,
-                $questionid,
-                $fingerprint,
-                $contributionid
-            );
-            $claim->execute();
+
+            if ($canonicalrec) {
+                $isduplicate = true;
+                $canonical = (int) $canonicalrec['canonical_contribution_id'];
+            } else {
+                try {
+                    $this->db->insert('local_tce_canonical', [
+                        'course_id' => $courseid,
+                        'quiz_id' => $quizid,
+                        'question_id' => $questionid,
+                        'input_fingerprint' => $fingerprint,
+                        'canonical_contribution_id' => $contributionid,
+                        'timecreated' => $timenow,
+                    ]);
+                    $canonical = $contributionid;
+                } catch (\Throwable $e) {
+                    $isduplicate = true;
+                    $canonical = $this->canonical_id($run);
+                }
+            }
+
             $isownduplicate = false;
-            $canonical = null;
-            if ($claim->affected_rows === 0) {
-                $canonical = $this->canonical_id($run);
+            if ($isduplicate) {
                 $status = 'duplicate';
-
-                $ownerstmt = $this->connection->prepare('SELECT user_id FROM testcase_contributions WHERE id = ?');
-                $ownerstmt->bind_param('i', $canonical);
-                $ownerstmt->execute();
-                $canonicaluser = (int) ($ownerstmt->get_result()->fetch_assoc()['user_id'] ?? 0);
-                $ownerstmt->close();
+                $ownerrow = $this->db->fetch_row(
+                    'SELECT user_id FROM {local_tce_contributions} WHERE id = ?',
+                    [$canonical]
+                );
+                $canonicaluser = (int) ($ownerrow['user_id'] ?? 0);
                 $isownduplicate = ($canonicaluser === $userid);
 
-                $update = $this->connection->prepare(
-                    'UPDATE testcase_contributions SET status = ?, duplicate_of = ? WHERE id = ?'
+                $this->db->execute(
+                    'UPDATE {local_tce_contributions} SET status = ?, duplicate_of = ?, timemodified = ? WHERE id = ?',
+                    [$status, $canonical, $timenow, $contributionid]
                 );
-                $update->bind_param('sii', $status, $canonical, $contributionid);
-                $update->execute();
-                $update->close();
 
                 $note = $isownduplicate ? 'Duplicate of own contribution #' . $canonical : 'Exact fingerprint duplicate';
                 $this->insert_review($contributionid, 0, 'submitted', 'duplicate', $note);
             } else if ($settings['review_mode'] === 'auto') {
                 $status = 'approved';
-                $update = $this->connection->prepare('UPDATE testcase_contributions SET status = ? WHERE id = ?');
-                $update->bind_param('si', $status, $contributionid);
-                $update->execute();
-                $update->close();
+                $this->db->execute(
+                    'UPDATE {local_tce_contributions} SET status = ?, timemodified = ? WHERE id = ?',
+                    [$status, $timenow, $contributionid]
+                );
                 $this->insert_review($contributionid, 0, 'submitted', 'approved', 'Automatically approved by Quiz policy');
                 $this->grant_reward_for_contribution($contributionid);
             }
-            $claim->close();
-            $this->connection->commit();
+
+            $tx->allow_commit();
             return [
                 'id' => $contributionid,
                 'status' => $status,
@@ -551,19 +486,12 @@ final class testcase_service {
                 'canonical_id' => $canonical,
             ];
         } catch (\Throwable $e) {
-            $this->connection->rollback();
             throw $e;
         }
     }
 
     /**
      * Apply a review transition and audit it.
-     *
-     * @param int $contributionid Contribution ID.
-     * @param int $courseid Course ID.
-     * @param int $reviewerid Reviewer user ID.
-     * @param string $newstatus Requested status.
-     * @param string $note Review note.
      */
     public function review(
         int $contributionid,
@@ -578,15 +506,13 @@ final class testcase_service {
         if (!in_array($newstatus, $allowed, true)) {
             throw new \moodle_exception('invalidstatus', 'local_testcase_exchange');
         }
-        $stmt = $this->connection->prepare(
-            'SELECT status, rating, review_comment FROM testcase_contributions WHERE id = ? AND course_id = ? FOR UPDATE'
-        );
-        $this->connection->begin_transaction();
+
+        $tx = $this->db->start_transaction();
         try {
-            $stmt->bind_param('ii', $contributionid, $courseid);
-            $stmt->execute();
-            $row = $stmt->get_result()->fetch_assoc();
-            $stmt->close();
+            $row = $this->db->fetch_row(
+                'SELECT status, rating, review_comment FROM {local_tce_contributions} WHERE id = ? AND course_id = ?',
+                [$contributionid, $courseid]
+            );
             if (!$row) {
                 throw new \moodle_exception('invalidcontribution', 'local_testcase_exchange');
             }
@@ -607,58 +533,47 @@ final class testcase_service {
 
             $finalrating = ($rating >= 1 && $rating <= 5) ? $rating : ($row['rating'] !== null ? (int) $row['rating'] : null);
             $finalcomment = (trim($note) !== '') ? trim($note) : $row['review_comment'];
+            $timenow = time();
 
-            $update = $this->connection->prepare(
-                'UPDATE testcase_contributions SET status = ?, rating = ?, review_comment = ? WHERE id = ?'
+            $this->db->execute(
+                'UPDATE {local_tce_contributions} SET status = ?, rating = ?, review_comment = ?, timemodified = ? WHERE id = ?',
+                [$targetstatus, $finalrating, $finalcomment, $timenow, $contributionid]
             );
-            $update->bind_param('sisi', $targetstatus, $finalrating, $finalcomment, $contributionid);
-            $update->execute();
-            $update->close();
 
             $this->insert_review($contributionid, $reviewerid, $from, $targetstatus, $note, $finalrating, $ratingreason);
             if ($targetstatus === 'approved' && $from !== 'approved') {
                 $this->grant_reward_for_contribution($contributionid);
             }
-            $this->connection->commit();
+            $tx->allow_commit();
         } catch (\Throwable $e) {
-            $this->connection->rollback();
             throw $e;
         }
     }
 
     /**
      * Add an explanation and resubmit a contribution.
-     *
-     * @param int $contributionid Contribution ID.
-     * @param int $userid Owner user ID.
-     * @param string $explanation Explanation text.
      */
     public function resubmit_explanation(int $contributionid, int $userid, string $explanation): void {
         if (trim($explanation) === '') {
             throw new \moodle_exception('explanationrequired', 'local_testcase_exchange');
         }
-        $this->connection->begin_transaction();
+        $tx = $this->db->start_transaction();
         try {
-            $stmt = $this->connection->prepare(
-                "SELECT status FROM testcase_contributions
-                  WHERE id = ? AND user_id = ? FOR UPDATE"
+            $row = $this->db->fetch_row(
+                "SELECT status, purpose FROM {local_tce_contributions} WHERE id = ? AND user_id = ?",
+                [$contributionid, $userid]
             );
-            $stmt->bind_param('ii', $contributionid, $userid);
-            $stmt->execute();
-            $row = $stmt->get_result()->fetch_assoc();
-            $stmt->close();
             if (!$row || $row['status'] !== 'needs_explanation') {
                 throw new \moodle_exception('invalidtransition', 'local_testcase_exchange');
             }
             $status = 'submitted';
-            $update = $this->connection->prepare(
-                "UPDATE testcase_contributions
-                    SET status = ?, purpose = CONCAT(COALESCE(purpose, ''), '\nExplanation: ', ?)
-                  WHERE id = ?"
+            $newpurpose = ($row['purpose'] ?? '') . "\nExplanation: " . $explanation;
+            $timenow = time();
+
+            $this->db->execute(
+                "UPDATE {local_tce_contributions} SET status = ?, purpose = ?, timemodified = ? WHERE id = ?",
+                [$status, $newpurpose, $timenow, $contributionid]
             );
-            $update->bind_param('ssi', $status, $explanation, $contributionid);
-            $update->execute();
-            $update->close();
             $this->insert_review(
                 $contributionid,
                 $userid,
@@ -666,74 +581,68 @@ final class testcase_service {
                 'submitted',
                 $explanation
             );
-            $this->connection->commit();
+            $tx->allow_commit();
         } catch (\Throwable $e) {
-            $this->connection->rollback();
             throw $e;
         }
     }
 
     /**
      * Save Quiz-level policy settings.
-     *
-     * @param int $quizid Quiz ID.
-     * @param int $userid Editor user ID.
-     * @param array $values Submitted values.
      */
     public function save_quiz_settings(int $quizid, int $userid, array $values): void {
-        $stmt = $this->connection->prepare(
-            'INSERT INTO quiz_settings
-            (quiz_id, is_enabled, enabled, review_mode, reward_policy, show_oracle_output,
-             leaderboard_enabled, max_runs_per_minute, max_input_bytes, updated_by)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE is_enabled=VALUES(is_enabled), enabled=VALUES(enabled),
-             review_mode=VALUES(review_mode), reward_policy=VALUES(reward_policy),
-             show_oracle_output=VALUES(show_oracle_output), leaderboard_enabled=VALUES(leaderboard_enabled),
-             max_runs_per_minute=VALUES(max_runs_per_minute), max_input_bytes=VALUES(max_input_bytes),
-             updated_by=VALUES(updated_by)'
-        );
         $enabled = !empty($values['enabled']) ? 1 : 0;
         $showoracle = !empty($values['show_oracle_output']) ? 1 : 0;
         $leaderboard = !empty($values['leaderboard_enabled']) ? 1 : 0;
         $reviewmode = in_array($values['review_mode'], ['auto', 'teacher'], true) ? $values['review_mode'] : 'teacher';
         $rewardpolicy = in_array($values['reward_policy'], ['disabled', 'one_for_one'], true) ?
             $values['reward_policy'] : 'one_for_one';
-        $maxruns = max(1, min(120, (int) $values['max_runs_per_minute']));
-        $maxbytes = max(64, min(1048576, (int) $values['max_input_bytes']));
-        $stmt->bind_param(
-            'iiissiiiii',
-            $quizid,
-            $enabled,
-            $enabled,
-            $reviewmode,
-            $rewardpolicy,
-            $showoracle,
-            $leaderboard,
-            $maxruns,
-            $maxbytes,
-            $userid
-        );
-        $stmt->execute();
-        $stmt->close();
+        $maxruns = max(1, min(120, (int) ($values['max_runs_per_minute'] ?? 10)));
+        $maxbytes = max(64, min(1048576, (int) ($values['max_input_bytes'] ?? 8192)));
+        $timenow = time();
+
+        $existing = $this->db->fetch_row('SELECT id FROM {local_tce_quiz_settings} WHERE quiz_id = ?', [$quizid]);
+        if ($existing) {
+            $this->db->update('local_tce_quiz_settings', [
+                'id' => (int) $existing['id'],
+                'quiz_id' => $quizid,
+                'is_enabled' => $enabled,
+                'enabled' => $enabled,
+                'review_mode' => $reviewmode,
+                'reward_policy' => $rewardpolicy,
+                'show_oracle_output' => $showoracle,
+                'leaderboard_enabled' => $leaderboard,
+                'max_runs_per_minute' => $maxruns,
+                'max_input_bytes' => $maxbytes,
+                'updated_by' => $userid,
+                'timemodified' => $timenow,
+            ]);
+        } else {
+            $this->db->insert('local_tce_quiz_settings', [
+                'quiz_id' => $quizid,
+                'is_enabled' => $enabled,
+                'enabled' => $enabled,
+                'review_mode' => $reviewmode,
+                'reward_policy' => $rewardpolicy,
+                'show_oracle_output' => $showoracle,
+                'leaderboard_enabled' => $leaderboard,
+                'max_runs_per_minute' => $maxruns,
+                'max_input_bytes' => $maxbytes,
+                'updated_by' => $userid,
+                'timecreated' => $timenow,
+                'timemodified' => $timenow,
+            ]);
+        }
     }
 
     /**
      * Save question-level execution policy.
-     *
-     * @param int $quizid Quiz ID.
-     * @param int $questionid Question ID.
-     * @param int $userid Editor user ID.
-     * @param array $values Submitted values.
      */
     public function save_question_policy(int $quizid, int $questionid, int $userid, array $values): void {
-        // Fetch current policy to preserve fields that are not explicitly provided in $values
-        $stmt_curr = $this->connection->prepare(
-            'SELECT input_mode, testcode_template, normalization_mode, categories FROM question_policies WHERE question_id = ?'
+        $curr = $this->db->fetch_row(
+            'SELECT id, input_mode, testcode_template, normalization_mode, categories FROM {local_tce_policies} WHERE question_id = ?',
+            [$questionid]
         );
-        $stmt_curr->bind_param('i', $questionid);
-        $stmt_curr->execute();
-        $curr = $stmt_curr->get_result()->fetch_assoc() ?: [];
-        $stmt_curr->close();
 
         $mode_val = array_key_exists('input_mode', $values) ? $values['input_mode'] : ($curr['input_mode'] ?? 'testcode');
         $mode = in_array($mode_val, ['stdin', 'testcode', 'template'], true) ? $mode_val : 'testcode';
@@ -743,54 +652,53 @@ final class testcase_service {
 
         $template = array_key_exists('testcode_template', $values) ? (string) $values['testcode_template'] : (string) ($curr['testcode_template'] ?? '');
         $categories = array_key_exists('categories', $values) ? (string) $values['categories'] : (string) ($curr['categories'] ?? '');
+        $timenow = time();
 
-        $stmt = $this->connection->prepare(
-            'INSERT INTO question_policies
-            (question_id, quiz_id, input_mode, testcode_template, normalization_mode, categories, updated_by)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE quiz_id=VALUES(quiz_id), input_mode=VALUES(input_mode),
-            testcode_template=VALUES(testcode_template), normalization_mode=VALUES(normalization_mode),
-            categories=VALUES(categories), updated_by=VALUES(updated_by)'
-        );
-        $stmt->bind_param('iissssi', $questionid, $quizid, $mode, $template, $normalization, $categories, $userid);
-        $stmt->execute();
-        $stmt->close();
+        if ($curr) {
+            $this->db->update('local_tce_policies', [
+                'id' => (int) $curr['id'],
+                'quiz_id' => $quizid,
+                'question_id' => $questionid,
+                'input_mode' => $mode,
+                'testcode_template' => $template,
+                'normalization_mode' => $normalization,
+                'categories' => $categories,
+                'updated_by' => $userid,
+                'timemodified' => $timenow,
+            ]);
+        } else {
+            $this->db->insert('local_tce_policies', [
+                'quiz_id' => $quizid,
+                'question_id' => $questionid,
+                'input_mode' => $mode,
+                'testcode_template' => $template,
+                'normalization_mode' => $normalization,
+                'categories' => $categories,
+                'updated_by' => $userid,
+                'timecreated' => $timenow,
+                'timemodified' => $timenow,
+            ]);
+        }
     }
 
     /**
      * Return private runs for a user, enriched with code revision step numbers.
-     *
-     * @param int $courseid Course ID.
-     * @param int $userid User ID.
-     * @return array Private runs.
      */
     public function runs_for_user(int $courseid, int $userid): array {
-        $stmt = $this->connection->prepare(
+        return $this->db->fetch_all(
             'SELECT r.*,
                     rev.step_number AS revision_step,
-                    rev.created_at AS revision_created_at
-               FROM testcase_runs r
-          LEFT JOIN student_code_revisions rev ON rev.id = r.code_revision_id
+                    rev.timecreated AS revision_created_at
+               FROM {local_tce_runs} r
+          LEFT JOIN {local_tce_revisions} rev ON rev.id = r.code_revision_id
               WHERE r.course_id = ? AND r.user_id = ?
-           ORDER BY r.id DESC LIMIT 100'
+           ORDER BY r.id DESC',
+            [$courseid, $userid]
         );
-        $stmt->bind_param('ii', $courseid, $userid);
-        $stmt->execute();
-        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
-        return $rows;
     }
 
     /**
-     * Record a new code revision if the submitted code differs from the immediately preceding revision.
-     * If code is identical to the preceding revision, return existing revision info.
-     *
-     * @param int $courseid Course ID.
-     * @param int $quizid Quiz ID.
-     * @param int $questionid Question ID.
-     * @param int $userid User ID.
-     * @param string $codecontent Code content.
-     * @return array{id: ?int, step_number: int, is_new: bool}
+     * Record a new code revision if submitted code differs from preceding revision.
      */
     public function record_or_get_code_revision(
         int $courseid,
@@ -806,18 +714,13 @@ final class testcase_service {
 
         $codehash = hash('sha256', $trimmed);
 
-        // Find the immediately preceding revision for this user on this specific question
-        $stmt = $this->connection->prepare(
-            'SELECT id, code_hash, step_number FROM student_code_revisions
+        $last = $this->db->fetch_row(
+            'SELECT id, code_hash, step_number FROM {local_tce_revisions}
               WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND user_id = ?
-              ORDER BY id DESC LIMIT 1'
+              ORDER BY id DESC',
+            [$courseid, $quizid, $questionid, $userid]
         );
-        $stmt->bind_param('iiii', $courseid, $quizid, $questionid, $userid);
-        $stmt->execute();
-        $last = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
 
-        // If the immediately preceding revision has the exact same hash, reuse it
         if ($last && (string) $last['code_hash'] === $codehash) {
             return [
                 'id' => (int) $last['id'],
@@ -826,29 +729,21 @@ final class testcase_service {
             ];
         }
 
-        // Code differs from the immediately preceding revision (or this is the very first revision)
-        // Calculate the next step number (e.g. 1, 2, 3...)
         $newstep = $last ? ((int) $last['step_number'] + 1) : 1;
         $mode = 'playground';
-        $ins = $this->connection->prepare(
-            'INSERT INTO student_code_revisions
-            (course_id, quiz_id, question_id, user_id, step_number, code_content, code_hash, execution_mode)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-        );
-        $ins->bind_param(
-            'iiiiisss',
-            $courseid,
-            $quizid,
-            $questionid,
-            $userid,
-            $newstep,
-            $trimmed,
-            $codehash,
-            $mode
-        );
-        $ins->execute();
-        $newid = (int) $ins->insert_id;
-        $ins->close();
+        $timenow = time();
+
+        $newid = $this->db->insert('local_tce_revisions', [
+            'course_id' => $courseid,
+            'quiz_id' => $quizid,
+            'question_id' => $questionid,
+            'user_id' => $userid,
+            'step_number' => $newstep,
+            'code_content' => $trimmed,
+            'code_hash' => $codehash,
+            'execution_mode' => $mode,
+            'timecreated' => $timenow,
+        ]);
 
         return [
             'id' => $newid,
@@ -858,81 +753,55 @@ final class testcase_service {
     }
 
     /**
-     * Get the latest run context (code, inputs) for prefilling the playground form.
-     *
-     * @param int $courseid Course ID.
-     * @param int $quizid Quiz ID.
-     * @param int $questionid Question ID.
-     * @param int $userid User ID.
-     * @return array|null Latest run record or revision.
+     * Get the latest run context for prefilling the playground form.
      */
     public function get_latest_student_run_context(int $courseid, int $quizid, int $questionid, int $userid): ?array {
-        $stmt = $this->connection->prepare(
+        $row = $this->db->fetch_row(
             'SELECT r.student_code_snapshot, r.input_raw, r.predicted_output, r.purpose, r.category,
                     rev.step_number AS revision_step, rev.code_content AS revision_code
-               FROM testcase_runs r
-          LEFT JOIN student_code_revisions rev ON rev.id = r.code_revision_id
+               FROM {local_tce_runs} r
+          LEFT JOIN {local_tce_revisions} rev ON rev.id = r.code_revision_id
               WHERE r.course_id = ? AND r.quiz_id = ? AND r.question_id = ? AND r.user_id = ?
-              ORDER BY r.id DESC LIMIT 1'
+              ORDER BY r.id DESC',
+            [$courseid, $quizid, $questionid, $userid]
         );
-        $stmt->bind_param('iiii', $courseid, $quizid, $questionid, $userid);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
         if ($row) {
             return $row;
         }
 
-        // Fallback to latest revision if no runs yet
-        $stmt2 = $this->connection->prepare(
+        return $this->db->fetch_row(
             'SELECT code_content AS revision_code, step_number AS revision_step
-               FROM student_code_revisions
+               FROM {local_tce_revisions}
               WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND user_id = ?
-              ORDER BY id DESC LIMIT 1'
+              ORDER BY id DESC',
+            [$courseid, $quizid, $questionid, $userid]
         );
-        $stmt2->bind_param('iiii', $courseid, $quizid, $questionid, $userid);
-        $stmt2->execute();
-        $row2 = $stmt2->get_result()->fetch_assoc();
-        $stmt2->close();
-        return $row2 ?: null;
     }
 
     /**
-     * Get summary of code revisions and their associated testcases for a user and question.
-     *
-     * @param int $courseid Course ID.
-     * @param int $quizid Quiz ID.
-     * @param int $questionid Question ID.
-     * @param int $userid User ID.
-     * @return array List of code revisions with linked testcases and timestamps.
+     * Get summary of code revisions and associated testcases for a user and question.
      */
     public function code_revisions_summary(int $courseid, int $quizid, int $questionid, int $userid): array {
-        $stmt = $this->connection->prepare(
-            'SELECT id, step_number, code_content, code_hash, created_at
-               FROM student_code_revisions
+        $revisions = $this->db->fetch_all(
+            'SELECT id, step_number, code_content, code_hash, timecreated
+               FROM {local_tce_revisions}
               WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND user_id = ?
-              ORDER BY step_number DESC'
+              ORDER BY step_number DESC',
+            [$courseid, $quizid, $questionid, $userid]
         );
-        $stmt->bind_param('iiii', $courseid, $quizid, $questionid, $userid);
-        $stmt->execute();
-        $revisions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
 
         if (empty($revisions)) {
             return [];
         }
 
-        $stmtruns = $this->connection->prepare(
+        $allruns = $this->db->fetch_all(
             'SELECT id, code_revision_id, input_raw, student_run_output, oracle_outcome,
-                    student_outcome, created_at
-               FROM testcase_runs
+                    student_outcome, timecreated
+               FROM {local_tce_runs}
               WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND user_id = ?
-              ORDER BY id ASC'
+              ORDER BY id ASC',
+            [$courseid, $quizid, $questionid, $userid]
         );
-        $stmtruns->bind_param('iiii', $courseid, $quizid, $questionid, $userid);
-        $stmtruns->execute();
-        $allruns = $stmtruns->get_result()->fetch_all(MYSQLI_ASSOC);
-        $stmtruns->close();
 
         $runsbyrevision = [];
         foreach ($allruns as $r) {
@@ -957,11 +826,12 @@ final class testcase_service {
                 $snippet .= "\n...";
             }
 
+            $createdtime = (int) $rev['timecreated'];
             $result[] = [
                 'id' => $revid,
                 'step_number' => (int) $rev['step_number'],
-                'created_at' => $rev['created_at'],
-                'created_at_formatted' => date('H:i:s - d/m/Y', strtotime($rev['created_at'])),
+                'created_at' => $createdtime ? date('Y-m-d H:i:s', $createdtime) : '',
+                'created_at_formatted' => $createdtime ? date('H:i:s - d/m/Y', $createdtime) : '',
                 'code_content' => $rev['code_content'],
                 'code_content_json' => json_encode($rev['code_content']),
                 'code_snippet' => $snippet,
@@ -977,36 +847,24 @@ final class testcase_service {
 
     /**
      * Return contributions for a user.
-     *
-     * @param int $courseid Course ID.
-     * @param int $userid User ID.
-     * @return array Contributions.
      */
     public function contributions_for_user(int $courseid, int $userid): array {
-        $stmt = $this->connection->prepare(
+        return $this->db->fetch_all(
             'SELECT c.*,
-                    (SELECT cr.review_note FROM contribution_reviews cr
+                    (SELECT cr.review_note FROM {local_tce_reviews} cr
                       WHERE cr.contribution_id = c.id AND cr.review_note IS NOT NULL AND cr.review_note <> \'\'
-                      ORDER BY cr.id DESC LIMIT 1) AS latest_review_note,
-                    (SELECT cr.rating FROM contribution_reviews cr
+                      ORDER BY cr.id DESC) AS latest_review_note,
+                    (SELECT cr.rating FROM {local_tce_reviews} cr
                       WHERE cr.contribution_id = c.id AND cr.rating IS NOT NULL AND cr.rating > 0
-                      ORDER BY cr.id DESC LIMIT 1) AS latest_rating
-               FROM testcase_contributions c
-              WHERE c.course_id = ? AND c.user_id = ? ORDER BY c.id DESC LIMIT 100'
+                      ORDER BY cr.id DESC) AS latest_rating
+               FROM {local_tce_contributions} c
+              WHERE c.course_id = ? AND c.user_id = ? ORDER BY c.id DESC',
+            [$courseid, $userid]
         );
-        $stmt->bind_param('ii', $courseid, $userid);
-        $stmt->execute();
-        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
-        return $rows;
     }
-
 
     /**
      * Return contributions awaiting review.
-     *
-     * @param int $courseid Course ID.
-     * @return array Pending contributions.
      */
     public function pending_contributions(int $courseid): array {
         return $this->course_contributions($courseid, 'pending');
@@ -1014,90 +872,63 @@ final class testcase_service {
 
     /**
      * Return contributions for a course with optional status, quiz, and question filters.
-     *
-     * @param int $courseid Course ID.
-     * @param string $status Filter status ('all', 'pending', 'submitted', 'approved', 'rejected', 'duplicate', 'needs_explanation').
-     * @param int $quizid Optional Quiz ID filter.
-     * @param int $questionid Optional Question ID filter.
-     * @return array Contributions.
      */
     public function course_contributions(int $courseid, string $status = 'all', int $quizid = 0, int $questionid = 0): array {
         $conditions = ['c.course_id = ?'];
         $params = [$courseid];
-        $types = 'i';
 
         if ($status === 'pending') {
             $conditions[] = "c.status IN ('submitted', 'needs_explanation')";
         } else if ($status !== 'all' && in_array($status, ['submitted', 'approved', 'rejected', 'duplicate', 'needs_explanation', 'archived'], true)) {
             $conditions[] = 'c.status = ?';
             $params[] = $status;
-            $types .= 's';
         }
 
         if ($quizid > 0) {
             $conditions[] = 'c.quiz_id = ?';
             $params[] = $quizid;
-            $types .= 'i';
         }
 
         if ($questionid > 0) {
             $conditions[] = 'c.question_id = ?';
             $params[] = $questionid;
-            $types .= 'i';
         }
 
         $where = implode(' AND ', $conditions);
         $sql = "SELECT c.*,
-                       (SELECT cr.review_note FROM contribution_reviews cr
+                       (SELECT cr.review_note FROM {local_tce_reviews} cr
                          WHERE cr.contribution_id = c.id AND cr.review_note IS NOT NULL AND cr.review_note <> ''
-                         ORDER BY cr.id DESC LIMIT 1) AS latest_review_note,
-                       (SELECT cr.rating FROM contribution_reviews cr
+                         ORDER BY cr.id DESC) AS latest_review_note,
+                       (SELECT cr.rating FROM {local_tce_reviews} cr
                          WHERE cr.contribution_id = c.id AND cr.rating IS NOT NULL AND cr.rating > 0
-                         ORDER BY cr.id DESC LIMIT 1) AS latest_rating
-                  FROM testcase_contributions c
+                         ORDER BY cr.id DESC) AS latest_rating
+                  FROM {local_tce_contributions} c
                  WHERE {$where}
-              ORDER BY c.id DESC LIMIT 500";
+              ORDER BY c.id DESC";
 
-        $stmt = $this->connection->prepare($sql);
-        $stmt->bind_param($types, ...$params);
-        $stmt->execute();
-        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
-        return $rows;
+        return $this->db->fetch_all($sql, $params);
     }
 
     /**
      * Return contribution counts by status for a course with optional quiz/question filters.
-     *
-     * @param int $courseid Course ID.
-     * @param int $quizid Optional Quiz ID.
-     * @param int $questionid Optional Question ID.
-     * @return array<string, int>
      */
     public function contribution_counts(int $courseid, int $quizid = 0, int $questionid = 0): array {
         $conditions = ['course_id = ?'];
         $params = [$courseid];
-        $types = 'i';
 
         if ($quizid > 0) {
             $conditions[] = 'quiz_id = ?';
             $params[] = $quizid;
-            $types .= 'i';
         }
 
         if ($questionid > 0) {
             $conditions[] = 'question_id = ?';
             $params[] = $questionid;
-            $types .= 'i';
         }
 
         $where = implode(' AND ', $conditions);
-        $sql = "SELECT status, COUNT(*) AS cnt FROM testcase_contributions WHERE {$where} GROUP BY status";
-
-        $stmt = $this->connection->prepare($sql);
-        $stmt->bind_param($types, ...$params);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $sql = "SELECT status, COUNT(*) AS cnt FROM {local_tce_contributions} WHERE {$where} GROUP BY status";
+        $rows = $this->db->fetch_all($sql, $params);
 
         $counts = [
             'all' => 0,
@@ -1109,7 +940,7 @@ final class testcase_service {
             'submitted' => 0,
         ];
 
-        while ($row = $result->fetch_assoc()) {
+        foreach ($rows as $row) {
             $st = (string) $row['status'];
             $cnt = (int) $row['cnt'];
             $counts[$st] = $cnt;
@@ -1118,23 +949,17 @@ final class testcase_service {
                 $counts['pending'] += $cnt;
             }
         }
-        $stmt->close();
         return $counts;
     }
 
     /**
      * Load a private run owned by a user.
-     *
-     * @param int $runid Run ID.
-     * @param int $userid Owner user ID.
-     * @return array Owned run.
      */
     private function owned_run(int $runid, int $userid): array {
-        $stmt = $this->connection->prepare('SELECT * FROM testcase_runs WHERE id = ? AND user_id = ?');
-        $stmt->bind_param('ii', $runid, $userid);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
+        $row = $this->db->fetch_row(
+            'SELECT * FROM {local_tce_runs} WHERE id = ? AND user_id = ?',
+            [$runid, $userid]
+        );
         if (!$row) {
             throw new \moodle_exception('invalidrun', 'local_testcase_exchange');
         }
@@ -1142,21 +967,16 @@ final class testcase_service {
     }
 
     /**
-     * Enforce the per-user Quiz run limit.
-     *
-     * @param int $userid User ID.
-     * @param int $quizid Quiz ID.
-     * @param int $limit Maximum runs per minute.
+     * Enforce per-user Quiz run rate limit.
      */
     private function enforce_rate_limit(int $userid, int $quizid, int $limit): void {
-        $stmt = $this->connection->prepare(
-            'SELECT COUNT(*) AS total FROM testcase_runs
-              WHERE user_id = ? AND quiz_id = ? AND created_at >= (NOW() - INTERVAL 1 MINUTE)'
+        $oneminuteago = time() - 60;
+        $row = $this->db->fetch_row(
+            'SELECT COUNT(*) AS total FROM {local_tce_runs}
+              WHERE user_id = ? AND quiz_id = ? AND timecreated >= ?',
+            [$userid, $quizid, $oneminuteago]
         );
-        $stmt->bind_param('ii', $userid, $quizid);
-        $stmt->execute();
-        $count = (int) $stmt->get_result()->fetch_assoc()['total'];
-        $stmt->close();
+        $count = (int) ($row['total'] ?? 0);
         if ($count >= $limit) {
             throw new \moodle_exception('ratelimited', 'local_testcase_exchange');
         }
@@ -1164,38 +984,30 @@ final class testcase_service {
 
     /**
      * Get existing canonical testcases and seeds for a course.
-     *
-     * @param int $courseid Course ID.
-     * @return array<string, array{type: string, id: int}> Map of 'qid:fingerprint' => info.
      */
     public function existing_fingerprints_for_course(int $courseid): array {
         $map = [];
-        $stmt = $this->connection->prepare(
+        $rows1 = $this->db->fetch_all(
             'SELECT question_id, input_fingerprint, canonical_contribution_id 
-               FROM testcase_canonical_keys 
-              WHERE course_id = ?'
+               FROM {local_tce_canonical} 
+              WHERE course_id = ?',
+            [$courseid]
         );
-        $stmt->bind_param('i', $courseid);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        while ($row = $res->fetch_assoc()) {
+        foreach ($rows1 as $row) {
             $key = (int) $row['question_id'] . ':' . (string) $row['input_fingerprint'];
             $map[$key] = [
                 'type' => 'contribution',
                 'id' => (int) $row['canonical_contribution_id'],
             ];
         }
-        $stmt->close();
 
-        $stmt2 = $this->connection->prepare(
+        $rows2 = $this->db->fetch_all(
             'SELECT id, question_id, input_fingerprint 
-               FROM question_seed_testcases 
-              WHERE course_id = ? AND is_active = 1'
+               FROM {local_tce_seeds} 
+              WHERE course_id = ? AND is_active = 1',
+            [$courseid]
         );
-        $stmt2->bind_param('i', $courseid);
-        $stmt2->execute();
-        $res2 = $stmt2->get_result();
-        while ($row2 = $res2->fetch_assoc()) {
+        foreach ($rows2 as $row2) {
             $key = (int) $row2['question_id'] . ':' . (string) $row2['input_fingerprint'];
             if (!isset($map[$key])) {
                 $map[$key] = [
@@ -1204,44 +1016,24 @@ final class testcase_service {
                 ];
             }
         }
-        $stmt2->close();
 
         return $map;
     }
 
     /**
      * Find the canonical contribution ID for a run.
-     *
-     * @param array $run Private run.
-     * @return int Canonical contribution ID.
      */
     private function canonical_id(array $run): int {
-        $stmt = $this->connection->prepare(
-            'SELECT canonical_contribution_id FROM testcase_canonical_keys
-              WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND input_fingerprint = ?'
+        $row = $this->db->fetch_row(
+            'SELECT canonical_contribution_id FROM {local_tce_canonical}
+              WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND input_fingerprint = ?',
+            [(int) $run['course_id'], (int) $run['quiz_id'], (int) $run['question_id'], (string) $run['input_fingerprint']]
         );
-        $courseid = (int) $run['course_id'];
-        $quizid = (int) $run['quiz_id'];
-        $questionid = (int) $run['question_id'];
-        $fingerprint = (string) $run['input_fingerprint'];
-        $stmt->bind_param('iiis', $courseid, $quizid, $questionid, $fingerprint);
-        $stmt->execute();
-        $id = (int) $stmt->get_result()->fetch_assoc()['canonical_contribution_id'];
-        $stmt->close();
-        return $id;
+        return (int) ($row['canonical_contribution_id'] ?? 0);
     }
 
     /**
-     * Ensure a solution version snapshot exists in question_solution_versions.
-     *
-     * @param int $courseid Course ID.
-     * @param int $quizid Quiz ID.
-     * @param int $questionid Question ID.
-     * @param string $solutioncode Teacher answer code.
-     * @param string $templatecode Question template code.
-     * @param int $questionversion Version number.
-     * @param int $authorid Teacher user ID.
-     * @return array{id:int, solution_hash:string}
+     * Ensure a solution version snapshot exists.
      */
     public function ensure_solution_version(
         int $courseid,
@@ -1253,48 +1045,41 @@ final class testcase_service {
         int $authorid = 0
     ): array {
         $hash = hash('sha256', trim($solutioncode));
-        $stmt = $this->connection->prepare(
-            'SELECT id, solution_hash FROM question_solution_versions
-              WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND solution_hash = ?'
+        $row = $this->db->fetch_row(
+            'SELECT id, solution_hash FROM {local_tce_solutions}
+              WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND solution_hash = ?',
+            [$courseid, $quizid, $questionid, $hash]
         );
-        $stmt->bind_param('iiis', $courseid, $quizid, $questionid, $hash);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
         if ($row) {
             return ['id' => (int) $row['id'], 'solution_hash' => (string) $row['solution_hash']];
         }
 
-        $ins = $this->connection->prepare(
-            'INSERT IGNORE INTO question_solution_versions
-            (course_id, quiz_id, question_id, question_version, solution_code, solution_hash, template_code, author_user_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-        );
-        $ins->bind_param(
-            'iiiisssi',
-            $courseid,
-            $quizid,
-            $questionid,
-            $questionversion,
-            $solutioncode,
-            $hash,
-            $templatecode,
-            $authorid
-        );
-        $ins->execute();
-        $id = $ins->insert_id ?: 0;
-        $ins->close();
+        $timenow = time();
+        try {
+            $id = $this->db->insert('local_tce_solutions', [
+                'course_id' => $courseid,
+                'quiz_id' => $quizid,
+                'question_id' => $questionid,
+                'question_version' => $questionversion,
+                'solution_code' => $solutioncode,
+                'solution_hash' => $hash,
+                'template_code' => $templatecode,
+                'author_user_id' => $authorid,
+                'timecreated' => $timenow,
+            ]);
+        } catch (\Throwable $e) {
+            $existing = $this->db->fetch_row(
+                'SELECT id FROM {local_tce_solutions} WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND solution_hash = ?',
+                [$courseid, $quizid, $questionid, $hash]
+            );
+            $id = $existing ? (int) $existing['id'] : 0;
+        }
 
         return ['id' => (int) $id, 'solution_hash' => $hash];
     }
 
     /**
      * Synchronize Suite 2 (Reward Bank / Seeds) from Moodle Question Bank for a specific question.
-     *
-     * @param int $courseid Course ID.
-     * @param int $quizid Quiz ID.
-     * @param int $questionid Question ID.
-     * @return int Number of seed testcases synchronized.
      */
     public function sync_question_testsuites(int $courseid, int $quizid, int $questionid): int {
         global $DB;
@@ -1305,9 +1090,9 @@ final class testcase_service {
         }
 
         $synced = 0;
+        $timenow = time();
         foreach ($tests as $t) {
             $extra = strtolower(trim((string) ($t->extra ?? '')));
-            // Accept 's', 'seed', 'reward_bank', 'suite2' or extra containing 'reward'.
             $is_reward_seed = in_array($extra, ['s', 'seed', 'reward_bank', 'suite2'], true) ||
                               (strpos($extra, 'reward') !== false && (int) $t->useasexample === 0);
 
@@ -1328,38 +1113,42 @@ final class testcase_service {
             $testcode = (string) ($t->testcode ?? '');
             $stdin = (string) ($t->stdin ?? '');
             $expected = (string) ($t->expected ?? '');
-
-            $stmt = $this->connection->prepare(
-                'INSERT INTO question_seed_testcases
-                (course_id, quiz_id, question_id, moodle_test_id, testcode, stdin, input_raw, input_normalized, input_fingerprint, expected_output, category, is_active)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "seed", 1)
-                ON DUPLICATE KEY UPDATE
-                    testcode = VALUES(testcode),
-                    stdin = VALUES(stdin),
-                    input_raw = VALUES(input_raw),
-                    input_normalized = VALUES(input_normalized),
-                    expected_output = VALUES(expected_output),
-                    is_active = 1'
-            );
             $mid = (int) $t->id;
-            $stmt->bind_param(
-                'iiiissssss',
-                $courseid,
-                $quizid,
-                $questionid,
-                $mid,
-                $testcode,
-                $stdin,
-                $rawinput,
-                $normalized,
-                $fingerprint,
-                $expected
+
+            $existing = $this->db->fetch_row(
+                'SELECT id FROM {local_tce_seeds} WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND input_fingerprint = ?',
+                [$courseid, $quizid, $questionid, $fingerprint]
             );
-            $stmt->execute();
-            if ($stmt->affected_rows > 0) {
-                $synced++;
+
+            if ($existing) {
+                $this->db->update('local_tce_seeds', [
+                    'id' => (int) $existing['id'],
+                    'moodle_test_id' => $mid,
+                    'testcode' => $testcode,
+                    'stdin' => $stdin,
+                    'input_raw' => $rawinput,
+                    'input_normalized' => $normalized,
+                    'expected_output' => $expected,
+                    'is_active' => 1,
+                ]);
+            } else {
+                $this->db->insert('local_tce_seeds', [
+                    'course_id' => $courseid,
+                    'quiz_id' => $quizid,
+                    'question_id' => $questionid,
+                    'moodle_test_id' => $mid,
+                    'testcode' => $testcode,
+                    'stdin' => $stdin,
+                    'input_raw' => $rawinput,
+                    'input_normalized' => $normalized,
+                    'input_fingerprint' => $fingerprint,
+                    'expected_output' => $expected,
+                    'category' => 'seed',
+                    'is_active' => 1,
+                    'timecreated' => $timenow,
+                ]);
             }
-            $stmt->close();
+            $synced++;
         }
 
         return $synced;
@@ -1367,30 +1156,22 @@ final class testcase_service {
 
     /**
      * Return rewards for a user (unclaimed and claimed).
-     *
-     * @param int $courseid Course ID.
-     * @param int $userid User ID.
-     * @return array Rewards with masked input/output if unclaimed.
      */
     public function rewards_for_user(int $courseid, int $userid): array {
-        $stmt = $this->connection->prepare(
+        $rows = $this->db->fetch_all(
             'SELECT r.id, r.course_id, r.quiz_id, r.question_id, r.receiver_user_id, r.contribution_id,
-                    r.reward_source, r.seed_id, r.is_claimed, r.claimed_at, r.created_at,
+                    r.reward_source, r.seed_id, r.is_claimed, r.claimed_at, r.timecreated,
                     COALESCE(c.input_normalized, s.input_normalized, "") AS input_normalized,
                     COALESCE(c.oracle_output, s.expected_output, "") AS oracle_output,
                     COALESCE(c.category, s.category, "seed") AS category
-               FROM testcase_rewards r
-          LEFT JOIN testcase_contributions c ON (r.reward_source = "contribution" AND c.id = r.contribution_id)
-          LEFT JOIN question_seed_testcases s ON (r.reward_source = "seed" AND s.id = r.seed_id)
+               FROM {local_tce_rewards} r
+          LEFT JOIN {local_tce_contributions} c ON (r.reward_source = "contribution" AND c.id = r.contribution_id)
+          LEFT JOIN {local_tce_seeds} s ON (r.reward_source = "seed" AND s.id = r.seed_id)
               WHERE r.course_id = ? AND r.receiver_user_id = ?
-           ORDER BY r.id DESC LIMIT 100'
+           ORDER BY r.id DESC',
+            [$courseid, $userid]
         );
-        $stmt->bind_param('ii', $courseid, $userid);
-        $stmt->execute();
-        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
 
-        // Process claim state for display
         foreach ($rows as &$row) {
             $row['is_claimed_bool'] = ((int) $row['is_claimed'] === 1);
             if (!$row['is_claimed_bool']) {
@@ -1407,21 +1188,13 @@ final class testcase_service {
     }
 
     /**
-     * Claim a pending reward to reveal its testcase and record precise viewed_at timestamp.
-     *
-     * @param int $rewardid Reward ID.
-     * @param int $userid User ID.
-     * @param int $courseid Course ID.
-     * @return bool True if claimed, false if invalid.
+     * Claim a pending reward to reveal its testcase and record view event.
      */
     public function claim_reward(int $rewardid, int $userid, int $courseid): bool {
-        $stmt = $this->connection->prepare(
-            'SELECT * FROM testcase_rewards WHERE id = ? AND receiver_user_id = ? AND course_id = ?'
+        $reward = $this->db->fetch_row(
+            'SELECT * FROM {local_tce_rewards} WHERE id = ? AND receiver_user_id = ? AND course_id = ?',
+            [$rewardid, $userid, $courseid]
         );
-        $stmt->bind_param('iii', $rewardid, $userid, $courseid);
-        $stmt->execute();
-        $reward = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
         if (!$reward) {
             return false;
         }
@@ -1430,37 +1203,28 @@ final class testcase_service {
             return true;
         }
 
-        $now = date('Y-m-d H:i:s');
-        $upd = $this->connection->prepare(
-            'UPDATE testcase_rewards SET is_claimed = 1, claimed_at = ? WHERE id = ?'
+        $timenow = time();
+        $this->db->execute(
+            'UPDATE {local_tce_rewards} SET is_claimed = 1, claimed_at = ? WHERE id = ?',
+            [$timenow, $rewardid]
         );
-        $upd->bind_param('si', $now, $rewardid);
-        $upd->execute();
-        $upd->close();
 
-        // Log view event
-        $log = $this->connection->prepare(
-            'INSERT INTO testcase_view_logs
-            (course_id, quiz_id, question_id, user_id, reward_id, contribution_id, action, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, "claim_reward", ?)'
-        );
-        $cid = (int) $reward['course_id'];
-        $qid = (int) $reward['quiz_id'];
-        $quid = (int) $reward['question_id'];
-        $contribid = (int) ($reward['contribution_id'] ?? 0);
-        $log->bind_param('iiiiiss', $cid, $qid, $quid, $userid, $rewardid, $contribid, $now);
-        $log->execute();
-        $log->close();
+        $this->db->insert('local_tce_views', [
+            'course_id' => (int) $reward['course_id'],
+            'quiz_id' => (int) $reward['quiz_id'],
+            'question_id' => (int) $reward['question_id'],
+            'user_id' => $userid,
+            'reward_id' => $rewardid,
+            'contribution_id' => (int) ($reward['contribution_id'] ?? 0),
+            'action' => 'claim_reward',
+            'timecreated' => $timenow,
+        ]);
 
         return true;
     }
 
     /**
      * Return course leaderboard sorted by: total_stars DESC, approved_count DESC, earliest_submitted_at ASC.
-     *
-     * @param int $courseid Course ID.
-     * @param int $currentuserid Current user ID.
-     * @return array{leaderboard:array, my_rank:int, my_stars:int, my_count:int, top_user_name:string, top_stars:int, top_count:int}
      */
     public function course_leaderboard(int $courseid, int $currentuserid): array {
         global $DB;
@@ -1469,17 +1233,13 @@ final class testcase_service {
             SELECT user_id,
                    COALESCE(SUM(COALESCE(rating, 0)), 0) AS total_stars,
                    COUNT(id) AS approved_count,
-                   MIN(submitted_at) AS first_submitted_at
-              FROM testcase_contributions
+                   MIN(timecreated) AS first_submitted_at
+              FROM {local_tce_contributions}
              WHERE course_id = ? AND status = 'approved'
              GROUP BY user_id
              ORDER BY total_stars DESC, approved_count DESC, first_submitted_at ASC, user_id ASC
         ";
-        $stmt = $this->connection->prepare($sql);
-        $stmt->bind_param('i', $courseid);
-        $stmt->execute();
-        $res = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
+        $res = $this->db->fetch_all($sql, [$courseid]);
 
         $leaderboard = [];
         $rank = 1;
@@ -1502,17 +1262,16 @@ final class testcase_service {
                 $mycount = $count;
             }
 
-            $starsdisplay = $stars . ' ⭐';
-
+            $firstsub = (int) ($row['first_submitted_at'] ?? 0);
             $leaderboard[] = [
                 'rank' => $rank,
                 'user_id' => $uid,
                 'fullname' => $fullname,
                 'username' => $userobj ? $userobj->username : '',
                 'total_stars' => $stars,
-                'stars_display' => $starsdisplay,
+                'stars_display' => $stars . ' ⭐',
                 'approved_count' => $count,
-                'first_submitted_at' => $row['first_submitted_at'],
+                'first_submitted_at' => $firstsub ? date('Y-m-d H:i:s', $firstsub) : '',
                 'is_current_user' => $iscurrent,
                 'badge_class' => ($rank === 1 ? 'badge-warning text-dark font-weight-bold' :
                                  ($rank === 2 ? 'badge-secondary' :
@@ -1537,14 +1296,13 @@ final class testcase_service {
     }
 
     /**
-     * Grant an idempotent reward after approval, avoiding duplicates across contributions and seeds.
-     *
-     * @param int $contributionid Approved contribution ID.
+     * Grant an idempotent reward after approval.
      */
     private function grant_reward_for_contribution(int $contributionid): void {
-        $contribution = $this->connection->query(
-            'SELECT * FROM testcase_contributions WHERE id = ' . (int) $contributionid
-        )->fetch_assoc();
+        $contribution = $this->db->fetch_row(
+            'SELECT * FROM {local_tce_contributions} WHERE id = ?',
+            [$contributionid]
+        );
         if (!$contribution) {
             return;
         }
@@ -1557,7 +1315,7 @@ final class testcase_service {
         $questionid = (int) $contribution['question_id'];
         $ownerid = (int) $contribution['user_id'];
 
-        // Lấy danh sách fingerprint của testcase mẫu công khai (public sample testcases) từ câu hỏi
+        // Sample public testcases exclusion
         $policy = $this->question_policy($quizid, $questionid);
         $samplefingerprints = [];
         try {
@@ -1566,84 +1324,89 @@ final class testcase_service {
         } catch (\Throwable $e) {
             $samplefingerprints = [];
         }
-        $samplecond = '';
-        if (!empty($samplefingerprints)) {
-            $escaped = array_map(function($f) {
-                return "'" . $this->connection->real_escape_string($f) . "'";
-            }, $samplefingerprints);
-            $samplecond = ' AND input_fingerprint NOT IN (' . implode(',', $escaped) . ')';
-        }
 
-        // 1. Tìm ứng viên từ kho đóng góp của bạn học (Peer Pool)
-        // Điều kiện: approved, khác user, chưa nhận thưởng, không phải bài mình, CHƯA TỪNG CHẠY trên Playground, KHÔNG PHẢI testcase mẫu công khai
-        // Sắp xếp: ORDER BY RAND() để phân phối ngẫu nhiên đồng đều (Pure Random)
-        $peerpeerquery = "SELECT c.id, c.input_fingerprint, 'contribution' AS source
-               FROM testcase_contributions c
+        // 1. Peer Pool candidates
+        $peerrows = $this->db->fetch_all(
+            "SELECT c.id, c.input_fingerprint, 'contribution' AS source
+               FROM {local_tce_contributions} c
               WHERE c.course_id = ? AND c.quiz_id = ? AND c.question_id = ?
                 AND c.status = 'approved' AND c.user_id <> ?
                 AND NOT EXISTS (
-                    SELECT 1 FROM testcase_rewards r
+                    SELECT 1 FROM {local_tce_rewards} r
                      WHERE r.receiver_user_id = ? AND r.course_id = ? AND r.question_id = ?
                        AND r.contribution_id = c.id
                 )
                 AND NOT EXISTS (
-                    SELECT 1 FROM testcase_contributions own
+                    SELECT 1 FROM {local_tce_contributions} own
                      WHERE own.user_id = ? AND own.course_id = ? AND own.question_id = ?
                        AND own.input_fingerprint = c.input_fingerprint
                 )
                 AND NOT EXISTS (
-                    SELECT 1 FROM testcase_runs tr
+                    SELECT 1 FROM {local_tce_runs} tr
                      WHERE tr.user_id = ? AND tr.question_id = ?
                        AND tr.input_fingerprint = c.input_fingerprint
-                )" . str_replace('input_fingerprint', 'c.input_fingerprint', $samplecond) . "
-              ORDER BY RAND() LIMIT 1";
-
-        $stmt = $this->connection->prepare($peerpeerquery);
-        $stmt->bind_param(
-            'iiiiiiiiiiii',
-            $courseid, $quizid, $questionid, $ownerid,
-            $ownerid, $courseid, $questionid,
-            $ownerid, $courseid, $questionid,
-            $ownerid, $questionid
+                )",
+            [
+                $courseid, $quizid, $questionid, $ownerid,
+                $ownerid, $courseid, $questionid,
+                $ownerid, $courseid, $questionid,
+                $ownerid, $questionid
+            ]
         );
-        $stmt->execute();
-        $candidate = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
 
-        // 2. Nếu kho peer không có ứng viên hợp lệ, fallback sang Kho hạt giống (Seed Bank)
-        // Điều kiện: is_active, chưa nhận thưởng, không trùng bài mình, CHƯA TỪNG CHẠY trên Playground, KHÔNG PHẢI mẫu công khai
+        if (!empty($samplefingerprints)) {
+            $samplelookup = array_flip($samplefingerprints);
+            $peerrows = array_filter($peerrows, function($row) use ($samplelookup) {
+                return !isset($samplelookup[$row['input_fingerprint']]);
+            });
+        }
+
+        $candidate = null;
+        if (!empty($peerrows)) {
+            $peerrows = array_values($peerrows);
+            $candidate = $peerrows[array_rand($peerrows)];
+        }
+
+        // 2. Fallback to Seed Bank
         if (!$candidate) {
-            $seedquery = "SELECT s.id, s.input_fingerprint, 'seed' AS source
-                   FROM question_seed_testcases s
+            $seedrows = $this->db->fetch_all(
+                "SELECT s.id, s.input_fingerprint, 'seed' AS source
+                   FROM {local_tce_seeds} s
                   WHERE s.course_id = ? AND s.quiz_id = ? AND s.question_id = ? AND s.is_active = 1
                     AND NOT EXISTS (
-                        SELECT 1 FROM testcase_rewards r
+                        SELECT 1 FROM {local_tce_rewards} r
                          WHERE r.receiver_user_id = ? AND r.course_id = ? AND r.question_id = ?
                            AND r.reward_source = 'seed' AND r.seed_id = s.id
                     )
                     AND NOT EXISTS (
-                        SELECT 1 FROM testcase_contributions own
+                        SELECT 1 FROM {local_tce_contributions} own
                          WHERE own.user_id = ? AND own.course_id = ? AND own.question_id = ?
                            AND own.input_fingerprint = s.input_fingerprint
                     )
                     AND NOT EXISTS (
-                        SELECT 1 FROM testcase_runs tr
+                        SELECT 1 FROM {local_tce_runs} tr
                          WHERE tr.user_id = ? AND tr.question_id = ?
                            AND tr.input_fingerprint = s.input_fingerprint
-                    )" . str_replace('input_fingerprint', 's.input_fingerprint', $samplecond) . "
-                  ORDER BY RAND() LIMIT 1";
-
-            $stmt = $this->connection->prepare($seedquery);
-            $stmt->bind_param(
-                'iiiiiiiiiii',
-                $courseid, $quizid, $questionid,
-                $ownerid, $courseid, $questionid,
-                $ownerid, $courseid, $questionid,
-                $ownerid, $questionid
+                    )",
+                [
+                    $courseid, $quizid, $questionid,
+                    $ownerid, $courseid, $questionid,
+                    $ownerid, $courseid, $questionid,
+                    $ownerid, $questionid
+                ]
             );
-            $stmt->execute();
-            $candidate = $stmt->get_result()->fetch_assoc();
-            $stmt->close();
+
+            if (!empty($samplefingerprints)) {
+                $samplelookup = array_flip($samplefingerprints);
+                $seedrows = array_filter($seedrows, function($row) use ($samplelookup) {
+                    return !isset($samplelookup[$row['input_fingerprint']]);
+                });
+            }
+
+            if (!empty($seedrows)) {
+                $seedrows = array_values($seedrows);
+                $candidate = $seedrows[array_rand($seedrows)];
+            }
         }
 
         if (!$candidate) {
@@ -1654,36 +1417,28 @@ final class testcase_service {
         $targetid = (int) $candidate['id'];
         $contribid = ($source === 'contribution') ? $targetid : null;
         $seedid = ($source === 'seed') ? $targetid : null;
+        $timenow = time();
 
-        $insert = $this->connection->prepare(
-            'INSERT IGNORE INTO testcase_rewards
-            (course_id, quiz_id, question_id, receiver_user_id, contribution_id, reward_source, seed_id, is_claimed, claimed_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 0, NULL)'
-        );
-        $insert->bind_param(
-            'iiiiisi',
-            $courseid,
-            $quizid,
-            $questionid,
-            $ownerid,
-            $contribid,
-            $source,
-            $seedid
-        );
-        $insert->execute();
-        $insert->close();
+        try {
+            $this->db->insert('local_tce_rewards', [
+                'course_id' => $courseid,
+                'quiz_id' => $quizid,
+                'question_id' => $questionid,
+                'receiver_user_id' => $ownerid,
+                'contribution_id' => $contribid,
+                'reward_source' => $source,
+                'seed_id' => $seedid,
+                'is_claimed' => 0,
+                'claimed_at' => null,
+                'timecreated' => $timenow,
+            ]);
+        } catch (\Throwable $e) {
+            // Idempotent duplicate reward suppression
+        }
     }
 
     /**
      * Insert an immutable review audit row.
-     *
-     * @param int $contributionid Contribution ID.
-     * @param int $reviewerid Reviewer user ID.
-     * @param string $from Previous status.
-     * @param string $to New status.
-     * @param string $note Review note.
-     * @param ?int $rating Rating 1-5.
-     * @param string $ratingreason Rating reason.
      */
     private function insert_review(
         int $contributionid,
@@ -1694,23 +1449,23 @@ final class testcase_service {
         ?int $rating = null,
         string $ratingreason = ''
     ): void {
-        $audit = $this->connection->prepare(
-            'INSERT INTO contribution_reviews
-            (contribution_id, reviewer_user_id, from_status, to_status, review_note, rating, rating_reason)
-            VALUES (?, ?, ?, ?, ?, ?, ?)'
-        );
-        $audit->bind_param('iisssis', $contributionid, $reviewerid, $from, $to, $note, $rating, $ratingreason);
-        $audit->execute();
-        $audit->close();
+        $this->db->insert('local_tce_reviews', [
+            'contribution_id' => $contributionid,
+            'reviewer_user_id' => $reviewerid,
+            'from_status' => $from,
+            'to_status' => $to,
+            'review_note' => $note,
+            'rating' => $rating,
+            'rating_reason' => $ratingreason,
+            'timecreated' => time(),
+        ]);
     }
 
     /**
      * Return summary statistics for all courses in testcase_contributions.
-     *
-     * @return array<int, array{course_id:int, total_count:int, pending_count:int, approved_count:int, rejected_count:int, duplicate_count:int, student_count:int}>
      */
     public function courses_summary(): array {
-        $result = $this->connection->query(
+        $rows = $this->db->fetch_all(
             "SELECT course_id,
                     COUNT(*) AS total_count,
                     SUM(CASE WHEN status IN ('submitted', 'needs_explanation') THEN 1 ELSE 0 END) AS pending_count,
@@ -1718,14 +1473,12 @@ final class testcase_service {
                     SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) AS rejected_count,
                     SUM(CASE WHEN status = 'duplicate' THEN 1 ELSE 0 END) AS duplicate_count,
                     COUNT(DISTINCT user_id) AS student_count
-               FROM testcase_contributions
+               FROM {local_tce_contributions}
               GROUP BY course_id"
         );
-        if (!$result) {
-            return [];
-        }
+
         $summary = [];
-        while ($row = $result->fetch_assoc()) {
+        foreach ($rows as $row) {
             $summary[(int) $row['course_id']] = [
                 'course_id' => (int) $row['course_id'],
                 'total_count' => (int) $row['total_count'],
@@ -1741,42 +1494,19 @@ final class testcase_service {
 
     /**
      * List all seed testcases for a specific question.
-     *
-     * @param int $courseid Course ID.
-     * @param int $quizid Quiz ID.
-     * @param int $questionid Question ID.
-     * @return array List of active seed testcases.
      */
     public function list_seed_testcases(int $courseid, int $quizid, int $questionid): array {
-        $stmt = $this->connection->prepare(
-            'SELECT id, testcode, stdin, input_raw, expected_output, purpose, source_type, created_at
-               FROM question_seed_testcases
+        return $this->db->fetch_all(
+            'SELECT id, testcode, stdin, input_raw, expected_output, category, timecreated
+               FROM {local_tce_seeds}
               WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND is_active = 1
-              ORDER BY id ASC'
+              ORDER BY id ASC',
+            [$courseid, $quizid, $questionid]
         );
-        $stmt->bind_param('iii', $courseid, $quizid, $questionid);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $seeds = [];
-        while ($row = $res->fetch_assoc()) {
-            $seeds[] = $row;
-        }
-        $stmt->close();
-        return $seeds;
     }
 
     /**
      * Add a manual seed testcase for a question.
-     *
-     * @param int $courseid Course ID.
-     * @param int $quizid Quiz ID.
-     * @param int $questionid Question ID.
-     * @param string $testcode Test code (e.g., print(tinh_tong(10))).
-     * @param string $stdin Standard input.
-     * @param string $expected Expected output.
-     * @param string $purpose Purpose or pedagogical note.
-     * @param string $sourcetype 'manual' or 'xml_import'.
-     * @return array Added seed record details.
      */
     public function add_manual_seed(
         int $courseid,
@@ -1794,38 +1524,40 @@ final class testcase_service {
         }
         $normalized = normalizer::normalize($rawinput, 'trim');
         $fingerprint = normalizer::fingerprint($normalized);
+        $timenow = time();
 
-        $stmt = $this->connection->prepare(
-            'INSERT INTO question_seed_testcases
-            (course_id, quiz_id, question_id, testcode, stdin, input_raw, input_normalized, input_fingerprint, expected_output, category, is_active, source_type, purpose)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, "seed", 1, ?, ?)
-            ON DUPLICATE KEY UPDATE
-                testcode = VALUES(testcode),
-                stdin = VALUES(stdin),
-                input_raw = VALUES(input_raw),
-                input_normalized = VALUES(input_normalized),
-                expected_output = VALUES(expected_output),
-                purpose = VALUES(purpose),
-                source_type = VALUES(source_type),
-                is_active = 1'
+        $existing = $this->db->fetch_row(
+            'SELECT id FROM {local_tce_seeds} WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND input_fingerprint = ?',
+            [$courseid, $quizid, $questionid, $fingerprint]
         );
-        $stmt->bind_param(
-            'iiissssssss',
-            $courseid,
-            $quizid,
-            $questionid,
-            $testcode,
-            $stdin,
-            $rawinput,
-            $normalized,
-            $fingerprint,
-            $expected,
-            $sourcetype,
-            $purpose
-        );
-        $stmt->execute();
-        $insertid = (int) $this->connection->insert_id;
-        $stmt->close();
+
+        if ($existing) {
+            $this->db->update('local_tce_seeds', [
+                'id' => (int) $existing['id'],
+                'testcode' => $testcode,
+                'stdin' => $stdin,
+                'input_raw' => $rawinput,
+                'input_normalized' => $normalized,
+                'expected_output' => $expected,
+                'is_active' => 1,
+            ]);
+            $insertid = (int) $existing['id'];
+        } else {
+            $insertid = $this->db->insert('local_tce_seeds', [
+                'course_id' => $courseid,
+                'quiz_id' => $quizid,
+                'question_id' => $questionid,
+                'testcode' => $testcode,
+                'stdin' => $stdin,
+                'input_raw' => $rawinput,
+                'input_normalized' => $normalized,
+                'input_fingerprint' => $fingerprint,
+                'expected_output' => $expected,
+                'category' => 'seed',
+                'is_active' => 1,
+                'timecreated' => $timenow,
+            ]);
+        }
 
         return [
             'id' => $insertid,
@@ -1837,29 +1569,16 @@ final class testcase_service {
 
     /**
      * Delete (deactivate) a seed testcase.
-     *
-     * @param int $seedid Seed ID.
-     * @param int $courseid Course ID for authorization check.
-     * @return bool
      */
     public function delete_seed_testcase(int $seedid, int $courseid): bool {
-        $stmt = $this->connection->prepare(
-            'DELETE FROM question_seed_testcases WHERE id = ? AND course_id = ?'
+        return $this->db->execute(
+            'DELETE FROM {local_tce_seeds} WHERE id = ? AND course_id = ?',
+            [$seedid, $courseid]
         );
-        $stmt->bind_param('ii', $seedid, $courseid);
-        $ok = $stmt->execute();
-        $stmt->close();
-        return $ok;
     }
 
     /**
      * Import seed testcases from uploaded Moodle XML file content.
-     *
-     * @param int $courseid Course ID.
-     * @param int $quizid Quiz ID.
-     * @param int $questionid Question ID.
-     * @param string $xmlcontent XML file content.
-     * @return int Number of imported seed testcases.
      */
     public function import_seeds_from_xml_content(
         int $courseid,
@@ -1929,89 +1648,58 @@ final class testcase_service {
 
     /**
      * Get total runs count for course, optional quiz and question, isolated to enrolled students.
-     *
-     * @param int $courseid Course ID.
-     * @param int $quizid Quiz ID.
-     * @param int $questionid Question ID.
-     * @param array $studentuserids Optional array of student user IDs to isolate from teacher runs.
-     * @return int Total run count.
      */
     public function total_runs_count(int $courseid, int $quizid = 0, int $questionid = 0, ?array $studentuserids = null): int {
-        // Empty student list must strictly return 0, never fall back to "everyone"
         if ($studentuserids !== null && empty($studentuserids)) {
             return 0;
         }
         $conditions = ['course_id = ?'];
         $params = [$courseid];
-        $types = 'i';
+
         if ($quizid > 0) {
             $conditions[] = 'quiz_id = ?';
             $params[] = $quizid;
-            $types .= 'i';
         }
         if ($questionid > 0) {
             $conditions[] = 'question_id = ?';
             $params[] = $questionid;
-            $types .= 'i';
         }
         if ($studentuserids !== null && !empty($studentuserids)) {
             $safeids = array_map('intval', $studentuserids);
             $conditions[] = 'user_id IN (' . implode(',', $safeids) . ')';
         }
         $where = implode(' AND ', $conditions);
-        $stmt = $this->connection->prepare("SELECT COUNT(*) FROM testcase_runs WHERE {$where}");
-        $stmt->bind_param($types, ...$params);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $row = $res->fetch_row();
-        $stmt->close();
-        return (int) ($row[0] ?? 0);
+        $row = $this->db->fetch_row("SELECT COUNT(*) AS total FROM {local_tce_runs} WHERE {$where}", $params);
+        return (int) ($row['total'] ?? 0);
     }
 
     /**
      * Get rewards statistics for course, optional quiz and question.
-     *
-     * @param int $courseid Course ID.
-     * @param int $quizid Quiz ID.
-     * @param int $questionid Question ID.
-     * @param array|null $studentuserids Optional array of student user IDs.
-     * @return array Total, claimed and unclaimed counts.
      */
     public function total_rewards_count(int $courseid, int $quizid = 0, int $questionid = 0, ?array $studentuserids = null): array {
-        // Empty student list must strictly return 0, never fall back to "everyone"
         if ($studentuserids !== null && empty($studentuserids)) {
-            return [
-                'total' => 0,
-                'claimed' => 0,
-                'unclaimed' => 0,
-            ];
+            return ['total' => 0, 'claimed' => 0, 'unclaimed' => 0];
         }
         $conditions = ['course_id = ?'];
         $params = [$courseid];
-        $types = 'i';
+
         if ($quizid > 0) {
             $conditions[] = 'quiz_id = ?';
             $params[] = $quizid;
-            $types .= 'i';
         }
         if ($questionid > 0) {
             $conditions[] = 'question_id = ?';
             $params[] = $questionid;
-            $types .= 'i';
         }
         if ($studentuserids !== null && !empty($studentuserids)) {
             $safeids = array_map('intval', $studentuserids);
             $conditions[] = 'receiver_user_id IN (' . implode(',', $safeids) . ')';
         }
         $where = implode(' AND ', $conditions);
-        $stmt = $this->connection->prepare(
-            "SELECT COUNT(*) AS total, SUM(CASE WHEN is_claimed = 1 THEN 1 ELSE 0 END) AS claimed FROM testcase_rewards WHERE {$where}"
+        $row = $this->db->fetch_row(
+            "SELECT COUNT(*) AS total, SUM(CASE WHEN is_claimed = 1 THEN 1 ELSE 0 END) AS claimed FROM {local_tce_rewards} WHERE {$where}",
+            $params
         );
-        $stmt->bind_param($types, ...$params);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $row = $res->fetch_assoc();
-        $stmt->close();
         $total = (int) ($row['total'] ?? 0);
         $claimed = (int) ($row['claimed'] ?? 0);
         return [
@@ -2023,15 +1711,8 @@ final class testcase_service {
 
     /**
      * Aggregated student activity for a course, quiz and question, isolated to enrolled students.
-     *
-     * @param int $courseid Course ID.
-     * @param int $quizid Quiz ID.
-     * @param int $questionid Question ID.
-     * @param array|null $studentuserids Optional array of student user IDs to exclude teacher preview runs.
-     * @return array List of student records with runs, contributions and rewards counts.
      */
     public function student_activity_summary(int $courseid, int $quizid = 0, int $questionid = 0, ?array $studentuserids = null): array {
-        // Empty student list must strictly return empty array, never fall back to "everyone"
         if ($studentuserids !== null && empty($studentuserids)) {
             return [];
         }
@@ -2045,30 +1726,26 @@ final class testcase_service {
         // 1. Runs per user
         $runconds = ['course_id = ?'];
         $runparams = [$courseid];
-        $runtypes = 'i';
         if ($quizid > 0) {
             $runconds[] = 'quiz_id = ?';
             $runparams[] = $quizid;
-            $runtypes .= 'i';
         }
         if ($questionid > 0) {
             $runconds[] = 'question_id = ?';
             $runparams[] = $questionid;
-            $runtypes .= 'i';
         }
         $runwhere = implode(' AND ', $runconds) . $studentfilterclause;
-        $runsql = "SELECT user_id, COUNT(*) AS total_runs, MAX(created_at) AS last_run_at FROM testcase_runs WHERE {$runwhere} GROUP BY user_id";
-        $stmt = $this->connection->prepare($runsql);
-        $stmt->bind_param($runtypes, ...$runparams);
-        $stmt->execute();
-        $res = $stmt->get_result();
+        $runsql = "SELECT user_id, COUNT(*) AS total_runs, MAX(timecreated) AS last_run_at FROM {local_tce_runs} WHERE {$runwhere} GROUP BY user_id";
+        $runrows = $this->db->fetch_all($runsql, $runparams);
+
         $users = [];
-        while ($row = $res->fetch_assoc()) {
+        foreach ($runrows as $row) {
             $uid = (int) $row['user_id'];
+            $lastrun = (int) ($row['last_run_at'] ?? 0);
             $users[$uid] = [
                 'user_id' => $uid,
                 'total_runs' => (int) $row['total_runs'],
-                'last_run_at' => $row['last_run_at'],
+                'last_run_at' => $lastrun ? date('Y-m-d H:i:s', $lastrun) : null,
                 'total_contributions' => 0,
                 'approved_contributions' => 0,
                 'pending_contributions' => 0,
@@ -2077,21 +1754,17 @@ final class testcase_service {
                 'total_rewards' => 0,
             ];
         }
-        $stmt->close();
 
         // 2. Contributions per user
         $cconds = ['course_id = ?'];
         $cparams = [$courseid];
-        $ctypes = 'i';
         if ($quizid > 0) {
             $cconds[] = 'quiz_id = ?';
             $cparams[] = $quizid;
-            $ctypes .= 'i';
         }
         if ($questionid > 0) {
             $cconds[] = 'question_id = ?';
             $cparams[] = $questionid;
-            $ctypes .= 'i';
         }
         $cwhere = implode(' AND ', $cconds) . $studentfilterclause;
         $csql = "SELECT user_id,
@@ -2099,14 +1772,11 @@ final class testcase_service {
                         SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) AS approved_c,
                         SUM(CASE WHEN status IN ('submitted', 'needs_explanation') THEN 1 ELSE 0 END) AS pending_c,
                         SUM(CASE WHEN status = 'approved' THEN COALESCE(rating, 0) ELSE 0 END) AS total_s
-                   FROM testcase_contributions
+                   FROM {local_tce_contributions}
                   WHERE {$cwhere}
                   GROUP BY user_id";
-        $stmt = $this->connection->prepare($csql);
-        $stmt->bind_param($ctypes, ...$cparams);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        while ($row = $res->fetch_assoc()) {
+        $crows = $this->db->fetch_all($csql, $cparams);
+        foreach ($crows as $row) {
             $uid = (int) $row['user_id'];
             if (!isset($users[$uid])) {
                 $users[$uid] = [
@@ -2126,21 +1796,17 @@ final class testcase_service {
             $users[$uid]['pending_contributions'] = (int) $row['pending_c'];
             $users[$uid]['total_stars'] = (int) $row['total_s'];
         }
-        $stmt->close();
 
         // 3. Rewards per user
         $rconds = ['course_id = ?'];
         $rparams = [$courseid];
-        $rtypes = 'i';
         if ($quizid > 0) {
             $rconds[] = 'quiz_id = ?';
             $rparams[] = $quizid;
-            $rtypes .= 'i';
         }
         if ($questionid > 0) {
             $rconds[] = 'question_id = ?';
             $rparams[] = $questionid;
-            $rtypes .= 'i';
         }
         $rstudentfilterclause = '';
         if (!empty($studentuserids)) {
@@ -2151,14 +1817,11 @@ final class testcase_service {
         $rsql = "SELECT receiver_user_id AS user_id,
                         COUNT(*) AS total_r,
                         SUM(CASE WHEN is_claimed = 1 THEN 1 ELSE 0 END) AS claimed_r
-                   FROM testcase_rewards
+                   FROM {local_tce_rewards}
                   WHERE {$rwhere}
                   GROUP BY receiver_user_id";
-        $stmt = $this->connection->prepare($rsql);
-        $stmt->bind_param($rtypes, ...$rparams);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        while ($row = $res->fetch_assoc()) {
+        $rrows = $this->db->fetch_all($rsql, $rparams);
+        foreach ($rrows as $row) {
             $uid = (int) $row['user_id'];
             if (!isset($users[$uid])) {
                 $users[$uid] = [
@@ -2176,9 +1839,7 @@ final class testcase_service {
             $users[$uid]['total_rewards'] = (int) $row['total_r'];
             $users[$uid]['claimed_rewards'] = (int) $row['claimed_r'];
         }
-        $stmt->close();
 
-        // If studentuserids was passed, ensure no non-students leak in
         if (!empty($studentuserids)) {
             $safeidlookup = array_flip($safeids);
             $users = array_filter($users, function($u) use ($safeidlookup) {
@@ -2186,7 +1847,6 @@ final class testcase_service {
             });
         }
 
-        // Sort by total_contributions DESC, total_runs DESC
         usort($users, function($a, $b) {
             if ($b['total_contributions'] !== $a['total_contributions']) {
                 return $b['total_contributions'] - $a['total_contributions'];
@@ -2197,4 +1857,3 @@ final class testcase_service {
         return array_values($users);
     }
 }
-

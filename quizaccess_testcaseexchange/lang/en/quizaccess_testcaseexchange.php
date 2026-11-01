@@ -9,3 +9,5 @@ $string['testcasebanner'] = 'Testcase Contribution & Exchange Enabled';
 $string['testcasebanner_desc'] = 'Explore and contribute independent testcases to enhance the test suite and unlock shared testcases.';
 $string['gotodashboard'] = 'Testcase Bank & Exchange';
 $string['disabled_notice'] = 'Testcase contribution is currently disabled for this Quiz.';
+$string['privacy:metadata'] = 'The Testcase Contribution and Exchange access rule plugin does not store any personal data. It only controls Quiz access configuration.';
+

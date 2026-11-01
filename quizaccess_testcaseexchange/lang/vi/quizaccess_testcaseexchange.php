@@ -9,3 +9,5 @@ $string['testcasebanner'] = 'Bài thi có hỗ trợ Đóng góp & Trao đổi T
 $string['testcasebanner_desc'] = 'Khám phá và đóng góp các bộ kiểm thử độc lập để tích hợp vào bộ chấm và nhận testcase chia sẻ.';
 $string['gotodashboard'] = 'Kho testcase & Đổi thưởng';
 $string['disabled_notice'] = 'Tính năng đóng góp testcase hiện đang tắt cho bài Quiz này.';
+$string['privacy:metadata'] = 'Plugin quy tắc truy cập Testcase Exchange không lưu trữ dữ liệu cá nhân. Nó chỉ kiểm soát cấu hình bật/tắt cho bài thi Quiz.';
+

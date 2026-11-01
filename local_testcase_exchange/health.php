@@ -21,8 +21,6 @@
  * @copyright  2026 Nguyen Quoc Thinh
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-use local_testcase_exchange\external_database;
-use local_testcase_exchange\schema_manager;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/filelib.php');
@@ -37,13 +35,12 @@ $PAGE->set_heading(get_string('healthcheck', 'local_testcase_exchange'));
 
 $dbstatus = ['ok' => false, 'detail' => get_string('unavailable', 'local_testcase_exchange')];
 try {
-    $connection = external_database::connect();
-    schema_manager::migrate($connection);
-    $version = $connection->query(
-        'SELECT version FROM schema_migrations ORDER BY applied_at DESC, version DESC LIMIT 1'
-    )->fetch_assoc()['version'] ?? 'unknown';
-    $dbstatus = ['ok' => true, 'detail' => get_string('schemaversion', 'local_testcase_exchange', $version)];
-    $connection->close();
+    global $DB;
+    $dbman = $DB->get_manager();
+    if ($dbman->table_exists('local_tce_runs') && $dbman->table_exists('local_tce_contributions')) {
+        $pluginversion = (string) get_config('local_testcase_exchange', 'version');
+        $dbstatus = ['ok' => true, 'detail' => get_string('schemaversion', 'local_testcase_exchange', $pluginversion)];
+    }
 } catch (Throwable $e) {
     debugging($e->getMessage(), DEBUG_DEVELOPER);
 }
@@ -58,31 +55,26 @@ foreach (local_testcase_exchange_get_jobe_servers() as $server) {
         $curl->setHeader(['X-API-KEY: ' . $apikey]);
     }
     $payload = $curl->get($languagesurl, [], $options);
-    $info = $curl->get_info();
-    $languages = json_decode((string) $payload, true);
-    $languageids = [];
-    if (is_array($languages)) {
-        foreach ($languages as $key => $language) {
-            $languageids[] = is_array($language) ? (string) ($language['language_id'] ?? $key) : (string) $language;
-        }
-    }
     $nodes[] = [
-        'label' => $server['label'],
-        'ok' => (int) ($info['http_code'] ?? 0) === 200 && is_array($languages),
-        'languages' => implode(', ', array_slice($languageids, 0, 30)),
+        'baseurl' => $server['baseurl'],
+        'runsurl' => $server['runsurl'],
+        'ok' => ($curl->get_errno() === 0),
+        'detail' => $curl->get_errno() === 0 ? $payload : $curl->error,
     ];
 }
 
 echo $OUTPUT->header();
-echo html_writer::tag('h3', get_string('databasehealth', 'local_testcase_exchange'));
-echo $OUTPUT->notification($dbstatus['detail'], $dbstatus['ok'] ? 'notifysuccess' : 'notifyproblem');
-echo html_writer::tag('h3', get_string('jobehealth', 'local_testcase_exchange'));
-$table = new html_table();
-$table->head = [get_string('server', 'local_testcase_exchange'), get_string('status'),
-    get_string('languages', 'local_testcase_exchange')];
+echo $OUTPUT->box_start('generalbox');
+echo html_writer::tag('h3', get_string('healthcheck', 'local_testcase_exchange'));
+echo html_writer::tag('p', 'Database: ' . ($dbstatus['ok'] ? 'OK' : 'Error') . ' — ' . s($dbstatus['detail']));
+echo html_writer::tag('h4', 'Jobe sandboxes');
+echo html_writer::start_tag('ul');
 foreach ($nodes as $node) {
-    $table->data[] = [s($node['label']), $node['ok'] ? get_string('available', 'local_testcase_exchange') :
-        get_string('unavailable', 'local_testcase_exchange'), s($node['languages'])];
+    echo html_writer::tag(
+        'li',
+        s($node['baseurl']) . ': ' . ($node['ok'] ? 'OK' : 'Error') . ' — ' . s($node['detail'])
+    );
 }
-echo html_writer::table($table);
+echo html_writer::end_tag('ul');
+echo $OUTPUT->box_end();
 echo $OUTPUT->footer();
