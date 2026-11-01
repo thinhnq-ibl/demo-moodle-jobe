@@ -236,7 +236,7 @@ final class testcase_service {
         $oraclerow = $this->db->fetch_row(
             'SELECT oracle_output, oracle_outcome, jobe_server 
                FROM {local_tce_runs} 
-              WHERE question_id = ? AND input_raw_hash = ? AND oracle_version_hash = ? AND oracle_outcome = 'success' 
+              WHERE question_id = ? AND input_raw_hash = ? AND oracle_version_hash = ? AND oracle_outcome = \'success\' 
               ORDER BY id DESC',
             [$qid, $rawinputhash, $oracleversionhash]
         );
@@ -510,7 +510,7 @@ final class testcase_service {
         $tx = $this->db->start_transaction();
         try {
             $row = $this->db->fetch_row(
-                'SELECT status, rating, review_comment FROM {local_tce_contributions} WHERE id = ? AND course_id = ?',
+                'SELECT status, rating, review_comment FROM {local_tce_contributions} WHERE id = ? AND course_id = ? FOR UPDATE',
                 [$contributionid, $courseid]
             );
             if (!$row) {
@@ -1195,36 +1195,44 @@ final class testcase_service {
      * Claim a pending reward to reveal its testcase and record view event.
      */
     public function claim_reward(int $rewardid, int $userid, int $courseid): bool {
-        $reward = $this->db->fetch_row(
-            'SELECT * FROM {local_tce_rewards} WHERE id = ? AND receiver_user_id = ? AND course_id = ?',
-            [$rewardid, $userid, $courseid]
-        );
-        if (!$reward) {
+        $tx = $this->db->start_transaction();
+        try {
+            $reward = $this->db->fetch_row(
+                'SELECT * FROM {local_tce_rewards} WHERE id = ? AND receiver_user_id = ? AND course_id = ? FOR UPDATE',
+                [$rewardid, $userid, $courseid]
+            );
+            if (!$reward) {
+                $tx->rollback(new \moodle_exception('invalidreward', 'local_testcase_exchange'));
+                return false;
+            }
+
+            if ((int) $reward['is_claimed'] === 1) {
+                $tx->allow_commit();
+                return true;
+            }
+
+            $timenow = time();
+            $this->db->execute(
+                'UPDATE {local_tce_rewards} SET is_claimed = 1, claimed_at = ? WHERE id = ? AND is_claimed = 0',
+                [$timenow, $rewardid]
+            );
+
+            $this->db->insert('local_tce_views', [
+                'course_id' => (int) $reward['course_id'],
+                'quiz_id' => (int) $reward['quiz_id'],
+                'question_id' => (int) $reward['question_id'],
+                'user_id' => $userid,
+                'reward_id' => $rewardid,
+                'contribution_id' => (int) ($reward['contribution_id'] ?? 0),
+                'action' => 'claim_reward',
+                'timecreated' => $timenow,
+            ]);
+
+            $tx->allow_commit();
+            return true;
+        } catch (\Throwable $e) {
             return false;
         }
-
-        if ((int) $reward['is_claimed'] === 1) {
-            return true;
-        }
-
-        $timenow = time();
-        $this->db->execute(
-            'UPDATE {local_tce_rewards} SET is_claimed = 1, claimed_at = ? WHERE id = ?',
-            [$timenow, $rewardid]
-        );
-
-        $this->db->insert('local_tce_views', [
-            'course_id' => (int) $reward['course_id'],
-            'quiz_id' => (int) $reward['quiz_id'],
-            'question_id' => (int) $reward['question_id'],
-            'user_id' => $userid,
-            'reward_id' => $rewardid,
-            'contribution_id' => (int) ($reward['contribution_id'] ?? 0),
-            'action' => 'claim_reward',
-            'timecreated' => $timenow,
-        ]);
-
-        return true;
     }
 
     /**
@@ -1422,6 +1430,21 @@ final class testcase_service {
         $contribid = ($source === 'contribution') ? $targetid : null;
         $seedid = ($source === 'seed') ? $targetid : null;
         $timenow = time();
+
+        // Concurrency defense: Check if candidate reward was already granted in concurrent transaction
+        $existing = $this->db->fetch_row(
+            'SELECT id FROM {local_tce_rewards}
+              WHERE receiver_user_id = ? AND question_id = ?
+                AND (
+                    (reward_source = \'contribution\' AND contribution_id = ?)
+                    OR (reward_source = \'seed\' AND seed_id = ?)
+                )
+              FOR UPDATE',
+            [$ownerid, $questionid, $contribid, $seedid]
+        );
+        if ($existing) {
+            return;
+        }
 
         try {
             $this->db->insert('local_tce_rewards', [

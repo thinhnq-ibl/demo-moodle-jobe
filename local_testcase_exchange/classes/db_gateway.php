@@ -76,6 +76,18 @@ final class db_gateway {
      * @return ?array<string, mixed>
      */
     public function fetch_row(string $sql, array $params = []): ?array {
+        // Moodle get_record_sql() automatically appends 'LIMIT 0, 1' at the very end of the string,
+        // which creates invalid SQL syntax if 'FOR UPDATE' is at the end.
+        // For locking queries, use get_records_sql() and take the first record.
+        if (stripos($sql, 'FOR UPDATE') !== false) {
+            $records = $this->db->get_records_sql($sql, $params);
+            if (empty($records)) {
+                return null;
+            }
+            $first = reset($records);
+            return (array) $first;
+        }
+
         $rec = $this->db->get_record_sql($sql, $params, IGNORE_MULTIPLE);
         return $rec ? (array) $rec : null;
     }
