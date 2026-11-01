@@ -133,17 +133,59 @@ class provider implements
                 continue;
             }
             $courseid = (int) $context->instanceid;
+
+            // Safe field selection: Never export confidential teacher oracle code or internal template snapshots.
+            $privateruns = $DB->get_records_sql(
+                'SELECT id, quiz_id, question_id, input_raw, input_normalized,
+                        predicted_output, student_run_output, student_outcome,
+                        student_code_snapshot, purpose, category,
+                        reflection, timecreated
+                   FROM {local_tce_runs}
+                  WHERE course_id = ? AND user_id = ?
+                  ORDER BY id ASC',
+                [$courseid, $userid]
+            );
+
+            $contributions = $DB->get_records_sql(
+                'SELECT id, quiz_id, question_id, input_normalized, purpose, category,
+                        status, rating, review_comment, timecreated, timemodified
+                   FROM {local_tce_contributions}
+                  WHERE course_id = ? AND user_id = ?
+                  ORDER BY id ASC',
+                [$courseid, $userid]
+            );
+
+            $rewards = $DB->get_records_sql(
+                'SELECT id, quiz_id, question_id, reward_source, is_claimed, claimed_at, timecreated
+                   FROM {local_tce_rewards}
+                  WHERE course_id = ? AND receiver_user_id = ?
+                  ORDER BY id ASC',
+                [$courseid, $userid]
+            );
+
+            $revisions = $DB->get_records_sql(
+                'SELECT id, quiz_id, question_id, step_number, code_content, timecreated
+                   FROM {local_tce_revisions}
+                  WHERE course_id = ? AND user_id = ?
+                  ORDER BY id ASC',
+                [$courseid, $userid]
+            );
+
+            $reviewsconducted = $DB->get_records_sql(
+                'SELECT r.id, r.contribution_id, r.rating, r.review_note, r.timecreated
+                   FROM {local_tce_reviews} r
+                   JOIN {local_tce_contributions} c ON c.id = r.contribution_id
+                  WHERE c.course_id = ? AND r.reviewer_user_id = ?
+                  ORDER BY r.id ASC',
+                [$courseid, $userid]
+            );
+
             $data = (object) [
-                'private_runs' => array_values($DB->get_records('local_tce_runs', ['course_id' => $courseid, 'user_id' => $userid], 'id ASC')),
-                'contributions' => array_values($DB->get_records('local_tce_contributions', ['course_id' => $courseid, 'user_id' => $userid], 'id ASC')),
-                'received_rewards' => array_values($DB->get_records('local_tce_rewards', ['course_id' => $courseid, 'receiver_user_id' => $userid], 'id ASC')),
-                'code_revisions' => array_values($DB->get_records('local_tce_revisions', ['course_id' => $courseid, 'user_id' => $userid], 'id ASC')),
-                'reviews_conducted' => array_values($DB->get_records_sql(
-                    'SELECT r.* FROM {local_tce_reviews} r
-                       JOIN {local_tce_contributions} c ON c.id = r.contribution_id
-                      WHERE c.course_id = ? AND r.reviewer_user_id = ? ORDER BY r.id ASC',
-                    [$courseid, $userid]
-                )),
+                'private_runs' => array_values($privateruns),
+                'contributions' => array_values($contributions),
+                'received_rewards' => array_values($rewards),
+                'code_revisions' => array_values($revisions),
+                'reviews_conducted' => array_values($reviewsconducted),
             ];
             writer::with_context($context)->export_data(
                 [get_string('privacy:path', 'local_testcase_exchange')],

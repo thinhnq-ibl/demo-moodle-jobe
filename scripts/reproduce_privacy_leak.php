@@ -60,17 +60,29 @@ $approved_contextlist = new \core_privacy\tests\request\approved_contextlist(
 \local_testcase_exchange\privacy\provider::export_user_data($approved_contextlist);
 
 $writer = \core_privacy\local\request\writer::with_context($context);
-$exported_data = $writer->get_data([get_string('privacy:path', 'local_testcase_exchange')]);
+$ref = new ReflectionProperty($writer, 'path');
+$ref->setAccessible(true);
+$basepath = $ref->getValue($writer);
 
-echo "Inspecting exported data...\n";
-$json = json_encode($exported_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+echo "Base export directory: {$basepath}\n";
+exec('find ' . escapeshellarg($basepath) . ' -name "data.json"', $foundfiles);
+if (empty($foundfiles)) {
+    throw new Exception("Exported data.json not found in {$basepath}");
+}
+$exportfile = $foundfiles[0];
 
-if (strpos($json, $secret_oracle_code) !== false) {
+$raw_exported_json = file_get_contents($exportfile);
+echo "Reading actual exported file: {$exportfile}\n";
+
+if (strpos($raw_exported_json, $secret_oracle_code) !== false) {
     echo "❌ VULNERABILITY CONFIRMED: Secret oracle code found in exported privacy data!\n";
-    echo "Found leaked snippet:\n";
-    foreach ($exported_data->private_runs as $r) {
-        if (isset($r->oracle_solution_snapshot) && $r->oracle_solution_snapshot === $secret_oracle_code) {
-            echo "  Leaked in private_runs record ID={$r->id}: oracle_solution_snapshot = '{$r->oracle_solution_snapshot}'\n";
+    $decoded = json_decode($raw_exported_json, true);
+    foreach ($decoded['private_runs'] as $r) {
+        if (isset($r['oracle_solution_snapshot'])) {
+            echo "  Leaked in private_runs record ID={$r['id']}:\n";
+            echo "    oracle_solution_snapshot = '{$r['oracle_solution_snapshot']}'\n";
+            echo "    template_snapshot = '{$r['template_snapshot']}'\n";
+            echo "    runtime_context = '{$r['runtime_context']}'\n";
         }
     }
 } else {
