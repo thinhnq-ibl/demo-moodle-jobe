@@ -334,6 +334,11 @@ final class testcase_service {
             throw new \moodle_exception('predictionmismatchoracle', 'local_testcase_exchange', '',
                 'Kết quả kỳ vọng (Expected Output) không khớp với Solution của Thầy/Cô nên không thể đề xuất đóng góp!');
         }
+        if ($run['student_outcome'] !== 'success' ||
+            trim((string) $run['student_run_output']) !== trim((string) $run['oracle_output'])) {
+            throw new \moodle_exception('studentcodenotpassing', 'local_testcase_exchange', '',
+                'Kết quả mong đợi của bạn đã được xác nhận. Chương trình hiện tại chưa vượt qua testcase này. Hãy sửa chương trình và chạy lại để đủ điều kiện đóng góp.');
+        }
         $settings = $this->quiz_settings((int) $run['quiz_id']);
         $this->connection->begin_transaction();
         try {

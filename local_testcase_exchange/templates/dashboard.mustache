@@ -318,6 +318,11 @@
                             {{/can_contribute}}
                             {{^can_contribute}}
                             <span class="{{#display_status_class}}{{display_status_class}}{{/display_status_class}}{{^display_status_class}}badge badge-secondary p-1{{/display_status_class}}">{{display_status}}</span>
+                            {{#pending_code_fix}}
+                            <div class="small text-info text-wrap mt-1 text-left" style="max-width: 220px; font-size: 0.72rem; line-height: 1.25;">
+                                💡 {{pending_fix_message}}
+                            </div>
+                            {{/pending_code_fix}}
                             {{/can_contribute}}
                         </td>
                     </tr>

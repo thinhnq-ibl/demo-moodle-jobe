@@ -308,12 +308,19 @@ if ($service && data_submitted()) {
             } else if ($run['oracle']['outcome'] !== 'success') {
                 $message = get_string('runcreatedoraclefailed', 'local_testcase_exchange', $run['oracle']['outcome']);
                 $notifytype = \core\output\notification::NOTIFY_ERROR;
+            } else if ($run['prediction_matches_oracle']) {
+                $student_passed = ($run['student']['outcome'] === 'success' &&
+                    trim((string)$run['student']['output']) === trim((string)$run['oracle']['output']));
+                if ($student_passed) {
+                    $message = 'Kết quả mong đợi đã khớp với tham chiếu và chương trình của bạn đã vượt qua testcase này! Bạn đã đủ điều kiện đóng góp.';
+                    $notifytype = \core\output\notification::NOTIFY_SUCCESS;
+                } else {
+                    $message = 'Kết quả mong đợi của bạn đã được xác nhận. Chương trình hiện tại chưa vượt qua testcase này. Hãy sửa chương trình và chạy lại để đủ điều kiện đóng góp.';
+                    $notifytype = \core\output\notification::NOTIFY_INFO;
+                }
             } else if ($run['student']['outcome'] !== 'success') {
                 $message = get_string('runcreatedstudenterror', 'local_testcase_exchange');
                 $notifytype = \core\output\notification::NOTIFY_INFO;
-            } else if ($run['prediction_matches_oracle']) {
-                $message = get_string('runcreatedmatch', 'local_testcase_exchange');
-                $notifytype = \core\output\notification::NOTIFY_SUCCESS;
             } else if (trim($predictedoutput) !== '') {
                 $message = get_string('runcreatedmismatch', 'local_testcase_exchange');
                 $notifytype = \core\output\notification::NOTIFY_WARNING;
@@ -470,9 +477,13 @@ foreach ($runs as &$run) {
     $run['student_matches_expected'] = ($student_out !== '' && $student_out === $predicted_out);
     $run['student_differs_expected'] = ($student_out !== '' && $student_out !== $predicted_out);
 
-    // Kiểm tra xem Expected output có khớp với kết quả Solution của Thầy/Cô hay không
-    $expected_matches_oracle = ($oracle_valid && $predicted_out !== '' && $predicted_out === $oracle_out);
-    $run['expected_matches_oracle'] = $expected_matches_oracle;
+    // Kiểm tra tính hợp lệ của Testcase (Expected output khớp với kết quả Solution Oracle)
+    $testcase_valid = ($oracle_valid && $predicted_out !== '' && $predicted_out === $oracle_out);
+    $run['expected_matches_oracle'] = $testcase_valid;
+
+    // Kiểm tra điều kiện thực thi của chương trình sinh viên trên testcase này
+    $student_passed_test = ($run['student_outcome'] === 'success' && $student_out !== '' && $student_out === $oracle_out);
+    $run['student_passed_test'] = $student_passed_test;
 
     // Kiểm tra chủ động xem testcase này đã tồn tại trong kho (canonical keys hoặc seeds) hay chưa
     $run_fp = (string) ($run['input_fingerprint'] ?? '');
@@ -480,13 +491,9 @@ foreach ($runs as &$run) {
     $existing_canonical = ($run_fp !== '' && isset($existingfingerprints[$fp_key])) ? $existingfingerprints[$fp_key] : null;
     $is_duplicate = ($existing_canonical !== null);
 
-    // Chỉ cho phép đề xuất đóng góp khi:
-    // 1. Solution chạy thành công
-    // 2. Expected output của sinh viên khớp chuẩn với kết quả Solution
-    // 3. Lần chạy này chưa từng đóng góp
-    // 4. Testcase này chưa từng tồn tại trong kho (không trùng lặp)
-    // 5. Có capability contribute
-    $run['can_contribute'] = $cancontribute && !$existing && !$is_duplicate && $expected_matches_oracle;
+    // Quyền đóng góp: Chỉ mở khi testcase hợp lệ (khớp Oracle) VÀ code sinh viên vượt qua chính testcase đó
+    $can_contribute = $cancontribute && !$existing && !$is_duplicate && $testcase_valid && $student_passed_test;
+    $run['can_contribute'] = $can_contribute;
 
     if ($existing) {
         $run['display_status'] = $existing['status'];
@@ -498,12 +505,19 @@ foreach ($runs as &$run) {
     } else if (!$oracle_valid) {
         $run['display_status'] = 'invalid';
         $run['display_status_class'] = 'badge badge-danger p-1';
-    } else if (!$expected_matches_oracle) {
-        $run['display_status'] = 'Lệch Solution';
+    } else if (!$testcase_valid) {
+        $run['display_status'] = 'Lệch Tham chiếu';
         $run['display_status_class'] = 'badge badge-warning text-dark p-1';
+    } else if (!$student_passed_test) {
+        // Trường hợp 2: Testcase hợp lệ, chưa được đóng góp; cần sửa code
+        $run['display_status'] = 'Hợp lệ — Cần sửa code';
+        $run['display_status_class'] = 'badge badge-info p-1';
+        $run['pending_code_fix'] = true;
+        $run['pending_fix_message'] = 'Kết quả mong đợi của bạn đã được xác nhận. Chương trình hiện tại chưa vượt qua testcase này. Hãy sửa chương trình và chạy lại để đủ điều kiện đóng góp.';
     } else {
-        $run['display_status'] = 'private';
-        $run['display_status_class'] = 'badge badge-secondary p-1';
+        // Trường hợp 1: Testcase hợp lệ, được đóng góp
+        $run['display_status'] = 'Đủ điều kiện đóng góp';
+        $run['display_status_class'] = 'badge badge-success p-1';
     }
 
     // Bổ sung phiên bản code và mốc thời gian

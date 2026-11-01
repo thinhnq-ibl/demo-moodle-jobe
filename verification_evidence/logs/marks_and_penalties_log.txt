@@ -1,42 +1,70 @@
-=== KIEM CHUNG TIEN TRINH BIEN DONG DIEM SO VA PENALTY TRUOC - SAU RUN VA CHECK ===
+================================================================================
+THỰC NGHIỆM ĐO ĐIỂM SỐ VÀ PENALTY CODERUNNER SCRATCHPAD & PROGRAM TESTING
+Thời gian thực hiện: 2026-10-31 10:33:59
+Hệ thống: Moodle 4.4.12+ (Build: 2024042212.01), CodeRunner 5.10.2
+Khóa học: CS101 (ID: 2) | Bài kiểm tra: Quiz 76 | Thí sinh: student1 (ID: 3)
+Cấu hình Penalty regime câu hỏi Scratchpad (Q794): 10, 20, ...
+================================================================================
 
-[1. KHOI TAO ATTEMPT (TRUOC MOI THAO TAC)]
-  - Question State: todo
-  - Question Fraction (Raw Mark): NULL
-  - QA Max Mark: 1.0000000
-  - Step Sequence: 0
-  - Quiz Attempt Sumgrades: NULL
-  - Quiz Gradebook Grade: 0.00000
---------------------------------------------------------------------------------
-[2. SAU KHI BAM RUN 5 LAN TREN SCRATCHPAD]
-  - Question State: todo
-  - Question Fraction (Raw Mark): NULL
-  - QA Max Mark: 1.0000000
-  - Step Sequence: 0
-  - Quiz Attempt Sumgrades: NULL
-  - Quiz Gradebook Grade: 0.00000
---------------------------------------------------------------------------------
-[3. SAU KHI BAM CHECK LAN 1 (CODE SAI, Q794 - allornothing=1, penalty=0.1)]
-  - Question State: todo
-  - Question Fraction (Raw Mark): '0.0000000'
-  - QA Max Mark: 1.0000000
-  - Step Sequence: 1
-  - Quiz Attempt Sumgrades: NULL
-  - Quiz Gradebook Grade: 0.00000
---------------------------------------------------------------------------------
-[4. SAU KHI BAM CHECK LAN 2 (SUA CODE DUNG)]
-  - Question State: todo
-  - Question Fraction (Raw Mark): '0.0000000'
-  - QA Max Mark: 1.0000000
-  - Step Sequence: 2
-  - Quiz Attempt Sumgrades: NULL
-  - Quiz Gradebook Grade: 0.00000
---------------------------------------------------------------------------------
-[5. SAU KHI FINISH ATTEMPT & LUU GRADEBOOK]
-  - Question State: gradedwrong
-  - Question Fraction (Raw Mark): '0.0000000'
-  - QA Max Mark: 1.0000000
-  - Step Sequence: 3
-  - Quiz Attempt Sumgrades: '0.00000'
-  - Quiz Gradebook Grade: 0.00000
---------------------------------------------------------------------------------
+>>> BẮT ĐẦU CHUỖI THAO TÁC 1: Code đúng -> Check -> Finish
+  - Slot 1 (Scratchpad) sau Check 1 (Code đúng):
+      Fraction: 1 (1.0 = 100%)
+      Điểm đạt: 1 / 1
+      Trạng thái: complete
+      Số bước (steps): 2
+  - Slot 2 (Program Testing) sau Check 1 (Bộ test đúng):
+      Fraction: 0 (1.0 = 100%)
+      Điểm đạt: 0 / 1
+      Trạng thái: todo
+  - Kết quả Chuỗi 1 sau Finish:
+      Attempt ID: 1114
+      Tổng điểm thô: 1.00000 / 2.00000
+      Điểm quy đổi Quiz: 5 / 10.00
+      Penalty bị trừ: 0%
+
+>>> BẮT ĐẦU CHUỖI THAO TÁC 2: Code sai -> Check -> Code đúng -> Check -> Finish
+  - Check lần 1 (Code sai):
+      Code nộp: 'def find_max(lst): return lst[-1]'
+      Fraction: 0.0
+      Điểm: 0.0
+      Trạng thái: todo
+      Số bước (steps): 2
+  - Check lần 2 (Sửa code đúng):
+      Code nộp: 'def find_max(lst): return max(lst)'
+      Fraction: 0.9
+      Điểm: 0.9 / 1
+      Trạng thái: complete
+      Số bước (steps): 3
+      Penalty bị trừ theo penaltyregime: 10% (Fraction = 1.0 - 0.10 = 0.90)
+  - Kết quả Chuỗi 2 sau Finish:
+      Attempt ID: 1115
+      Tổng điểm thô: 0.90000 / 2.00000
+      Điểm quy đổi Quiz: 4.5 / 10.00
+
+>>> BẮT ĐẦU CHUỖI THAO TÁC 3: Run 5 lần trên Scratchpad -> Code đúng -> Check -> Finish
+  - Số step trong DB trước khi Run: 1
+    [Run 1] Output: Run 1 output: 20 | Sandbox OK: True
+    [Run 2] Output: Run 2 output: 20 | Sandbox OK: True
+    [Run 3] Output: Run 3 output: 20 | Sandbox OK: True
+    [Run 4] Output: Run 4 output: 20 | Sandbox OK: True
+    [Run 5] Output: Run 5 output: 20 | Sandbox OK: True
+  - Số step trong DB sau 5 lần Run: 1 (Không đổi, Run hoàn toàn client-side)
+  - Sau khi bấm Check 1 lần với code đúng:
+      Fraction: 1 (1.0 = 100%, không bị ảnh hưởng bởi các lần Run)
+      Điểm: 1 / 1
+      Trạng thái: complete
+      Số bước trong DB: 2
+  - Kết quả Chuỗi 3 sau Finish:
+      Attempt ID: 1116
+      Tổng điểm thô: 1.00000 / 2.00000
+      Điểm quy đổi Quiz: 5 / 10.00
+      Penalty bị trừ: 0.00% (Chứng minh nút Run không phạt điểm)
+
+================================================================================
+TỔNG HỢP SO SÁNH 3 CHUỖI ĐO ĐẠC PENALTY:
+| Chuỗi  | Kịch bản                           | Fraction   | Điểm câu hỏi | Điểm Quiz |
+|----------|----------------------------------------|------------|--------------|------------|
+| Chuỗi 1 | Code đúng -> Check -> Finish         | 1          | 1/1.00       | 5/10       |
+| Chuỗi 2 | Sai -> Check -> Đúng -> Check -> Finish | 0.9        | 0.9/1.00     | 4.5/10     |
+| Chuỗi 3 | Run 5x -> Đúng -> Check -> Finish    | 1          | 1/1.00       | 5/10       |
+================================================================================

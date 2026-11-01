@@ -20,9 +20,9 @@ async function loginStudent(page, context) {
   await page.waitForLoadState('networkidle');
 }
 
-test.describe('Kiểm chứng Trình duyệt Toàn diện: CodeRunner Scratchpad UI & Program Testing', () => {
+test.describe('Kiểm chứng Trình duyệt: CodeRunner Scratchpad UI & Program Testing', () => {
 
-  test('Kịch bản Sinh viên: Trải nghiệm Scratchpad UI và Program Testing trên Quiz thực tế', async ({ page, context }) => {
+  test('Kịch bản Sinh viên: Scratchpad UI, Page Reload/Draft Recovery, và Program Testing (Wrong Expected & Correct)', async ({ page, context }) => {
     // 1. Đăng nhập với tài khoản sinh viên student1
     console.log('[E2E] Bước 1: Đăng nhập tài khoản student1...');
     await loginStudent(page, context);
@@ -93,11 +93,33 @@ test.describe('Kiểm chứng Trình duyệt Toàn diện: CodeRunner Scratchpad
     // Chụp ảnh bằng chứng 03: Lỗi Runtime hiển thị văn bản thô
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '03_scratchpad_runtime_error.png'), fullPage: true });
 
-    // Khôi phục mã đúng cho Scratchpad và bấm Check nộp bài Câu 1
-    console.log('[E2E] Bước 6: Khôi phục và bấm Check nộp bài Câu 1...');
+    // Khôi phục mã đúng cho Scratchpad
     await scratchpadAce.click();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.type("print(find_max([3, 8, 5]))\n");
+
+    // -------------------------------------------------------------
+    // BỔ SUNG: KIỂM CHỨNG PAGE RELOAD VÀ DRAFT RECOVERY
+    // -------------------------------------------------------------
+    console.log('[E2E] Bước 5b: Kiểm chứng Tải lại trang (Page Reload) và Khôi phục mã nháp Scratchpad...');
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+
+    // Mở lại Scratchpad sau reload và kiểm tra nội dung
+    const showBtnAfterReload = page.locator('a[id*="show-scratchpad-btn"]').first();
+    if (await showBtnAfterReload.isVisible()) {
+      await showBtnAfterReload.click();
+      await page.waitForTimeout(1000);
+    }
+    // Chụp ảnh bằng chứng khôi phục sau reload
+    await page.screenshot({ path: path.join(SCREENSHOT_DIR, '03b_scratchpad_draft_after_reload.png'), fullPage: true });
+
+    // Điền lại mã giải hoàn chỉnh nếu cần và bấm Check nộp bài Câu 1
+    console.log('[E2E] Bước 6: Bấm Check nộp bài Câu 1...');
+    const answerAceAgain = page.locator('.ace_editor').nth(0);
+    await answerAceAgain.click();
+    await page.keyboard.press('ControlOrMeta+A');
+    await page.keyboard.type("def find_max(lst):\n    return max(lst)\n");
 
     const checkBtn1 = page.locator('button:has-text("Check"), input[value="Check"]').first();
     await checkBtn1.click();
@@ -110,46 +132,67 @@ test.describe('Kiểm chứng Trình duyệt Toàn diện: CodeRunner Scratchpad
     // PHẦN 2: KIỂM CHỨNG MẪU PYTHON3_PROGRAM_TESTING (CÂU 2)
     // -------------------------------------------------------------
     console.log('[E2E] Bước 7: Chuyển sang Câu 2 (Program Testing)...');
-    // Chuyển sang trang Question 2 bằng nút Next page chính
     const nextPageBtn = page.getByRole('button', { name: 'Next page' });
     await nextPageBtn.click();
     await page.waitForLoadState('networkidle');
 
-    // Kiểm tra bảng Table UI đặc trưng của python3_program_testing
     const tableUi = page.locator('table.coderunner-ui-table, .form-table, table:has-text("Test")').first();
     await expect(tableUi).toBeVisible({ timeout: 10000 });
 
     // Chụp ảnh bằng chứng 05: Bảng Program Testing khởi tạo
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '05_program_testing_table_initial.png'), fullPage: true });
 
-    // Điền bảng kiểm thử: Hàng 1 (Test T1: print(find_max([3, 8, 5])), Result: 8)
-    console.log('[E2E] Bước 8: Nhập ca kiểm thử T1 vào bảng kiểm thử...');
+    // -------------------------------------------------------------
+    // CA KIỂM CHỨNG T2/T4: NHẬP EXPECTED SAI VÀ QUAN SÁT PHẢN HỒI
+    // -------------------------------------------------------------
+    console.log('[E2E] Bước 8a: Nhập Expected SAI (T2/T4) để kiểm tra phát hiện lỗi từ lời giải tham chiếu tác giả...');
     const tableTextboxes = page.getByRole('table').getByRole('textbox');
+    // Nhập Test: print(find_max([3, 8, 5])), Expected: 5 (Sai, vì max là 8)
     await tableTextboxes.nth(0).fill('print(find_max([3, 8, 5]))');
-    await tableTextboxes.nth(1).fill('8');
+    await tableTextboxes.nth(1).fill('5');
 
-    // Hàng 2: Thêm ca kiểm thử số âm
+    // Bổ sung thêm dòng để đủ >= 3 dòng theo yêu cầu mẫu
     if (await tableTextboxes.nth(2).isVisible()) {
-      await tableTextboxes.nth(2).fill('print(find_max([-10, -3, -5]))');
-      await tableTextboxes.nth(3).fill('-3');
+      await tableTextboxes.nth(2).fill('print(find_max([10, -2, 7]))');
+      await tableTextboxes.nth(3).fill('10');
+    }
+    if (await tableTextboxes.nth(4).isVisible()) {
+      await tableTextboxes.nth(4).fill('print(find_max([-5, -1, -3]))');
+      await tableTextboxes.nth(5).fill('-1');
     }
 
-    // Chụp ảnh bằng chứng 06: Bảng kiểm thử đã được điền
-    await page.screenshot({ path: path.join(SCREENSHOT_DIR, '06_program_testing_table_filled.png'), fullPage: true });
+    await page.screenshot({ path: path.join(SCREENSHOT_DIR, '06a_program_testing_table_wrong_expected.png'), fullPage: true });
 
-    // Bấm nút Check nộp bài Câu 2
-    console.log('[E2E] Bước 9: Bấm Check nộp bài Câu 2...');
+    // Bấm Check với expected sai
+    console.log('[E2E] Bấm Check với Expected sai...');
     const checkBtn2 = page.locator('button:has-text("Check")').first();
     await checkBtn2.click();
     await page.waitForLoadState('networkidle');
 
-    // Chụp ảnh bằng chứng 07: Bảng phản hồi chấm điểm của Program Testing
-    await page.screenshot({ path: path.join(SCREENSHOT_DIR, '07_program_testing_feedback.png'), fullPage: true });
+    // Chụp ảnh bằng chứng phản hồi phát hiện Expected sai ("Oops: you marked the right answer wrong!")
+    await page.screenshot({ path: path.join(SCREENSHOT_DIR, '07a_program_testing_wrong_expected_feedback.png'), fullPage: true });
+
+    // -------------------------------------------------------------
+    // CA KIỂM CHỨNG T1: SỬA EXPECTED ĐÚNG VÀ NỘP LẠI
+    // -------------------------------------------------------------
+    console.log('[E2E] Bước 8b: Sửa Expected thành ĐÚNG (T1: 8) và nộp lại...');
+    const tableTextboxesAfter = page.getByRole('table').getByRole('textbox');
+    await tableTextboxesAfter.nth(1).fill('8');
+
+    await page.screenshot({ path: path.join(SCREENSHOT_DIR, '06b_program_testing_table_correct.png'), fullPage: true });
+
+    // Bấm Check lại
+    const checkBtn2Again = page.locator('button:has-text("Check")').first();
+    await checkBtn2Again.click();
+    await page.waitForLoadState('networkidle');
+
+    // Chụp ảnh bằng chứng phản hồi thành công của Program Testing
+    await page.screenshot({ path: path.join(SCREENSHOT_DIR, '07b_program_testing_success_feedback.png'), fullPage: true });
 
     // -------------------------------------------------------------
     // PHẦN 3: KẾT THÚC BÀI THI VÀ XEM ĐIỂM SỐ CHÍNH THỨC
     // -------------------------------------------------------------
-    console.log('[E2E] Bước 10: Hoàn thành bài thi và xem tổng kết điểm...');
+    console.log('[E2E] Bước 9: Hoàn thành bài thi và xem tổng kết điểm...');
     const finishNavBtn = page.getByRole('button', { name: /Finish attempt/i }).first();
     await finishNavBtn.click();
     await page.waitForLoadState('networkidle');
@@ -166,7 +209,7 @@ test.describe('Kiểm chứng Trình duyệt Toàn diện: CodeRunner Scratchpad
 
     // Chụp ảnh bằng chứng 08: Trang Review tổng kết điểm số, penalty và Gradebook
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '08_quiz_review_grades.png'), fullPage: true });
-    console.log('[E2E] Hoàn tất 100% toàn bộ kịch bản kiểm chứng giao diện!');
+    console.log('[E2E] Hoàn tất 100% kịch bản kiểm chứng trình duyệt mở rộng!');
   });
 
 });
