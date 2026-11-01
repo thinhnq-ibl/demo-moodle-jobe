@@ -236,7 +236,7 @@ final class testcase_service {
         $oraclerow = $this->db->fetch_row(
             'SELECT oracle_output, oracle_outcome, jobe_server 
                FROM {local_tce_runs} 
-              WHERE question_id = ? AND input_raw_hash = ? AND oracle_version_hash = ? AND oracle_outcome = "success" 
+              WHERE question_id = ? AND input_raw_hash = ? AND oracle_version_hash = ? AND oracle_outcome = 'success' 
               ORDER BY id DESC',
             [$qid, $rawinputhash, $oracleversionhash]
         );
@@ -852,11 +852,15 @@ final class testcase_service {
         return $this->db->fetch_all(
             'SELECT c.*,
                     (SELECT cr.review_note FROM {local_tce_reviews} cr
-                      WHERE cr.contribution_id = c.id AND cr.review_note IS NOT NULL AND cr.review_note <> \'\'
-                      ORDER BY cr.id DESC) AS latest_review_note,
+                      WHERE cr.id = (
+                          SELECT MAX(cr2.id) FROM {local_tce_reviews} cr2
+                           WHERE cr2.contribution_id = c.id AND cr2.review_note IS NOT NULL AND cr2.review_note <> \'\'
+                      )) AS latest_review_note,
                     (SELECT cr.rating FROM {local_tce_reviews} cr
-                      WHERE cr.contribution_id = c.id AND cr.rating IS NOT NULL AND cr.rating > 0
-                      ORDER BY cr.id DESC) AS latest_rating
+                      WHERE cr.id = (
+                          SELECT MAX(cr3.id) FROM {local_tce_reviews} cr3
+                           WHERE cr3.contribution_id = c.id AND cr3.rating IS NOT NULL AND cr3.rating > 0
+                      )) AS latest_rating
                FROM {local_tce_contributions} c
               WHERE c.course_id = ? AND c.user_id = ? ORDER BY c.id DESC',
             [$courseid, $userid]
@@ -988,7 +992,7 @@ final class testcase_service {
     public function existing_fingerprints_for_course(int $courseid): array {
         $map = [];
         $rows1 = $this->db->fetch_all(
-            'SELECT question_id, input_fingerprint, canonical_contribution_id 
+            'SELECT id, question_id, input_fingerprint, canonical_contribution_id 
                FROM {local_tce_canonical} 
               WHERE course_id = ?',
             [$courseid]
@@ -1161,12 +1165,12 @@ final class testcase_service {
         $rows = $this->db->fetch_all(
             'SELECT r.id, r.course_id, r.quiz_id, r.question_id, r.receiver_user_id, r.contribution_id,
                     r.reward_source, r.seed_id, r.is_claimed, r.claimed_at, r.timecreated,
-                    COALESCE(c.input_normalized, s.input_normalized, "") AS input_normalized,
-                    COALESCE(c.oracle_output, s.expected_output, "") AS oracle_output,
-                    COALESCE(c.category, s.category, "seed") AS category
+                    COALESCE(c.input_normalized, s.input_normalized, \'\') AS input_normalized,
+                    COALESCE(c.oracle_output, s.expected_output, \'\') AS oracle_output,
+                    COALESCE(c.category, s.category, \'seed\') AS category
                FROM {local_tce_rewards} r
-          LEFT JOIN {local_tce_contributions} c ON (r.reward_source = "contribution" AND c.id = r.contribution_id)
-          LEFT JOIN {local_tce_seeds} s ON (r.reward_source = "seed" AND s.id = r.seed_id)
+          LEFT JOIN {local_tce_contributions} c ON (r.reward_source = \'contribution\' AND c.id = r.contribution_id)
+          LEFT JOIN {local_tce_seeds} s ON (r.reward_source = \'seed\' AND s.id = r.seed_id)
               WHERE r.course_id = ? AND r.receiver_user_id = ?
            ORDER BY r.id DESC',
             [$courseid, $userid]
