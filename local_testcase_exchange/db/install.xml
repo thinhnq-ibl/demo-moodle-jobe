@@ -128,6 +128,7 @@
         <FIELD NAME="to_status" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="review_note" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="rating" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="rating_reason" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
@@ -167,14 +168,19 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="course_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="quiz_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="input_raw" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="input_normalized" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="moodle_test_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="testcode" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="stdin" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="input_raw" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="input_normalized" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="input_fingerprint" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="oracle_output" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="expected_output" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="oracle_output" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="purpose" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="category" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="created_by" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="created_by" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="is_active" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
@@ -182,7 +188,8 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="idx_seed_scope" UNIQUE="false" FIELDS="course_id, question_id"/>
+        <INDEX NAME="idx_seed_scope" UNIQUE="false" FIELDS="course_id, quiz_id, question_id"/>
+        <INDEX NAME="idx_seed_fingerprint" UNIQUE="false" FIELDS="question_id, input_fingerprint"/>
       </INDEXES>
     </TABLE>
 

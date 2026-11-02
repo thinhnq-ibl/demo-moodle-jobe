@@ -74,5 +74,39 @@ function xmldb_local_testcase_exchange_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026110201, 'local', 'testcase_exchange');
     }
 
+    if ($oldversion < 2026110202) {
+        // 1. Add rating_reason to local_tce_reviews
+        $tablereviews = new xmldb_table('local_tce_reviews');
+        $fieldreason = new xmldb_field('rating_reason', XMLDB_TYPE_TEXT, null, null, null, null, null, 'rating');
+        if (!$dbman->field_exists($tablereviews, $fieldreason)) {
+            $dbman->add_field($tablereviews, $fieldreason);
+        }
+
+        // 2. Add quiz_id, moodle_test_id, testcode, stdin, expected_output to local_tce_seeds
+        $tableseeds = new xmldb_table('local_tce_seeds');
+        $fieldquiz = new xmldb_field('quiz_id', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'course_id');
+        if (!$dbman->field_exists($tableseeds, $fieldquiz)) {
+            $dbman->add_field($tableseeds, $fieldquiz);
+        }
+        $fieldmtest = new xmldb_field('moodle_test_id', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'question_id');
+        if (!$dbman->field_exists($tableseeds, $fieldmtest)) {
+            $dbman->add_field($tableseeds, $fieldmtest);
+        }
+        $fieldtcode = new xmldb_field('testcode', XMLDB_TYPE_TEXT, null, null, null, null, null, 'moodle_test_id');
+        if (!$dbman->field_exists($tableseeds, $fieldtcode)) {
+            $dbman->add_field($tableseeds, $fieldtcode);
+        }
+        $fieldstdin = new xmldb_field('stdin', XMLDB_TYPE_TEXT, null, null, null, null, null, 'testcode');
+        if (!$dbman->field_exists($tableseeds, $fieldstdin)) {
+            $dbman->add_field($tableseeds, $fieldstdin);
+        }
+        $fieldexp = new xmldb_field('expected_output', XMLDB_TYPE_TEXT, null, null, null, null, null, 'input_fingerprint');
+        if (!$dbman->field_exists($tableseeds, $fieldexp)) {
+            $dbman->add_field($tableseeds, $fieldexp);
+        }
+
+        upgrade_plugin_savepoint(true, 2026110202, 'local', 'testcase_exchange');
+    }
+
     return true;
 }
