@@ -729,7 +729,7 @@
             <div class="card-body">
                 <div class="form-group mb-3">
                     <label for="question"><strong>🎯 Đổi bài tập khác:</strong></label>
-                    <select class="form-control font-weight-bold" id="question" name="question">
+                    <select class="custom-select font-weight-bold" id="question" name="question">
                         {{#questions}}
                         <option value="{{value}}" {{#disabled}}disabled{{/disabled}} {{#selected}}selected{{/selected}}>{{label}}</option>
                         {{/questions}}
@@ -1286,5 +1286,34 @@ tr[id^="run-"]:target {
     background-color: #fff3cd !important;
     outline: 2px solid #ffc107;
     transition: background-color 0.4s ease;
+}
+
+/* Fix dropdown options list shifting left and clipping text */
+#question,
+#teacherQuestionSelect {
+    width: 100% !important;
+    max-width: 100% !important;
+    direction: ltr !important;
+    text-align: left !important;
+    text-align-last: left !important;
+    text-indent: 0 !important;
+    padding-left: 0.75rem !important;
+    box-sizing: border-box !important;
+}
+
+#teacherQuestionSelect {
+    width: auto !important;
+    min-width: 280px !important;
+}
+
+#question option,
+#teacherQuestionSelect option {
+    direction: ltr !important;
+    text-align: left !important;
+    text-align-last: left !important;
+    text-indent: 0 !important;
+    padding: 6px 10px !important;
+    font-weight: normal !important;
+    white-space: normal !important;
 }
 </style>
