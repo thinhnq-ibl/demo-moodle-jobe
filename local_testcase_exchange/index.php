@@ -201,8 +201,12 @@ foreach ($rawquestions as $q) {
     $qquizsettings = $service ? $service->quiz_settings((int) $q->quizid) : ['enabled' => 0];
     $isenabled = !empty($qquizsettings['enabled']);
 
-    // In student view: exclude quizzes where testcase exchange is disabled or user cannot access.
-    if ($is_student_view && (!$hasaccess || !$isenabled)) {
+    // Exclude quizzes where testcase exchange is disabled (for both teacher and student views).
+    if (!$isenabled) {
+        continue;
+    }
+    // In student view: also exclude quizzes where user cannot access in Moodle.
+    if ($is_student_view && !$hasaccess) {
         continue;
     }
     $questions[] = $q;
