@@ -30,6 +30,7 @@ __pycache__/
 
 # Question bank XML exports
 *.xml
+!**/db/install.xml
 dist/*
 dist.zip
 
