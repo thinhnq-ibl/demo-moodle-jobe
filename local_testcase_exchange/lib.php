@@ -59,6 +59,7 @@ function local_testcase_exchange_get_jobe_servers(): array {
         }
 
         $servers[] = [
+            'baseurl' => $baseurl,
             'label' => parse_url($baseurl, PHP_URL_HOST) ?: $baseurl,
             'runsurl' => $runsurl,
         ];

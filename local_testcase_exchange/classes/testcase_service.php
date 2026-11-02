@@ -899,17 +899,20 @@ final class testcase_service {
         }
 
         $where = implode(' AND ', $conditions);
-        $sql = "SELECT c.*,
+                $sql = "SELECT c.*,
                        (SELECT cr.review_note FROM {local_tce_reviews} cr
-                         WHERE cr.contribution_id = c.id AND cr.review_note IS NOT NULL AND cr.review_note <> ''
-                         ORDER BY cr.id DESC) AS latest_review_note,
+                         WHERE cr.id = (
+                             SELECT MAX(cr2.id) FROM {local_tce_reviews} cr2
+                              WHERE cr2.contribution_id = c.id AND cr2.review_note IS NOT NULL AND cr2.review_note <> ''
+                         )) AS latest_review_note,
                        (SELECT cr.rating FROM {local_tce_reviews} cr
-                         WHERE cr.contribution_id = c.id AND cr.rating IS NOT NULL AND cr.rating > 0
-                         ORDER BY cr.id DESC) AS latest_rating
+                         WHERE cr.id = (
+                             SELECT MAX(cr3.id) FROM {local_tce_reviews} cr3
+                              WHERE cr3.contribution_id = c.id AND cr3.rating IS NOT NULL AND cr3.rating > 0
+                         )) AS latest_rating
                   FROM {local_tce_contributions} c
                  WHERE {$where}
               ORDER BY c.id DESC";
-
         return $this->db->fetch_all($sql, $params);
     }
 
