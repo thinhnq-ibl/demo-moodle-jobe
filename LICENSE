@@ -1,3 +1,15 @@
+# Licensing Information
+
+This repository contains components under different open source licenses:
+
+## 1. Moodle Plugins (`local_testcase_exchange` and `quizaccess_testcaseexchange`)
+All files located in `local_testcase_exchange/` and `quizaccess_testcaseexchange/` are licensed under the **GNU General Public License v3.0 or later (GPL-3.0-or-later)**, in alignment with Moodle LMS licensing standards.
+See [local_testcase_exchange/LICENSE](local_testcase_exchange/LICENSE) or refer to <https://www.gnu.org/licenses/gpl-3.0.html>.
+
+## 2. Infrastructure, Orchestration & Test Scripts
+All Docker orchestration files (`docker-compose.yml`, `Dockerfile`, `Dockerfile.jobe`, `entrypoint.sh`), automation scripts, and verification harnesses outside the Moodle plugin directories are licensed under the **MIT License**:
+
+```text
 MIT License
 
 Copyright (c) 2026 Thinh Nguyen
@@ -19,3 +31,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+```

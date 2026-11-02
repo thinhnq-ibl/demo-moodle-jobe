@@ -61,5 +61,18 @@ function xmldb_local_testcase_exchange_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026110103, 'local', 'testcase_exchange');
     }
 
+    if ($oldversion < 2026110201) {
+        $table = new xmldb_table('local_tce_policies');
+        $oldkey = new xmldb_key('uq_question', XMLDB_KEY_UNIQUE, ['question_id']);
+        if ($dbman->find_key_name($table, $oldkey)) {
+            $dbman->drop_key($table, $oldkey);
+        }
+        $newkey = new xmldb_key('uq_quiz_question', XMLDB_KEY_UNIQUE, ['quiz_id', 'question_id']);
+        if (!$dbman->find_key_name($table, $newkey)) {
+            $dbman->add_key($table, $newkey);
+        }
+        upgrade_plugin_savepoint(true, 2026110201, 'local', 'testcase_exchange');
+    }
+
     return true;
 }

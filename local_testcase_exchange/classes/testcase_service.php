@@ -88,15 +88,34 @@ final class testcase_service {
             'SELECT * FROM {local_tce_policies} WHERE quiz_id = ? AND question_id = ?',
             [$quizid, $questionid]
         );
-        $defaults = [
+        if ($row) {
+            return $row;
+        }
+
+        // Auto-detect default input_mode based on whether question testcases utilize stdin.
+        $detectedmode = 'testcode';
+        try {
+            global $DB;
+            $hasstdin = $DB->record_exists_select(
+                'question_coderunner_tests',
+                'questionid = ? AND stdin IS NOT NULL AND stdin <> \'\'',
+                [$questionid]
+            );
+            if ($hasstdin) {
+                $detectedmode = 'stdin';
+            }
+        } catch (\Throwable $e) {
+            // Fallback to testcode.
+        }
+
+        return [
             'question_id' => $questionid,
             'quiz_id' => $quizid,
-            'input_mode' => 'testcode',
+            'input_mode' => $detectedmode,
             'testcode_template' => '',
             'normalization_mode' => 'trim',
             'categories' => "edge_case\nrandom\nperformance\nsyntax",
         ];
-        return $row ?: $defaults;
     }
 
     /**
@@ -640,8 +659,8 @@ final class testcase_service {
      */
     public function save_question_policy(int $quizid, int $questionid, int $userid, array $values): void {
         $curr = $this->db->fetch_row(
-            'SELECT id, input_mode, testcode_template, normalization_mode, categories FROM {local_tce_policies} WHERE question_id = ?',
-            [$questionid]
+            'SELECT id, input_mode, testcode_template, normalization_mode, categories FROM {local_tce_policies} WHERE quiz_id = ? AND question_id = ?',
+            [$quizid, $questionid]
         );
 
         $mode_val = array_key_exists('input_mode', $values) ? $values['input_mode'] : ($curr['input_mode'] ?? 'testcode');
