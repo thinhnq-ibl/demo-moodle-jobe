@@ -18,15 +18,11 @@
     max-width: 100%;
 }
 
-/* Explicit universal sans-serif inheritance for all UI components, modals, and body scopes */
-body#page-local-testcase_exchange-index,
-body#page-local-testcase_exchange-index *,
-body#page-local-testcase_exchange-review,
-body#page-local-testcase_exchange-review *,
-body#page-local-testcase_exchange-policy,
-body#page-local-testcase_exchange-policy *,
-.modal,
-.modal *,
+/* Explicit universal sans-serif inheritance for all text UI components, while preserving icon fonts */
+body#page-local-testcase_exchange-index :not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not([class*="fa-"]):not(.font-monospace):not(code):not(pre),
+body#page-local-testcase_exchange-review :not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not([class*="fa-"]):not(.font-monospace):not(code):not(pre),
+body#page-local-testcase_exchange-policy :not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not([class*="fa-"]):not(.font-monospace):not(code):not(pre),
+.modal :not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not([class*="fa-"]):not(.font-monospace):not(code):not(pre),
 .local-testcase-exchange-root,
 .local-testcase-exchange-root h1,
 .local-testcase-exchange-root h2,
@@ -35,10 +31,10 @@ body#page-local-testcase_exchange-policy *,
 .local-testcase-exchange-root h5,
 .local-testcase-exchange-root h6,
 .local-testcase-exchange-root p,
-.local-testcase-exchange-root span,
-.local-testcase-exchange-root a,
+.local-testcase-exchange-root span:not(.fa):not([class*="fa-"]),
+.local-testcase-exchange-root a:not(.fa):not([class*="fa-"]),
 .local-testcase-exchange-root label,
-.local-testcase-exchange-root button,
+.local-testcase-exchange-root button:not(.fa):not([class*="fa-"]),
 .local-testcase-exchange-root input,
 .local-testcase-exchange-root select,
 .local-testcase-exchange-root textarea:not(.font-monospace),
@@ -49,6 +45,16 @@ body#page-local-testcase_exchange-policy *,
 .local-testcase-exchange-root .card-header,
 .local-testcase-exchange-root .modal-content {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif !important;
+}
+
+/* Bảo toàn font-family cho Font Awesome để các icon hữu ích (spinner, checkmark) hiển thị đúng chuẩn */
+.local-testcase-exchange-root .fa,
+.local-testcase-exchange-root .fas,
+.local-testcase-exchange-root .far,
+.local-testcase-exchange-root .fal,
+.local-testcase-exchange-root .fab,
+.local-testcase-exchange-root [class*="fa-"] {
+    font-family: "Font Awesome 6 Free", "FontAwesome" !important;
 }
 
 /* 1. TYPOGRAPHY & HEADINGS */
@@ -171,9 +177,8 @@ body#page-local-testcase_exchange-policy *,
     outline-offset: 2px !important;
 }
 
-/* 5. FORM CONTROLS & MONOSPACE */
-.local-testcase-exchange-root .form-control,
-.local-testcase-exchange-root .custom-select {
+/* 5. FORM CONTROLS & SELECT DROPDOWNS */
+.local-testcase-exchange-root .form-control {
     font-size: 0.95rem;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
@@ -181,6 +186,36 @@ body#page-local-testcase_exchange-policy *,
     padding: 0.45rem 0.75rem;
     max-width: 100%;
     min-width: 0;
+}
+
+.local-testcase-exchange-root .custom-select {
+    font-size: 0.95rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    color: #1e293b;
+    /* Dành khoảng đệm 2.25rem (36px) bên phải cho icon mũi tên, tuyệt đối không che chữ */
+    padding: 0.45rem 2.25rem 0.45rem 0.75rem !important;
+    height: auto !important;
+    min-height: 38px !important;
+    line-height: 1.5 !important;
+    max-width: 100%;
+    min-width: 0;
+    vertical-align: middle;
+    background-position: right 0.75rem center !important;
+}
+
+.local-testcase-exchange-root .custom-select.custom-select-sm {
+    font-size: 0.92rem !important;
+    padding: 0.4rem 2.25rem 0.4rem 0.75rem !important;
+    height: auto !important;
+    min-height: 38px !important;
+    line-height: 1.5 !important;
+}
+
+.local-testcase-exchange-root .tce-course-switcher-select {
+    min-width: 280px !important;
+    max-width: 460px !important;
+    width: auto !important;
 }
 
 .local-testcase-exchange-root .form-control:focus,

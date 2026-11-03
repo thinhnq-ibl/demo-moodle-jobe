@@ -529,10 +529,12 @@ foreach ($rawcourses as $rc) {
     if (!$issiteadmin && !has_capability('local/testcase_exchange:view', context_course::instance($cid))) {
         continue;
     }
+    $dispname = ($rc->shortname !== $rc->fullname) ? ($rc->shortname . ' — ' . $rc->fullname) : $rc->fullname;
     $availablecourselist[] = [
         'courseid' => $cid,
         'fullname' => $rc->fullname,
         'shortname' => $rc->shortname,
+        'display_name' => $dispname,
         'switch_url' => (new moodle_url('/local/testcase_exchange/index.php', ['course' => $cid]))->out(false),
         'is_current' => ($cid === $courseid),
     ];
