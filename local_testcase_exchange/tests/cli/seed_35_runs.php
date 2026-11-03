@@ -55,14 +55,14 @@ $test_inputs = [
     ['in' => 'print(is_prime(-5))', 'exp' => 'False', 'cat' => 'invalid', 'pur' => 'Kiểm thử số âm (-5)'],
     ['in' => 'print(is_prime(97))', 'exp' => 'True', 'cat' => 'normal', 'pur' => 'Kiểm thử số nguyên tố lớn nhất dưới 100 (97)'],
     ['in' => 'print(is_prime(100))', 'exp' => 'False', 'cat' => 'normal', 'pur' => 'Kiểm thử số chính phương tròn 100'],
-    ['in' => 'print(is_prime(101))', 'exp' => 'True', 'cat' => 'large', 'pur' => 'Kiểm thử số nguyên tố ba chữ số đầu tiên (101)'],
-    ['in' => 'print(is_prime(103))', 'exp' => 'True', 'cat' => 'large', 'pur' => 'Kiểm thử số nguyên tố 103'],
-    ['in' => 'print(is_prime(107))', 'exp' => 'True', 'cat' => 'large', 'pur' => 'Kiểm thử số nguyên tố 107'],
-    ['in' => 'print(is_prime(109))', 'exp' => 'True', 'cat' => 'large', 'pur' => 'Kiểm thử số nguyên tố 109'],
-    ['in' => 'print(is_prime(113))', 'exp' => 'True', 'cat' => 'large', 'pur' => 'Kiểm thử số nguyên tố 113'],
-    ['in' => 'print(is_prime(127))', 'exp' => 'True', 'cat' => 'large', 'pur' => 'Kiểm thử số nguyên tố Mersenne (127)'],
-    ['in' => 'print(is_prime(131))', 'exp' => 'True', 'cat' => 'large', 'pur' => 'Kiểm thử số nguyên tố 131'],
-    ['in' => 'print(is_prime(137))', 'exp' => 'True', 'cat' => 'large', 'pur' => 'Kiểm thử số nguyên tố 137'],
+    ['in' => 'print(is_prime(101))', 'exp' => 'True', 'cat' => 'normal', 'pur' => 'Kiểm thử số nguyên tố ba chữ số đầu tiên (101)'],
+    ['in' => 'print(is_prime(103))', 'exp' => 'True', 'cat' => 'normal', 'pur' => 'Kiểm thử số nguyên tố 103'],
+    ['in' => 'print(is_prime(107))', 'exp' => 'True', 'cat' => 'normal', 'pur' => 'Kiểm thử số nguyên tố 107'],
+    ['in' => 'print(is_prime(109))', 'exp' => 'True', 'cat' => 'normal', 'pur' => 'Kiểm thử số nguyên tố 109'],
+    ['in' => 'print(is_prime(113))', 'exp' => 'True', 'cat' => 'normal', 'pur' => 'Kiểm thử số nguyên tố 113'],
+    ['in' => 'print(is_prime(127))', 'exp' => 'True', 'cat' => 'normal', 'pur' => 'Kiểm thử số nguyên tố Mersenne (127)'],
+    ['in' => 'print(is_prime(131))', 'exp' => 'True', 'cat' => 'normal', 'pur' => 'Kiểm thử số nguyên tố 131'],
+    ['in' => 'print(is_prime(137))', 'exp' => 'True', 'cat' => 'normal', 'pur' => 'Kiểm thử số nguyên tố 137'],
 ];
 
 $now = time();

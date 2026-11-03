@@ -138,8 +138,11 @@
                         <div class="text-muted small font-weight-bold text-uppercase" style="line-height: 1.2;">{{#str}} rewards_granted_title, local_testcase_exchange {{/str}}</div>
                         <span class="badge badge-light border text-muted small d-none d-md-inline">{{overview_stats.scope_label}}</span>
                     </div>
-                    <div class="h4 font-weight-bold mb-1 mt-1 text-dark">{{overview_stats.claimed_rewards}} <small class="text-muted" style="font-size: 0.85rem;">/ {{overview_stats.total_rewards}}</small></div>
-                    <small class="text-muted d-none d-md-block">{{overview_stats.unclaimed_rewards}} {{#str}} unclaimed_rewards_desc, local_testcase_exchange {{/str}}</small>
+                    <div class="h4 font-weight-bold mb-1 mt-1 text-dark">{{overview_stats.total_rewards}} <small class="text-muted font-weight-normal" style="font-size: 0.82rem;">suất đã cấp</small></div>
+                    <small class="text-muted d-block" style="font-size: 0.8rem; line-height: 1.35;">
+                        <span class="text-nowrap mr-2">Đã nhận: <strong class="text-dark">{{overview_stats.claimed_rewards}}</strong></span>
+                        <span class="text-nowrap">Chờ nhận: <strong class="text-dark">{{overview_stats.unclaimed_rewards}}</strong></span>
+                    </small>
                 </div>
             </div>
         </div>
@@ -805,12 +808,16 @@
 <!-- Compact Reward Notification if unclaimed rewards exist -->
 {{#has_unclaimed_rewards}}
 <div class="alert alert-info py-2 px-3 d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between mb-3 shadow-sm border-0" style="background-color: #eff6ff; border-left: 4px solid #2563eb !important; gap: 8px;">
-    <div class="d-flex align-items-center">
-        <i class="fa fa-gift text-primary mr-2" style="font-size: 1.2rem;"></i>
-        <span style="color: #1e3a8a;">Bạn có <strong>{{unclaimed_rewards_count}}</strong> testcase thưởng có thể nhận (đã nhận {{claimed_rewards_count}}/{{total_rewards_count}} trong kho).</span>
+    <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+        <i class="fa fa-gift text-primary mr-1" style="font-size: 1.25rem;"></i>
+        <div style="color: #1e3a8a; font-size: 0.95rem;">
+            <span class="font-weight-bold mr-1">Phần thưởng testcase:</span>
+            <span class="badge badge-success px-2 py-1 mr-1" style="font-size: 0.82rem;">Đã nhận: {{claimed_rewards_count}} testcase</span>
+            <span class="badge badge-warning text-dark px-2 py-1" style="font-size: 0.82rem;">Có thể nhận: {{unclaimed_rewards_count}} testcase</span>
+        </div>
     </div>
     <a href="#rewards" data-toggle="tab" class="btn btn-sm btn-primary font-weight-bold text-nowrap" onclick="document.querySelector('a[href=\'#rewards\']').click();">
-        Xem và nhận testcase
+        <i class="fa fa-unlock-alt mr-1"></i>Xem và nhận testcase
     </a>
 </div>
 {{/has_unclaimed_rewards}}
@@ -1046,7 +1053,7 @@
         {{#has_latest_run}}
         {{#latest_run}}
         <div id="tceFormDirtyWarning" class="alert alert-warning py-2 px-3 mb-3 d-none border-warning shadow-sm" style="background-color: #fffbeb; color: #92400e;">
-            <i class="fa fa-exclamation-triangle mr-1 text-warning"></i><strong>{{#str}} form_dirty_warning, local_testcase_exchange {{/str}}</strong> Hãy bấm "Chạy thử testcase" để nhận kết quả mới nhất.
+            <i class="fa fa-exclamation-triangle mr-1 text-warning"></i><strong>{{#str}} form_dirty_warning, local_testcase_exchange {{/str}}</strong> Hãy bấm "Chạy thử" để nhận kết quả mới nhất.
         </div>
         <div class="tce-latest-result-card card p-3 shadow-sm mb-4" id="tceLatestResultCard">
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
@@ -1095,27 +1102,35 @@
                             <i class="fa fa-info-circle mr-1"></i>{{earlier_contrib_notice}}
                         </div>
                         {{/earlier_contrib_notice}}
-                        <div class="d-flex align-items-center justify-content-between pt-1 border-top">
+                        <div class="d-flex flex-column pt-1 border-top">
                             {{#can_contribute_latest}}
-                            <form method="post" class="m-0">
+                            <form method="post" class="m-0" id="formSubmitLatestContrib">
                                 <input type="hidden" name="sesskey" value="{{sesskey}}">
                                 <input type="hidden" name="action" value="contribute">
                                 <input type="hidden" name="run_id" value="{{id}}">
-                                <button class="btn btn-success btn-sm font-weight-bold shadow-sm" type="submit">
-                                    <i class="fa fa-paper-plane mr-1"></i>{{#str}} submit_contribution_btn, local_testcase_exchange {{/str}}
+                                <button class="btn btn-success btn-sm font-weight-bold shadow-sm" type="submit" id="btnSubmitLatestContrib">
+                                    <i class="fa fa-paper-plane mr-1"></i><span id="btnSubmitContribLabel">{{#str}} submit_contribution_btn, local_testcase_exchange {{/str}}</span>
                                 </button>
+                                <div id="dirtyContribHint" class="small text-warning mt-1 d-none" style="font-size: 0.78rem; line-height: 1.3;">
+                                    <i class="fa fa-info-circle mr-1"></i>Bạn đang sửa dữ liệu mới. Nút này sẽ gửi kết quả của <strong>Lượt #{{id}}</strong>. Để gửi dữ liệu mới sửa, hãy bấm "Chạy thử" trước.
+                                </div>
                             </form>
                             {{/can_contribute_latest}}
                             {{#has_contrib_link}}
-                            <a href="#contributions" data-toggle="tab" class="btn btn-outline-info btn-sm font-weight-bold" onclick="document.querySelector('a[href=\'#contributions\']').click();">
-                                <i class="fa fa-external-link mr-1"></i>Xem đóng góp (#{{contrib_id}})
-                            </a>
+                            <div>
+                                <a href="#contributions" data-toggle="tab" class="btn btn-outline-info btn-sm font-weight-bold" onclick="document.querySelector('a[href=\'#contributions\']').click();">
+                                    <i class="fa fa-external-link mr-1"></i>Xem đóng góp (#{{contrib_id}})
+                                </a>
+                            </div>
                             {{/has_contrib_link}}
                             {{^can_contribute_latest}}
                             {{^has_contrib_link}}
-                            <span class="badge badge-light border text-muted py-1 px-2">{{contrib_title}}</span>
+                            <div>
+                                <span class="badge badge-light border text-muted py-1 px-2">{{contrib_title}}</span>
+                            </div>
                             {{/has_contrib_link}}
                             {{/can_contribute_latest}}
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -1829,10 +1844,22 @@
     }
 
     // Form dirty tracking
+    var isFormDirty = false;
     function markFormDirty() {
+        if (isFormDirty) return;
+        isFormDirty = true;
         var banner = document.getElementById('tceFormDirtyWarning');
         if (banner) {
             banner.classList.remove('d-none');
+        }
+        var btnLbl = document.getElementById('btnSubmitContribLabel');
+        var dirtyHint = document.getElementById('dirtyContribHint');
+        var latestRunId = '{{latest_run.id}}';
+        if (btnLbl && latestRunId) {
+            btnLbl.textContent = 'Gửi Lượt đã chạy #' + latestRunId;
+        }
+        if (dirtyHint) {
+            dirtyHint.classList.remove('d-none');
         }
     }
     ['test_input', 'predicted_output', 'category', 'purpose', 'student_code'].forEach(function(id) {
@@ -1843,6 +1870,29 @@
         }
     });
     window.addEventListener('tce_editor_changed', markFormDirty);
+
+    // Confirmation if student clicks "Gửi đóng góp" while form is dirty
+    var contribForm = document.getElementById('formSubmitLatestContrib');
+    if (contribForm) {
+        contribForm.addEventListener('submit', function(e) {
+            if (isFormDirty) {
+                var latestRunId = '{{latest_run.id}}';
+                var msg = 'Dữ liệu trong khung soạn đã thay đổi và chưa được chạy thử!\n\n' +
+                          '• Nút này sẽ gửi kết quả đã chạy thành công ở Lượt #' + latestRunId + '.\n' +
+                          '• Nếu bạn muốn gửi dữ liệu vừa chỉnh sửa, vui lòng bấm "Hủy" rồi bấm "Chạy thử" trước.\n\n' +
+                          'Bạn có chắc chắn muốn gửi kết quả Lượt #' + latestRunId + ' không?';
+                if (!window.confirm(msg)) {
+                    e.preventDefault();
+                    var runBtn = document.getElementById('btnSubmitRunTest');
+                    if (runBtn) {
+                        runBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        runBtn.focus();
+                    }
+                    return false;
+                }
+            }
+        });
+    }
 
     // Smooth scroll to latest result card if user just ran a test
     var latestResult = document.getElementById('tceLatestResultCard');

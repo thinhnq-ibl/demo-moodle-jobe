@@ -18,7 +18,15 @@
     max-width: 100%;
 }
 
-/* Explicit sans-serif inheritance for all UI components */
+/* Explicit universal sans-serif inheritance for all UI components, modals, and body scopes */
+body#page-local-testcase_exchange-index,
+body#page-local-testcase_exchange-index *,
+body#page-local-testcase_exchange-review,
+body#page-local-testcase_exchange-review *,
+body#page-local-testcase_exchange-policy,
+body#page-local-testcase_exchange-policy *,
+.modal,
+.modal *,
 .local-testcase-exchange-root,
 .local-testcase-exchange-root h1,
 .local-testcase-exchange-root h2,

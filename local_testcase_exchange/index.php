@@ -985,41 +985,48 @@ if ($is_student_view) {
                 $run['display_status_class'] = 'badge badge-info';
             }
         }
-        // 2. Duplicate against teacher seeds or peer bank (NOT current student's contribution)
-        else if ($existing_canonical) {
-            $label = ($existing_canonical['type'] === 'seed') ?
-                'Trùng testcase mẫu công khai của đề bài' :
-                ('Trùng testcase đã có trong kho (#' . $existing_canonical['id'] . ')');
-            $run['display_status'] = $label;
+        // 2. Ineligible run due to Oracle error or Expected Mismatch against Oracle
+        // IMPORTANT: Must be evaluated BEFORE bank duplicate checks to prevent misclassifying wrong predictions as duplicate testcases
+        else if (!$run['oracle_valid']) {
+            $run['display_status'] = 'Lỗi thực thi đề bài';
+            $run['display_status_class'] = 'badge badge-danger';
+        }
+        else if (!$run['expected_matches_oracle']) {
+            $run['display_status'] = 'Kết quả kỳ vọng không khớp';
+            $run['display_status_class'] = 'badge badge-warning text-dark';
+        }
+        // 3. Duplicate against teacher seeds or peer bank (Only for runs with valid expected output)
+        else if ($existing_canonical && $existing_canonical['type'] === 'seed') {
+            $run['display_status'] = 'Trùng testcase mẫu công khai của đề bài';
             $run['display_status_class'] = 'badge badge-secondary';
         }
-        // 3. Unclaimed: Latest eligible run in group receives the contribution proposal button
+        else if ($earlier_input_contrib) {
+            $run['display_status'] = 'Bạn đã gửi đóng góp cùng đầu vào (#' . (int) $earlier_input_contrib['id'] . ')';
+            $run['display_status_class'] = 'badge badge-secondary';
+        }
+        else if ($existing_canonical) {
+            $run['display_status'] = 'Trùng testcase đã có trong kho (#' . $existing_canonical['id'] . ')';
+            $run['display_status_class'] = 'badge badge-secondary';
+        }
+        // 4. Unclaimed: Latest eligible run in group receives the contribution proposal button
         else if ($rep_id !== null && $run_id === $rep_id) {
             $run['can_contribute'] = true;
             $run['display_status'] = 'Đủ điều kiện đóng góp';
             $run['display_status_class'] = 'badge badge-success';
         }
-        // 4. Unclaimed: Older eligible run in same group links to representative run
+        // 5. Unclaimed: Older eligible run in same group links to representative run
         else if ($run['is_eligible']) {
             $run['is_older_duplicate'] = true;
             $run['rep_id'] = $rep_id;
-            $run['display_status'] = 'Trùng testcase ở lượt #' . $rep_id;
+            $run['display_status'] = 'Trùng đầu vào ở lượt #' . $rep_id;
             $run['display_status_class'] = 'badge badge-secondary';
         }
-        // 5. Ineligible run
+        // 6. Ineligible because student code did not pass testcase
         else {
-            if (!$run['oracle_valid']) {
-                $run['display_status'] = 'Lỗi thực thi đề bài';
-                $run['display_status_class'] = 'badge badge-danger';
-            } else if (!$run['expected_matches_oracle']) {
-                $run['display_status'] = 'Kết quả kỳ vọng không khớp';
-                $run['display_status_class'] = 'badge badge-warning text-dark';
-            } else {
-                $run['display_status'] = 'Hãy sửa mã nguồn và chạy lại trước khi đóng góp';
-                $run['display_status_class'] = 'badge badge-warning text-dark';
-                $run['pending_code_fix'] = true;
-                $run['pending_fix_message'] = 'Kết quả mong đợi đã được xác nhận. Chương trình hiện tại chưa vượt qua testcase này. Hãy sửa chương trình và chạy lại để đủ điều kiện đóng góp.';
-            }
+            $run['display_status'] = 'Hãy sửa mã nguồn và chạy lại trước khi đóng góp';
+            $run['display_status_class'] = 'badge badge-warning text-dark';
+            $run['pending_code_fix'] = true;
+            $run['pending_fix_message'] = 'Kết quả mong đợi đã được xác nhận. Chương trình hiện tại chưa vượt qua testcase này. Hãy sửa chương trình và chạy lại để đủ điều kiện đóng góp.';
 
             // If an older/other run in this same group was eligible, let student easily jump to it
             if ($rep_id !== null && $rep_id !== $run_id) {
@@ -1178,21 +1185,29 @@ if ($is_student_view) {
                 $contrib_guidance = 'Đóng góp #' . $contribid . ' đang được ghi nhận trên hệ thống.';
             }
         }
-        // Priority 2: Unclaimed & fully eligible
+        // Priority 2: Ineligible run due to Oracle error or Expected Output mismatch against reference solution
+        // Must be evaluated BEFORE bank duplicate checks to prevent misclassifying incorrect predictions as duplicates
+        else if (!$first['oracle_valid']) {
+            $cancontributelatest = false;
+            $contrib_title = 'Chưa đủ điều kiện đóng góp';
+            $contrib_badge = 'badge badge-danger';
+            $contrib_icon = 'fa-times-circle text-danger';
+            $contrib_guidance = 'Chưa đủ điều kiện đóng góp: testcase gây lỗi thực thi hoặc cú pháp đối với đề bài.';
+        }
+        else if (!$first['expected_matches_oracle']) {
+            $cancontributelatest = false;
+            $contrib_title = 'Chưa đủ điều kiện đóng góp';
+            $contrib_badge = 'badge badge-warning text-dark';
+            $contrib_icon = 'fa-exclamation-triangle text-warning';
+            $contrib_guidance = 'Chưa đủ điều kiện đóng góp: kết quả kỳ vọng không khớp lời giải tham chiếu.';
+        }
+        // Priority 3: Unclaimed & fully eligible
         else if ($first['can_contribute']) {
             $cancontributelatest = true;
             $contrib_title = 'Đủ điều kiện đóng góp';
             $contrib_badge = 'badge badge-success';
             $contrib_icon = 'fa-paper-plane text-success';
             $contrib_guidance = 'Testcase pass cả lời giải tham chiếu và mã sinh viên. Bạn đủ điều kiện gửi đóng góp testcase này cho lớp học!';
-        }
-        // Priority 3: Older duplicate of own run
-        else if ($first['is_older_duplicate']) {
-            $cancontributelatest = false;
-            $contrib_title = 'Trùng testcase ở lượt #' . $first['rep_id'];
-            $contrib_badge = 'badge badge-secondary';
-            $contrib_icon = 'fa-copy text-secondary';
-            $contrib_guidance = 'Testcase này đã từng được chạy và đủ điều kiện ở lượt #' . $first['rep_id'] . '. Bạn có thể chuyển tới lượt đạt để đóng góp.';
         }
         // Priority 4: Duplicate against seed testcase
         else if ($existing_canonical && $existing_canonical['type'] === 'seed') {
@@ -1202,7 +1217,15 @@ if ($is_student_view) {
             $contrib_icon = 'fa-ban text-secondary';
             $contrib_guidance = 'Testcase này trùng với testcase mẫu trong đề thi hoặc kho hạt giống của giáo viên.';
         }
-        // Priority 5: Duplicate against another student's contribution
+        // Priority 5: User already contributed this input in an earlier run
+        else if ($earlier_input_contrib) {
+            $cancontributelatest = false;
+            $contrib_title = 'Bạn đã đóng góp testcase cùng đầu vào';
+            $contrib_badge = 'badge badge-secondary';
+            $contrib_icon = 'fa-check-double text-secondary';
+            $contrib_guidance = 'Bạn đã gửi đóng góp testcase có cùng đầu vào ở lượt #' . (int) ($earlier_input_contrib['run_id'] ?? $earlier_input_contrib['id']) . '. Bạn có thể theo dõi tiến độ duyệt tại tab "Đóng góp của tôi".';
+        }
+        // Priority 6: Duplicate against another student's contribution in peer bank
         else if ($existing_canonical) {
             $cancontributelatest = false;
             $contrib_title = 'Trùng testcase đã có trong kho bài tập';
@@ -1210,15 +1233,23 @@ if ($is_student_view) {
             $contrib_icon = 'fa-ban text-secondary';
             $contrib_guidance = 'Testcase này đã được sinh viên khác đóng góp trước đó trong kho chung của lớp.';
         }
-        // Priority 6: Code not passing testcase
+        // Priority 7: Older duplicate of own run
+        else if ($first['is_older_duplicate']) {
+            $cancontributelatest = false;
+            $contrib_title = 'Trùng đầu vào ở lượt #' . $first['rep_id'];
+            $contrib_badge = 'badge badge-secondary';
+            $contrib_icon = 'fa-copy text-secondary';
+            $contrib_guidance = 'Đầu vào này đã từng được chạy và đủ điều kiện ở lượt #' . $first['rep_id'] . '. Bạn có thể chuyển tới lượt đạt để đóng góp.';
+        }
+        // Priority 8: Code not passing testcase
         else if (!empty($first['pending_code_fix'])) {
             $cancontributelatest = false;
             $contrib_title = 'Hãy sửa mã nguồn và chạy lại trước khi đóng góp';
             $contrib_badge = 'badge badge-warning text-dark';
             $contrib_icon = 'fa-wrench text-warning';
-            $contrib_guidance = 'Hãy sửa mã nguồn và chạy lại trước khi đóng góp.';
+            $contrib_guidance = 'Kết quả mong đợi đã được xác nhận bởi lời giải tham chiếu. Chương trình hiện tại của bạn chưa vượt qua testcase này. Hãy sửa chương trình và chạy lại để đủ điều kiện đóng góp.';
         }
-        // Priority 7: Ineligible
+        // Priority 9: Other Ineligible
         else {
             $cancontributelatest = false;
             $contrib_title = 'Chưa đủ điều kiện đóng góp';
@@ -1291,12 +1322,17 @@ if ($is_student_view) {
     $templatedata['reward_count'] = count($rewards);
 
     $unclaimedrewards = 0;
+    $claimedrewards = 0;
     foreach ($rewards as $rw) {
         if (empty($rw['is_claimed_bool'])) {
             $unclaimedrewards++;
+        } else {
+            $claimedrewards++;
         }
     }
-    $templatedata['unclaimed_rewards_count'] = $unclaimedrewards;
+    $templatedata['unclaimed_rewards_count'] = (string) $unclaimedrewards;
+    $templatedata['claimed_rewards_count'] = (string) $claimedrewards;
+    $templatedata['total_rewards_count'] = (string) count($rewards);
     $templatedata['has_unclaimed_rewards'] = ($unclaimedrewards > 0);
 
     $leaderboarddata = $service ? $service->course_leaderboard($courseid, (int) $USER->id) : [
