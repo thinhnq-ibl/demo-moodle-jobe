@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Moodle Plugin & CodeRunner Interaction Sequence",
+    "viewBox": [1000, 800],
+    "column_fit": "spread",
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "full-flow",
+        "label": "Full Interaction Flow",
+        "focus": ["user", "moodle", "plugin", "coderunner", "jobe", "store"],
+        "note": "Complete sequence showing testcase contribution, validation on Jobe, and quiz submission via CodeRunner."
+      },
+      {
+        "id": "exchange-phase",
+        "label": "Testcase Exchange Phase",
+        "focus": ["user", "plugin", "moodle", "jobe", "store"],
+        "note": "Student inputs testcase, plugin queries teacher solution and executes on isolated Jobe Sandbox."
+      },
+      {
+        "id": "quiz-phase",
+        "label": "Quiz Grading Phase",
+        "focus": ["user", "moodle", "coderunner", "jobe"],
+        "note": "Student submits algorithm code in Moodle Quiz, CodeRunner executes tests against Jobe Sandbox."
+      }
+    ]
+  },
+  "participants": [
+    { "id": "user", "type": "external", "label": "Student UI", "sublabel": "Browser" },
+    { "id": "moodle", "type": "frontend", "label": "Moodle LMS", "sublabel": "Core / Quiz" },
+    { "id": "plugin", "type": "backend", "label": "Testcase Plugin", "sublabel": "local_testcase_exchange" },
+    { "id": "coderunner", "type": "backend", "label": "CodeRunner", "sublabel": "qtype_coderunner" },
+    { "id": "jobe", "type": "cloud", "label": "Jobe Sandbox", "sublabel": "jobe1 / jobe2", "brand": "docker" },
+    { "id": "store", "type": "database", "label": "Testcase DB", "sublabel": "testcase_store", "brand": "mariadb" }
+  ],
+  "segments": [
+    { "from": 140, "to": 440, "label": "Phase 1: Testcase Submission & Isolated Validation" },
+    { "from": 450, "to": 720, "label": "Phase 2: Code Submission & Quiz Execution" }
+  ],
+  "messages": [
+    { "id": "open-plugin", "from": "user", "to": "plugin", "y": 160, "label": "POST input + expected", "variant": "emphasis" },
+    { "id": "fetch-solution", "from": "plugin", "to": "moodle", "y": 200, "label": "get question.answer", "variant": "default" },
+    { "id": "return-solution", "from": "moodle", "to": "plugin", "y": 235, "label": "teacher code", "variant": "return" },
+    { "id": "jobe-eval", "from": "plugin", "to": "jobe", "y": 275, "label": "POST /runs (eval testcase)", "variant": "emphasis" },
+    { "id": "jobe-result", "from": "jobe", "to": "plugin", "y": 310, "label": "actual output (exit 15)", "variant": "return" },
+    { "id": "check-dedup", "from": "plugin", "to": "store", "y": 350, "label": "anti-duplication check", "variant": "default" },
+    { "id": "store-reward", "from": "plugin", "to": "store", "y": 385, "label": "save testcase & grant reward", "variant": "emphasis" },
+    { "id": "exchange-ack", "from": "plugin", "to": "user", "y": 420, "label": "reward testcase + pass feedback", "variant": "return" },
+    { "id": "submit-quiz", "from": "user", "to": "moodle", "y": 475, "label": "submit student code", "variant": "emphasis" },
+    { "id": "dispatch-cr", "from": "moodle", "to": "coderunner", "y": 515, "label": "grade attempt", "variant": "default" },
+    { "id": "cr-jobe", "from": "coderunner", "to": "jobe", "y": 555, "label": "POST /runs (student code + tests)", "variant": "emphasis" },
+    { "id": "jobe-cr-res", "from": "jobe", "to": "coderunner", "y": 595, "label": "run outcome & stdout", "variant": "return" },
+    { "id": "cr-grade", "from": "coderunner", "to": "moodle", "y": 635, "label": "fraction & test matrix", "variant": "return" },
+    { "id": "final-feedback", "from": "moodle", "to": "user", "y": 685, "label": "display grade & feedback table", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "plugin", "from": 155, "to": 425, "type": "backend" },
+    { "participant": "moodle", "from": 195, "to": 240, "type": "frontend" },
+    { "participant": "jobe", "from": 270, "to": 315, "type": "cloud" },
+    { "participant": "store", "from": 345, "to": 390, "type": "database" },
+    { "participant": "moodle", "from": 470, "to": 695, "type": "frontend" },
+    { "participant": "coderunner", "from": 510, "to": 640, "type": "backend" },
+    { "participant": "jobe", "from": 550, "to": 600, "type": "cloud" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Dual Jobe Integration",
+      "items": [
+        "Plugin local_testcase_exchange uses Jobe REST API directly for teacher code execution",
+        "CodeRunner dispatches student code and test cases to the same isolated Jobe Sandbox cluster",
+        "Both flows run completely isolated in Linux cgroups without touching Moodle host container"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Decoupled Data Architecture",
+      "items": [
+        "Moodle LMS stores official student attempts and question bank entries",
+        "testcase_store independently tracks seed testcases, student contributions and exchanges",
+        "Moodle gradebook is kept clean from intermediate test generation attempts"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Interactive Feedback Loop",
+      "items": [
+        "Students discover edge cases and submit testcases to earn high-value peer testcases",
+        "Earned testcases help students refine algorithm code before final Quiz submission",
+        "Automatic validation ensures zero manual teacher grading overhead for testcases"
+      ]
+    }
+  ]
+}

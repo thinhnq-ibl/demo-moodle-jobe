@@ -1,0 +1,6 @@
+FROM bitnami/mariadb:latest
+
+USER root
+COPY backup_moodle_and_testcase.sql.gz /docker-entrypoint-initdb.d/
+RUN chmod 644 /docker-entrypoint-initdb.d/backup_moodle_and_testcase.sql.gz
+USER 1001

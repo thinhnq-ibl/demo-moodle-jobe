@@ -1,0 +1,18 @@
+FROM demo-moodle-jobe-moodle:latest
+
+# Copy plugins vào mã nguồn Moodle
+COPY local_testcase_exchange /var/www/html/local/testcase_exchange
+COPY quizaccess_testcaseexchange /var/www/html/mod/quiz/accessrule/testcaseexchange
+COPY testcase_dashboard.php /var/www/html/testcase_dashboard.php
+
+# Nạp template dữ liệu moodledata
+COPY moodledata.tar.gz /var/www/moodledata_template.tar.gz
+
+# Entrypoint nạp dữ liệu và cấu hình tự động
+COPY entrypoint.portable.sh /entrypoint.sh
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh \
+    && chown -R www-data:www-data /var/www/html /var/www/moodledata 2>/dev/null || true
+
+WORKDIR /var/www/html
+EXPOSE 80
+ENTRYPOINT ["/entrypoint.sh"]

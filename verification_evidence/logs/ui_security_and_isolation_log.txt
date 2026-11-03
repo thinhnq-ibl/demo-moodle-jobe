@@ -1,0 +1,68 @@
+Git Commit: 5b7abd0d534ad80753782e4b52aea56a8160639d
+Git Commit Short: 5b7abd0
+Timestamp: 2026-11-01 18:12:40 +07
+Branch: feature/implement_full
+
+================================================================================
+BỘ KIỂM CHỨNG: BẢO TOÀN CẤU HÌNH, PHÂN QUYỀN VÀ CÁCH LY DỮ LIỆU PREVIEW
+Thời gian: 2026-11-01 11:12:40
+================================================================================
+
+--------------------------------------------------------------------------------
+PHẦN 1: XÁC MINH TÀI KHOẢN GIÁO VIÊN THÔNG THƯỜNG (TEACHER1 - NON-ADMIN)
+--------------------------------------------------------------------------------
+  [PASS] teacher1 KHÔNG PHẢI là siteadmin (is_siteadmin = false)
+  [PASS] teacher1 có quyền 'manage' trong Course 2
+  [PASS] teacher1 có quyền 'review' trong Course 2
+  [PASS] teacher1 KHÔNG có quyền 'manage' ở khóa học khác (bị giới hạn đúng theo Course Context)
+
+--------------------------------------------------------------------------------
+PHẦN 2: SINH VIÊN BỊ CHẶN TOÀN BỘ ACTION QUẢN LÝ MỚI & DỮ LIỆU KHÔNG THAY ĐỔI
+--------------------------------------------------------------------------------
+  [PASS] Action 'teacher_review': Sinh viên gọi bị ném required_capability_exception
+  [PASS] Dữ liệu đóng góp #122 KHÔNG bị thay đổi trong MariaDB
+  [PASS] Action 'save_policy': Sinh viên gọi bị ném required_capability_exception
+  [PASS] Cấu hình quiz_settings KHÔNG bị thay đổi trong MariaDB
+  [PASS] Action 'add_manual_seed': Sinh viên gọi bị ném required_capability_exception
+  [PASS] Số lượng hạt giống trong MariaDB KHÔNG bị tăng thêm
+  [PASS] Action 'delete_seed': Sinh viên gọi bị ném required_capability_exception
+  [PASS] Hạt giống ID 29 vẫn nguyên vẹn trong MariaDB, không bị xóa
+
+--------------------------------------------------------------------------------
+PHẦN 3: CÁCH LY DỮ LIỆU PREVIEW & XỬ LÝ CHÍNH XÁC DANH SÁCH SINH VIÊN RỖNG
+--------------------------------------------------------------------------------
+  [PASS] total_runs_count khi danh sách sinh viên rỗng trả về đúng 0 (không query toàn bộ)
+  [PASS] total_rewards_count khi danh sách sinh viên rỗng trả về đúng total=0, claimed=0
+  [PASS] student_activity_summary khi danh sách sinh viên rỗng trả về mảng rỗng []
+  [PASS] Danh sách sinh viên lọc loại bỏ chính xác giáo viên teacher1
+  [PASS] Giáo viên chạy vi sai thử nghiệm thành công (Run ID: 131)
+  [PASS] Lượt chạy của giáo viên KHÔNG làm tăng tổng số lượt chạy sinh viên (63 == 63)
+  [PASS] teacher1 KHÔNG xuất hiện trong bảng thống kê hoạt động sinh viên (Tab 4)
+
+--------------------------------------------------------------------------------
+PHẦN 4: BẢO TOÀN POLICY KHI LƯU CHUẨN HÓA & BẬT/TẮT LEADERBOARD CHECKBOX
+--------------------------------------------------------------------------------
+  [PASS] normalization_mode được cập nhật đúng thành 'raw'
+  [PASS] input_mode 'template' ĐƯỢC BẢO TOÀN (không bị ghi đè thành 'testcode')
+  [PASS] testcode_template ĐƯỢC BẢO TOÀN (không bị xóa trắng)
+  [PASS] categories ĐƯỢC BẢO TOÀN (không bị xóa trắng)
+  [PASS] Leaderboard tắt thành công khi checkbox không được gửi (giá trị = 0)
+  [PASS] Leaderboard bật thành công khi checkbox được gửi (giá trị = 1)
+
+--------------------------------------------------------------------------------
+PHẦN 5: KIỂM SOÁT PHẠM VI KHÓA HỌC CHẶT CHẼ (CROSS-COURSE SCOPE VALIDATION)
+--------------------------------------------------------------------------------
+  [PASS] save_policy: Chặn quiz không thuộc Course 2 (ném dml_missing_record_exception)
+  [PASS] add_manual_seed: Chặn question không thuộc Quiz/Course (ném invalidcontext)
+  [PASS] delete_seed: Nhận diện và từ chối hạt giống không thuộc Course 2
+  [PASS] teacher_review: Nhận diện và từ chối đóng góp không thuộc Course 2
+
+--------------------------------------------------------------------------------
+KHỐI FINALLY: KHÔI PHỤC CHÍNH XÁC CẤU HÌNH BAN ĐẦU (DYNAMIC STATE RESTORE)
+--------------------------------------------------------------------------------
+  [RESTORE] Đã khôi phục hoàn nguyên quiz_settings ban đầu.
+  [RESTORE] Đã khôi phục hoàn nguyên question_policies ban đầu.
+
+================================================================================
+TỔNG KẾT: ĐẠT 29 / 29 ASSERTIONS
+KẾT LUẬN: TOÀN BỘ CÁC ĐIỂM KIỂM SOÁT ĐỀU ĐẠT CHUẨN KỸ THUẬT VÀ AN TOÀN (EXIT 0)

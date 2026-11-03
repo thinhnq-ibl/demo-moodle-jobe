@@ -1,0 +1,75 @@
+================================================================================
+BỘ KIỂM CHỨNG THỰC NGHIỆM CHÍNH SÁCH MỞ RỘNG (EDGE CASES, CONSISTENCY & RECOVERY)
+Thời gian thực hiện: 2026-11-01 10:06:28
+Môi trường: Moodle 4.4.12+ | MariaDB 11.x | Jobe Cluster
+================================================================================
+
+--------------------------------------------------------------------------------
+CA 1: KIỂM CHỨNG PHÂN PHỐI THƯỞNG NGẪU NHIÊN (PURE RANDOM - ORDER BY RAND())
+--------------------------------------------------------------------------------
+  - Tần suất quan sát sau 150 lần rút ngẫu nhiên độc lập:
+    + Cand A (5 sao): 57 lần (38%)
+    + Cand B (3 sao): 43 lần (28.7%)
+    + Cand C (1 sao): 50 lần (33.3%)
+  [PASS] Cả 3 ứng viên có rating khác nhau đều được chọn (Rating cao không độc chiếm giải thưởng)
+
+--------------------------------------------------------------------------------
+CA 2: KIỂM CHỨNG LOẠI TRỪ ĐẦY ĐỦ TRÊN CẢ PEER POOL VÀ SEED BANK
+--------------------------------------------------------------------------------
+  [Phần 2.1: Kiểm thử trên Peer Pool]
+  [PASS] Peer Pool loại trừ chính xác testcase đã chạy trên Playground và testcase mẫu công khai, cấp trúng ứng viên hợp lệ duy nhất
+  [Phần 2.2: Kiểm thử trên Seed Bank (Fallback)]
+  [PASS] Fallback sang nguồn 'seed' khi kho peer rỗng
+  [PASS] Seed Bank loại trừ chính xác seed đã thử và seed mẫu, chỉ cấp seed hợp lệ duy nhất
+  [PASS] Trường contribution_id nhận giá trị NULL hợp lệ khi thưởng seed
+
+--------------------------------------------------------------------------------
+CA 3: KIỂM CHỨNG VÔ HIỆU HÓA CACHE ORACLE KHI THAY ĐỔI CẤU HÌNH/LỜI GIẢI
+--------------------------------------------------------------------------------
+  [PASS] Oracle Cache Hit khi sinh viên 2 chạy cùng input chưa đổi lời giải mẫu
+  [PASS] Oracle version hash thay đổi sau khi sửa lời giải mẫu
+  [PASS] Cache cũ tự động bị vô hiệu hóa, Jobe thực thi lại và cập nhật output mới (673700)
+
+--------------------------------------------------------------------------------
+CA 4: PHÂN ĐỊNH KHÓA LỌC TRÙNG VS KHÓA CACHE VỚI KHOẢNG TRẮNG CÓ Ý NGHĨA
+--------------------------------------------------------------------------------
+  [PASS] Hai chuỗi khác biệt khoảng trắng có raw_hash độc lập
+  [PASS] Output của Input A là 9
+  [PASS] Output của Input B là 10 (Khoảng trắng làm thay đổi kết quả tính toán)
+  [PASS] Input B không bị nhầm lẫn cache với Input A
+
+--------------------------------------------------------------------------------
+CA 5: KIỂM CHỨNG ĐIỂM ĐỒNG BỘ (SYNCHRONIZATION BARRIER) VỚI INPUT MỚI
+--------------------------------------------------------------------------------
+  - Worker 1: {"worker":"1","run_id":119,"is_dup":false,"server":"jobe1;jobe2"}
+  - Worker 2: {"worker":"2","run_id":118,"is_dup":false,"server":"jobe1;jobe2"}
+  [PASS] Cả hai worker hoàn thành qua Synchronization Barrier
+  [PASS] Bản ghi thực thi được ghi nhận an toàn trong MariaDB (Số bản ghi: 2)
+
+--------------------------------------------------------------------------------
+CA 6: SỬA EXPECTED OUTPUT (DỰ ĐOÁN) GIỮ NGUYÊN CODE VÀ INPUT
+--------------------------------------------------------------------------------
+  [Bước 6.1: Sinh viên nhập Expected SAI (99999)]
+    + Run ID: 120 | prediction_matches_oracle: false
+  [PASS] Lần đầu: Dự đoán sai bị đánh dấu false
+  [PASS] Đóng góp bằng Run có Expected sai bị chặn qua exception
+  [Bước 6.2: Sinh viên sửa Expected thành ĐÚNG (605) với cùng code và input]
+    + Run ID mới: 121 | Server: cached | prediction_matches_oracle: true
+  [PASS] Hệ thống sinh Run ID mới để ghi nhận dự đoán mới
+  [PASS] Tái sử dụng 100% kết quả thực thi Jobe cũ (Sandbox Bypass)
+  [PASS] Dự đoán mới đúng được xác nhận khớp Oracle
+  [PASS] Đóng góp thành công sau khi sửa Expected đúng (Không bị kẹt dự đoán sai cũ)
+  [Bước 6.3: Sinh viên gửi lại y hệt cả Code, Input và Expected (605)]
+  [PASS] Gửi trùng hoàn toàn cả code, input và expected bị nhận diện là Duplicate Run
+  [PASS] Trả lại chính xác snapshot của Run ID trước đó
+
+--------------------------------------------------------------------------------
+KHÔI PHỤC TRẠNG THÁI HỆ THỐNG (FINALLY BLOCK)
+--------------------------------------------------------------------------------
+  [RESTORE] Lời giải CodeRunner gốc đã được phục hồi.
+  [RESTORE] Cấu hình Quiz settings đã được phục hồi.
+
+================================================================================
+TỔNG KẾT BỘ KIỂM CHỨNG: ĐẠT 22 / 22 ASSERTIONS
+KẾT LUẬN: TOÀN BỘ CÁC CA ĐỀU ĐẠT CHUẨN KỸ THUẬT (EXIT 0)
+================================================================================

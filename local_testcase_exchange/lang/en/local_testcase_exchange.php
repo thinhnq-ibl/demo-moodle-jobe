@@ -1,0 +1,301 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
+/**
+ * English language strings.
+ *
+ * @package    local_testcase_exchange
+ * @copyright  2026 Nguyen Quoc Thinh
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+defined('MOODLE_INTERNAL') || die();
+
+$string['pluginname'] = 'CodeRunner Testcase Exchange';
+$string['testcase_exchange:view'] = 'View testcase exchange and leaderboard';
+$string['testcase_exchange:run'] = 'Run private testcase explorations';
+$string['testcase_exchange:contribute'] = 'Contribute testcases';
+$string['testcase_exchange:review'] = 'Review testcase contributions';
+$string['testcase_exchange:manage'] = 'Manage the testcase repository';
+$string['heading_dashboard'] = 'Testcase Contribution Dashboard and Leaderboard';
+$string['settings_db_heading'] = 'Testcase database';
+$string['settings_db_heading_desc'] = 'Connection used by the plugin to read and write testcase data.';
+$string['settings_db_host'] = 'MariaDB Host';
+$string['settings_db_host_desc'] = 'Database hostname, without a protocol or port.';
+$string['settings_db_port'] = 'Database port';
+$string['settings_db_port_desc'] = 'MariaDB/MySQL TCP port.';
+$string['settings_db_user'] = 'DB User';
+$string['settings_db_user_desc'] = 'Use a dedicated account. Schema migration additionally requires CREATE, ALTER and INDEX; normal operation requires SELECT, INSERT, UPDATE and DELETE.';
+$string['settings_db_pass'] = 'DB Password';
+$string['settings_db_pass_desc'] = 'Password for the testcase database account.';
+$string['settings_db_name'] = 'DB Name';
+$string['settings_db_name_desc'] = 'Name of the separate testcase database.';
+$string['settings_jobe_heading'] = 'Jobe runner';
+$string['settings_jobe_heading_desc'] = 'Endpoints used by this plugin for health monitoring. Actual execution uses the CodeRunner Jobe configuration, so both settings must refer to the same cluster.';
+$string['settings_jobe_servers'] = 'Jobe server URLs';
+$string['settings_jobe_servers_desc'] = 'Enter one server per line or separate servers with semicolons. Leave blank to monitor CodeRunner\'s configured jobe_host. The REST path is added automatically.';
+$string['settings_jobe_api_key'] = 'Jobe API key';
+$string['settings_jobe_api_key_desc'] = 'Optional API key used by the health check. Configure the equivalent credential in CodeRunner for actual execution.';
+$string['nav_testcase_bank'] = 'Testcase Bank & Exchange';
+$string['my_testcases'] = 'My Testcases';
+$string['received_testcases'] = 'Received Testcases';
+$string['privateexploration'] = 'Private testcase exploration';
+$string['nocoderunnerquestions'] = 'This course has no CodeRunner questions in a Quiz.';
+$string['selectquestion'] = 'Quiz and CodeRunner question';
+$string['studentsource'] = 'Your source code';
+$string['testinput'] = 'Test input';
+$string['predictedoutput'] = 'Expected output';
+$string['studentoutput'] = 'Student program output';
+$string['oracleoutput'] = 'Reference output';
+$string['purpose'] = 'Testing purpose';
+$string['purpose_help'] = 'Explain the behaviour or test scenario you want to verify';
+$string['reflection'] = 'Reflections / Notes';
+$string['category'] = 'Test category';
+$string['category_normal'] = 'Normal case';
+$string['category_boundary'] = 'Boundary value';
+$string['category_empty'] = 'Empty or missing data';
+$string['category_invalid'] = 'Invalid data or exception';
+$string['category_large'] = 'Large input or performance';
+$string['category_branch'] = 'Logic branch';
+$string['category_other'] = 'Other';
+$string['runprivate'] = 'Run test';
+$string['myruns'] = 'My test runs';
+$string['mycontributions'] = 'My contributions';
+$string['myrewards'] = 'Reward testcases';
+$string['proposesharing'] = 'Propose sharing';
+$string['managepolicies'] = 'Configure testcase policy';
+$string['configuretestcasecontributions'] = 'Configure testcase contributions';
+$string['testcaseexchangeheading'] = 'Testcase contributions';
+$string['enabletestcasecontributions'] = 'Allow testcase contributions';
+$string['enabletestcasecontributions_help'] = 'Students can run private testcase candidates and submit successful ones for teacher review. Advanced settings are available from policy settings.';
+$string['contributetestcaseafterquiz'] = 'Contribute a testcase';
+$string['contributetestcaseafterquizintro'] = 'Your latest submitted code will be loaded so you can edit it and explore multiple testcases.';
+$string['codeprefilledfromattempt'] = 'Your latest submitted code has been loaded into the editor.';
+$string['backtocurrentquiz'] = 'Back to quiz attempt';
+$string['submitcodebeforetesting'] = 'Check your code in the quiz first, then use its Contribute a testcase button.';
+$string['contributingtestcasefor'] = 'You are testing testcases for:';
+$string['currentquiz'] = 'Quiz';
+$string['currentquestion'] = 'Question';
+$string['reviewcontributions'] = 'Review contributions';
+$string['backtodashboard'] = 'Back to workspace';
+$string['runcreatedmatch'] = 'The private run was saved. Your expected output matches the reference solution.';
+$string['runcreatedmismatch'] = 'The private run was saved. Review the difference before proposing it for sharing.';
+$string['runcreatedoraclefailed'] = 'The private run was saved. The testcase caused an execution error with the reference solution: {$a}. This testcase cannot be contributed.';
+$string['runcreatedstudenterror'] = 'The private run was saved. Your code encountered an error with this testcase while the reference solution succeeded.';
+$string['runcreatedsaved'] = 'The private run was saved and the reference output was recorded.';
+$string['contributionstatus'] = 'Contribution status: {$a}';
+$string['databaseunavailable'] = 'The testcase database is unavailable. Please contact the administrator.';
+$string['unexpectederror'] = 'The operation could not be completed. Please try again or contact the administrator.';
+$string['featuredisabled'] = 'Testcase exploration is disabled for this Quiz.';
+$string['inputtoolarge'] = 'The test input exceeds the configured size limit.';
+$string['ratelimited'] = 'Too many runs. Please wait one minute and try again.';
+$string['invalidjsoninput'] = 'The input is not valid JSON for this question policy.';
+$string['invalidcontext'] = 'The selected question does not belong to this course and Quiz.';
+$string['notcoderunner'] = 'The selected question is not a CodeRunner question.';
+$string['missingoracle'] = 'The selected question has no teacher reference solution.';
+$string['invalidtestcodetemplate'] = 'Template mode requires a test-code template containing {{INPUT}}.';
+$string['oraclenotsuccessful'] = 'This run cannot be shared because its reference run did not succeed.';
+$string['invalidrun'] = 'The private run does not exist or does not belong to you.';
+$string['invalidstatus'] = 'Invalid contribution status.';
+$string['invalidtransition'] = 'This contribution status transition is not allowed.';
+$string['invalidcontribution'] = 'The contribution does not exist in this course.';
+$string['reviewnote'] = 'Teacher review note';
+$string['needsexplanation'] = 'Needs explanation';
+$string['approvecontribution'] = 'Approve';
+$string['rejectcontribution'] = 'Reject';
+$string['reviewsaved'] = 'The review decision was saved.';
+$string['nocontributionspending'] = 'There are no contributions waiting for review.';
+$string['policysaved'] = 'The policy settings were saved successfully.';
+$string['enablefeature'] = 'Enable testcase exploration and contribution';
+$string['showoracle'] = 'Show reference output to students';
+$string['enableleaderboard'] = 'Enable leaderboard';
+$string['explanationrequired'] = 'Please explain how this testcase adds distinct value.';
+$string['explanationsaved'] = 'Your explanation was saved and the contribution was resubmitted.';
+$string['resubmitexplanation'] = 'Resubmit explanation';
+$string['quizpolicy'] = 'Quiz policy';
+$string['questionpolicy'] = 'Question policy';
+$string['reviewmode'] = 'Review mode';
+$string['reviewmode_teacher'] = 'Manual teacher review';
+$string['reviewmode_auto'] = 'Automatic approval';
+$string['rewardpolicy'] = 'Reward policy';
+$string['rewardpolicy_oneforone'] = 'One approved contribution unlocks one testcase';
+$string['runsperminute'] = 'Runs per minute limit';
+$string['maxinputbytes'] = 'Maximum input size in bytes';
+$string['inputmode'] = 'Input mode';
+$string['testcodetemplate'] = 'Test-code template containing {{INPUT}}';
+$string['normalization'] = 'Input whitespace normalization';
+$string['categories'] = 'Allowed categories';
+$string['userid'] = 'User ID';
+$string['quizquestion'] = 'Quiz / question';
+$string['review'] = 'Review';
+$string['healthcheck'] = 'Testcase service health';
+$string['databasehealth'] = 'External database';
+$string['jobehealth'] = 'Jobe sandbox cluster';
+$string['schemaversion'] = 'Connected; schema version {$a}.';
+$string['server'] = 'Server';
+$string['languages'] = 'Available languages';
+$string['available'] = 'Available';
+$string['unavailable'] = 'Unavailable';
+$string['noinfo'] = 'No information available';
+
+$string['privacy:path'] = 'Testcase exchange';
+$string['privacy:metadata:runs'] = 'Private testcase exploration runs by students.';
+$string['privacy:metadata:runs:user_id'] = 'Moodle user ID of the student who performed the run.';
+$string['privacy:metadata:runs:input_raw'] = 'Raw input data used for the test run.';
+$string['privacy:metadata:runs:predicted_output'] = 'Predicted output provided by the student.';
+$string['privacy:metadata:runs:student_run_output'] = 'Output obtained from running the student program.';
+$string['privacy:metadata:runs:oracle_output'] = 'Output obtained from running the reference solution.';
+$string['privacy:metadata:runs:student_code_snapshot'] = 'Snapshot of student code at execution time.';
+$string['privacy:metadata:runs:reflection'] = 'Student notes or reflections on the testcase.';
+$string['privacy:metadata:runs:timecreated'] = 'Timestamp when the test run was executed.';
+$string['privacy:metadata:contributions'] = 'Testcases contributed by students for exchange and grading.';
+$string['privacy:metadata:contributions:user_id'] = 'Moodle user ID of the contributing student.';
+$string['privacy:metadata:contributions:input_normalized'] = 'Normalized testcase input.';
+$string['privacy:metadata:contributions:oracle_output'] = 'Output of the reference solution for this testcase.';
+$string['privacy:metadata:contributions:purpose'] = 'Testing purpose or category of the testcase.';
+$string['privacy:metadata:contributions:status'] = 'Review status of the testcase.';
+$string['privacy:metadata:contributions:rating'] = 'Star rating awarded by the teacher.';
+$string['privacy:metadata:contributions:review_comment'] = 'Teacher review comment.';
+$string['privacy:metadata:contributions:timecreated'] = 'Timestamp when the contribution was submitted.';
+$string['privacy:metadata:rewards'] = 'Rewards and unlocked testcases granted to students.';
+$string['privacy:metadata:rewards:receiver_user_id'] = 'Moodle user ID of the reward recipient.';
+$string['privacy:metadata:rewards:is_claimed'] = 'Whether the reward has been claimed.';
+$string['privacy:metadata:rewards:claimed_at'] = 'Timestamp when the reward was claimed.';
+$string['privacy:metadata:rewards:timecreated'] = 'Timestamp when the reward was allocated.';
+$string['privacy:metadata:reviews'] = 'Teacher review audit log.';
+$string['privacy:metadata:reviews:reviewer_user_id'] = 'Moodle user ID of the reviewing teacher.';
+$string['privacy:metadata:reviews:review_note'] = 'Teacher review note.';
+$string['privacy:metadata:reviews:rating'] = 'Star rating awarded by reviewer.';
+$string['privacy:metadata:reviews:timecreated'] = 'Timestamp of review.';
+$string['privacy:metadata:revisions'] = 'Student code snapshots along the progression.';
+$string['privacy:metadata:revisions:user_id'] = 'Moodle user ID who owns the revision.';
+$string['privacy:metadata:revisions:code_content'] = 'Source code content.';
+$string['privacy:metadata:revisions:step_number'] = 'Step number of the code snapshot.';
+$string['privacy:metadata:revisions:timecreated'] = 'Timestamp when snapshot was recorded.';
+$string['privacy:metadata:jobe'] = 'Source code and input are sent to Jobe sandbox for execution; not permanently stored there.';
+$string['privacy:metadata:jobe:source'] = 'Student code or reference solution.';
+$string['privacy:metadata:jobe:input'] = 'Testcase input used during sandbox execution.';
+
+$string['coursecontributions'] = 'Student testcase repository';
+$string['allcontributions'] = 'All contributions';
+$string['student'] = 'Student';
+$string['quiz'] = 'Quiz';
+$string['question'] = 'Question';
+$string['filterbyquestion'] = 'Filter by question';
+$string['filterbystatus'] = 'Filter by status';
+$string['allquestions'] = 'All questions';
+$string['allstatuses'] = 'All statuses';
+$string['pending'] = 'Pending';
+$string['status_submitted'] = 'Pending';
+$string['status_approved'] = 'Approved';
+$string['status_rejected'] = 'Rejected';
+$string['status_duplicate'] = 'Duplicate';
+$string['status_needs_explanation'] = 'Needs explanation';
+$string['status_archived'] = 'Archived';
+$string['nocontributionsfound'] = 'No contributions found matching this filter.';
+$string['actions'] = 'Actions';
+$string['starrating'] = 'Star rating';
+$string['stars'] = 'stars';
+$string['norating'] = 'No rating';
+$string['teachercomment'] = 'Teacher comment';
+$string['saverating'] = 'Save review';
+$string['rating_5_desc'] = 'Excellent / Covers edge cases';
+$string['rating_4_desc'] = 'Very good / Accurate testcase';
+$string['rating_3_desc'] = 'Good / Meets basic requirements';
+$string['rating_2_desc'] = 'Fair / Simple testcase';
+$string['rating_1_desc'] = 'Basic / Needs more distinct value';
+$string['coursehub'] = 'Course list';
+$string['coursehub_desc'] = 'Select a course below to manage testcases, review contributions, or configure policies.';
+$string['coursehub_review_title'] = 'Review contributions — Select course';
+$string['coursehub_review_desc'] = 'Select a course below to review student contributed testcases.';
+$string['courseswithcoderunner'] = 'Courses with CodeRunner questions';
+$string['switchcourse'] = 'Switch course';
+$string['allcourses'] = 'All courses';
+$string['viewtestcasebank'] = 'Open testcase bank';
+$string['reviewcontributionsbtn'] = 'Review contributions';
+$string['totalcontributions'] = 'Total contributions';
+$string['pendingcount'] = 'Pending';
+$string['approvedcount'] = 'Approved';
+$string['backtocoursehub'] = 'Back to course list';
+
+$string['leaderboard'] = 'Leaderboard';
+$string['course_leaderboard_title'] = 'Course Testcase Leaderboard';
+$string['leaderboard_rules_hint'] = 'Ranking order: 1. Total stars ⭐ | 2. Approved testcases count | 3. Earliest contribution time';
+$string['rank'] = 'Rank';
+$string['rank_1'] = 'Leader';
+$string['your_rank'] = 'Your position';
+$string['no_leaderboard_yet'] = 'No ranking data yet in this course.';
+$string['total_stars'] = 'Total stars ⭐';
+$string['approved_testcases'] = 'Approved testcases';
+$string['first_contribution'] = 'First contribution';
+$string['claimed'] = 'Claimed';
+$string['unclaimed'] = 'Unclaimed';
+$string['claim_reward_btn'] = 'Claim reward testcase';
+$string['rewardclaimedsuccess'] = 'Congratulations! You have claimed a new reward testcase!';
+$string['invalidreward'] = 'Reward is invalid or already claimed.';
+$string['unclaimed_rewards_alert'] = 'Reward testcases available to claim';
+$string['ready_for_check'] = 'Ready to test against your code';
+$string['norewardsfound'] = 'No rewards available yet. Contribute passing testcases to unlock rewards!';
+
+// Separate Teacher Hub and Student View.
+$string['teacherview_title'] = 'Testcase exchange management';
+$string['studentview_title'] = 'Testcase experimentation and exchange';
+$string['view_as_student'] = 'View as student';
+$string['previewmode_banner'] = 'Preview Mode (Teacher): You are experiencing the interface from a student perspective. Testing runs and validations reflect learner view.';
+$string['previewmode_exit'] = 'Back to management';
+$string['previewmode_contribute_notice'] = 'Preview Mode: Teacher contributions are isolated and not recorded into live repository.';
+$string['previewmode_reward_notice'] = 'Preview Mode: Cannot claim student rewards in preview mode.';
+$string['previewmode_run_disabled_notice'] = 'Preview Mode: Execution is locked in preview mode to prevent altering student statistics.';
+
+$string['tab_overview'] = 'Overview';
+$string['tab_review'] = 'Review contributions';
+$string['tab_bank'] = 'Testcase bank';
+$string['tab_activity'] = 'Activity';
+$string['tab_policy'] = 'Settings';
+$string['tab_solve'] = 'Experimentation';
+$string['tab_my_contributions'] = 'My contributions';
+$string['tab_my_rewards'] = 'Reward testcases';
+$string['question_prompt_title'] = 'Question prompt';
+$string['public_samples_title'] = 'Public sample testcases';
+$string['public_samples_desc'] = 'Testcases shown in the question description. Automatically excluded from rewards and peer contributions.';
+$string['seed_bank_title'] = 'Teacher seed testcases';
+$string['seed_bank_desc'] = 'Prepared seed testcases used for initial rewards before student peer contributions become available.';
+$string['approved_peer_title'] = 'Approved peer testcases';
+$string['approved_peer_desc'] = 'High-quality student testcases approved by teachers, circulating in the peer reward bank.';
+$string['all_students'] = 'All students';
+$string['filter_by_student'] = 'Filter by student';
+$string['filter_by_status'] = 'Filter by status';
+
+// Additional UI/UX strings.
+$string['run_test_btn'] = 'Run test';
+$string['run_test_help'] = 'Compare your code output against the reference solution.';
+$string['running_indicator'] = 'Running...';
+$string['clear_test_btn'] = 'Clear testcase';
+$string['submit_contribution_btn'] = 'Submit contribution';
+$string['save_changes_btn'] = 'Save changes';
+$string['latest_result_heading'] = 'Latest test run result';
+$string['run_history_heading'] = 'Test run history';
+$string['empty_history'] = 'No test runs yet. Enter your code and testcase above to begin!';
+$string['empty_contributions_none'] = 'No contributions yet for this question.';
+$string['empty_contributions_filtered'] = 'No contributions found matching current filter.';
+$string['empty_contributions_pending'] = 'No contributions pending review.';
+$string['btn_reset_filter'] = 'Reset filter';
+$string['view_and_review'] = 'View & review';
+$string['review_modal_title'] = 'Review testcase contribution';
+$string['code_revisions_title'] = 'Code version history';
+$string['load_code_revision_btn'] = 'Load code v{$a}';
+$string['code_loaded_notice'] = 'Loaded code version v{$a} into editor.';
+$string['latest_badge'] = 'Latest';
+$string['xml_import_not_implemented'] = 'XML import is not currently supported. Please add testcases manually using the form above.';

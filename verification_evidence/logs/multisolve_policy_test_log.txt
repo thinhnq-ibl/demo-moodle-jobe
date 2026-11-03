@@ -1,0 +1,127 @@
+================================================================================
+BỘ KIỂM CHỨNG THỰC NGHIỆM CHÍNH SÁCH VÀ MÃ NGUỒN PLUGIN MULTISOLVE
+Thời gian thực hiện: 2026-10-31 11:05:07
+Môi trường: Moodle 4.4.12+ | MariaDB 11.x (testcase_store) | Jobe Cluster
+Mục tiêu: Kiểm chứng khách quan các quy tắc cốt lõi, đối chiếu thực tế vs mong muốn
+================================================================================
+
+--------------------------------------------------------------------------------
+PHẦN 1: KIỂM CHỨNG ĐIỀU KIỆN ĐÓNG GÓP TESTCASE
+--------------------------------------------------------------------------------
+[Ca 1.1] Expected đúng, Code đúng (find_max([10, 50, 30]) -> 50)
+  - Run ID: 64
+  - Oracle output: 50 | Outcome: success
+  - Student output: 50 | Outcome: success
+  - prediction_matches_oracle: true
+  - submit_contribution: THÀNH CÔNG. Contribution ID: 46, Status: submitted
+  -> Kết luận Ca 1.1: ĐẠT (Cho phép đóng góp khi cả 2 điều kiện thỏa mãn)
+
+[Ca 1.2] Expected đúng so với tham chiếu, nhưng Code sinh viên sai (find_max([7, 9, 2]))
+  - Run ID: 65
+  - Oracle output: 9 (Khớp với Expected: 9)
+  - Student output: 2 (Lệch với Oracle: 2 vs 9)
+  - prediction_matches_oracle: true
+  - submit_contribution: ĐÃ BỊ CHẶN CHÍNH XÁC. Ngoại lệ: local_testcase_exchange/studentcodenotpassing
+  -> Kết luận Ca 1.2: ĐẠT (Chặn đóng góp và yêu cầu sửa code)
+
+[Ca 1.3] Expected sai so với tham chiếu (find_max([1, 4, 2]) với expected cố ý ghi 1)
+  - Run ID: 66
+  - Oracle output: 4 vs Expected: 1
+  - prediction_matches_oracle: false
+  - submit_contribution: BỊ CHẶN CHÍNH XÁC: local_testcase_exchange/predictionmismatchoracle
+  -> Kết luận Ca 1.3: ĐẠT (Chặn đóng góp khi Expected lệch Oracle)
+
+[Ca 1.4] Kiểm tra xử lý khi Lời giải tham chiếu hoặc Jobe gặp lỗi cú pháp
+  - Run ID: 67
+  - Oracle outcome: compile_error
+  - submit_contribution: BỊ CHẶN: This run cannot be shared because its reference run did not succeed.
+  -> Kết luận Ca 1.4: ĐẠT (Hệ thống từ chối đóng góp khi Oracle không chạy thành công)
+
+[Ca 1.5] Kiểm tra sửa code/input sau lần chạy đạt (Version Pinning qua run_id)
+  - Contribution #46 gắn cố định với run_id #64
+  - input_raw được lưu: print(find_max([10, 50, 30]))
+  - student_source_hash được ghim: 22a3b83db1444c63db1b7bc7acefe23000b1076eac424a3ba028866a3b619365
+  -> Kết luận Ca 1.5: ĐẠT (Mỗi lần đóng góp gắn chặt với bản ghi testcase_runs cố định; sửa code trong form tạo run_id mới, không thể gán kết quả cũ cho dữ liệu mới)
+
+--------------------------------------------------------------------------------
+PHẦN 2: KIỂM CHỨNG CHỐNG TRÙNG Ở PHẠM VI CƠ BẢN (TRIM & FINGERPRINT)
+--------------------------------------------------------------------------------
+Input cơ sở: 'print(find_max([12, 18, 15]))'
+  - Sau normalize('trim'): 'print(find_max([12, 18, 15]))'
+  - Fingerprint SHA-256: 3f46a1fe1980c758c6df7543a65119096cc43819257ea06cc6e4a7b0382b4661
+
+[Ca 2.1] Nội dung giống hệt 100%:
+  - Hash cơ sở:    3f46a1fe1980c758c6df7543a65119096cc43819257ea06cc6e4a7b0382b4661
+  - Hash giống hệt: 3f46a1fe1980c758c6df7543a65119096cc43819257ea06cc6e4a7b0382b4661
+  -> Khớp hash: TRUE (Phát hiện trùng)
+
+[Ca 2.2] Khác khoảng trắng hai đầu:
+  - Input: '   \n\t  print(find_max([12, 18, 15]))   \n  '
+  - Sau normalize('trim'): 'print(find_max([12, 18, 15]))'
+  - Hash tạo ra: 3f46a1fe1980c758c6df7543a65119096cc43819257ea06cc6e4a7b0382b4661
+  -> Khớp hash với cơ sở: TRUE (Phát hiện trùng thành công sau trim)
+
+[Ca 2.3] Khác khoảng trắng bên trong:
+  - Input: 'print(find_max([12,   18,     15]))'
+  - Sau normalize('trim'): 'print(find_max([12,   18,     15]))'
+  - Hash tạo ra: 0f9ceeb6ce94ee294ace4725302a2767b038a6a006c5dafe3f16f009bc812a78
+  -> Khớp hash với cơ sở: FALSE (Hệ thống coi là 2 testcase KHÁC NHAU)
+  -> Xác nhận thực tế: Thuật toán trim() hiện tại KHÔNG loại bỏ khoảng trắng bên trong danh sách/chuỗi, đúng theo xác nhận của chủ dự án.
+
+--------------------------------------------------------------------------------
+PHẦN 3 & 4: THỰC NGHIỆM CHỌN TESTCASE THƯỞNG VÀ 6 CA BẮT BUỘC
+--------------------------------------------------------------------------------
+Đã khởi tạo môi trường thử nghiệm sạch cho Course 2, Quiz 76, Question 794.
+1. Đã tạo SEED testcase (ID: 16, FP: 9546076a1b...)
+2. Đã tạo TESTED FAILED testcase trong testcase_runs (Run ID: 68, FP: b8108f3f0c...)
+4. Đã tạo OWN CONTRIBUTED testcase (Contribution ID: 47, Status: approved, Owner: student1)
+3. Đã gán trực tiếp ALREADY REWARDED testcase cho student1
+5. Đã tạo Ứng viên Mới A (ID: 49, 4 sao ⭐, student2)
+6. Đã tạo Ứng viên Mới B (ID: 50, 5 sao ⭐, student2)
+
+>>> KIỂM TRA 1: Khảo sát tập ứng viên được chọn khi cấp thưởng cho student1
+  - Cấp thưởng lần 1: Đã chọn Contribution ID: 50
+  - Thuộc tập 2 ứng viên mới (A hoặc B)? ĐÚNG (50)
+  - Có bị cấp trùng Seed (16) không? KHÔNG (ĐÚNG)
+  - Có bị cấp trùng Bài của chính mình (47) không? KHÔNG (ĐÚNG)
+  - Có bị cấp trùng Bài đã thưởng cũ (48) không? KHÔNG (ĐÚNG)
+
+>>> KIỂM TRA 2: Sau khi nhận một testcase, lần nhận tiếp theo không cấp lại
+  - Student1 đã bấm nhận thưởng cho Reward ID: 25
+  - Cấp thưởng lần 2: Đã chọn Contribution ID: 49
+  - Kết quả: ĐẠT (Cấp ứng viên còn lại, không cấp trùng lần 1)
+
+>>> KIỂM TRA 4 & 5: Trường hợp hết ứng viên và trường hợp chỉ còn 1 ứng viên
+  - Hết peer contribution, hệ thống fallback về SEED: Source = seed, Seed ID = 16
+  - Số reward trước khi duyệt: 6
+  - Số reward sau khi duyệt: 6
+  - Kết quả khi hết ứng viên: ĐẠT (Hệ thống không tạo bản ghi rác khi hết ứng viên)
+
+>>> KIỂM TRA 6: Rà soát thuật toán phân phối Random trong mã nguồn SQL
+  - Mã nguồn thực tế tại testcase_service.php:1443:
+      ORDER BY COALESCE(c.rating, 0) DESC, RAND() LIMIT 1
+  -> PHÁT HIỆN SAI LỆCH VỚI CHÍNH SÁCH MONG MUỐN:
+     * Chính sách mong muốn: Chọn ngẫu nhiên đồng đều trong tập testcase đủ điều kiện.
+     * Thực tế mã nguồn: Ưu tiên chọn testcase có số sao cao nhất trước (rating DESC), chỉ RAND() khi các testcase có cùng rating!
+     * Minh chứng: Ở Kiểm tra 1, Ứng viên B (5 sao) LUÔN được chọn trước Ứng viên A (4 sao)!
+
+>>> KIỂM TRA ĐẶC BIỆT: Lịch sử 'đã thử' trong testcase_runs có được loại trừ không?
+  - Mã nguồn câu truy vấn loại trừ tại testcase_service.php:1433-1442:
+      AND NOT EXISTS (SELECT 1 FROM testcase_rewards r ...)
+      AND NOT EXISTS (SELECT 1 FROM testcase_contributions own WHERE own.user_id = ? ...)
+  -> PHÁT HIỆN SAI LỆCH QUAN TRỌNG:
+     * Câu truy vấn HOÀN TOÀN KHÔNG KIỂM TRA bảng `testcase_runs`!
+     * Do đó: Testcase mà sinh viên đã thử trên Playground (dù chạy đúng hay chạy sai code) nhưng chưa đóng góp, KHÔNG bị loại trừ khỏi danh sách ứng viên thưởng.
+     * Nếu peer đóng góp một testcase đúng bằng input sinh viên đã từng thử thất bại, hệ thống vẫn có thể cấp testcase đó làm phần thưởng.
+
+--------------------------------------------------------------------------------
+PHẦN 5: KIỂM CHỨNG TÍNH NĂNG RATING VÀ COMMENT CỦA GIẢNG VIÊN
+--------------------------------------------------------------------------------
+  - Rating cập nhật trong testcase_contributions: 5 ⭐
+  - Comment cập nhật: Nhận xét: Bộ test kiểm tra tốt trường hợp số lớn.
+  - Bản ghi kiểm toán (contribution_reviews): Reviewer ID = 2, Note = Nhận xét: Bộ test kiểm tra tốt trường hợp số lớn., Rating = 5
+  -> Kết luận Phần 5: ĐẠT (Giảng viên chấm sao và nhận xét thành công, lưu vết kiểm toán đầy đủ)
+
+================================================================================
+HOÀN THÀNH 100% TOÀN BỘ CÁC CA THỬ NGHIỆM KIỂM CHỨNG CHÍNH SÁCH MULTISOLVE
+================================================================================

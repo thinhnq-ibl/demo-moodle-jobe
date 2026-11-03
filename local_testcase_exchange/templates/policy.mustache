@@ -1,0 +1,221 @@
+<div class="local-testcase-exchange-root">
+{{! Quiz and question policy editor. }}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
+    <div>
+        <h3 class="font-weight-bold text-dark mb-1">
+            <i class="fa fa-sliders-h text-primary mr-2"></i>{{#str}} managepolicies, local_testcase_exchange {{/str}}
+        </h3>
+        <div class="text-muted small">Cài đặt chính sách kiểm thử và quản lý testcase mầm</div>
+    </div>
+    <div class="mt-2 mt-md-0">
+        <a href="{{return_url}}" class="btn btn-outline-secondary btn-sm font-weight-bold">
+            <i class="fa fa-arrow-left mr-1"></i>{{#str}} backtodashboard, local_testcase_exchange {{/str}}
+        </a>
+    </div>
+</div>
+
+{{^has_questions}}
+<div class="alert alert-warning">{{#str}} nocoderunnerquestions, local_testcase_exchange {{/str}}</div>
+{{/has_questions}}
+
+{{#has_questions}}
+<!-- Chọn câu hỏi -->
+<div class="tce-context-bar mb-3">
+    <form method="get" class="d-flex align-items-center">
+        <input type="hidden" name="course" value="{{courseid}}">
+        <label for="policyQuestionSelect" class="font-weight-bold text-dark mb-0 mr-2 text-nowrap">
+            <i class="fa fa-book text-muted mr-1"></i>{{#str}} selectquestion, local_testcase_exchange {{/str}}:
+        </label>
+        <select id="policyQuestionSelect" name="question" class="custom-select custom-select-sm font-weight-bold" onchange="this.form.submit()" style="max-width: 500px;">
+            {{#questions}}
+            <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+            {{/questions}}
+        </select>
+    </form>
+</div>
+
+<form method="post">
+    <input type="hidden" name="sesskey" value="{{sesskey}}">
+    <input type="hidden" name="question" value="{{selection}}">
+
+    <!-- Nhóm 1: Chính sách bài Quiz -->
+    <div class="card mb-3">
+        <div class="card-header bg-white py-2 font-weight-bold text-dark">
+            <i class="fa fa-check-circle text-primary mr-1"></i>{{#str}} quizpolicy, local_testcase_exchange {{/str}}
+        </div>
+        <div class="card-body">
+            <div class="custom-control custom-switch mb-3">
+                <input type="checkbox" class="custom-control-input" id="enabled" name="enabled" value="1" {{#enabled}}checked{{/enabled}}>
+                <label class="custom-control-label font-weight-bold" for="enabled">{{#str}} enablefeature, local_testcase_exchange {{/str}}</label>
+            </div>
+            <div class="custom-control custom-checkbox mb-2">
+                <input type="checkbox" class="custom-control-input" id="show_oracle_output" name="show_oracle_output" value="1" {{#show_oracle_output}}checked{{/show_oracle_output}}>
+                <label class="custom-control-label" for="show_oracle_output">{{#str}} showoracle, local_testcase_exchange {{/str}}</label>
+            </div>
+            <div class="custom-control custom-checkbox mb-3">
+                <input type="checkbox" class="custom-control-input" id="leaderboard_enabled" name="leaderboard_enabled" value="1" {{#leaderboard_enabled}}checked{{/leaderboard_enabled}}>
+                <label class="custom-control-label" for="leaderboard_enabled">{{#str}} enableleaderboard, local_testcase_exchange {{/str}}</label>
+            </div>
+
+            <div class="form-row">
+                <div class="col-md-6 form-group">
+                    <label class="small font-weight-bold">{{#str}} reviewmode, local_testcase_exchange {{/str}}</label>
+                    <select class="custom-select custom-select-sm" name="review_mode">
+                        <option value="teacher" {{#review_teacher}}selected{{/review_teacher}}>{{#str}} reviewmode_teacher, local_testcase_exchange {{/str}}</option>
+                        <option value="auto" {{#review_auto}}selected{{/review_auto}}>{{#str}} reviewmode_auto, local_testcase_exchange {{/str}}</option>
+                    </select>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label class="small font-weight-bold">{{#str}} rewardpolicy, local_testcase_exchange {{/str}}</label>
+                    <select class="custom-select custom-select-sm" name="reward_policy">
+                        <option value="one_for_one" {{#reward_one_for_one}}selected{{/reward_one_for_one}}>{{#str}} rewardpolicy_oneforone, local_testcase_exchange {{/str}}</option>
+                        <option value="disabled" {{#reward_disabled}}selected{{/reward_disabled}}>{{#str}} disabled, core {{/str}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="col-md-6 form-group">
+                    <label class="small font-weight-bold">{{#str}} runsperminute, local_testcase_exchange {{/str}}</label>
+                    <input class="form-control form-control-sm" type="number" min="1" max="120" name="max_runs_per_minute" value="{{max_runs_per_minute}}">
+                </div>
+                <div class="col-md-6 form-group">
+                    <label class="small font-weight-bold">{{#str}} maxinputbytes, local_testcase_exchange {{/str}}</label>
+                    <input class="form-control form-control-sm" type="number" min="64" max="1048576" name="max_input_bytes" value="{{max_input_bytes}}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nhóm 2: Chính sách câu hỏi -->
+    <div class="card mb-3">
+        <div class="card-header bg-white py-2 font-weight-bold text-dark">
+            <i class="fa fa-cog text-secondary mr-1"></i>{{#str}} questionpolicy, local_testcase_exchange {{/str}}
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="col-md-6 form-group">
+                    <label class="small font-weight-bold">{{#str}} inputmode, local_testcase_exchange {{/str}}</label>
+                    <select class="custom-select custom-select-sm" name="input_mode">
+                        <option value="stdin" {{#input_stdin}}selected{{/input_stdin}}>stdin</option>
+                        <option value="testcode" {{#input_testcode}}selected{{/input_testcode}}>testcode</option>
+                        <option value="template" {{#input_template}}selected{{/input_template}}>template</option>
+                    </select>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label class="small font-weight-bold">{{#str}} normalization, local_testcase_exchange {{/str}}</label>
+                    <select class="custom-select custom-select-sm" name="normalization_mode">
+                        <option value="raw" {{#normalization_raw}}selected{{/normalization_raw}}>raw</option>
+                        <option value="trim" {{#normalization_trim}}selected{{/normalization_trim}}>trim</option>
+                        <option value="json" {{#normalization_json}}selected{{/normalization_json}}>json</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group mb-2">
+                <label class="small font-weight-bold">{{#str}} testcodetemplate, local_testcase_exchange {{/str}}</label>
+                <textarea class="form-control form-control-sm font-monospace" name="testcode_template" rows="3">{{testcode_template}}</textarea>
+            </div>
+            <div class="form-group mb-0">
+                <label class="small font-weight-bold">{{#str}} categories, local_testcase_exchange {{/str}}</label>
+                <input class="form-control form-control-sm" name="categories" value="{{categories}}">
+            </div>
+        </div>
+    </div>
+
+    <!-- Kho hạt giống testcase mầm -->
+    <div class="card mb-3">
+        <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
+            <span class="font-weight-bold text-dark">
+                <i class="fa fa-seedling text-warning mr-1"></i>Kho testcase mầm độc lập
+            </span>
+            <span class="badge badge-light border text-muted">{{seeds_count}} hạt giống</span>
+        </div>
+        <div class="card-body">
+            {{#has_seeds}}
+            <div class="table-responsive mb-3">
+                <table class="table table-bordered table-sm table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th style="width: 50px;">ID</th>
+                            <th>Test Code</th>
+                            <th>Expected Output</th>
+                            <th>Ghi chú</th>
+                            <th style="width: 100px;">Nguồn</th>
+                            <th style="width: 70px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#seeds}}
+                        <tr>
+                            <td><strong>#{{id}}</strong></td>
+                            <td><code>{{testcode}}</code></td>
+                            <td><code>{{expected_output}}</code></td>
+                            <td><small class="text-muted">{{purpose}}</small></td>
+                            <td><span class="badge badge-light border">{{source_type}}</span></td>
+                            <td>
+                                <button type="submit" name="action" value="delete_seed" onclick="document.getElementById('hidden_seed_id').value='{{id}}'; return confirm('Xóa hạt giống này?');" class="btn btn-sm btn-outline-danger py-0 px-2">Xóa</button>
+                            </td>
+                        </tr>
+                        {{/seeds}}
+                    </tbody>
+                </table>
+            </div>
+            {{/has_seeds}}
+            {{^has_seeds}}
+            <div class="alert alert-light border text-center text-muted py-3 mb-3">
+                Chưa có hạt giống nào cho bài tập này.
+            </div>
+            {{/has_seeds}}
+
+            <input type="hidden" id="hidden_seed_id" name="seed_id" value="0">
+
+            <div class="row">
+                <div class="col-md-7 mb-3">
+                    <div class="border rounded p-3 bg-light h-100">
+                        <h6 class="font-weight-bold text-dark mb-2">Thêm testcase mầm thủ công:</h6>
+                        <div class="form-group mb-2">
+                            <label class="small mb-1">Test Code:</label>
+                            <textarea class="form-control form-control-sm font-monospace" name="seed_testcode" rows="2" placeholder="Ví dụ: print(find_max([1, 2, 3]))"></textarea>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label class="small mb-1">Expected Output:</label>
+                            <textarea class="form-control form-control-sm font-monospace" name="seed_expected" rows="1" placeholder="Ví dụ: 3"></textarea>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label class="small mb-1">Ghi chú mục đích:</label>
+                            <input type="text" class="form-control form-control-sm" name="seed_purpose" placeholder="Ví dụ: Kiểm tra số dương cơ bản">
+                        </div>
+                        <button type="submit" name="action" value="add_manual_seed" class="btn btn-primary btn-sm font-weight-bold">
+                            Thêm testcase mầm
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-md-5 mb-3">
+                    <div class="border rounded p-3 bg-light h-100">
+                        <h6 class="font-weight-bold text-dark mb-2">Nhập từ tệp XML Moodle:</h6>
+                        <p class="small text-muted mb-2">
+                            Tải lên tệp <code>.xml</code> xuất từ Ngân hàng câu hỏi Moodle.
+                        </p>
+                        <div class="form-group mb-3">
+                            <input type="file" class="form-control-file border p-1 bg-white" name="xml_file" accept=".xml">
+                        </div>
+                        <button type="submit" name="action" value="import_xml_seeds" class="btn btn-outline-primary btn-sm font-weight-bold" onclick="this.form.enctype='multipart/form-data';">
+                            Tải lên và trích xuất
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-3">
+        <button class="btn btn-primary font-weight-bold px-4 shadow-sm" type="submit" name="action" value="save_policy">
+            <i class="fa fa-save mr-1"></i>{{#str}} save_changes_btn, local_testcase_exchange {{/str}}
+        </button>
+    </div>
+</form>
+{{/has_questions}}
+</div>
+<!-- end .local-testcase-exchange-root -->

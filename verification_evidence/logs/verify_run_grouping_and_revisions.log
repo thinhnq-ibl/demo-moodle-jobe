@@ -1,0 +1,82 @@
+================================================================================
+BỘ KIỂM CHỨNG: XỬ LÝ NHÓM TESTCASE TRÙNG QUA NHIỀU PHIÊN BẢN CODE (RUN GROUPING)
+Thời gian: 2026-11-01 12:55:03
+================================================================================
+
+Dữ liệu kiểm thử nhóm testcase:
+  - Question ID: 794
+  - Testcase Input: print(find_max([7703, 7745, 7693]))
+  - Expected Output: 7745
+  - Fingerprint: d4b2081e02f373199cc9b0e7f5acdedacd2618d971c65b4072dd001e2c3744a7
+  - Group Key: 794:d4b2081e02f373199cc9b0e7f5acdedacd2618d971c65b4072dd001e2c3744a7
+
+--------------------------------------------------------------------------------
+GIAI ĐOẠN 1: TẠO 3 LƯỢT CHẠY CÙNG TESTCASE VỚI 3 PHIÊN BẢN CODE (CODE v1, v2, v3)
+--------------------------------------------------------------------------------
+  -> Đã tạo Run 1 (#155) với Code v1
+  -> Đã tạo Run 2 (#156) với Code v2
+  -> Đã tạo Run 3 (#157) với Code v3
+  [PASS] Yêu cầu 1: Giữ nguyên lịch sử toàn bộ các lượt chạy trong bảng (Run #155, #156, #157 đều hiển thị)
+  [PASS] Yêu cầu 1: Nút 'Nạp code' và snapshot mã nguồn được bảo toàn đầy đủ trên tất cả các dòng
+  [PASS] Yêu cầu 2: Xác định nhóm testcase trùng theo đúng khóa và phạm vi lọc backend (khóa: 794:d4b2081e02f373199cc9b0e7f5acdedacd2618d971c65b4072dd001e2c3744a7)
+  [PASS] Yêu cầu 3: Lượt mới nhất đủ điều kiện (#157) hiển thị nút 'Đề xuất đóng góp'
+  [PASS] Yêu cầu 3: Lượt cũ (#156) ghi 'Trùng testcase ở lượt #157' và dẫn tới lượt đại diện #157
+  [PASS] Yêu cầu 3: Lượt cũ (#155) ghi 'Trùng testcase ở lượt #157' và dẫn tới lượt đại diện #157
+
+--------------------------------------------------------------------------------
+GIAI ĐOẠN 2: LƯỢT MỚI NHẤT BỊ LỖI (CODE v4) - FALLBACK VỀ LƯỢT ĐỦ ĐIỀU KIỆN GẦN NHẤT
+--------------------------------------------------------------------------------
+  -> Đã tạo Run 4 (#158) với Code v4 bị lỗi
+  [PASS] Yêu cầu 4: Lượt mới nhất (#158) không đủ điều kiện hiển thị thông báo lỗi 'Code chưa vượt qua testcase này'
+  [PASS] Yêu cầu 4: Lượt lỗi (#158) nhận diện và liên kết tới lượt đạt gần nhất #157
+  [PASS] Yêu cầu 4: Lượt đủ điều kiện gần nhất (#157) ĐƯỢC GIỮ LẠI NÚT 'Đề xuất đóng góp', không làm mất quyền đóng góp
+  [PASS] Yêu cầu 4: Lượt #156 tiếp tục dẫn tới lượt đại diện đủ điều kiện #157
+
+--------------------------------------------------------------------------------
+GIAI ĐOẠN 3: SINH VIÊN ĐỀ XUẤT ĐÓNG GÓP TỪ LƯỢT #157 & TẢI LẠI TRANG
+--------------------------------------------------------------------------------
+  -> Đã tạo đóng góp #143 thành công với trạng thái: 'submitted'
+  [PASS] Yêu cầu 5: Lượt #158 hiển thị 'Đã đóng góp #143 (Pending)' thay cho nút đề xuất
+  [PASS] Yêu cầu 5: Lượt đại diện #157 chuyển thành 'Đã đóng góp #143 (Pending)' thay cho nút đề xuất
+  [PASS] Yêu cầu 5: Lượt cũ #156 chuyển thành 'Đã đóng góp #143 (Pending)' thay cho liên kết trùng
+  [PASS] Yêu cầu 5: Lượt cũ #155 chuyển thành 'Đã đóng góp #143 (Pending)' thay cho liên kết trùng
+  [PASS] Yêu cầu 1: Nút 'Nạp code' và snapshot mã nguồn vẫn được bảo toàn nguyên vẹn sau khi đã đóng góp
+
+--------------------------------------------------------------------------------
+GIAI ĐOẠN 4: GỬI LẠI ĐỀ XUẤT TỪ LƯỢT CŨ (#155) VÀ BẢO ĐẢM TÍNH NHẤT QUÁN
+--------------------------------------------------------------------------------
+  [PASS] Yêu cầu 7: Backend an toàn: Gửi request từ lượt cũ (#155) nhận diện chính xác đóng góp trước đó (#143)
+  [PASS] Yêu cầu 7: Không tạo bản ghi đóng góp trùng lặp trong cơ sở dữ liệu (Số lượng đóng góp không đổi: 2 == 2)
+
+--------------------------------------------------------------------------------
+GIAI ĐOẠN 5: GIÁO VIÊN DUYỆT ĐÓNG GÓP & KIỂM TRA ĐỒNG BỘ TRẠNG THÁI 'Đã duyệt'
+--------------------------------------------------------------------------------
+  -> Giáo viên teacher1 đã duyệt đóng góp #143 (rating: 5 sao)
+  [PASS] Yêu cầu 5: Lượt #158 cập nhật hiển thị trạng thái duyệt ('Đã đóng góp #143 (Approved)')
+  [PASS] Yêu cầu 5: Lượt #157 cập nhật hiển thị trạng thái duyệt ('Đã đóng góp #143 (Approved)')
+  [PASS] Yêu cầu 5: Lượt #156 cập nhật hiển thị trạng thái duyệt ('Đã đóng góp #143 (Approved)')
+  [PASS] Yêu cầu 5: Lượt #155 cập nhật hiển thị trạng thái duyệt ('Đã đóng góp #143 (Approved)')
+
+--------------------------------------------------------------------------------
+GIAI ĐOẠN 6: BẠN HỌC (STUDENT2) CHẠY CÙNG TESTCASE -> HIỂN THỊ 'ĐÃ CÓ TRONG KHO (#143)'
+--------------------------------------------------------------------------------
+  -> Đã tạo Run #159 cho student2 với cùng testcase
+  [PASS] Yêu cầu 6: Bạn học student2 chạy trùng testcase được hiển thị 'Đã có trong kho (#143)' và khóa nút đóng góp
+
+--------------------------------------------------------------------------------
+GIAI ĐOẠN 7: TESTCASE TRÙNG KHO TESTCASE MẦM / SEED BANK CỦA GIÁO VIÊN
+--------------------------------------------------------------------------------
+  - Đã chọn seed testcase #29 với input: print(find_max([-99, -88, -77]))
+  [PASS] Yêu cầu 6: Testcase trùng ngân hàng mầm đề thi hiển thị 'Trùng testcase Đề thi'
+  [PASS] Yêu cầu 6: Backend chủ động chặn không cho submit contribution testcase thuộc seed bank đề thi
+
+--------------------------------------------------------------------------------
+DỌN DẸP DỮ LIỆU KIỂM THỬ TẠM THỜI (FINALLY CLEANUP)
+--------------------------------------------------------------------------------
+  -> Đã dọn dẹp các bản ghi testcase_contributions: 143
+  -> Đã dọn dẹp các bản ghi testcase_runs: 155,156,157,158,159,160
+
+================================================================================
+TỔNG KẾT KIỂM CHỨNG: 24 ĐẠT / 24 TIÊU CHÍ
+KẾT LUẬN: TOÀN BỘ CÁC ĐIỀU KIỆN NHÓM TESTCASE VÀ BẢO TOÀN LƯỢT CHẠY ĐẠT 100%!
+================================================================================

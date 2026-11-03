@@ -1,66 +1,50 @@
-# Hệ Thống Moodle + CodeRunner + Cụm Jobe Song Song (Auto-Grading & Testcase Exchange)
+# Moodle CodeRunner & Testcase Exchange Platform (v2.3.1-beta)
 
-Hệ thống triển khai LMS Moodle tích hợp plugin CodeRunner và cụm máy chủ Sandbox Jobe song song, hỗ trợ tự động chấm bài lập trình và nền tảng trao đổi / kiểm tra trùng lặp testcase giữa các sinh viên.
+Nền tảng kiểm thử và trao đổi testcase giữa sinh viên cho các câu hỏi lập trình CodeRunner trên Moodle LMS, tích hợp cụm Jobe Sandbox chạy song song.
 
 ---
 
-## 1. Cấu Trúc Thư Mục & Các Tệp Tin
+## 1. Cấu Trúc Dự Án & Các Thành Phần
 
-| Tệp tin | Chức năng |
+| Thư mục / Tệp tin | Vai trò kiến trúc |
 | :--- | :--- |
-| `docker-compose.yml` | Cấu hình dịch vụ Docker: MariaDB, cụm Jobe (`jobe1`, `jobe2`), và Moodle |
-| `Dockerfile` | Image Moodle 4.4 PHP 8.2 tích hợp sẵn CodeRunner và Adaptive Behaviour |
-| `Dockerfile.jobe` | Image Jobe Sandbox tích hợp sẵn thư viện `python3-pymysql` kết nối MariaDB |
-| `entrypoint.sh` | Kịch bản tự động khởi tạo CSDL, cấp quyền và cấu hình Moodle khi chạy container |
-| `testcase_dashboard.php` | Mã nguồn trang Dashboard thống kê và xếp hạng đóng góp testcase trên Moodle |
-| `test_concurrent_submission.py` | Kịch bản kiểm thử mô phỏng 2 sinh viên nộp bài đồng thời trên cụm 2 Jobe |
+| `local_testcase_exchange/` | Plugin Moodle chính: Quản lý quy trình chạy thử riêng tư, nộp đề xuất, chuẩn hóa testcase, thẩm định, đổi thưởng và bảng xếp hạng (`local_testcase_exchange`). CSDL lưu tại các bảng `{local_tce_*}` của Moodle. |
+| `quizaccess_testcaseexchange/` | Subplugin quy tắc truy cập Quiz: Bật/tắt tính năng trao đổi testcase theo từng bài Quiz (`quizaccess_testcaseexchange`). |
+| `docker-compose.yml` | Môi trường Docker tích hợp: MariaDB, Cụm 2 Jobe sandbox (`jobe1:4001`, `jobe2:4002`), và ứng dụng Moodle (`moodle_app:8080`). |
+| `docs/` | Tài liệu đặc tả, checklist phát hành (`PUBLIC_RELEASE_CHECKLIST.md`), bản nháp Moodle Marketplace (`MARKETPLACE_LISTING.md`). |
 
 ---
 
-## 2. Thông Tin Truy Cập & Tài Khoản
+## 2. Kiến Trúc Hệ Thống & Bảo Mật
 
-- **Trang Moodle LMS**: [http://localhost:8080](http://localhost:8080)
-- **Tài khoản Quản trị / Giảng viên**:
-  - Username: `admin`
-  - Password: `AdminPassword123!`
-- **Tài khoản Sinh viên mẫu**:
-  - Sinh viên 1: `student1` / `StudentPassword123!`
-  - Sinh viên 2: `student2` / `StudentPassword123!`
-- **Trang Dashboard Thống Kê Testcase**: [http://localhost:8080/testcase_dashboard.php?course=2](http://localhost:8080/testcase_dashboard.php?course=2)
-- **Cụm Jobe Sandbox**:
-  - `jobe1`: cổng `4001` (nội bộ `jobe1:80`)
-  - `jobe2`: cổng `4002` (nội bộ `jobe2:80`)
+1. **CSDL Nội Bộ Chuẩn Moodle**:
+   - Toàn bộ dữ liệu (chính sách, lịch sử chạy, đóng góp, thẩm định, trao thưởng) lưu trữ trực tiếp trong CSDL Moodle thông qua Moodle XMLDB và Core DML (`$DB`).
+   - Tương thích đầy đủ với MariaDB, MySQL và PostgreSQL.
+   - Không yêu cầu CSDL bên ngoài và không yêu cầu cấp quyền CSDL cho máy chủ sandbox Jobe.
 
----
+2. **Cụm Jobe Sandbox Độc Lập (Stateless REST API)**:
+   - Cụm Jobe sandbox chạy độc lập trên mạng Docker cô lập, chỉ tiếp nhận mã nguồn và testcase qua REST API (`/jobe/index.php/restapi/...`) và trả về kết quả stdout/stderr/outcome.
+   - Cơ chế cân bằng tải và chịu lỗi (Failover) tự động luân chuyển giữa các node `jobe1` và `jobe2`.
 
-## 3. Kiến Trúc Cơ Sở Dữ Liệu & Bảo Mật
-
-Hệ thống sử dụng **MariaDB** với 2 cơ sở dữ liệu hoàn toàn tách biệt:
-1. **`moodle`**: Lưu trữ dữ liệu hệ thống Moodle (users, courses, quizzes, grades).
-2. **`testcase_store`**: Lưu trữ kho testcase do sinh viên đóng góp (`student_testcases`, `testcase_exchanges`).
-   - User `jobe_user` (`JobeSecret123!`): Chỉ có quyền thêm/đọc trên `testcase_store` và **bị cấm 100% khỏi CSDL `moodle`**.
-   - User `moodle_reader` (`ReaderSecret123!`): Moodle kết nối với quyền chỉ đọc (`SELECT`) để làm báo cáo thống kê.
+3. **Tường Lửa Phân Quyền & Bảo Mật Dữ Liệu**:
+   - **Tách biệt quyền hạn**: Sinh viên chỉ có quyền chạy thử và gửi đề xuất (`local/testcase_exchange:contribute`); chỉ giảng viên/trợ giảng mới có quyền thẩm định (`review`) và cấu hình chính sách (`manage`).
+   - **Zero Oracle Leakage**: Sinh viên không bao giờ nhìn thấy mã giải tham chiếu (oracle) trong giao diện.
+   - **Tuân thủ Moodle Privacy API**: Cung cấp đầy đủ chức năng tìm kiếm ngữ cảnh, xuất dữ liệu và xóa dữ liệu cá nhân theo GDPR.
 
 ---
 
-## 4. Lệnh Vận Hành Nhanh
+## 3. Bản Quyền & Giấy Phép (Licensing)
 
-Khởi động hệ thống:
-```bash
-docker compose up -d
-```
+- Mã nguồn 2 Moodle plugins (`local_testcase_exchange` và `quizaccess_testcaseexchange`): Phát hành theo **GNU General Public License v3.0 or later (GPL-3.0-or-later)**.
+- Các script cấu hình Docker và kiểm thử hỗ trợ: Phát hành theo **MIT License**.
+- Chi tiết xem tại [LICENSE](file:///d:/demo-moodle-jobe/LICENSE).
 
-Xem trạng thái các container:
-```bash
-docker compose ps
-```
+---
 
-Chạy kịch bản kiểm thử 2 sinh viên nộp bài đồng thời:
-```bash
-python3 test_concurrent_submission.py
-```
+## 4. Kiểm Thử & Kiểm Định Phát Hành (Release Readiness Audit)
 
-Dừng hệ thống:
-```bash
-docker compose stop
-```
+Hệ thống đã trải qua kiểm định 4 phần bắt buộc:
+- **Test A (Isolation & Migration)**: Xác minh độc lập chính sách giữa các Quiz dùng chung câu hỏi (`uq_quiz_question`) và kiểm thử kịch bản nâng cấp schema.
+- **Test B (Permission & Privacy)**: Kiểm tra tường lửa capabilities, chặn rò rỉ oracle và kiểm tra Moodle Privacy API.
+- **Test C (CodeRunner Compatibility)**: Kiểm định tương thích thực thi `python3` và `python3_w_input` trên sandbox Jobe.
+- **Test D (Concurrent Deduplication)**: Kiểm thử nộp bài đồng thời, xác minh khóa canonical chống trùng lặp và tính idempotent khi nhận thưởng.

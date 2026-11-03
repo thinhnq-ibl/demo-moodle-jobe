@@ -1,0 +1,301 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
+/**
+ * Vietnamese language strings.
+ *
+ * @package    local_testcase_exchange
+ * @copyright  2026 Nguyen Quoc Thinh
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+defined('MOODLE_INTERNAL') || die();
+
+$string['pluginname'] = 'Trao đổi testcase CodeRunner';
+$string['testcase_exchange:view'] = 'Xem bảng xếp hạng và trao đổi testcase';
+$string['testcase_exchange:run'] = 'Chạy thử testcase riêng tư';
+$string['testcase_exchange:contribute'] = 'Đóng góp testcase';
+$string['testcase_exchange:review'] = 'Duyệt testcase đóng góp';
+$string['testcase_exchange:manage'] = 'Quản lý kho dữ liệu testcase';
+$string['heading_dashboard'] = 'Bảng thống kê và xếp hạng đóng góp testcase';
+$string['settings_db_heading'] = 'Cơ sở dữ liệu testcase';
+$string['settings_db_heading_desc'] = 'Kết nối được module sử dụng để đọc và ghi dữ liệu testcase.';
+$string['settings_db_host'] = 'Máy chủ MariaDB';
+$string['settings_db_host_desc'] = 'Tên host của cơ sở dữ liệu, không bao gồm giao thức hoặc cổng.';
+$string['settings_db_port'] = 'Cổng cơ sở dữ liệu';
+$string['settings_db_port_desc'] = 'Cổng TCP của MariaDB/MySQL.';
+$string['settings_db_user'] = 'Tài khoản DB';
+$string['settings_db_user_desc'] = 'Dùng tài khoản riêng. Migration schema cần thêm CREATE, ALTER và INDEX; vận hành thường cần SELECT, INSERT, UPDATE và DELETE.';
+$string['settings_db_pass'] = 'Mật khẩu DB';
+$string['settings_db_pass_desc'] = 'Mật khẩu của tài khoản cơ sở dữ liệu testcase.';
+$string['settings_db_name'] = 'Tên DB';
+$string['settings_db_name_desc'] = 'Tên cơ sở dữ liệu testcase độc lập.';
+$string['settings_jobe_heading'] = 'Jobe runner';
+$string['settings_jobe_heading_desc'] = 'Các endpoint được module dùng để kiểm tra trạng thái. Việc thực thi dùng cấu hình Jobe của CodeRunner, vì vậy hai cấu hình phải trỏ cùng cluster.';
+$string['settings_jobe_servers'] = 'URL Jobe server';
+$string['settings_jobe_servers_desc'] = 'Nhập mỗi server trên một dòng hoặc phân cách bằng dấu chấm phẩy. Để trống để kiểm tra jobe_host của CodeRunner. Module tự thêm đường dẫn REST.';
+$string['settings_jobe_api_key'] = 'Jobe API key';
+$string['settings_jobe_api_key_desc'] = 'API key tùy chọn cho health check. Hãy cấu hình credential tương ứng trong CodeRunner để thực thi.';
+$string['nav_testcase_bank'] = 'Kho testcase và đổi thưởng';
+$string['my_testcases'] = 'Testcase của tôi';
+$string['received_testcases'] = 'Testcase được nhận';
+$string['privateexploration'] = 'Nhật ký thử nghiệm testcase riêng';
+$string['nocoderunnerquestions'] = 'Khóa học chưa có câu hỏi CodeRunner trong bài quiz.';
+$string['selectquestion'] = 'Bài quiz và câu hỏi CodeRunner';
+$string['studentsource'] = 'Mã nguồn của bạn';
+$string['testinput'] = 'Dữ liệu đầu vào';
+$string['predictedoutput'] = 'Kết quả kỳ vọng';
+$string['studentoutput'] = 'Kết quả mã nguồn sinh viên';
+$string['oracleoutput'] = 'Kết quả lời giải tham chiếu';
+$string['purpose'] = 'Mục đích kiểm thử';
+$string['purpose_help'] = 'Giải thích hành vi hoặc trường hợp kiểm thử bạn muốn kiểm tra';
+$string['reflection'] = 'Bài học rút ra';
+$string['category'] = 'Phân loại testcase';
+$string['category_normal'] = 'Trường hợp thông thường (Normal)';
+$string['category_boundary'] = 'Giá trị biên hoặc cận (Boundary)';
+$string['category_empty'] = 'Dữ liệu rỗng hoặc thiếu (Empty/Missing)';
+$string['category_invalid'] = 'Dữ liệu không hợp lệ hoặc ngoại lệ (Invalid/Exception)';
+$string['category_large'] = 'Dữ liệu lớn hoặc hiệu năng (Large input/Performance)';
+$string['category_branch'] = 'Nhánh rẽ logic (Logic branch)';
+$string['category_other'] = 'Trường hợp khác (Other)';
+$string['runprivate'] = 'Chạy thử';
+$string['myruns'] = 'Lần chạy của tôi';
+$string['mycontributions'] = 'Đóng góp của tôi';
+$string['myrewards'] = 'Testcase thưởng';
+$string['proposesharing'] = 'Đề xuất chia sẻ';
+$string['managepolicies'] = 'Cấu hình chính sách testcase';
+$string['configuretestcasecontributions'] = 'Cấu hình đóng góp testcase';
+$string['testcaseexchangeheading'] = 'Đóng góp testcase';
+$string['enabletestcasecontributions'] = 'Cho phép đóng góp testcase';
+$string['enabletestcasecontributions_help'] = 'Sinh viên có thể chạy testcase riêng tư và gửi các testcase chạy thành công để giảng viên duyệt. Các thiết lập nâng cao nằm trong trang cài đặt chính sách.';
+$string['contributetestcaseafterquiz'] = 'Đóng góp testcase';
+$string['contributetestcaseafterquizintro'] = 'Mã nguồn nộp gần nhất sẽ được tải sẵn để bạn kiểm tra và khám phá nhiều testcase.';
+$string['codeprefilledfromattempt'] = 'Mã nguồn nộp gần nhất đã được nạp vào vùng soạn thảo.';
+$string['backtocurrentquiz'] = 'Quay lại bài làm';
+$string['submitcodebeforetesting'] = 'Hãy kiểm tra bài làm trong bài quiz trước, sau đó dùng liên kết đóng góp testcase của câu hỏi.';
+$string['contributingtestcasefor'] = 'Bạn đang thử nghiệm testcase cho:';
+$string['currentquiz'] = 'Bài quiz';
+$string['currentquestion'] = 'Câu hỏi';
+$string['reviewcontributions'] = 'Duyệt đóng góp testcase';
+$string['backtodashboard'] = 'Quay lại không gian làm việc';
+$string['runcreatedmatch'] = 'Đã lưu lần chạy thử. Kết quả dự đoán khớp với lời giải tham chiếu.';
+$string['runcreatedmismatch'] = 'Đã lưu lần chạy thử. Hãy đối chiếu kết quả trước khi gửi đóng góp.';
+$string['runcreatedoraclefailed'] = 'Đã lưu lần chạy thử. Testcase gây lỗi khi chạy với lời giải tham chiếu: {$a}. Testcase này chưa thể đóng góp.';
+$string['runcreatedstudenterror'] = 'Đã lưu lần chạy thử. Mã nguồn của bạn phát sinh lỗi trong khi lời giải tham chiếu chạy thành công.';
+$string['runcreatedsaved'] = 'Đã lưu lần chạy thử và ghi nhận kết quả từ lời giải tham chiếu.';
+$string['contributionstatus'] = 'Trạng thái đóng góp: {$a}';
+$string['databaseunavailable'] = 'Không thể kết nối cơ sở dữ liệu testcase. Vui lòng liên hệ quản trị viên.';
+$string['unexpectederror'] = 'Không thể hoàn tất thao tác. Vui lòng thử lại hoặc liên hệ quản trị viên.';
+$string['featuredisabled'] = 'Tính năng trao đổi testcase hiện đang tắt cho bài quiz này.';
+$string['inputtoolarge'] = 'Dữ liệu đầu vào vượt quá dung lượng tối đa cho phép.';
+$string['ratelimited'] = 'Bạn chạy thử quá nhanh. Vui lòng đợi một phút rồi thử lại.';
+$string['invalidjsoninput'] = 'Dữ liệu đầu vào không phải JSON hợp lệ theo yêu cầu của câu hỏi.';
+$string['invalidcontext'] = 'Câu hỏi đã chọn không thuộc khóa học hoặc bài quiz này.';
+$string['notcoderunner'] = 'Câu hỏi đã chọn không phải câu hỏi CodeRunner.';
+$string['missingoracle'] = 'Câu hỏi chưa có lời giải tham chiếu của giảng viên.';
+$string['invalidtestcodetemplate'] = 'Chế độ mẫu kiểm thử yêu cầu template chứa ký hiệu {{INPUT}}.';
+$string['oraclenotsuccessful'] = 'Không thể chia sẻ vì lần chạy với lời giải tham chiếu chưa thành công.';
+$string['invalidrun'] = 'Lần chạy không tồn tại hoặc không thuộc quyền sở hữu của bạn.';
+$string['invalidstatus'] = 'Trạng thái đóng góp không hợp lệ.';
+$string['invalidtransition'] = 'Không được phép chuyển sang trạng thái này.';
+$string['invalidcontribution'] = 'Đóng góp không tồn tại trong khóa học này.';
+$string['reviewnote'] = 'Nhận xét của giảng viên';
+$string['needsexplanation'] = 'Cần giải thích thêm';
+$string['approvecontribution'] = 'Chấp thuận';
+$string['rejectcontribution'] = 'Từ chối';
+$string['reviewsaved'] = 'Đã lưu quyết định duyệt thành công.';
+$string['nocontributionspending'] = 'Không có đóng góp nào đang chờ duyệt.';
+$string['policysaved'] = 'Đã lưu cài đặt chính sách thành công.';
+$string['enablefeature'] = 'Bật thử nghiệm và đóng góp testcase';
+$string['showoracle'] = 'Hiển thị kết quả lời giải tham chiếu cho sinh viên';
+$string['enableleaderboard'] = 'Bật bảng xếp hạng';
+$string['explanationrequired'] = 'Vui lòng cung cấp giải thích rõ hơn về giá trị của testcase này.';
+$string['explanationsaved'] = 'Đã lưu giải thích và gửi lại đóng góp để giảng viên xem xét.';
+$string['resubmitexplanation'] = 'Gửi lại kèm giải thích';
+$string['quizpolicy'] = 'Chính sách bài quiz';
+$string['questionpolicy'] = 'Chính sách câu hỏi';
+$string['reviewmode'] = 'Chế độ duyệt';
+$string['reviewmode_teacher'] = 'Giảng viên duyệt thủ công';
+$string['reviewmode_auto'] = 'Tự động duyệt khi đạt điều kiện';
+$string['rewardpolicy'] = 'Chính sách trao thưởng';
+$string['rewardpolicy_oneforone'] = 'Mỗi đóng góp được duyệt mở khóa một testcase thưởng';
+$string['runsperminute'] = 'Giới hạn số lần chạy mỗi phút';
+$string['maxinputbytes'] = 'Dung lượng đầu vào tối đa (bytes)';
+$string['inputmode'] = 'Định dạng đầu vào';
+$string['testcodetemplate'] = 'Mẫu mã kiểm thử chứa {{INPUT}}';
+$string['normalization'] = 'Chuẩn hóa khoảng trắng';
+$string['categories'] = 'Danh mục cho phép';
+$string['userid'] = 'ID người dùng';
+$string['quizquestion'] = 'Bài quiz / câu hỏi';
+$string['review'] = 'Duyệt';
+$string['healthcheck'] = 'Kiểm tra trạng thái dịch vụ';
+$string['databasehealth'] = 'Cơ sở dữ liệu ngoài';
+$string['jobehealth'] = 'Cụm Jobe sandbox';
+$string['schemaversion'] = 'Đã kết nối; phiên bản lược đồ {$a}.';
+$string['server'] = 'Máy chủ';
+$string['languages'] = 'Ngôn ngữ hỗ trợ';
+$string['available'] = 'Sẵn sàng';
+$string['unavailable'] = 'Không khả dụng';
+$string['noinfo'] = 'Chưa có thông tin';
+
+$string['privacy:path'] = 'Trao đổi testcase';
+$string['privacy:metadata:runs'] = 'Các lượt chạy thử nghiệm testcase riêng của sinh viên.';
+$string['privacy:metadata:runs:user_id'] = 'ID người dùng Moodle của sinh viên đã thực hiện lượt chạy.';
+$string['privacy:metadata:runs:input_raw'] = 'Dữ liệu đầu vào thô dùng để chạy thử nghiệm testcase.';
+$string['privacy:metadata:runs:predicted_output'] = 'Kết quả đầu ra do sinh viên tự dự đoán.';
+$string['privacy:metadata:runs:student_run_output'] = 'Kết quả đầu ra thu được khi chạy chương trình của sinh viên.';
+$string['privacy:metadata:runs:oracle_output'] = 'Kết quả đầu ra thu được khi chạy lời giải tham chiếu.';
+$string['privacy:metadata:runs:student_code_snapshot'] = 'Bản chụp mã nguồn sinh viên tại thời điểm chạy thử nghiệm.';
+$string['privacy:metadata:runs:reflection'] = 'Ghi chú hoặc phản ánh của sinh viên về testcase.';
+$string['privacy:metadata:runs:timecreated'] = 'Thời điểm thực hiện lượt chạy thử nghiệm.';
+$string['privacy:metadata:contributions'] = 'Testcase do sinh viên đóng góp để trao đổi và chấm điểm.';
+$string['privacy:metadata:contributions:user_id'] = 'ID người dùng Moodle của sinh viên đóng góp testcase.';
+$string['privacy:metadata:contributions:input_normalized'] = 'Dữ liệu đầu vào testcase đã qua chuẩn hóa.';
+$string['privacy:metadata:contributions:oracle_output'] = 'Kết quả đầu ra của lời giải tham chiếu cho testcase này.';
+$string['privacy:metadata:contributions:purpose'] = 'Mục đích kiểm thử hoặc danh mục của testcase.';
+$string['privacy:metadata:contributions:status'] = 'Trạng thái duyệt của testcase.';
+$string['privacy:metadata:contributions:rating'] = 'Đánh giá số sao của giảng viên cho đóng góp này.';
+$string['privacy:metadata:contributions:review_comment'] = 'Nhận xét phản hồi của giảng viên.';
+$string['privacy:metadata:contributions:timecreated'] = 'Thời điểm gửi đóng góp testcase.';
+$string['privacy:metadata:rewards'] = 'Phần thưởng và testcase mở khóa cấp cho sinh viên.';
+$string['privacy:metadata:rewards:receiver_user_id'] = 'ID người dùng Moodle nhận phần thưởng testcase.';
+$string['privacy:metadata:rewards:is_claimed'] = 'Trạng thái phần thưởng đã được nhận hay chưa.';
+$string['privacy:metadata:rewards:claimed_at'] = 'Thời điểm mở khóa phần thưởng.';
+$string['privacy:metadata:rewards:timecreated'] = 'Thời điểm phân bổ phần thưởng.';
+$string['privacy:metadata:reviews'] = 'Nhật ký đánh giá và nhận xét của giảng viên đối với testcase của sinh viên.';
+$string['privacy:metadata:reviews:reviewer_user_id'] = 'ID người dùng Moodle của giảng viên duyệt testcase.';
+$string['privacy:metadata:reviews:review_note'] = 'Nội dung nhận xét của giảng viên.';
+$string['privacy:metadata:reviews:rating'] = 'Đánh giá số sao do giảng viên chấm.';
+$string['privacy:metadata:reviews:timecreated'] = 'Thời điểm ghi nhận đánh giá.';
+$string['privacy:metadata:revisions'] = 'Các bản chụp mã nguồn theo tiến trình làm bài của sinh viên.';
+$string['privacy:metadata:revisions:user_id'] = 'ID người dùng Moodle sở hữu bản sửa đổi mã nguồn.';
+$string['privacy:metadata:revisions:code_content'] = 'Nội dung mã nguồn chương trình.';
+$string['privacy:metadata:revisions:step_number'] = 'Số thứ tự phiên bản mã nguồn.';
+$string['privacy:metadata:revisions:timecreated'] = 'Thời điểm lưu bản chụp mã nguồn.';
+$string['privacy:metadata:jobe'] = 'Mã nguồn và input testcase được gửi tới Jobe sandbox để thực thi; plugin không lưu trữ tại Jobe.';
+$string['privacy:metadata:jobe:source'] = 'Mã nguồn sinh viên hoặc lời giải tham chiếu.';
+$string['privacy:metadata:jobe:input'] = 'Dữ liệu đầu vào testcase dùng khi chạy sandbox.';
+
+$string['coursecontributions'] = 'Kho testcase sinh viên đóng góp';
+$string['allcontributions'] = 'Tất cả đóng góp';
+$string['student'] = 'Sinh viên';
+$string['quiz'] = 'Bài quiz';
+$string['question'] = 'Câu hỏi';
+$string['filterbyquestion'] = 'Lọc theo câu hỏi';
+$string['filterbystatus'] = 'Lọc theo trạng thái';
+$string['allquestions'] = 'Tất cả câu hỏi';
+$string['allstatuses'] = 'Tất cả trạng thái';
+$string['pending'] = 'Chờ duyệt';
+$string['status_submitted'] = 'Chờ duyệt';
+$string['status_approved'] = 'Đã duyệt';
+$string['status_rejected'] = 'Từ chối';
+$string['status_duplicate'] = 'Trùng lặp';
+$string['status_needs_explanation'] = 'Cần giải thích';
+$string['status_archived'] = 'Đã lưu trữ';
+$string['nocontributionsfound'] = 'Chưa có testcase nào do sinh viên đóng góp theo bộ lọc này.';
+$string['actions'] = 'Thao tác';
+$string['starrating'] = 'Đánh giá sao';
+$string['stars'] = 'sao';
+$string['norating'] = 'Chưa chấm sao';
+$string['teachercomment'] = 'Nhận xét của giảng viên';
+$string['saverating'] = 'Lưu đánh giá';
+$string['rating_5_desc'] = 'Xuất sắc / Bao quát trường hợp biên đặc biệt';
+$string['rating_4_desc'] = 'Rất tốt / Kiểm thử chuẩn xác';
+$string['rating_3_desc'] = 'Tốt / Đạt yêu cầu kiểm thử cơ bản';
+$string['rating_2_desc'] = 'Trung bình / Trường hợp đơn giản';
+$string['rating_1_desc'] = 'Cơ bản / Cần bổ sung thêm giá trị kiểm thử';
+$string['coursehub'] = 'Danh sách khóa học';
+$string['coursehub_desc'] = 'Chọn một khóa học bên dưới để quản lý kho testcase, duyệt đóng góp mới hoặc cấu hình chính sách.';
+$string['coursehub_review_title'] = 'Duyệt đóng góp — Chọn khóa học';
+$string['coursehub_review_desc'] = 'Chọn một khóa học bên dưới để duyệt các testcase do sinh viên đóng góp.';
+$string['courseswithcoderunner'] = 'Các khóa học có bài tập CodeRunner';
+$string['switchcourse'] = 'Đổi khóa học';
+$string['allcourses'] = 'Tất cả khóa học';
+$string['viewtestcasebank'] = 'Vào kho testcase';
+$string['reviewcontributionsbtn'] = 'Duyệt đóng góp';
+$string['totalcontributions'] = 'Tổng đóng góp';
+$string['pendingcount'] = 'Chờ duyệt';
+$string['approvedcount'] = 'Đã duyệt';
+$string['backtocoursehub'] = 'Về danh sách khóa học';
+
+$string['leaderboard'] = 'Bảng xếp hạng';
+$string['course_leaderboard_title'] = 'Bảng xếp hạng đóng góp testcase';
+$string['leaderboard_rules_hint'] = 'Thứ tự ưu tiên: 1. Tổng số sao ⭐ | 2. Số lượng testcase đã duyệt | 3. Thời gian đóng góp sớm nhất';
+$string['rank'] = 'Hạng';
+$string['rank_1'] = 'Dẫn đầu';
+$string['your_rank'] = 'Vị trí của bạn';
+$string['no_leaderboard_yet'] = 'Chưa có dữ liệu xếp hạng trong khóa học này.';
+$string['total_stars'] = 'Tổng sao ⭐';
+$string['approved_testcases'] = 'Testcase được duyệt';
+$string['first_contribution'] = 'Đóng góp đầu tiên';
+$string['claimed'] = 'Đã nhận thưởng';
+$string['unclaimed'] = 'Chưa nhận';
+$string['claim_reward_btn'] = 'Nhận testcase thưởng';
+$string['rewardclaimedsuccess'] = 'Chúc mừng bạn đã nhận thành công testcase thưởng mới!';
+$string['invalidreward'] = 'Phần thưởng không hợp lệ hoặc đã được nhận trước đó.';
+$string['unclaimed_rewards_alert'] = 'Testcase thưởng có thể nhận';
+$string['ready_for_check'] = 'Sẵn sàng dùng để kiểm tra bài làm';
+$string['norewardsfound'] = 'Bạn chưa có testcase thưởng nào. Hãy đóng góp testcase đạt chuẩn để nhận thưởng!';
+
+// Phân tách Teacher Hub và Student View.
+$string['teacherview_title'] = 'Quản lý trao đổi testcase';
+$string['studentview_title'] = 'Thử nghiệm và trao đổi testcase';
+$string['view_as_student'] = 'Xem như sinh viên';
+$string['previewmode_banner'] = 'Chế độ xem thử (Giảng viên): Bạn đang xem giao diện với tư cách sinh viên. Các thao tác chạy thử nghiệm và kiểm tra điều kiện hiển thị theo đúng góc nhìn của sinh viên.';
+$string['previewmode_exit'] = 'Quay lại quản lý';
+$string['previewmode_contribute_notice'] = 'Chế độ xem thử: Thao tác đóng góp của giảng viên không lưu vào kho thật để bảo vệ dữ liệu học tập của sinh viên.';
+$string['previewmode_reward_notice'] = 'Chế độ xem thử: Không thể nhận thưởng của sinh viên trong chế độ xem thử.';
+$string['previewmode_run_disabled_notice'] = 'Chế độ xem thử: Thao tác chạy thử nghiệm bị khóa trong chế độ xem thử để bảo vệ dữ liệu thống kê của sinh viên.';
+
+$string['tab_overview'] = 'Tổng quan';
+$string['tab_review'] = 'Duyệt đóng góp';
+$string['tab_bank'] = 'Kho testcase';
+$string['tab_activity'] = 'Hoạt động';
+$string['tab_policy'] = 'Cài đặt';
+$string['tab_solve'] = 'Thử nghiệm';
+$string['tab_my_contributions'] = 'Đóng góp của tôi';
+$string['tab_my_rewards'] = 'Testcase thưởng';
+$string['question_prompt_title'] = 'Đề bài';
+$string['public_samples_title'] = 'Testcase mẫu công khai';
+$string['public_samples_desc'] = 'Các ca kiểm thử hiển thị trực tiếp trong đề bài CodeRunner. Hệ thống tự động loại trừ, không dùng để trao thưởng và không cho phép đóng góp lại.';
+$string['seed_bank_title'] = 'Testcase giảng viên bổ sung (Mầm)';
+$string['seed_bank_desc'] = 'Các ca kiểm thử do giảng viên chuẩn bị sẵn, dùng để trao thưởng ban đầu khi kho đóng góp của sinh viên chưa có dữ liệu.';
+$string['approved_peer_title'] = 'Đóng góp sinh viên đã duyệt';
+$string['approved_peer_desc'] = 'Các ca kiểm thử do sinh viên đóng góp và giảng viên đã duyệt, sẵn sàng trao thưởng cho các bạn học khác.';
+$string['all_students'] = 'Tất cả sinh viên';
+$string['filter_by_student'] = 'Lọc theo sinh viên';
+$string['filter_by_status'] = 'Lọc theo trạng thái';
+
+// Bổ sung chuỗi mới cho UI/UX chuẩn hóa.
+$string['run_test_btn'] = 'Chạy thử';
+$string['run_test_help'] = 'Đối chiếu kết quả chương trình của bạn với lời giải tham chiếu.';
+$string['running_indicator'] = 'Đang chạy...';
+$string['clear_test_btn'] = 'Xóa testcase';
+$string['submit_contribution_btn'] = 'Gửi đóng góp';
+$string['save_changes_btn'] = 'Lưu thay đổi';
+$string['latest_result_heading'] = 'Kết quả lần chạy mới nhất';
+$string['run_history_heading'] = 'Lịch sử chạy thử';
+$string['empty_history'] = 'Chưa có lượt chạy thử nghiệm nào. Hãy nhập mã nguồn và testcase ở trên để bắt đầu!';
+$string['empty_contributions_none'] = 'Chưa có đóng góp nào cho câu hỏi này.';
+$string['empty_contributions_filtered'] = 'Không tìm thấy đóng góp nào phù hợp với bộ lọc hiện tại.';
+$string['empty_contributions_pending'] = 'Không còn đóng góp nào đang chờ duyệt.';
+$string['btn_reset_filter'] = 'Xóa bộ lọc';
+$string['view_and_review'] = 'Xem và duyệt';
+$string['review_modal_title'] = 'Thẩm định đóng góp testcase';
+$string['code_revisions_title'] = 'Lịch sử phiên bản mã nguồn';
+$string['load_code_revision_btn'] = 'Nạp mã v{$a}';
+$string['code_loaded_notice'] = 'Đã nạp phiên bản v{$a} vào vùng soạn thảo.';
+$string['latest_badge'] = 'Mới nhất';
+$string['xml_import_not_implemented'] = 'Tính năng nhập XML hiện chưa được hỗ trợ. Vui lòng thêm testcase thủ công bằng biểu mẫu trên.';

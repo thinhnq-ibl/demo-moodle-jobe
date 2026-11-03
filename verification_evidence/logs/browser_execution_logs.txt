@@ -1,0 +1,75 @@
+================================================================================
+NHẬT KÝ KIỂM CHỨNG TRÌNH DUYỆT PLAYWRIGHT E2E
+Moodle 4.4.12+ (Build: 2024042212.01) | CodeRunner 5.10.2
+Thí sinh: student1 (Nguyễn Văn Sinh Viên 1) | Quiz: 76 (CM ID: 112)
+Thời gian chạy: 2026-10-31 17:36:18
+================================================================================
+
+[E2E] Bước 1: Đăng nhập tài khoản student1...
+      - Truy cập /login/index.php
+      - Nhập username: student1, password: StudentPassword123!
+      - Xác thực thành công.
+
+[E2E] Bước 2: Truy cập Quiz 76 (CM ID: 112)...
+      - Bấm "Attempt quiz now" -> Khởi tạo lượt làm bài mới trên trình duyệt.
+
+[E2E] Bước 3: Kiểm chứng Scratchpad UI trên Câu 1...
+      - Kiểm tra container .qtype-coderunner-sp-outer-div: Hiển thị (Visible).
+      - Ảnh chụp: 01_scratchpad_initial_state.png
+      - Bấm nút mở rộng "Scratchpad": Khu vực nháp mở ra với 2 Ace editor.
+      - Kiểm tra trường Expected Output: 0 trường tìm thấy (Xác nhận Scratchpad không có Oracle input).
+
+[E2E] Bước 4: Bấm nút Run trên Scratchpad...
+      - Nhập hàm sinh viên vào Ace Answer:
+          def find_max(lst):
+              return max(lst)
+      - Nhập lệnh gọi kiểm thử vào Ace Scratchpad:
+          print(find_max([3, 8, 5]))
+      - Bấm nút "Run" -> Gọi AJAX qtype_coderunner_run_in_sandbox tới Jobe.
+      - Kết quả trả về trong thẻ <pre>: "8" (Không ghi nhận điểm, không trừ penalty).
+      - Ảnh chụp: 02_scratchpad_run_success.png
+
+[E2E] Bước 5: Thử nghiệm lỗi Runtime (ZeroDivisionError) trên Scratchpad...
+      - Nhập mã nháp: print(10 / 0)
+      - Bấm nút "Run" -> Kết quả hiển thị: ZeroDivisionError: division by zero.
+      - Ảnh chụp: 03_scratchpad_runtime_error.png
+
+[E2E] Bước 5b: Kiểm chứng Tải lại trang (Page Reload) và Khôi phục mã nháp...
+      - Thực hiện page.reload() khi chưa nộp bài.
+      - Trình duyệt tải lại: Dữ liệu mã nháp được phục hồi từ JSON draft lưu trong input hidden.
+      - Ảnh chụp: 03b_scratchpad_draft_after_reload.png
+
+[E2E] Bước 6: Bấm Check nộp bài Câu 1...
+      - Bấm "Check" -> Gửi form Moodle tiêu chuẩn.
+      - Kết quả: Câu 1 đạt điểm tối đa (Fraction = 1.0, Trạng thái: Complete).
+      - Ảnh chụp: 04_scratchpad_checked.png
+
+[E2E] Bước 7: Chuyển sang Câu 2 (Program Testing)...
+      - Bấm nút "Next page" chuyển sang Câu 2.
+      - Kiểm tra Table UI (bảng 2 cột: Test, Expected): Hiển thị đầy đủ các ô textarea.
+      - Ảnh chụp: 05_program_testing_table_initial.png
+
+[E2E] Bước 8a: Nhập Expected SAI (T2/T4) để kiểm tra phát hiện lỗi từ lời giải tham chiếu...
+      - Hàng 1: Test: print(find_max([3, 8, 5])), Expected nhập: 5 (Sai, max đúng là 8).
+      - Hàng 2: Test: print(find_max([10, -2, 7])), Expected nhập: 10.
+      - Hàng 3: Test: print(find_max([-5, -1, -3])), Expected nhập: -1.
+      - Ảnh chụp bảng: 06a_program_testing_table_wrong_expected.png
+      - Bấm Check -> Jobe chạy Sol A (lời giải đúng tham chiếu của giảng viên) chống lại bộ test của sinh viên.
+      - Phản hồi từ hệ thống: "Oops: you marked the right answer wrong!" và chấm 0 điểm.
+      - Ảnh chụp phản hồi: 07a_program_testing_wrong_expected_feedback.png
+
+[E2E] Bước 8b: Sửa Expected thành ĐÚNG (T1: 8) và nộp lại...
+      - Sửa Expected Hàng 1 thành 8.
+      - Ảnh chụp bảng: 06b_program_testing_table_correct.png
+      - Bấm Check -> Jobe chạy Sol A (đúng) và các mutant buggy (Sol B, C...).
+      - Toàn bộ các ca kiểm thử đạt yêu cầu.
+      - Ảnh chụp phản hồi: 07b_program_testing_success_feedback.png
+
+[E2E] Bước 9: Hoàn thành bài thi và xem tổng kết điểm...
+      - Bấm "Finish attempt..." -> Bấm "Submit all and finish" -> Xác nhận Modal.
+      - Chuyển hướng sang trang Review bài làm.
+      - Ghi nhận trạng thái hoàn thành và tổng điểm của sinh viên.
+      - Ảnh chụp: 08_quiz_review_grades.png
+
+Kết luận: 1 kịch bản Playwright E2E tích hợp gồm 9 bước chuỗi kiểm chứng thực tế đã chạy thành công (1 passed, 33.0s).
+================================================================================

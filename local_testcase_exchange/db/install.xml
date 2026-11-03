@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/testcase_exchange/db" VERSION="2026110201" COMMENT="XMLDB file for Moodle local_testcase_exchange"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_tce_quiz_settings" COMMENT="Quiz level configuration for testcase exchange">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="quiz_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="is_enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="review_mode" TYPE="char" LENGTH="16" NOTNULL="true" DEFAULT="teacher" SEQUENCE="false"/>
+        <FIELD NAME="reward_policy" TYPE="char" LENGTH="24" NOTNULL="true" DEFAULT="one_for_one" SEQUENCE="false"/>
+        <FIELD NAME="show_oracle_output" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="leaderboard_enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="max_runs_per_minute" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="10" SEQUENCE="false"/>
+        <FIELD NAME="max_input_bytes" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="8192" SEQUENCE="false"/>
+        <FIELD NAME="updated_by" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="uq_quiz" TYPE="unique" FIELDS="quiz_id"/>
+      </KEYS>
+    </TABLE>
+
+    <TABLE NAME="local_tce_policies" COMMENT="Per-question testcase generation and normalization policies">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="quiz_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="input_mode" TYPE="char" LENGTH="16" NOTNULL="true" DEFAULT="testcode" SEQUENCE="false"/>
+        <FIELD NAME="testcode_template" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="normalization_mode" TYPE="char" LENGTH="16" NOTNULL="true" DEFAULT="trim" SEQUENCE="false"/>
+        <FIELD NAME="categories" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="updated_by" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="uq_quiz_question" TYPE="unique" FIELDS="quiz_id, question_id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_policy_quiz" UNIQUE="false" FIELDS="quiz_id"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_tce_runs" COMMENT="Exploration test runs executed through Jobe sandbox">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="quiz_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="code_revision_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="quiz_attempt_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="question_attempt_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="input_raw" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="input_normalized" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="input_fingerprint" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="input_raw_hash" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="predicted_output" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="student_run_output" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="oracle_output" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="student_outcome" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="oracle_outcome" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="purpose" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="category" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="reflection" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="jobe_server" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="student_source_hash" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="student_code_snapshot" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="oracle_solution_snapshot" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="template_snapshot" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="runtime_context" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="question_version" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="grader_type" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="oracle_version_hash" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="test_suite_version_hash" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="execution_limits" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_run_user_quiz" UNIQUE="false" FIELDS="user_id, quiz_id, question_id"/>
+        <INDEX NAME="idx_run_fingerprint" UNIQUE="false" FIELDS="input_fingerprint"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_tce_contributions" COMMENT="Submitted candidate testcases for review">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="run_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="course_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="quiz_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="input_normalized" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="input_fingerprint" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="oracle_output" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="purpose" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="category" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="submitted" SEQUENCE="false"/>
+        <FIELD NAME="duplicate_of" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="rating" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="review_comment" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_contrib_scope" UNIQUE="false" FIELDS="course_id, quiz_id, question_id"/>
+        <INDEX NAME="idx_contrib_status" UNIQUE="false" FIELDS="status"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_tce_reviews" COMMENT="Teacher evaluation, rating and feedback logs">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="contribution_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="reviewer_user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="from_status" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="to_status" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="review_note" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="rating" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="rating_reason" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_review_contrib" UNIQUE="false" FIELDS="contribution_id"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_tce_rewards" COMMENT="Reward testcases allocated to students from seed bank or peer pool">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="quiz_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="receiver_user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="contribution_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="reward_source" TYPE="char" LENGTH="24" NOTNULL="true" DEFAULT="contribution" SEQUENCE="false"/>
+        <FIELD NAME="seed_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="is_claimed" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="claimed_at" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_reward_scope" UNIQUE="false" FIELDS="course_id, quiz_id, question_id, receiver_user_id"/>
+        <INDEX NAME="idx_reward_claimed" UNIQUE="false" FIELDS="receiver_user_id, is_claimed"/>
+        <INDEX NAME="idx_reward_unique_peer" UNIQUE="true" FIELDS="receiver_user_id, question_id, contribution_id"/>
+        <INDEX NAME="idx_reward_unique_seed" UNIQUE="true" FIELDS="receiver_user_id, question_id, seed_id"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_tce_seeds" COMMENT="Teacher predefined seed testcases for bootstrap rewards">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="quiz_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="moodle_test_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="testcode" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="stdin" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="input_raw" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="input_normalized" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="input_fingerprint" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="expected_output" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="oracle_output" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="purpose" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="category" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="created_by" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="is_active" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_seed_scope" UNIQUE="false" FIELDS="course_id, quiz_id, question_id"/>
+        <INDEX NAME="idx_seed_fingerprint" UNIQUE="false" FIELDS="question_id, input_fingerprint"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_tce_solutions" COMMENT="Teacher reference oracle solution cache">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="solution_code" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="solution_hash" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="updated_by" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="uq_solution_question" TYPE="unique" FIELDS="question_id"/>
+      </KEYS>
+    </TABLE>
+
+    <TABLE NAME="local_tce_views" COMMENT="Audit log of claimed and viewed testcases">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="quiz_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="reward_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="contribution_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="action" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_view_audit" UNIQUE="false" FIELDS="user_id, reward_id, action"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_tce_canonical" COMMENT="Canonical unique fingerprint to first contribution mapping">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="quiz_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="input_fingerprint" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="canonical_contribution_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="uq_canonical" UNIQUE="true" FIELDS="course_id, quiz_id, question_id, input_fingerprint"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_tce_revisions" COMMENT="Student code snapshot progression tracking">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="quiz_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="code_content" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="code_hash" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="step_number" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_revision_user" UNIQUE="false" FIELDS="user_id, quiz_id, question_id"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

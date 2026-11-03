@@ -1,0 +1,251 @@
+diff --git a/local_testcase_exchange/classes/testcase_service.php b/local_testcase_exchange/classes/testcase_service.php
+index b2ab587..5f6c30d 100644
+--- a/local_testcase_exchange/classes/testcase_service.php
++++ b/local_testcase_exchange/classes/testcase_service.php
+@@ -410,8 +410,43 @@ final class testcase_service {
+         $existing = $existingstmt->get_result()->fetch_assoc();
+         $existingstmt->close();
+         if ($existing) {
+-            return ['id' => (int) $existing['id'], 'status' => $existing['status']];
++            return ['id' => (int) $existing['id'], 'status' => $existing['status'], 'is_own_duplicate' => false];
+         }
++
++        // Also check if user already contributed this exact testcase fingerprint for this question from another run
++        $existingfpstmt = $this->connection->prepare(
++            'SELECT id, status FROM testcase_contributions 
++              WHERE user_id = ? AND question_id = ? AND input_fingerprint = ? 
++           ORDER BY id ASC LIMIT 1'
++        );
++        $existingfpstmt->bind_param('iis', $userid, $run['question_id'], $run['input_fingerprint']);
++        $existingfpstmt->execute();
++        $existingfp = $existingfpstmt->get_result()->fetch_assoc();
++        $existingfpstmt->close();
++        if ($existingfp) {
++            return [
++                'id' => (int) $existingfp['id'],
++                'status' => $existingfp['status'],
++                'is_own_duplicate' => true,
++                'canonical_id' => (int) $existingfp['id'],
++            ];
++        }
++
++        // Check if testcase is already in the teacher seed bank
++        $seedstmt = $this->connection->prepare(
++            'SELECT id FROM question_seed_testcases 
++              WHERE course_id = ? AND question_id = ? AND input_fingerprint = ? AND is_active = 1
++              LIMIT 1'
++        );
++        $seedstmt->bind_param('iis', $run['course_id'], $run['question_id'], $run['input_fingerprint']);
++        $seedstmt->execute();
++        $seedexists = $seedstmt->get_result()->fetch_assoc();
++        $seedstmt->close();
++        if ($seedexists) {
++            throw new \moodle_exception('cannotcontributeseedtestcase', 'local_testcase_exchange', '',
++                'Testcase này đã thuộc bộ đề thi hoặc ngân hàng mẫu của giáo viên, không thể đề xuất đóng góp!');
++        }
++
+         if ($run['oracle_outcome'] !== 'success') {
+             throw new \moodle_exception('oraclenotsuccessful', 'local_testcase_exchange');
+         }
+@@ -1714,7 +1749,7 @@ final class testcase_service {
+      */
+     public function list_seed_testcases(int $courseid, int $quizid, int $questionid): array {
+         $stmt = $this->connection->prepare(
+-            'SELECT id, testcode, stdin, expected_output, purpose, source_type, created_at
++            'SELECT id, testcode, stdin, input_raw, expected_output, purpose, source_type, created_at
+                FROM question_seed_testcases
+               WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND is_active = 1
+               ORDER BY id ASC'
+diff --git a/local_testcase_exchange/index.php b/local_testcase_exchange/index.php
+index b221a55..100f378 100644
+--- a/local_testcase_exchange/index.php
++++ b/local_testcase_exchange/index.php
+@@ -766,8 +766,18 @@ if ($is_student_view) {
+         context_service::enrich_contributions($rawcontributions, $courseid) : [];
+     $rewards = $service ? $service->rewards_for_user($courseid, (int) $USER->id) : [];
+     $contributionbyrun = [];
++    $user_contrib_by_fp = [];
+     foreach ($contributions as $contribution) {
+         $contributionbyrun[(int) $contribution['run_id']] = $contribution;
++        $fp = (string) ($contribution['input_fingerprint'] ?? '');
++        if ($fp !== '') {
++            $key = (int) $contribution['question_id'] . ':' . $fp;
++            if (!isset($user_contrib_by_fp[$key])) {
++                $user_contrib_by_fp[$key] = $contribution;
++            } else if (($user_contrib_by_fp[$key]['status'] ?? '') === 'duplicate' && ($contribution['status'] ?? '') !== 'duplicate') {
++                $user_contrib_by_fp[$key] = $contribution;
++            }
++        }
+     }
+     $existingfingerprints = $service ? $service->existing_fingerprints_for_course($courseid) : [];
+ 
+@@ -806,9 +816,9 @@ if ($is_student_view) {
+         );
+     }
+ 
++    // Step 1: Pre-evaluate individual run metrics & identify newest eligible run per duplicate group
++    $group_rep_run_id = []; // $fp_key => ID of newest eligible run
+     foreach ($runs as &$run) {
+-        $existing = $contributionbyrun[(int) $run['id']] ?? null;
+-
+         // CRITICAL SECURITY: Never leak Oracle stdout in student view!
+         $run['show_oracle'] = false;
+ 
+@@ -830,38 +840,82 @@ if ($is_student_view) {
+         $student_passed_test = ($run['student_outcome'] === 'success' && $student_out !== '' && $student_out === $oracle_out);
+         $run['student_passed_test'] = $student_passed_test;
+ 
+-        // Check duplicates against pool and seeds
++        $is_eligible = ($cancontribute && $testcase_valid && $student_passed_test);
++        $run['is_eligible'] = $is_eligible;
++
+         $run_fp = (string) ($run['input_fingerprint'] ?? '');
+         $fp_key = (int) $run['question_id'] . ':' . $run_fp;
+-        $existing_canonical = ($run_fp !== '' && isset($existingfingerprints[$fp_key])) ? $existingfingerprints[$fp_key] : null;
+-        $is_duplicate = ($existing_canonical !== null);
++        $run['group_key'] = $fp_key;
+ 
+-        // Contribution Gate
+-        $can_contrib = $cancontribute && !$existing && !$is_duplicate && $testcase_valid && $student_passed_test;
+-        $run['can_contribute'] = $can_contrib;
++        // $runs is sorted DESC by id, so first eligible run seen in this group is the latest eligible run
++        if ($is_eligible && $run_fp !== '' && !isset($group_rep_run_id[$fp_key])) {
++            $group_rep_run_id[$fp_key] = (int) $run['id'];
++        }
++    }
++    unset($run);
+ 
+-        if ($existing) {
+-            $run['display_status'] = 'Đã đóng góp (#' . $existing['id'] . ')';
+-            $run['display_status_class'] = 'badge badge-secondary p-1';
+-        } else if ($is_duplicate) {
+-            $label = ($existing_canonical['type'] === 'seed') ? 'Trùng testcase Đề thi' : ('Đã có trong kho (#' . $existing_canonical['id'] . ')');
++    // Step 2: Presentation decoration adhering to duplicate grouping & contribution gates
++    foreach ($runs as &$run) {
++        $run_id = (int) $run['id'];
++        $fp_key = $run['group_key'];
++        $user_contrib = $user_contrib_by_fp[$fp_key] ?? null;
++        $existing_canonical = ($run['input_fingerprint'] !== '' && isset($existingfingerprints[$fp_key])) ? $existingfingerprints[$fp_key] : null;
++        $rep_id = $group_rep_run_id[$fp_key] ?? null;
++
++        $run['can_contribute'] = false;
++        $run['is_older_duplicate'] = false;
++        $run['rep_id'] = null;
++        $run['has_eligible_peer'] = false;
++        $run['pending_code_fix'] = false;
++
++        // 1. If student already contributed this testcase (group-wide)
++        if ($user_contrib) {
++            $status_lbl = $user_contrib['status_label'] ?? $user_contrib['status'];
++            $run['display_status'] = 'Đã đóng góp #' . $user_contrib['id'] . ' (' . $status_lbl . ')';
++            $run['display_status_class'] = 'badge badge-info p-1';
++        }
++        // 2. Duplicate against teacher seeds or peer bank
++        else if ($existing_canonical) {
++            $label = ($existing_canonical['type'] === 'seed') ?
++                'Trùng testcase Đề thi' :
++                ('Đã có trong kho (#' . $existing_canonical['id'] . ')');
+             $run['display_status'] = $label;
+             $run['display_status_class'] = 'badge badge-secondary p-1';
+-        } else if (!$oracle_valid) {
+-            $run['display_status'] = 'Lỗi thực thi đề bài';
+-            $run['display_status_class'] = 'badge badge-danger p-1';
+-        } else if (!$testcase_valid) {
+-            $run['display_status'] = 'Kỳ vọng lệch Lời giải tham chiếu';
+-            $run['display_status_class'] = 'badge badge-warning text-dark p-1';
+-        } else if (!$student_passed_test) {
+-            $run['display_status'] = 'Code chưa vượt qua testcase này';
+-            $run['display_status_class'] = 'badge badge-info p-1';
+-            $run['pending_code_fix'] = true;
+-            $run['pending_fix_message'] = 'Kết quả mong đợi đã được xác nhận. Chương trình hiện tại chưa vượt qua testcase này. Hãy sửa chương trình và chạy lại để đủ điều kiện đóng góp.';
+-        } else {
++        }
++        // 3. Unclaimed: Latest eligible run in group receives the contribution proposal button
++        else if ($rep_id !== null && $run_id === $rep_id) {
++            $run['can_contribute'] = true;
+             $run['display_status'] = 'Đủ điều kiện đóng góp!';
+             $run['display_status_class'] = 'badge badge-success p-1';
+         }
++        // 4. Unclaimed: Older eligible run in same group links to representative run
++        else if ($run['is_eligible']) {
++            $run['is_older_duplicate'] = true;
++            $run['rep_id'] = $rep_id;
++            $run['display_status'] = 'Trùng testcase ở lượt #' . $rep_id;
++            $run['display_status_class'] = 'badge badge-secondary p-1';
++        }
++        // 5. Ineligible run
++        else {
++            if (!$run['oracle_valid']) {
++                $run['display_status'] = 'Lỗi thực thi đề bài';
++                $run['display_status_class'] = 'badge badge-danger p-1';
++            } else if (!$run['expected_matches_oracle']) {
++                $run['display_status'] = 'Kỳ vọng lệch Lời giải tham chiếu';
++                $run['display_status_class'] = 'badge badge-warning text-dark p-1';
++            } else {
++                $run['display_status'] = 'Code chưa vượt qua testcase này';
++                $run['display_status_class'] = 'badge badge-info p-1';
++                $run['pending_code_fix'] = true;
++                $run['pending_fix_message'] = 'Kết quả mong đợi đã được xác nhận. Chương trình hiện tại chưa vượt qua testcase này. Hãy sửa chương trình và chạy lại để đủ điều kiện đóng góp.';
++            }
++
++            // If an older/other run in this same group was eligible, let student easily jump to it
++            if ($rep_id !== null && $rep_id !== $run_id) {
++                $run['has_eligible_peer'] = true;
++                $run['rep_id'] = $rep_id;
++            }
++        }
+ 
+         $run['has_revision'] = !empty($run['revision_step']);
+         $run['revision_badge'] = !empty($run['revision_step']) ? 'Code v' . $run['revision_step'] : null;
+diff --git a/local_testcase_exchange/templates/dashboard.mustache b/local_testcase_exchange/templates/dashboard.mustache
+index f0ef2cb..14b2a4b 100644
+--- a/local_testcase_exchange/templates/dashboard.mustache
++++ b/local_testcase_exchange/templates/dashboard.mustache
+@@ -869,7 +869,7 @@
+                             <tr><td colspan="7" class="text-center text-muted py-4">Chưa có lượt chạy thử nghiệm nào. Hãy nhập mã nguồn và testcase ở trên để bắt đầu!</td></tr>
+                             {{/runs}}
+                             {{#runs}}
+-                            <tr>
++                            <tr id="run-{{id}}">
+                                 <td><strong>#{{id}}</strong></td>
+                                 <td>
+                                     {{#has_revision}}
+@@ -911,12 +911,26 @@
+                                     </form>
+                                     {{/can_contribute}}
+                                     {{^can_contribute}}
++                                    {{#is_older_duplicate}}
++                                    <a href="#run-{{rep_id}}" class="badge badge-secondary p-1 text-wrap text-decoration-none shadow-sm font-weight-bold" title="Bấm để nhảy tới lượt đại diện mới nhất đủ điều kiện">
++                                        🔗 Trùng testcase ở lượt #{{rep_id}}
++                                    </a>
++                                    {{/is_older_duplicate}}
++                                    {{^is_older_duplicate}}
+                                     <span class="{{#display_status_class}}{{display_status_class}}{{/display_status_class}}{{^display_status_class}}badge badge-secondary p-1{{/display_status_class}}">{{display_status}}</span>
++                                    {{#has_eligible_peer}}
++                                    <div class="mt-1">
++                                        <a href="#run-{{rep_id}}" class="badge badge-light border text-primary" style="font-size: 0.75rem;" title="Bấm để tới lượt đã đạt">
++                                            👉 Có lượt đạt ở #{{rep_id}}
++                                        </a>
++                                    </div>
++                                    {{/has_eligible_peer}}
+                                     {{#pending_code_fix}}
+                                     <div class="small text-info text-wrap mt-1 text-left" style="max-width: 170px; font-size: 0.72rem; line-height: 1.25;">
+                                         💡 {{pending_fix_message}}
+                                     </div>
+                                     {{/pending_code_fix}}
++                                    {{/is_older_duplicate}}
+                                     {{/can_contribute}}
+                                 </td>
+                             </tr>
+@@ -1266,3 +1280,11 @@
+     restoreDraft();
+ })();
+ </script>
++
++<style>
++tr[id^="run-"]:target {
++    background-color: #fff3cd !important;
++    outline: 2px solid #ffc107;
++    transition: background-color 0.4s ease;
++}
++</style>

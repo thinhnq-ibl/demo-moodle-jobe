@@ -15,7 +15,7 @@ services:
     ports:
       - "3306:3306"
     networks:
-      - moodle_net
+      - db_net
 
   jobe1:
     build:
@@ -27,7 +27,7 @@ services:
     ports:
       - "4001:80"
     networks:
-      - moodle_net
+      - jobe_net
 
   jobe2:
     build:
@@ -39,7 +39,7 @@ services:
     ports:
       - "4002:80"
     networks:
-      - moodle_net
+      - jobe_net
 
   moodle:
     build:
@@ -50,7 +50,7 @@ services:
     ports:
       - "8080:80"
     environment:
-      - MOODLE_WWWROOT=http://localhost:8080
+      - MOODLE_WWWROOT=${MOODLE_WWWROOT:-http://localhost:8080}
       - MOODLE_DB_HOST=mariadb
       - MOODLE_DB_PORT=3306
       - MOODLE_DB_NAME=moodle
@@ -59,20 +59,29 @@ services:
       - MOODLE_ADMIN_USER=admin
       - MOODLE_ADMIN_PASSWORD=AdminPassword123!
       - MOODLE_ADMIN_EMAIL=admin@example.com
-      - JOBE_HOST=jobe1, jobe2
+      - JOBE_HOST=${JOBE_HOST:-jobe1;jobe2}
+      # Cấu hình local_testcase_exchange; có thể override bằng file .env.
+      - TESTCASE_JOBE_SERVERS=${TESTCASE_JOBE_SERVERS:-jobe1;jobe2}
+      - TESTCASE_JOBE_API_KEY=${TESTCASE_JOBE_API_KEY:-}
     volumes:
       - moodledata:/var/www/moodledata
+      - ./local_testcase_exchange:/var/www/html/local/testcase_exchange
+      - ./quizaccess_testcaseexchange:/var/www/html/mod/quiz/accessrule/testcaseexchange
+      - ./testcase_dashboard.php:/var/www/html/testcase_dashboard.php
     depends_on:
       - mariadb
       - jobe1
       - jobe2
     networks:
-      - moodle_net
+      - db_net
+      - jobe_net
 
 volumes:
   mariadb_data:
   moodledata:
 
 networks:
-  moodle_net:
+  db_net:
+    driver: bridge
+  jobe_net:
     driver: bridge
