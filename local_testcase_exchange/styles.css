@@ -1,219 +1,330 @@
 /* =========================================================================
    Plugin: local_testcase_exchange
    Styles for Student & Teacher Dashboards, Review and Policy Views
+   Clean, Moodle-aligned, accessible, mobile-first design
    ========================================================================= */
 
-/* 1. TYPOGRAPHY: Tăng kích thước chữ hiển thị lên 1 size (+1 size) */
 .local-testcase-exchange-root {
-    font-size: 1.05rem !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
     color: #1e293b;
-    line-height: 1.6;
 }
 
-.local-testcase-exchange-root .card-header {
-    font-size: 1.15rem !important;
-    font-weight: 700 !important;
+/* 1. TYPOGRAPHY & HEADINGS */
+.local-testcase-exchange-root h3,
+.local-testcase-exchange-root .tce-heading {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
 }
 
 .local-testcase-exchange-root h4 {
-    font-size: 1.45rem !important;
-}
-.local-testcase-exchange-root h5 {
-    font-size: 1.25rem !important;
-}
-.local-testcase-exchange-root h6 {
-    font-size: 1.1rem !important;
-}
-
-.local-testcase-exchange-root p,
-.local-testcase-exchange-root label,
-.local-testcase-exchange-root .form-control,
-.local-testcase-exchange-root .custom-select,
-.local-testcase-exchange-root select,
-.local-testcase-exchange-root textarea,
-.local-testcase-exchange-root input {
-    font-size: 1rem !important;
-}
-
-.local-testcase-exchange-root .btn {
-    font-size: 0.98rem !important;
+    font-size: 1.2rem;
     font-weight: 600;
-}
-.local-testcase-exchange-root .btn-sm {
-    font-size: 0.9rem !important;
-}
-.local-testcase-exchange-root .btn-xs {
-    font-size: 0.825rem !important;
+    color: #1e293b;
 }
 
-.local-testcase-exchange-root .table {
-    font-size: 0.96rem !important;
+.local-testcase-exchange-root h5 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #334155;
 }
-.local-testcase-exchange-root .table th {
-    font-size: 0.96rem !important;
-    font-weight: 700 !important;
-    vertical-align: middle !important;
+
+.local-testcase-exchange-root .small,
+.local-testcase-exchange-root small,
+.local-testcase-exchange-root .tce-subtext {
+    font-size: 0.875rem;
+    color: #64748b;
 }
-.local-testcase-exchange-root .table td {
-    font-size: 0.95rem !important;
-    vertical-align: middle !important;
+
+/* 2. SPACING & ELEVATION */
+.local-testcase-exchange-root .card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    margin-bottom: 1.5rem; /* 24px */
+}
+
+.local-testcase-exchange-root .card-header {
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+}
+
+.local-testcase-exchange-root .card-body {
+    padding: 1rem;
+}
+
+/* 3. NAVIGATION TABS */
+.local-testcase-exchange-root .nav-tabs {
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 1rem;
+    gap: 4px;
+}
+
+.local-testcase-exchange-root .nav-tabs .nav-link {
+    color: #475569;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+    border-bottom: 2px solid transparent;
+    padding: 0.6rem 1rem;
+    border-radius: 6px 6px 0 0;
+    transition: color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+.local-testcase-exchange-root .nav-tabs .nav-link:hover {
+    color: #0f6cbf;
+    background-color: #f8fafc;
+    border-color: #e2e8f0 #e2e8f0 transparent;
+}
+
+.local-testcase-exchange-root .nav-tabs .nav-link.active {
+    color: #0f6cbf;
+    background-color: #ffffff;
+    border-color: #e2e8f0 #e2e8f0 #ffffff;
+    border-bottom: 2px solid #0f6cbf;
+}
+
+/* 4. BUTTONS & ACCESSIBILITY */
+.local-testcase-exchange-root .btn {
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.local-testcase-exchange-root .btn-lg {
+    min-height: 44px;
+    padding: 0.65rem 1.25rem;
+    font-size: 1rem;
+}
+
+.local-testcase-exchange-root .btn-sm {
+    min-height: 32px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.local-testcase-exchange-root .btn:focus-visible,
+.local-testcase-exchange-root input:focus-visible,
+.local-testcase-exchange-root textarea:focus-visible,
+.local-testcase-exchange-root select:focus-visible {
+    outline: 2px solid #0f6cbf !important;
+    outline-offset: 2px !important;
+}
+
+/* 5. FORM CONTROLS & MONOSPACE */
+.local-testcase-exchange-root .form-control,
+.local-testcase-exchange-root .custom-select {
+    font-size: 0.95rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    color: #1e293b;
+    padding: 0.45rem 0.75rem;
+}
+
+.local-testcase-exchange-root .form-control:focus,
+.local-testcase-exchange-root .custom-select:focus {
+    border-color: #0f6cbf;
+    box-shadow: 0 0 0 3px rgba(15, 108, 191, 0.15);
 }
 
 .local-testcase-exchange-root pre,
 .local-testcase-exchange-root code,
-.local-testcase-exchange-root textarea.font-monospace {
-    font-size: 0.95rem !important;
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;
+.local-testcase-exchange-root textarea.font-monospace,
+.local-testcase-exchange-root .font-monospace {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    font-size: 0.9rem !important;
     line-height: 1.5;
 }
 
+/* 6. BADGES & NOTIFICATIONS (Moodle Palette with text labels) */
 .local-testcase-exchange-root .badge {
-    font-size: 0.86rem !important;
-    font-weight: 600 !important;
-    padding: 0.38em 0.72em !important;
-    letter-spacing: 0.02em;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.35rem 0.65rem;
     border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
-.local-testcase-exchange-root .small,
-.local-testcase-exchange-root small {
-    font-size: 0.875rem !important;
-}
-
-/* 2. COLOR PALETTE: Phối màu hiện đại, hài hòa, thẩm mỹ cao */
-.local-testcase-exchange-root .card {
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 8px !important;
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05) !important;
-    overflow: hidden;
-}
-
-.local-testcase-exchange-root .card-header.bg-primary {
-    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
-    color: #ffffff !important;
-    border-bottom: none !important;
-}
-
-.local-testcase-exchange-root .card-header.bg-info {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
-    color: #ffffff !important;
-    border-bottom: none !important;
-}
-
-.local-testcase-exchange-root .card-header.bg-secondary {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
-    color: #ffffff !important;
-    border-bottom: none !important;
-}
-
-.local-testcase-exchange-root .card-header.bg-dark {
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%) !important;
-    color: #ffffff !important;
-    border-bottom: none !important;
-}
-
-.local-testcase-exchange-root .nav-tabs .nav-link {
-    font-size: 1rem !important;
-    color: #475569 !important;
-    border: none !important;
-    border-bottom: 3px solid transparent !important;
-    padding: 0.65rem 1.1rem !important;
-}
-.local-testcase-exchange-root .nav-tabs .nav-link:hover {
-    color: #2563eb !important;
-}
-.local-testcase-exchange-root .nav-tabs .nav-link.active {
-    color: #2563eb !important;
-    border-bottom: 3px solid #2563eb !important;
-    background: transparent !important;
-    font-weight: 700 !important;
-}
-
-/* Soft, Harmonious Badges */
 .local-testcase-exchange-root .badge-success {
-    background-color: #ecfdf5 !important;
-    color: #065f46 !important;
-    border: 1px solid #a7f3d0 !important;
+    background-color: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
 }
 
 .local-testcase-exchange-root .badge-danger {
-    background-color: #fef2f2 !important;
-    color: #991b1b !important;
-    border: 1px solid #fecaca !important;
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
 }
 
 .local-testcase-exchange-root .badge-warning {
-    background-color: #fffbeb !important;
-    color: #92400e !important;
-    border: 1px solid #fde68a !important;
+    background-color: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fde68a;
 }
 
 .local-testcase-exchange-root .badge-info {
-    background-color: #eff6ff !important;
-    color: #1d4ed8 !important;
-    border: 1px solid #bfdbfe !important;
+    background-color: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
 }
 
-.local-testcase-exchange-root .badge-primary {
-    background-color: #eef2ff !important;
-    color: #3730a3 !important;
-    border: 1px solid #c7d2fe !important;
+.local-testcase-exchange-root .badge-secondary {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
 }
 
-.local-testcase-exchange-root .badge-secondary,
-.local-testcase-exchange-root .badge-light {
-    background-color: #f8fafc !important;
-    color: #475569 !important;
-    border: 1px solid #e2e8f0 !important;
+/* 7. STUDENT WORKSPACE (2 Columns on Desktop: 55% Code / 45% Testcase) */
+.tce-workspace-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
 }
 
-.local-testcase-exchange-root pre.bg-success {
-    background-color: #ecfdf5 !important;
-    color: #065f46 !important;
-    border: 1px solid #a7f3d0 !important;
-}
-.local-testcase-exchange-root pre.bg-danger {
-    background-color: #fef2f2 !important;
-    color: #991b1b !important;
-    border: 1px solid #fecaca !important;
+.tce-code-column {
+    flex: 1 1 54%;
+    min-width: 320px;
 }
 
-/* 3. TESTCASE TABLE SCROLL: Thanh cuộn mượt mà khi danh sách testcase dài */
-.local-testcase-exchange-root .table-responsive {
+.tce-testcase-column {
+    flex: 1 1 42%;
+    min-width: 300px;
+}
+
+@media (max-width: 991.98px) {
+    .tce-code-column,
+    .tce-testcase-column {
+        flex: 1 1 100%;
+        min-width: 100%;
+    }
+}
+
+/* Flash highlight when code is restored from revision */
+@keyframes tce-flash-highlight {
+    0% {
+        box-shadow: 0 0 0 4px #fde68a;
+        background-color: #fefce8;
+    }
+    100% {
+        box-shadow: none;
+        background-color: #ffffff;
+    }
+}
+
+.tce-flash-active {
+    animation: tce-flash-highlight 1.2s ease-out;
+}
+
+/* 8. LATEST RESULT CARD */
+.tce-latest-result-card {
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    margin-bottom: 1.5rem;
+}
+
+.tce-latest-result-card.state-eligible {
+    border-left: 5px solid #16a34a;
+}
+
+.tce-latest-result-card.state-mismatch-student {
+    border-left: 5px solid #0284c7;
+}
+
+.tce-latest-result-card.state-mismatch-oracle {
+    border-left: 5px solid #f59e0b;
+}
+
+.tce-latest-result-card.state-error {
+    border-left: 5px solid #dc2626;
+}
+
+.tce-latest-result-card.state-duplicate {
+    border-left: 5px solid #64748b;
+}
+
+.tce-latest-result-card.state-contributed {
+    border-left: 5px solid #4f46e5;
+}
+
+/* 9. HISTORY TABLE & MOBILE CARD VIEW */
+.tce-history-table-container {
     max-height: 480px;
     overflow-y: auto;
     overflow-x: auto;
     border: 1px solid #e2e8f0;
     border-radius: 6px;
     position: relative;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
-.local-testcase-exchange-root .table-responsive table {
-    margin-bottom: 0 !important;
-}
-
-.local-testcase-exchange-root .table-responsive thead th {
+.tce-history-table-container thead th {
     position: sticky;
     top: 0;
-    z-index: 10;
-    background-color: #f8fafc !important;
-    color: #334155 !important;
-    border-bottom: 2px solid #cbd5e1 !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    z-index: 5;
+    background-color: #f8fafc;
+    color: #475569;
+    border-bottom: 2px solid #cbd5e1;
 }
 
-.local-testcase-exchange-root .table-responsive::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+.tce-history-table-container::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
 }
-.local-testcase-exchange-root .table-responsive::-webkit-scrollbar-track {
-    background: #f1f5f9;
-}
-.local-testcase-exchange-root .table-responsive::-webkit-scrollbar-thumb {
+.tce-history-table-container::-webkit-scrollbar-thumb {
     background: #cbd5e1;
-    border-radius: 4px;
+    border-radius: 3px;
 }
-.local-testcase-exchange-root .table-responsive::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+
+/* Mobile cards for run history */
+.tce-mobile-run-card {
+    display: none;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+@media (max-width: 767.98px) {
+    .tce-history-desktop-table {
+        display: none !important;
+    }
+    .tce-mobile-run-card {
+        display: block;
+    }
+}
+
+/* Target row highlight */
+tr[id^="run-"]:target {
+    background-color: #fffbeb !important;
+    outline: 2px solid #f59e0b;
+}
+
+/* Context bar */
+.tce-context-bar {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
 }

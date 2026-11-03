@@ -549,6 +549,20 @@ foreach ($questions as $question) {
 }
 
 $coderunnertype = $selectedquestion->coderunnertype ?? 'python3';
+$is_program_input = (stripos($coderunnertype, 'input') !== false || stripos($coderunnertype, 'stdin') !== false);
+$coderunnertype_display = $coderunnertype;
+if (stripos($coderunnertype, 'python') !== false) {
+    $coderunnertype_display = $is_program_input ? 'Python (Dữ liệu stdin)' : 'Python (Hàm / Biểu thức)';
+} else if (stripos($coderunnertype, 'java') !== false) {
+    $coderunnertype_display = 'Java (Phương thức)';
+} else if (stripos($coderunnertype, 'c') !== false) {
+    $coderunnertype_display = 'C/C++ (Chương trình)';
+}
+
+$input_label = $is_program_input ? 'Dữ liệu đầu vào (stdin):' : 'Lệnh gọi hàm / Biểu thức kiểm thử:';
+$input_placeholder = $is_program_input ?
+    "Nhập dữ liệu đầu vào stdin cho chương trình (ví dụ: dòng 1 là số lượng, dòng 2 là các giá trị...)" :
+    "Nhập lệnh gọi hàm kiểm thử (ví dụ: print(find_max([10, 20, 5])))";
 
 // Common template data.
 $templatedata = [
@@ -570,6 +584,10 @@ $templatedata = [
     'current_quiz_name' => $selectedquestion->quizname ?? '',
     'current_question_name' => $selectedquestion->questionname ?? '',
     'coderunnertype' => $coderunnertype,
+    'coderunnertype_display' => $coderunnertype_display,
+    'is_program_input' => $is_program_input,
+    'input_label' => $input_label,
+    'input_placeholder' => $input_placeholder,
 
     // Role view flags
     'is_teacher_view' => $is_teacher_view,
@@ -922,10 +940,71 @@ if ($is_student_view) {
 
         $run['has_revision'] = !empty($run['revision_step']);
         $run['revision_badge'] = !empty($run['revision_step']) ? 'Code v' . $run['revision_step'] : null;
-        $run['created_at_formatted'] = date('H:i:s d/m/Y', strtotime($run['created_at']));
+
+        // Định dạng thời gian tạo lượt chạy: ưu tiên timecreated int, không hiển thị 01/01/1970 nếu thiếu.
+        $createdtimestamp = !empty($run['timecreated']) ? (int) $run['timecreated'] : (!empty($run['created_at']) ? strtotime($run['created_at']) : 0);
+        if ($createdtimestamp > 0) {
+            $run['created_at_formatted'] = date('H:i:s d/m/Y', $createdtimestamp);
+        } else {
+            $run['created_at_formatted'] = get_string('noinfo', 'local_testcase_exchange');
+        }
         $run['has_code_snapshot'] = !empty($run['student_code_snapshot']);
     }
     unset($run);
+
+    // Tách kết quả lần chạy mới nhất (Latest Run) phục vụ khối hiển thị phản hồi tức thì
+    $latestrun = null;
+    if (!empty($runs)) {
+        $first = $runs[0];
+        $stateclass = 'state-mismatch-student';
+        $statustitle = '';
+        $guidance = '';
+        $cancontributelatest = false;
+
+        if ($first['can_contribute']) {
+            $stateclass = 'state-eligible';
+            $statustitle = 'Kết quả khớp, đủ điều kiện đóng góp!';
+            $guidance = 'Kết quả chương trình của bạn và kết quả kỳ vọng đều khớp với lời giải tham chiếu của giảng viên. Bạn đủ điều kiện gửi đóng góp testcase này cho lớp học.';
+            $cancontributelatest = true;
+        } else if (!empty($first['pending_code_fix'])) {
+            $stateclass = 'state-mismatch-student';
+            $statustitle = 'Lời giải tham chiếu khớp, mã sinh viên không khớp';
+            $guidance = 'Kết quả mong đợi đã được xác nhận bởi lời giải tham chiếu. Tuy nhiên chương trình hiện tại của bạn chưa vượt qua testcase này. Hãy sửa lại mã nguồn và chạy lại để đủ điều kiện đóng góp.';
+        } else if (!$first['expected_matches_oracle'] && $first['oracle_valid']) {
+            $stateclass = 'state-mismatch-oracle';
+            $statustitle = 'Kết quả kỳ vọng không khớp lời giải tham chiếu';
+            $guidance = 'Kết quả kỳ vọng bạn dự đoán không khớp với kết quả từ lời giải tham chiếu. Vui lòng kiểm tra lại đề bài, dữ liệu đầu vào và kết quả kỳ vọng.';
+        } else if (!$first['oracle_valid']) {
+            $stateclass = 'state-error';
+            $statustitle = 'Lỗi cú pháp / thực thi với đề bài';
+            $guidance = 'Testcase gây ra lỗi thực thi hoặc không phù hợp với quy ước của câu hỏi. Vui lòng xem chi tiết lỗi kỹ thuật bên dưới.';
+        } else if ($first['is_older_duplicate']) {
+            $stateclass = 'state-duplicate';
+            $statustitle = 'Trùng testcase ở lượt #' . $first['rep_id'];
+            $guidance = 'Testcase này đã từng được chạy và đủ điều kiện ở lượt #' . $first['rep_id'] . '. Bạn có thể chuyển tới lượt đạt để đóng góp.';
+        } else if (isset($existingfingerprints[$first['group_key']])) {
+            $stateclass = 'state-duplicate';
+            $statustitle = 'Trùng testcase với kho bài tập';
+            $guidance = 'Testcase này trùng với testcase mẫu của đề thi hoặc đã được sinh viên khác đóng góp trước đó trong kho chung.';
+        } else if (isset($user_contrib_by_fp[$first['group_key']])) {
+            $stateclass = 'state-contributed';
+            $statustitle = 'Đã gửi đóng góp';
+            $guidance = 'Bạn đã gửi đóng góp testcase này thành công. Vui lòng theo dõi tiến độ thẩm định tại tab "Đóng góp của tôi".';
+        } else {
+            $stateclass = 'state-mismatch-student';
+            $statustitle = 'Chưa đủ điều kiện đóng góp';
+            $guidance = 'Chương trình chưa thỏa mãn toàn bộ các điều kiện để đề xuất đóng góp. Vui lòng kiểm tra lại kết quả đối chiếu.';
+        }
+
+        $latestrun = array_merge($first, [
+            'state_class' => $stateclass,
+            'status_title' => $statustitle,
+            'guidance' => $guidance,
+            'can_contribute_latest' => $cancontributelatest,
+        ]);
+    }
+    $templatedata['latest_run'] = $latestrun;
+    $templatedata['has_latest_run'] = ($latestrun !== null);
 
     foreach ($contributions as &$contribution) {
         $contribution['can_explain'] = $cancontribute && $contribution['status'] === 'needs_explanation';
