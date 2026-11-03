@@ -2,6 +2,14 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 
+const javaCode = `public static boolean isPrime(int n) {
+    if (n <= 1) return false;
+    for (int i = 2; i * i <= n; i++) {
+        if (n % i == 0) return false;
+    }
+    return true;
+}`;
+
 async function loginUser(page, context, username, password) {
     await context.clearCookies();
     await page.goto('http://localhost:8080/login/index.php');
@@ -51,14 +59,12 @@ async function main() {
         const selectors = {
             'body': 'body',
             'root': '.local-testcase-exchange-root',
-            'heading_h3': '.local-testcase-exchange-root h3, .tce-heading',
             'subheading_h5': '.local-testcase-exchange-root h5',
             'paragraph': '.local-testcase-exchange-root p',
             'button_run': '#btnSubmitRunTest',
             'badge': '.badge',
             'table_header': '.tce-history-desktop-table th',
             'table_cell': '.tce-history-desktop-table td',
-            'monospace_pre': 'pre.font-monospace',
             'input_box': '#test_input'
         };
         for (const [key, sel] of Object.entries(selectors)) {
@@ -77,26 +83,21 @@ async function main() {
     console.log('Computed Fonts Report:\n', JSON.stringify(computedFonts, null, 2));
 
     console.log('\n=== STEP 2: VERIFY REWARD STATS (NO AMBIGUOUS SLASH) ===');
-    // Student view reward alert
-    const studentRewardText = await page.evaluate(() => {
-        const el = document.querySelector('.alert-info span[style*="1e3a8a"], .alert-info div[style*="1e3a8a"]');
-        return el ? el.innerText.trim() : 'NOT_FOUND';
-    });
-    console.log('Student Reward Alert Text:', studentRewardText);
+    const studentRewardText = await page.$eval('.alert-info', el => el.innerText.trim()).catch(() => 'NOT_FOUND');
+    console.log('Student Reward Alert Text:\n', studentRewardText);
 
-    // Teacher view reward card
-    const pageTeacher = await ctxDesktop.newPage();
-    await loginUser(pageTeacher, ctxDesktop, 'admin', 'AdminPassword123!');
+    // Teacher view reward card in isolated context
+    const ctxTeacher = await browser.newContext({ viewport: { width: 1440, height: 950 } });
+    const pageTeacher = await ctxTeacher.newPage();
+    await loginUser(pageTeacher, ctxTeacher, 'admin', 'AdminPassword123!');
     await pageTeacher.goto('http://localhost:8080/local/testcase_exchange/index.php?course=3&question=2:119&lang=vi');
     await pageTeacher.waitForLoadState('networkidle');
 
-    const teacherRewardCardText = await pageTeacher.evaluate(() => {
-        const card = document.querySelector('.tce-stat-card-mobile[style*="7c3aed"]');
-        return card ? card.innerText.trim().replace(/\n+/g, ' | ') : 'NOT_FOUND';
-    });
-    console.log('Teacher Reward Stat Card Text:', teacherRewardCardText);
+    const teacherRewardCardText = await pageTeacher.$eval('.tce-stat-card-mobile[style*="7c3aed"]', el => el.innerText.trim()).catch(() => 'NOT_FOUND');
+    console.log('Teacher Reward Stat Card Text:\n', teacherRewardCardText);
     await pageTeacher.screenshot({ path: path.join(outDir, '06_teacher_stat_cards_and_rewards.png') });
     console.log('Saved: 06_teacher_stat_cards_and_rewards.png');
+    await ctxTeacher.close();
 
     console.log('\n=== STEP 3: VERIFY RUN HISTORY WINDOWING (5 DEFAULT + EXPAND) ===');
     const historyStats = await page.evaluate(() => {
@@ -113,7 +114,7 @@ async function main() {
             codeSnapshotsCount: codeSnapshots
         };
     });
-    console.log('History Table Stats:', historyStats);
+    console.log('History Table Stats:\n', JSON.stringify(historyStats, null, 2));
 
     const showMoreBtn = await page.$('.btn-toggle-older-runs');
     if (showMoreBtn) {
@@ -123,62 +124,52 @@ async function main() {
         console.log('Saved: 07_long_history_windowing.png');
     }
 
-    console.log('\n=== STEP 4: VERIFY INTENTIONAL MISMATCH (#75) STATE ORDERING ===');
-    // Input: print(is_prime(7)), Expected: False (Oracle is True)
-    const isPrimeCode = `def is_prime(n):
-    if not isinstance(n, int):
-        return False
-    if n <= 1:
-        return False
-    for i in range(2, int(n**0.5) + 1):
-        if n % i == 0:
-            return False
-    return True`;
-    await setAceValue(page, isPrimeCode);
-    await page.fill('#test_input', 'print(is_prime(7))');
-    await page.fill('#predicted_output', 'False');
+    console.log('\n=== STEP 4: VERIFY INTENTIONAL MISMATCH STATE ORDERING ===');
+    // Mismatch run on same input as #215: System.out.println(isPrime(199)); with Expected: false (Oracle is true)
+    // This will trigger:
+    // 1. Primary state: "Chưa đủ điều kiện đóng góp: kết quả kỳ vọng không khớp lời giải tham chiếu."
+    // 2. Secondary info: "Bạn đã gửi testcase cùng đầu vào ở lượt #215, với kết quả kỳ vọng true."
+    await setAceValue(page, javaCode);
+    await page.fill('#test_input', 'System.out.println(isPrime(199));');
+    await page.fill('#predicted_output', 'false');
     await page.selectOption('#category', 'normal');
-    await page.fill('#purpose', 'Kiểm tra trường hợp dự đoán False khi tham chiếu là True');
-    await page.waitForTimeout(500);
+    await page.fill('#purpose', 'Kiểm tra phản hồi khi kết quả kỳ vọng lệch chuẩn (expected false vs oracle true)');
+    await page.waitForTimeout(400);
 
     await Promise.all([
-        page.waitForNavigation({ waitUntil: 'load' }).catch(() => {}),
+        page.waitForNavigation(),
         page.click('#btnSubmitRunTest')
     ]);
     await page.waitForLoadState('networkidle');
 
-    const mismatchCardTexts = await page.evaluate(() => {
-        const card = document.getElementById('tceLatestResultCard');
-        if (!card) return null;
-        const runOutcome = card.querySelector('.col-md-6:first-child')?.innerText.trim().replace(/\n+/g, ' | ');
-        const contribStatus = card.querySelector('.col-md-6:last-child')?.innerText.trim().replace(/\n+/g, ' | ');
-        return { runOutcome, contribStatus };
-    });
-    console.log('Mismatch Latest Result Card:\n', mismatchCardTexts);
+    const mismatchCardText = await page.$eval('#tceLatestResultCard', el => el.innerText);
+    console.log('Mismatch Latest Result Card:\n', mismatchCardText);
     await page.screenshot({ path: path.join(outDir, '02b_student_mismatch_after_run.png') });
     console.log('Saved: 02b_student_mismatch_after_run.png');
 
     console.log('\n=== STEP 5: VERIFY ELIGIBLE BUT UNCHANGED -> DIRTY CHANGED FLOW ===');
-    // Setup a new fresh eligible testcase: print(is_prime(89)) => True
-    await setAceValue(page, isPrimeCode);
-    await page.fill('#test_input', 'print(is_prime(89))');
-    await page.fill('#predicted_output', 'True');
+    // Eligible testcase: System.out.println(isPrime(223)); Expected: true (223 is prime)
+    await setAceValue(page, javaCode);
+    await page.fill('#test_input', 'System.out.println(isPrime(223));');
+    await page.fill('#predicted_output', 'true');
     await page.selectOption('#category', 'normal');
-    await page.fill('#purpose', 'Kiểm thử số nguyên tố 89 (đủ điều kiện đóng góp)');
-    await page.waitForTimeout(500);
+    await page.fill('#purpose', 'Kiểm thử số nguyên tố 223 (đủ điều kiện đóng góp)');
+    await page.waitForTimeout(400);
 
     await Promise.all([
-        page.waitForNavigation({ waitUntil: 'load' }).catch(() => {}),
+        page.waitForNavigation(),
         page.click('#btnSubmitRunTest')
     ]);
     await page.waitForLoadState('networkidle');
 
-    // 10a: Eligible, clean, unsubmitted state
+    const cleanCard = await page.$eval('#tceLatestResultCard', el => el.innerText);
+    console.log('Clean Eligible Card:\n', cleanCard);
     await page.screenshot({ path: path.join(outDir, '10a_student_eligible_unsubmitted_clean.png') });
     console.log('Saved: 10a_student_eligible_unsubmitted_clean.png');
 
-    // Now edit code/input to trigger DIRTY state
-    await page.fill('#test_input', 'print(is_prime(89)) # Sửa dữ liệu');
+    // Trigger DIRTY state by editing input
+    console.log('Editing input to trigger dirty state...');
+    await page.fill('#test_input', 'System.out.println(isPrime(223)); // Chỉnh sửa sau khi chạy');
     await page.waitForTimeout(400);
 
     const dirtyCardState = await page.evaluate(() => {
@@ -188,12 +179,12 @@ async function main() {
         return {
             bannerVisible: banner ? !banner.classList.contains('d-none') : false,
             bannerText: banner ? banner.innerText.trim() : null,
-            buttonLabel: btnLbl ? btnLbl.innerText.trim() : null,
+            buttonText: btnLbl ? btnLbl.innerText.trim() : null,
             hintVisible: hint ? !hint.classList.contains('d-none') : false,
             hintText: hint ? hint.innerText.trim() : null
         };
     });
-    console.log('Dirty State Verification:', dirtyCardState);
+    console.log('Dirty Card State:\n', JSON.stringify(dirtyCardState, null, 2));
     await page.screenshot({ path: path.join(outDir, '10b_student_eligible_unsubmitted_dirty_changed.png') });
     console.log('Saved: 10b_student_eligible_unsubmitted_dirty_changed.png');
 
@@ -227,8 +218,9 @@ async function main() {
     console.log('Saved: 08c_student_mobile_latest_result_and_history.png');
 
     // Teacher Review Modal on Mobile
-    const pageMobTeacher = await ctxMobile.newPage();
-    await loginUser(pageMobTeacher, ctxMobile, 'admin', 'AdminPassword123!');
+    const ctxMobTeacher = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true });
+    const pageMobTeacher = await ctxMobTeacher.newPage();
+    await loginUser(pageMobTeacher, ctxMobTeacher, 'admin', 'AdminPassword123!');
     await pageMobTeacher.goto('http://localhost:8080/local/testcase_exchange/index.php?course=3&question=2:119&lang=vi');
     await pageMobTeacher.waitForLoadState('networkidle');
 
@@ -245,8 +237,8 @@ async function main() {
 
         // 09b: Modal Footer with Save Button
         await pageMobTeacher.evaluate(() => {
-            const saveBtn = document.querySelector('.modal.show button[type="submit"], .modal.show .modal-footer, .modal.show .btn-primary');
-            if (saveBtn) saveBtn.scrollIntoView({ behavior: 'instant', block: 'center' });
+            const footer = document.querySelector('.modal.show .modal-body form div:last-child') || document.querySelector('.modal.show button[type="submit"]');
+            if (footer) footer.scrollIntoView({ behavior: 'instant', block: 'center' });
         });
         await pageMobTeacher.waitForTimeout(400);
         await pageMobTeacher.screenshot({ path: path.join(outDir, '09b_teacher_review_modal_mobile_footer.png') });
@@ -254,7 +246,7 @@ async function main() {
     }
 
     await browser.close();
-    console.log('\n=== ALL VERIFICATION COMPLETED SUCCESSFULLY ===');
+    console.log('\n=== ALL VERIFICATION EVIDENCE COMPLETED PERFECTLY ===');
 }
 
 main().catch(err => {

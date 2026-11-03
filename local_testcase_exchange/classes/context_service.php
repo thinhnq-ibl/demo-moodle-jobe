@@ -93,7 +93,7 @@ final class context_service {
         $users = [];
         if (!empty($userids)) {
             [$insql, $inparams] = $DB->get_in_or_equal($userids);
-            $userrecords = $DB->get_records_select('user', "id $insql", $inparams, '', 'id, username, firstname, lastname, email');
+            $userrecords = $DB->get_records_select('user', "id $insql", $inparams, '', '*');
             foreach ($userrecords as $u) {
                 $users[(int) $u->id] = $u;
             }
