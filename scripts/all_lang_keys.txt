@@ -1,0 +1,277 @@
+actions || EN: Actions || VI: Thao tác
+all_students || EN: All students || VI: Tất cả sinh viên
+allcontributions || EN: All contributions || VI: Tất cả đóng góp
+allcourses || EN: All courses || VI: Tất cả khóa học
+allquestions || EN: All questions || VI: Tất cả câu hỏi
+allstatuses || EN: All statuses || VI: Tất cả trạng thái
+approvecontribution || EN: Approve || VI: Chấp thuận
+approved_peer_desc || EN: High-quality student testcases approved by teachers, circulating in the peer reward bank. || VI: Các ca kiểm thử do sinh viên đóng góp và giảng viên đã duyệt, sẵn sàng trao thưởng cho các bạn học khác.
+approved_peer_title || EN: Approved peer testcases || VI: Đóng góp sinh viên đã duyệt
+approved_testcases || EN: Approved testcases || VI: Testcase được duyệt
+approvedcount || EN: Approved || VI: Đã duyệt
+available || EN: Available || VI: Sẵn sàng
+backtocoursehub || EN: Back to course list || VI: Về danh sách khóa học
+backtocurrentquiz || EN: Back to quiz attempt || VI: Quay lại bài làm
+backtodashboard || EN: Back to workspace || VI: Quay lại không gian làm việc
+btn_reset_filter || EN: Reset filter || VI: Xóa bộ lọc
+categories || EN: Allowed categories || VI: Danh mục cho phép
+category || EN: Test category || VI: Phân loại testcase
+category_boundary || EN: Boundary value || VI: Giá trị biên hoặc cận (Boundary)
+category_branch || EN: Logic branch || VI: Nhánh rẽ logic (Logic branch)
+category_empty || EN: Empty or missing data || VI: Dữ liệu rỗng hoặc thiếu (Empty/Missing)
+category_invalid || EN: Invalid data or exception || VI: Dữ liệu không hợp lệ hoặc ngoại lệ (Invalid/Exception)
+category_large || EN: Large input or performance || VI: Dữ liệu lớn hoặc hiệu năng (Large input/Performance)
+category_normal || EN: Normal case || VI: Trường hợp thông thường (Normal)
+category_other || EN: Other || VI: Trường hợp khác (Other)
+claim_reward_btn || EN: Claim reward testcase || VI: Nhận testcase thưởng
+claimed || EN: Claimed || VI: Đã nhận thưởng
+clear_test_btn || EN: Clear testcase || VI: Xóa testcase
+code_editor_title || EN: Code Editor || VI: Trình soạn thảo mã nguồn
+code_loaded_notice || EN: Loaded code version v{$a} into editor. || VI: Đã nạp phiên bản v{$a} vào vùng soạn thảo.
+code_revisions_title || EN: Code version history || VI: Lịch sử phiên bản mã nguồn
+codeprefilledfromattempt || EN: Your latest submitted code has been loaded into the editor. || VI: Mã nguồn nộp gần nhất đã được nạp vào vùng soạn thảo.
+configuretestcasecontributions || EN: Configure testcase contributions || VI: Cấu hình đóng góp testcase
+contributetestcaseafterquiz || EN: Contribute a testcase || VI: Đóng góp testcase
+contributetestcaseafterquizintro || EN: Your latest submitted code will be loaded so you can edit it and explore multiple testcases. || VI: Mã nguồn nộp gần nhất sẽ được tải sẵn để bạn kiểm tra và khám phá nhiều testcase.
+contributingtestcasefor || EN: You are testing testcases for: || VI: Bạn đang thử nghiệm testcase cho:
+contributionstatus || EN: Contribution status: {$a} || VI: Trạng thái đóng góp: {$a}
+course_leaderboard_title || EN: Course Testcase Leaderboard || VI: Bảng xếp hạng đóng góp testcase
+coursecontributions || EN: Student testcase repository || VI: Kho testcase sinh viên đóng góp
+coursehub || EN: Course list || VI: Danh sách khóa học
+coursehub_desc || EN: Select a course below to manage testcases, review contributions, or configure policies. || VI: Chọn một khóa học bên dưới để quản lý kho testcase, duyệt đóng góp mới hoặc cấu hình chính sách.
+coursehub_review_desc || EN: Select a course below to review student contributed testcases. || VI: Chọn một khóa học bên dưới để duyệt các testcase do sinh viên đóng góp.
+coursehub_review_title || EN: Review contributions — Select course || VI: Duyệt đóng góp — Chọn khóa học
+courseswithcoderunner || EN: Courses with CodeRunner questions || VI: Các khóa học có bài tập CodeRunner
+currentquestion || EN: Question || VI: Câu hỏi
+currentquiz || EN: Quiz || VI: Bài quiz
+databasehealth || EN: External database || VI: Cơ sở dữ liệu ngoài
+databaseunavailable || EN: The testcase database is unavailable. Please contact the administrator. || VI: Không thể kết nối cơ sở dữ liệu testcase. Vui lòng liên hệ quản trị viên.
+editor_fallback_msg || EN: Standard code area active. || VI: Đang sử dụng khung nhập liệu tiêu chuẩn.
+editor_loaded_msg || EN: Code editor ready. || VI: Trình soạn thảo đã sẵn sàng.
+editor_readonly_badge || EN: Read-only || VI: Chỉ đọc
+empty_contributions_filtered || EN: No contributions found matching current filter. || VI: Không tìm thấy đóng góp nào phù hợp với bộ lọc hiện tại.
+empty_contributions_none || EN: No contributions yet for this question. || VI: Chưa có đóng góp nào cho câu hỏi này.
+empty_contributions_pending || EN: No contributions pending review. || VI: Không còn đóng góp nào đang chờ duyệt.
+empty_history || EN: No test runs yet. Enter your code and testcase above to begin! || VI: Chưa có lượt chạy thử nghiệm nào. Hãy nhập mã nguồn và testcase ở trên để bắt đầu!
+enablefeature || EN: Enable testcase exploration and contribution || VI: Bật thử nghiệm và đóng góp testcase
+enableleaderboard || EN: Enable leaderboard || VI: Bật bảng xếp hạng
+enabletestcasecontributions || EN: Allow testcase contributions || VI: Cho phép đóng góp testcase
+enabletestcasecontributions_help || EN: Students can run private testcase candidates and submit successful ones for teacher review. Advanced settings are available from policy settings. || VI: Sinh viên có thể chạy testcase riêng tư và gửi các testcase chạy thành công để giảng viên duyệt. Các thiết lập nâng cao nằm trong trang cài đặt chính sách.
+explanationrequired || EN: Please explain how this testcase adds distinct value. || VI: Vui lòng cung cấp giải thích rõ hơn về giá trị của testcase này.
+explanationsaved || EN: Your explanation was saved and the contribution was resubmitted. || VI: Đã lưu giải thích và gửi lại đóng góp để giảng viên xem xét.
+featuredisabled || EN: Testcase exploration is disabled for this Quiz. || VI: Tính năng trao đổi testcase hiện đang tắt cho bài quiz này.
+filter_by_status || EN: Filter by status || VI: Lọc theo trạng thái
+filter_by_student || EN: Filter by student || VI: Lọc theo sinh viên
+filterbyquestion || EN: Filter by question || VI: Lọc theo câu hỏi
+filterbystatus || EN: Filter by status || VI: Lọc theo trạng thái
+first_contribution || EN: First contribution || VI: Đóng góp đầu tiên
+fullscreen_enter || EN: Fullscreen || VI: Toàn màn hình
+fullscreen_exit || EN: Exit fullscreen || VI: Thoát toàn màn hình
+heading_dashboard || EN: Testcase Contribution Dashboard and Leaderboard || VI: Bảng thống kê và xếp hạng đóng góp testcase
+healthcheck || EN: Testcase service health || VI: Kiểm tra trạng thái dịch vụ
+inputmode || EN: Input mode || VI: Định dạng đầu vào
+inputtoolarge || EN: The test input exceeds the configured size limit. || VI: Dữ liệu đầu vào vượt quá dung lượng tối đa cho phép.
+invalidcontext || EN: The selected question does not belong to this course and Quiz. || VI: Câu hỏi đã chọn không thuộc khóa học hoặc bài quiz này.
+invalidcontribution || EN: The contribution does not exist in this course. || VI: Đóng góp không tồn tại trong khóa học này.
+invalidjsoninput || EN: The input is not valid JSON for this question policy. || VI: Dữ liệu đầu vào không phải JSON hợp lệ theo yêu cầu của câu hỏi.
+invalidreward || EN: Reward is invalid or already claimed. || VI: Phần thưởng không hợp lệ hoặc đã được nhận trước đó.
+invalidrun || EN: The private run does not exist or does not belong to you. || VI: Lần chạy không tồn tại hoặc không thuộc quyền sở hữu của bạn.
+invalidstatus || EN: Invalid contribution status. || VI: Trạng thái đóng góp không hợp lệ.
+invalidtestcodetemplate || EN: Template mode requires a test-code template containing {{INPUT}}. || VI: Chế độ mẫu kiểm thử yêu cầu template chứa ký hiệu {{INPUT}}.
+invalidtransition || EN: This contribution status transition is not allowed. || VI: Không được phép chuyển sang trạng thái này.
+jobehealth || EN: Jobe sandbox cluster || VI: Cụm Jobe sandbox
+languages || EN: Available languages || VI: Ngôn ngữ hỗ trợ
+latest_badge || EN: Latest || VI: Mới nhất
+latest_result_heading || EN: Latest test run result || VI: Kết quả lần chạy mới nhất
+leaderboard || EN: Leaderboard || VI: Bảng xếp hạng
+leaderboard_rules_hint || EN: Ranking order: 1. Total stars ⭐ | 2. Approved testcases count | 3. Earliest contribution time || VI: Thứ tự ưu tiên: 1. Tổng số sao ⭐ | 2. Số lượng testcase đã duyệt | 3. Thời gian đóng góp sớm nhất
+load_code_revision_btn || EN: Load code v{$a} || VI: Nạp mã v{$a}
+managepolicies || EN: Configure testcase policy || VI: Cấu hình chính sách testcase
+maxinputbytes || EN: Maximum input size in bytes || VI: Dung lượng đầu vào tối đa (bytes)
+missingoracle || EN: The selected question has no teacher reference solution. || VI: Câu hỏi chưa có lời giải tham chiếu của giảng viên.
+my_testcases || EN: My Testcases || VI: Testcase của tôi
+mycontributions || EN: My contributions || VI: Đóng góp của tôi
+myrewards || EN: Reward testcases || VI: Testcase thưởng
+myruns || EN: My test runs || VI: Lần chạy của tôi
+nav_testcase_bank || EN: Testcase Bank & Exchange || VI: Kho testcase và đổi thưởng
+needsexplanation || EN: Needs explanation || VI: Cần giải thích thêm
+no_leaderboard_yet || EN: No ranking data yet in this course. || VI: Chưa có dữ liệu xếp hạng trong khóa học này.
+nocoderunnerquestions || EN: This course has no CodeRunner questions in a Quiz. || VI: Khóa học chưa có câu hỏi CodeRunner trong bài quiz.
+nocontributionsfound || EN: No contributions found matching this filter. || VI: Chưa có testcase nào do sinh viên đóng góp theo bộ lọc này.
+nocontributionspending || EN: There are no contributions waiting for review. || VI: Không có đóng góp nào đang chờ duyệt.
+noinfo || EN: No information available || VI: Chưa có thông tin
+norating || EN: No rating || VI: Chưa chấm sao
+norewardsfound || EN: No rewards available yet. Contribute passing testcases to unlock rewards! || VI: Bạn chưa có testcase thưởng nào. Hãy đóng góp testcase đạt chuẩn để nhận thưởng!
+normalization || EN: Input whitespace normalization || VI: Chuẩn hóa khoảng trắng
+notcoderunner || EN: The selected question is not a CodeRunner question. || VI: Câu hỏi đã chọn không phải câu hỏi CodeRunner.
+oraclenotsuccessful || EN: This run cannot be shared because its reference run did not succeed. || VI: Không thể chia sẻ vì lần chạy với lời giải tham chiếu chưa thành công.
+oracleoutput || EN: Reference output || VI: Kết quả lời giải tham chiếu
+pending || EN: Pending || VI: Chờ duyệt
+pendingcount || EN: Pending || VI: Chờ duyệt
+pluginname || EN: CodeRunner Testcase Exchange || VI: Trao đổi testcase CodeRunner
+policysaved || EN: The policy settings were saved successfully. || VI: Đã lưu cài đặt chính sách thành công.
+predictedoutput || EN: Expected output || VI: Kết quả kỳ vọng
+previewmode_banner || EN: Preview Mode (Teacher): You are experiencing the interface from a student perspective. Testing runs and validations reflect learner view. || VI: Chế độ xem thử (Giảng viên): Bạn đang xem giao diện với tư cách sinh viên. Các thao tác chạy thử nghiệm và kiểm tra điều kiện hiển thị theo đúng góc nhìn của sinh viên.
+previewmode_contribute_notice || EN: Preview Mode: Teacher contributions are isolated and not recorded into live repository. || VI: Chế độ xem thử: Thao tác đóng góp của giảng viên không lưu vào kho thật để bảo vệ dữ liệu học tập của sinh viên.
+previewmode_exit || EN: Back to management || VI: Quay lại quản lý
+previewmode_reward_notice || EN: Preview Mode: Cannot claim student rewards in preview mode. || VI: Chế độ xem thử: Không thể nhận thưởng của sinh viên trong chế độ xem thử.
+previewmode_run_disabled_notice || EN: Preview Mode: Execution is locked in preview mode to prevent altering student statistics. || VI: Chế độ xem thử: Thao tác chạy thử nghiệm bị khóa trong chế độ xem thử để bảo vệ dữ liệu thống kê của sinh viên.
+privacy:metadata:contributions || EN: Testcases contributed by students for exchange and grading. || VI: Testcase do sinh viên đóng góp để trao đổi và chấm điểm.
+privacy:metadata:contributions:input_normalized || EN: Normalized testcase input. || VI: Dữ liệu đầu vào testcase đã qua chuẩn hóa.
+privacy:metadata:contributions:oracle_output || EN: Output of the reference solution for this testcase. || VI: Kết quả đầu ra của lời giải tham chiếu cho testcase này.
+privacy:metadata:contributions:purpose || EN: Testing purpose or category of the testcase. || VI: Mục đích kiểm thử hoặc danh mục của testcase.
+privacy:metadata:contributions:rating || EN: Star rating awarded by the teacher. || VI: Đánh giá số sao của giảng viên cho đóng góp này.
+privacy:metadata:contributions:review_comment || EN: Teacher review comment. || VI: Nhận xét phản hồi của giảng viên.
+privacy:metadata:contributions:status || EN: Review status of the testcase. || VI: Trạng thái duyệt của testcase.
+privacy:metadata:contributions:timecreated || EN: Timestamp when the contribution was submitted. || VI: Thời điểm gửi đóng góp testcase.
+privacy:metadata:contributions:user_id || EN: Moodle user ID of the contributing student. || VI: ID người dùng Moodle của sinh viên đóng góp testcase.
+privacy:metadata:jobe || EN: Source code and input are sent to Jobe sandbox for execution; not permanently stored there. || VI: Mã nguồn và input testcase được gửi tới Jobe sandbox để thực thi; plugin không lưu trữ tại Jobe.
+privacy:metadata:jobe:input || EN: Testcase input used during sandbox execution. || VI: Dữ liệu đầu vào testcase dùng khi chạy sandbox.
+privacy:metadata:jobe:source || EN: Student code or reference solution. || VI: Mã nguồn sinh viên hoặc lời giải tham chiếu.
+privacy:metadata:reviews || EN: Teacher review audit log. || VI: Nhật ký đánh giá và nhận xét của giảng viên đối với testcase của sinh viên.
+privacy:metadata:reviews:rating || EN: Star rating awarded by reviewer. || VI: Đánh giá số sao do giảng viên chấm.
+privacy:metadata:reviews:review_note || EN: Teacher review note. || VI: Nội dung nhận xét của giảng viên.
+privacy:metadata:reviews:reviewer_user_id || EN: Moodle user ID of the reviewing teacher. || VI: ID người dùng Moodle của giảng viên duyệt testcase.
+privacy:metadata:reviews:timecreated || EN: Timestamp of review. || VI: Thời điểm ghi nhận đánh giá.
+privacy:metadata:revisions || EN: Student code snapshots along the progression. || VI: Các bản chụp mã nguồn theo tiến trình làm bài của sinh viên.
+privacy:metadata:revisions:code_content || EN: Source code content. || VI: Nội dung mã nguồn chương trình.
+privacy:metadata:revisions:step_number || EN: Step number of the code snapshot. || VI: Số thứ tự phiên bản mã nguồn.
+privacy:metadata:revisions:timecreated || EN: Timestamp when snapshot was recorded. || VI: Thời điểm lưu bản chụp mã nguồn.
+privacy:metadata:revisions:user_id || EN: Moodle user ID who owns the revision. || VI: ID người dùng Moodle sở hữu bản sửa đổi mã nguồn.
+privacy:metadata:rewards || EN: Rewards and unlocked testcases granted to students. || VI: Phần thưởng và testcase mở khóa cấp cho sinh viên.
+privacy:metadata:rewards:claimed_at || EN: Timestamp when the reward was claimed. || VI: Thời điểm mở khóa phần thưởng.
+privacy:metadata:rewards:is_claimed || EN: Whether the reward has been claimed. || VI: Trạng thái phần thưởng đã được nhận hay chưa.
+privacy:metadata:rewards:receiver_user_id || EN: Moodle user ID of the reward recipient. || VI: ID người dùng Moodle nhận phần thưởng testcase.
+privacy:metadata:rewards:timecreated || EN: Timestamp when the reward was allocated. || VI: Thời điểm phân bổ phần thưởng.
+privacy:metadata:runs || EN: Private testcase exploration runs by students. || VI: Các lượt chạy thử nghiệm testcase riêng của sinh viên.
+privacy:metadata:runs:input_raw || EN: Raw input data used for the test run. || VI: Dữ liệu đầu vào thô dùng để chạy thử nghiệm testcase.
+privacy:metadata:runs:oracle_output || EN: Output obtained from running the reference solution. || VI: Kết quả đầu ra thu được khi chạy lời giải tham chiếu.
+privacy:metadata:runs:predicted_output || EN: Predicted output provided by the student. || VI: Kết quả đầu ra do sinh viên tự dự đoán.
+privacy:metadata:runs:reflection || EN: Student notes or reflections on the testcase. || VI: Ghi chú hoặc phản ánh của sinh viên về testcase.
+privacy:metadata:runs:student_code_snapshot || EN: Snapshot of student code at execution time. || VI: Bản chụp mã nguồn sinh viên tại thời điểm chạy thử nghiệm.
+privacy:metadata:runs:student_run_output || EN: Output obtained from running the student program. || VI: Kết quả đầu ra thu được khi chạy chương trình của sinh viên.
+privacy:metadata:runs:timecreated || EN: Timestamp when the test run was executed. || VI: Thời điểm thực hiện lượt chạy thử nghiệm.
+privacy:metadata:runs:user_id || EN: Moodle user ID of the student who performed the run. || VI: ID người dùng Moodle của sinh viên đã thực hiện lượt chạy.
+privacy:path || EN: Testcase exchange || VI: Trao đổi testcase
+privateexploration || EN: Private testcase exploration || VI: Nhật ký thử nghiệm testcase riêng
+proposesharing || EN: Propose sharing || VI: Đề xuất chia sẻ
+public_samples_desc || EN: Testcases shown in the question description. Automatically excluded from rewards and peer contributions. || VI: Các ca kiểm thử hiển thị trực tiếp trong đề bài CodeRunner. Hệ thống tự động loại trừ, không dùng để trao thưởng và không cho phép đóng góp lại.
+public_samples_title || EN: Public sample testcases || VI: Testcase mẫu công khai
+purpose || EN: Testing purpose || VI: Mục đích kiểm thử
+purpose_help || EN: Explain the behaviour or test scenario you want to verify || VI: Giải thích hành vi hoặc trường hợp kiểm thử bạn muốn kiểm tra
+question || EN: Question || VI: Câu hỏi
+question_prompt_title || EN: Question prompt || VI: Đề bài
+questionpolicy || EN: Question policy || VI: Chính sách câu hỏi
+quiz || EN: Quiz || VI: Bài quiz
+quizpolicy || EN: Quiz policy || VI: Chính sách bài quiz
+quizquestion || EN: Quiz / question || VI: Bài quiz / câu hỏi
+rank || EN: Rank || VI: Hạng
+rank_1 || EN: Leader || VI: Dẫn đầu
+ratelimited || EN: Too many runs. Please wait one minute and try again. || VI: Bạn chạy thử quá nhanh. Vui lòng đợi một phút rồi thử lại.
+rating_1_desc || EN: Basic / Needs more distinct value || VI: Cơ bản / Cần bổ sung thêm giá trị kiểm thử
+rating_2_desc || EN: Fair / Simple testcase || VI: Trung bình / Trường hợp đơn giản
+rating_3_desc || EN: Good / Meets basic requirements || VI: Tốt / Đạt yêu cầu kiểm thử cơ bản
+rating_4_desc || EN: Very good / Accurate testcase || VI: Rất tốt / Kiểm thử chuẩn xác
+rating_5_desc || EN: Excellent / Covers edge cases || VI: Xuất sắc / Bao quát trường hợp biên đặc biệt
+ready_for_check || EN: Ready to test against your code || VI: Sẵn sàng dùng để kiểm tra bài làm
+received_testcases || EN: Received Testcases || VI: Testcase được nhận
+reflection || EN: Reflections / Notes || VI: Bài học rút ra
+rejectcontribution || EN: Reject || VI: Từ chối
+resubmitexplanation || EN: Resubmit explanation || VI: Gửi lại kèm giải thích
+review || EN: Review || VI: Duyệt
+review_modal_title || EN: Review testcase contribution || VI: Thẩm định đóng góp testcase
+reviewcontributions || EN: Review contributions || VI: Duyệt đóng góp testcase
+reviewcontributionsbtn || EN: Review contributions || VI: Duyệt đóng góp
+reviewmode || EN: Review mode || VI: Chế độ duyệt
+reviewmode_auto || EN: Automatic approval || VI: Tự động duyệt khi đạt điều kiện
+reviewmode_teacher || EN: Manual teacher review || VI: Giảng viên duyệt thủ công
+reviewnote || EN: Teacher review note || VI: Nhận xét của giảng viên
+reviewsaved || EN: The review decision was saved. || VI: Đã lưu quyết định duyệt thành công.
+rewardclaimedsuccess || EN: Congratulations! You have claimed a new reward testcase! || VI: Chúc mừng bạn đã nhận thành công testcase thưởng mới!
+rewardpolicy || EN: Reward policy || VI: Chính sách trao thưởng
+rewardpolicy_oneforone || EN: One approved contribution unlocks one testcase || VI: Mỗi đóng góp được duyệt mở khóa một testcase thưởng
+run_history_heading || EN: Test run history || VI: Lịch sử chạy thử
+run_test_btn || EN: Run test || VI: Chạy thử
+run_test_help || EN: Compare your code output against the reference solution. || VI: Đối chiếu kết quả chương trình của bạn với lời giải tham chiếu.
+runcreatedmatch || EN: The private run was saved. Your expected output matches the reference solution. || VI: Đã lưu lần chạy thử. Kết quả dự đoán khớp với lời giải tham chiếu.
+runcreatedmismatch || EN: The private run was saved. Review the difference before proposing it for sharing. || VI: Đã lưu lần chạy thử. Hãy đối chiếu kết quả trước khi gửi đóng góp.
+runcreatedoraclefailed || EN: The private run was saved. The testcase caused an execution error with the reference solution: {$a}. This testcase cannot be contributed. || VI: Đã lưu lần chạy thử. Testcase gây lỗi khi chạy với lời giải tham chiếu: {$a}. Testcase này chưa thể đóng góp.
+runcreatedsaved || EN: The private run was saved and the reference output was recorded. || VI: Đã lưu lần chạy thử và ghi nhận kết quả từ lời giải tham chiếu.
+runcreatedstudenterror || EN: The private run was saved. Your code encountered an error with this testcase while the reference solution succeeded. || VI: Đã lưu lần chạy thử. Mã nguồn của bạn phát sinh lỗi trong khi lời giải tham chiếu chạy thành công.
+running_indicator || EN: Running... || VI: Đang chạy...
+runprivate || EN: Run test || VI: Chạy thử
+runsperminute || EN: Runs per minute limit || VI: Giới hạn số lần chạy mỗi phút
+save_changes_btn || EN: Save changes || VI: Lưu thay đổi
+saverating || EN: Save review || VI: Lưu đánh giá
+schemaversion || EN: Connected; schema version {$a}. || VI: Đã kết nối; phiên bản lược đồ {$a}.
+seed_bank_desc || EN: Prepared seed testcases used for initial rewards before student peer contributions become available. || VI: Các ca kiểm thử do giảng viên chuẩn bị sẵn, dùng để trao thưởng ban đầu khi kho đóng góp của sinh viên chưa có dữ liệu.
+seed_bank_title || EN: Teacher seed testcases || VI: Testcase giảng viên bổ sung (Mầm)
+selectquestion || EN: Quiz and CodeRunner question || VI: Bài quiz và câu hỏi CodeRunner
+server || EN: Server || VI: Máy chủ
+settings_db_heading || EN: Testcase database || VI: Cơ sở dữ liệu testcase
+settings_db_heading_desc || EN: Connection used by the plugin to read and write testcase data. || VI: Kết nối được module sử dụng để đọc và ghi dữ liệu testcase.
+settings_db_host || EN: MariaDB Host || VI: Máy chủ MariaDB
+settings_db_host_desc || EN: Database hostname, without a protocol or port. || VI: Tên host của cơ sở dữ liệu, không bao gồm giao thức hoặc cổng.
+settings_db_name || EN: DB Name || VI: Tên DB
+settings_db_name_desc || EN: Name of the separate testcase database. || VI: Tên cơ sở dữ liệu testcase độc lập.
+settings_db_pass || EN: DB Password || VI: Mật khẩu DB
+settings_db_pass_desc || EN: Password for the testcase database account. || VI: Mật khẩu của tài khoản cơ sở dữ liệu testcase.
+settings_db_port || EN: Database port || VI: Cổng cơ sở dữ liệu
+settings_db_port_desc || EN: MariaDB/MySQL TCP port. || VI: Cổng TCP của MariaDB/MySQL.
+settings_db_user || EN: DB User || VI: Tài khoản DB
+settings_db_user_desc || EN: Use a dedicated account. Schema migration additionally requires CREATE, ALTER and INDEX; normal operation requires SELECT, INSERT, UPDATE and DELETE. || VI: Dùng tài khoản riêng. Migration schema cần thêm CREATE, ALTER và INDEX; vận hành thường cần SELECT, INSERT, UPDATE và DELETE.
+settings_jobe_api_key || EN: Jobe API key || VI: Jobe API key
+settings_jobe_api_key_desc || EN: Optional API key used by the health check. Configure the equivalent credential in CodeRunner for actual execution. || VI: API key tùy chọn cho health check. Hãy cấu hình credential tương ứng trong CodeRunner để thực thi.
+settings_jobe_heading || EN: Jobe runner || VI: Jobe runner
+settings_jobe_heading_desc || EN: Endpoints used by this plugin for health monitoring. Actual execution uses the CodeRunner Jobe configuration, so both settings must refer to the same cluster. || VI: Các endpoint được module dùng để kiểm tra trạng thái. Việc thực thi dùng cấu hình Jobe của CodeRunner, vì vậy hai cấu hình phải trỏ cùng cluster.
+settings_jobe_servers || EN: Jobe server URLs || VI: URL Jobe server
+showoracle || EN: Show reference output to students || VI: Hiển thị kết quả lời giải tham chiếu cho sinh viên
+starrating || EN: Star rating || VI: Đánh giá sao
+stars || EN: stars || VI: sao
+status_approved || EN: Approved || VI: Đã duyệt
+status_archived || EN: Archived || VI: Đã lưu trữ
+status_duplicate || EN: Duplicate || VI: Trùng lặp
+status_line_col || EN: Line {$a->line}, Col {$a->col} || VI: Dòng {$a->line}, Cột {$a->col}
+status_needs_explanation || EN: Needs explanation || VI: Cần giải thích
+status_rejected || EN: Rejected || VI: Từ chối
+status_spaces || EN: Spaces: {$a} || VI: Khoảng cách: {$a}
+status_submitted || EN: Pending || VI: Chờ duyệt
+student || EN: Student || VI: Sinh viên
+studentoutput || EN: Student program output || VI: Kết quả mã nguồn sinh viên
+studentsource || EN: Your source code || VI: Mã nguồn của bạn
+studentview_title || EN: Testcase experimentation and exchange || VI: Thử nghiệm và trao đổi testcase
+submit_contribution_btn || EN: Submit contribution || VI: Gửi đóng góp
+submitcodebeforetesting || EN: Check your code in the quiz first, then use its Contribute a testcase button. || VI: Hãy kiểm tra bài làm trong bài quiz trước, sau đó dùng liên kết đóng góp testcase của câu hỏi.
+switchcourse || EN: Switch course || VI: Đổi khóa học
+tab_activity || EN: Activity || VI: Hoạt động
+tab_bank || EN: Testcase bank || VI: Kho testcase
+tab_my_contributions || EN: My contributions || VI: Đóng góp của tôi
+tab_my_rewards || EN: Reward testcases || VI: Testcase thưởng
+tab_overview || EN: Overview || VI: Tổng quan
+tab_policy || EN: Settings || VI: Cài đặt
+tab_review || EN: Review contributions || VI: Duyệt đóng góp
+tab_solve || EN: Experimentation || VI: Thử nghiệm
+teachercomment || EN: Teacher comment || VI: Nhận xét của giảng viên
+teacherview_title || EN: Testcase exchange management || VI: Quản lý trao đổi testcase
+testcase_exchange:contribute || EN: Contribute testcases || VI: Đóng góp testcase
+testcase_exchange:manage || EN: Manage the testcase repository || VI: Quản lý kho dữ liệu testcase
+testcase_exchange:review || EN: Review testcase contributions || VI: Duyệt testcase đóng góp
+testcase_exchange:run || EN: Run private testcase explorations || VI: Chạy thử testcase riêng tư
+testcase_exchange:view || EN: View testcase exchange and leaderboard || VI: Xem bảng xếp hạng và trao đổi testcase
+testcaseexchangeheading || EN: Testcase contributions || VI: Đóng góp testcase
+testcodetemplate || EN: Test-code template containing {{INPUT}} || VI: Mẫu mã kiểm thử chứa {{INPUT}}
+testinput || EN: Test input || VI: Dữ liệu đầu vào
+theme_dark || EN: Dark mode || VI: Giao diện tối
+theme_light || EN: Light mode || VI: Giao diện sáng
+total_stars || EN: Total stars ⭐ || VI: Tổng sao ⭐
+totalcontributions || EN: Total contributions || VI: Tổng đóng góp
+unavailable || EN: Unavailable || VI: Không khả dụng
+unclaimed || EN: Unclaimed || VI: Chưa nhận
+unclaimed_rewards_alert || EN: Reward testcases available to claim || VI: Testcase thưởng có thể nhận
+unexpectederror || EN: The operation could not be completed. Please try again or contact the administrator. || VI: Không thể hoàn tất thao tác. Vui lòng thử lại hoặc liên hệ quản trị viên.
+userid || EN: User ID || VI: ID người dùng
+view_and_review || EN: View & review || VI: Xem và duyệt
+view_as_student || EN: View as student || VI: Xem như sinh viên
+viewtestcasebank || EN: Open testcase bank || VI: Vào kho testcase
+xml_import_not_implemented || EN: XML import is not currently supported. Please add testcases manually using the form above. || VI: Tính năng nhập XML hiện chưa được hỗ trợ. Vui lòng thêm testcase thủ công bằng biểu mẫu trên.
+your_rank || EN: Your position || VI: Vị trí của bạn

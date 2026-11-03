@@ -1,0 +1,16 @@
+NOT FOUND: tab_experimentation
+tab_my_contributions || EN: My contributions || VI: Đóng góp của tôi
+NOT FOUND: tab_rewards
+NOT FOUND: tab_leaderboard
+NOT FOUND: your_source_code
+run_test_btn || EN: Run test || VI: Chạy thử
+submit_contribution_btn || EN: Submit contribution || VI: Gửi đóng góp
+latest_result_heading || EN: Latest test run result || VI: Kết quả lần chạy mới nhất
+NOT FOUND: history_heading
+tab_review || EN: Review contributions || VI: Duyệt đóng góp
+tab_bank || EN: Testcase bank || VI: Kho testcase
+tab_activity || EN: Activity || VI: Hoạt động
+NOT FOUND: tab_settings
+pending || EN: Pending || VI: Chờ duyệt
+status_approved || EN: Approved || VI: Đã duyệt
+NOT FOUND: save_changes

@@ -54,3 +54,4 @@ ui_ux_survey_report.zip
 survey_deliverables/screenshots/*
 testcase_exchange_verified_package.zip
 verification_evidence/*
+e2e/recordings/*.png

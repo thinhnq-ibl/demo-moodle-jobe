@@ -17,14 +17,14 @@ module.exports = defineConfig({
     baseURL: 'http://localhost:8080',
     trace: 'on',
     screenshot: 'on',
-    video: 'on',
+    video: 'off',
     viewport: { width: 1280, height: 800 },
     actionTimeout: 15000,
   },
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     },
   ],
 });

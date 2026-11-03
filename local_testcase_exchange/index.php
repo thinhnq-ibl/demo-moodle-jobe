@@ -1198,6 +1198,15 @@ if ($is_student_view) {
     ]))->out(false);
 }
 
+if ($selectedquestion) {
+    if ($PAGE->requires->should_create_one_time_item_now('local_testcase_exchange-ace-scripts')) {
+        $PAGE->requires->js(new moodle_url('/local/testcase_exchange/ace/ace.js'));
+        $PAGE->requires->js(new moodle_url('/local/testcase_exchange/ace/ext-language_tools.js'));
+        $PAGE->requires->js(new moodle_url('/local/testcase_exchange/ace/ext-modelist.js'));
+        $PAGE->requires->js(new moodle_url('/local/testcase_exchange/ace/ext-searchbox.js'));
+    }
+}
+
 echo $OUTPUT->header();
 echo $OUTPUT->render_from_template('local_testcase_exchange/dashboard', $templatedata);
 echo $OUTPUT->footer();
