@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_testcase_exchange';
-$plugin->version   = 2026110202;
+$plugin->version   = 2026110301;
 $plugin->requires  = 2023100900; // Moodle 4.3+.
 $plugin->maturity  = MATURITY_BETA;
 $plugin->release   = '2.3.1-beta';

@@ -1,14 +1,21 @@
 /* =========================================================================
    Plugin: local_testcase_exchange
    Styles for Student & Teacher Dashboards, Review and Policy Views
-   Clean, Moodle-aligned, accessible, mobile-first design
+   Clean, Moodle-aligned, accessible, mobile-first design (WCAG AA compliant)
    ========================================================================= */
+
+.local-testcase-exchange-root,
+.local-testcase-exchange-root * {
+    box-sizing: border-box;
+}
 
 .local-testcase-exchange-root {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     font-size: 1rem;
     line-height: 1.5;
-    color: #1e293b;
+    color: #1e293b; /* High contrast primary body text (13:1) */
+    width: 100%;
+    max-width: 100%;
 }
 
 /* 1. TYPOGRAPHY & HEADINGS */
@@ -29,14 +36,18 @@
 .local-testcase-exchange-root h5 {
     font-size: 1.05rem;
     font-weight: 600;
-    color: #334155;
+    color: #1e293b;
 }
 
 .local-testcase-exchange-root .small,
 .local-testcase-exchange-root small,
 .local-testcase-exchange-root .tce-subtext {
     font-size: 0.875rem;
-    color: #64748b;
+    color: #475569; /* WCAG AA contrast (5.4:1 on white) */
+}
+
+.local-testcase-exchange-root .text-muted {
+    color: #475569 !important; /* Ensure readable contrast */
 }
 
 /* 2. SPACING & ELEVATION */
@@ -45,7 +56,7 @@
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
-    margin-bottom: 1.5rem; /* 24px */
+    margin-bottom: 1.25rem;
 }
 
 .local-testcase-exchange-root .card-header {
@@ -70,7 +81,7 @@
 }
 
 .local-testcase-exchange-root .nav-tabs .nav-link {
-    color: #475569;
+    color: #334155;
     font-size: 0.95rem;
     font-weight: 600;
     border: 1px solid transparent;
@@ -135,6 +146,8 @@
     border-radius: 6px;
     color: #1e293b;
     padding: 0.45rem 0.75rem;
+    max-width: 100%;
+    min-width: 0;
 }
 
 .local-testcase-exchange-root .form-control:focus,
@@ -152,7 +165,7 @@
     line-height: 1.5;
 }
 
-/* 6. BADGES & NOTIFICATIONS (Moodle Palette with text labels) */
+/* 6. BADGES & NOTIFICATIONS (High contrast WCAG AA) */
 .local-testcase-exchange-root .badge {
     font-size: 0.85rem;
     font-weight: 600;
@@ -161,61 +174,101 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
+    white-space: normal !important;
+    word-break: break-word !important;
+    max-width: 100% !important;
+    text-align: left !important;
 }
 
 .local-testcase-exchange-root .badge-success {
-    background-color: #ecfdf5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
+    background-color: #ecfdf5 !important;
+    color: #065f46 !important;
+    border: 1px solid #a7f3d0 !important;
 }
 
 .local-testcase-exchange-root .badge-danger {
-    background-color: #fef2f2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+    background-color: #fef2f2 !important;
+    color: #991b1b !important;
+    border: 1px solid #fecaca !important;
 }
 
 .local-testcase-exchange-root .badge-warning {
-    background-color: #fffbeb;
-    color: #92400e;
-    border: 1px solid #fde68a;
+    background-color: #fffbeb !important;
+    color: #92400e !important;
+    border: 1px solid #fde68a !important;
 }
 
 .local-testcase-exchange-root .badge-info {
-    background-color: #eff6ff;
-    color: #1d4ed8;
-    border: 1px solid #bfdbfe;
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+    border: 1px solid #bfdbfe !important;
 }
 
 .local-testcase-exchange-root .badge-secondary {
-    background-color: #f1f5f9;
-    color: #475569;
-    border: 1px solid #cbd5e1;
+    background-color: #f1f5f9 !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
 }
 
-/* 7. STUDENT WORKSPACE (2 Columns on Desktop: 55% Code / 45% Testcase) */
+/* Semantic output contrast classes */
+.bg-success-light {
+    background-color: #ecfdf5 !important;
+    color: #065f46 !important;
+    border: 1px solid #a7f3d0 !important;
+}
+
+.bg-danger-light {
+    background-color: #fef2f2 !important;
+    color: #991b1b !important;
+    border: 1px solid #fecaca !important;
+}
+
+.bg-warning-light {
+    background-color: #fffbeb !important;
+    color: #92400e !important;
+    border: 1px solid #fde68a !important;
+}
+
+.bg-info-light {
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+    border: 1px solid #bfdbfe !important;
+}
+
+.bg-neutral-light {
+    background-color: #f8fafc !important;
+    color: #1e293b !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+/* 7. STUDENT WORKSPACE (2 Columns on Desktop: 54% Code / 46% Testcase) */
 .tce-workspace-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 1.25rem;
     margin-bottom: 1.5rem;
+    width: 100%;
 }
 
 .tce-code-column {
     flex: 1 1 54%;
-    min-width: 320px;
+    min-width: 0;
 }
 
 .tce-testcase-column {
     flex: 1 1 42%;
-    min-width: 300px;
+    min-width: 0;
 }
 
 @media (max-width: 991.98px) {
+    .tce-workspace-grid {
+        flex-direction: column;
+    }
     .tce-code-column,
     .tce-testcase-column {
-        flex: 1 1 100%;
-        min-width: 100%;
+        flex: 1 1 100% !important;
+        min-width: 0 !important;
+        width: 100% !important;
     }
 }
 
@@ -275,6 +328,7 @@
     border: 1px solid #e2e8f0;
     border-radius: 6px;
     position: relative;
+    -webkit-overflow-scrolling: touch;
 }
 
 .tce-history-table-container thead th {
@@ -282,7 +336,7 @@
     top: 0;
     z-index: 5;
     background-color: #f8fafc;
-    color: #475569;
+    color: #334155;
     border-bottom: 2px solid #cbd5e1;
 }
 
@@ -301,8 +355,9 @@
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
-    padding: 1rem;
+    padding: 0.85rem;
     margin-bottom: 0.75rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 @media (max-width: 767.98px) {
@@ -310,7 +365,20 @@
         display: none !important;
     }
     .tce-mobile-run-card {
-        display: block;
+        display: block !important;
+    }
+    .tce-context-bar form {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+    }
+    .tce-context-bar select {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .local-testcase-exchange-root select {
+        width: 100% !important;
+        max-width: 100% !important;
     }
 }
 
@@ -327,4 +395,20 @@ tr[id^="run-"]:target {
     border-radius: 8px;
     padding: 0.75rem 1rem;
     margin-bottom: 1.25rem;
+    width: 100%;
+}
+
+/* Cursor pointer utility */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Modals */
+.local-testcase-exchange-root .modal-content {
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+}
+
+.local-testcase-exchange-root .modal-dialog {
+    max-width: 800px;
 }

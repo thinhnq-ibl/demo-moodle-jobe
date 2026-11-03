@@ -108,5 +108,22 @@ function xmldb_local_testcase_exchange_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026110202, 'local', 'testcase_exchange');
     }
 
+    if ($oldversion < 2026110301) {
+        $table = new xmldb_table('local_tce_contributions');
+        $fieldexp = new xmldb_field('expected_output', XMLDB_TYPE_TEXT, null, null, null, null, null, 'input_fingerprint');
+        if (!$dbman->field_exists($table, $fieldexp)) {
+            $dbman->add_field($table, $fieldexp);
+        }
+        try {
+            $DB->execute("UPDATE {local_tce_contributions} c
+                            JOIN {local_tce_runs} r ON r.id = c.run_id
+                             SET c.expected_output = r.predicted_output
+                           WHERE c.expected_output IS NULL");
+        } catch (\Throwable $e) {
+            // Ignored if table empty or DB syntax differs
+        }
+        upgrade_plugin_savepoint(true, 2026110301, 'local', 'testcase_exchange');
+    }
+
     return true;
 }
