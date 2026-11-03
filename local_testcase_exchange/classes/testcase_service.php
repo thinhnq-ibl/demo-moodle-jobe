@@ -88,15 +88,34 @@ final class testcase_service {
             'SELECT * FROM {local_tce_policies} WHERE quiz_id = ? AND question_id = ?',
             [$quizid, $questionid]
         );
-        $defaults = [
+        if ($row) {
+            return $row;
+        }
+
+        // Auto-detect default input_mode based on whether question testcases utilize stdin.
+        $detectedmode = 'testcode';
+        try {
+            global $DB;
+            $hasstdin = $DB->record_exists_select(
+                'question_coderunner_tests',
+                'questionid = ? AND stdin IS NOT NULL AND stdin <> \'\'',
+                [$questionid]
+            );
+            if ($hasstdin) {
+                $detectedmode = 'stdin';
+            }
+        } catch (\Throwable $e) {
+            // Fallback to testcode.
+        }
+
+        return [
             'question_id' => $questionid,
             'quiz_id' => $quizid,
-            'input_mode' => 'testcode',
+            'input_mode' => $detectedmode,
             'testcode_template' => '',
             'normalization_mode' => 'trim',
             'categories' => "edge_case\nrandom\nperformance\nsyntax",
         ];
-        return $row ?: $defaults;
     }
 
     /**
@@ -640,8 +659,8 @@ final class testcase_service {
      */
     public function save_question_policy(int $quizid, int $questionid, int $userid, array $values): void {
         $curr = $this->db->fetch_row(
-            'SELECT id, input_mode, testcode_template, normalization_mode, categories FROM {local_tce_policies} WHERE question_id = ?',
-            [$questionid]
+            'SELECT id, input_mode, testcode_template, normalization_mode, categories FROM {local_tce_policies} WHERE quiz_id = ? AND question_id = ?',
+            [$quizid, $questionid]
         );
 
         $mode_val = array_key_exists('input_mode', $values) ? $values['input_mode'] : ($curr['input_mode'] ?? 'testcode');
@@ -899,17 +918,20 @@ final class testcase_service {
         }
 
         $where = implode(' AND ', $conditions);
-        $sql = "SELECT c.*,
+                $sql = "SELECT c.*,
                        (SELECT cr.review_note FROM {local_tce_reviews} cr
-                         WHERE cr.contribution_id = c.id AND cr.review_note IS NOT NULL AND cr.review_note <> ''
-                         ORDER BY cr.id DESC) AS latest_review_note,
+                         WHERE cr.id = (
+                             SELECT MAX(cr2.id) FROM {local_tce_reviews} cr2
+                              WHERE cr2.contribution_id = c.id AND cr2.review_note IS NOT NULL AND cr2.review_note <> ''
+                         )) AS latest_review_note,
                        (SELECT cr.rating FROM {local_tce_reviews} cr
-                         WHERE cr.contribution_id = c.id AND cr.rating IS NOT NULL AND cr.rating > 0
-                         ORDER BY cr.id DESC) AS latest_rating
+                         WHERE cr.id = (
+                             SELECT MAX(cr3.id) FROM {local_tce_reviews} cr3
+                              WHERE cr3.contribution_id = c.id AND cr3.rating IS NOT NULL AND cr3.rating > 0
+                         )) AS latest_rating
                   FROM {local_tce_contributions} c
                  WHERE {$where}
               ORDER BY c.id DESC";
-
         return $this->db->fetch_all($sql, $params);
     }
 

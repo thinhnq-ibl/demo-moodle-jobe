@@ -178,17 +178,11 @@ class quizaccess_testcaseexchange extends access_rule_base {
             ['class' => 'btn btn-outline-primary font-weight-bold text-nowrap']
         );
 
-        $headertext = get_string('testcasebanner', 'quizaccess_testcaseexchange');
         $desctext = get_string('testcasebanner_desc', 'quizaccess_testcaseexchange');
 
         $content = \html_writer::div(
-            '<div class="d-flex align-items-center justify-content-between flex-wrap">' .
-                '<div class="mr-3 mb-2 mb-md-0">' .
-                    '<div class="font-weight-bold text-dark mb-1">' . $headertext . '</div>' .
-                    '<div class="text-muted small">' . $desctext . '</div>' .
-                '</div>' .
-                '<div class="mt-1 mt-md-0">' . $btn . '</div>' .
-            '</div>',
+            '<div class="text-muted">' . $desctext . '</div>' .
+            '<div class="mt-3">' . $btn . '</div>',
             'card bg-light border p-3 my-4'
         );
 

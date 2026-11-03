@@ -181,8 +181,37 @@ $title = $is_teacher_view ? get_string('teacherview_title', 'local_testcase_exch
 $PAGE->set_title($title);
 $PAGE->set_heading($course->fullname . ' — ' . $title);
 
+$service = null;
+$databaseerror = '';
+try {
+    $service = new testcase_service();
+} catch (Throwable $e) {
+    $databaseerror = get_string('databaseunavailable', 'local_testcase_exchange');
+    debugging($e->getMessage(), DEBUG_DEVELOPER);
+}
+
 // Load all CodeRunner questions in the course.
-$questions = context_service::questions_for_course($courseid);
+$rawquestions = context_service::questions_for_course($courseid);
+$modinfo = get_fast_modinfo($courseid);
+
+$questions = [];
+foreach ($rawquestions as $q) {
+    $cm = $modinfo->instances['quiz'][(int) $q->quizid] ?? null;
+    $hasaccess = $cm ? (bool) $cm->uservisible : false;
+    $qquizsettings = $service ? $service->quiz_settings((int) $q->quizid) : ['enabled' => 0];
+    $isenabled = !empty($qquizsettings['enabled']);
+
+    // Exclude quizzes where testcase exchange is disabled (for both teacher and student views).
+    if (!$isenabled) {
+        continue;
+    }
+    // In student view: also exclude quizzes where user cannot access in Moodle.
+    if ($is_student_view && !$hasaccess) {
+        continue;
+    }
+    $questions[] = $q;
+}
+
 $questionmap = [];
 foreach ($questions as $question) {
     $questionmap[$question->quizid . ':' . $question->questionid] = $question;
@@ -276,14 +305,7 @@ if ($returnurl === '') {
     }
 }
 
-$service = null;
-$databaseerror = '';
-try {
-    $service = new testcase_service();
-} catch (Throwable $e) {
-    $databaseerror = get_string('databaseunavailable', 'local_testcase_exchange');
-    debugging($e->getMessage(), DEBUG_DEVELOPER);
-}
+// Service initialized above.
 
 // Handle POST actions with strict sesskey and capability checks.
 if ($service && data_submitted()) {
@@ -520,7 +542,7 @@ foreach ($questions as $question) {
         'value' => $val,
         'quiz_id' => (int) $question->quizid,
         'question_id' => (int) $question->questionid,
-        'label' => $question->quizname . ' — ' . $question->questionname . ($disabled ? ' (' . get_string('disabled', 'core') . ')' : ''),
+        'label' => trim($question->quizname) . ' — ' . trim($question->questionname) . ($disabled ? ' (' . get_string('disabled', 'core') . ')' : ''),
         'disabled' => $disabled,
         'selected' => ($requestedselection === $val),
     ];

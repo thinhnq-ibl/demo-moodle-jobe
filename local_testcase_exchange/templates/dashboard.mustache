@@ -31,29 +31,31 @@
 {{! TEACHER MANAGEMENT HUB VIEW                                               }}
 {{! ========================================================================= }}
 {{#is_teacher_view}}
-<div class="card mb-4 border-dark shadow-sm">
-    <div class="card-header bg-dark text-white d-flex flex-wrap justify-content-between align-items-center py-3">
+<div class="card mb-4 border-primary shadow-sm">
+    <div class="card-header bg-primary text-white d-flex flex-wrap justify-content-between align-items-center py-3">
         <div>
             <h4 class="mb-0 font-weight-bold">👨‍🏫 {{#str}} teacherview_title, local_testcase_exchange {{/str}}</h4>
-            <small class="text-light opacity-75">Quản lý đóng góp, ngân hàng testcase, phân tích dòng thời gian và chính sách kiểm thử</small>
+            <small class="text-white-50">Quản lý đóng góp, ngân hàng testcase, phân tích dòng thời gian và chính sách kiểm thử</small>
         </div>
         <div class="mt-2 mt-md-0">
-            <a class="btn btn-warning font-weight-bold shadow-sm" href="{{preview_mode_url}}">
+            <a class="btn btn-light text-primary font-weight-bold shadow-sm" href="{{preview_mode_url}}">
                 👁️ {{#str}} view_as_student, local_testcase_exchange {{/str}}
             </a>
         </div>
     </div>
     <div class="card-body bg-light border-bottom py-2">
-        <form method="get" class="form-inline d-flex flex-wrap align-items-center">
+        <form method="get" class="d-flex flex-wrap align-items-center" style="gap: 10px;">
             <input type="hidden" name="course" value="{{course_id}}">
             <input type="hidden" name="tab" value="{{#tab_overview_active}}overview{{/tab_overview_active}}{{#tab_review_active}}review{{/tab_review_active}}{{#tab_bank_active}}bank{{/tab_bank_active}}{{#tab_activity_active}}activity{{/tab_activity_active}}{{#tab_policy_active}}policy{{/tab_policy_active}}">
-            <label for="teacherQuestionSelect" class="mr-2 font-weight-bold text-dark">🎯 Chọn Bài tập / Câu hỏi:</label>
-            <select class="custom-select custom-select-sm mr-3 font-weight-bold" id="teacherQuestionSelect" name="question" onchange="this.form.submit()">
-                {{#questions}}
-                <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
-                {{/questions}}
-            </select>
-            <span class="badge badge-info p-2">Ngôn ngữ: <strong>{{coderunnertype}}</strong></span>
+            <label for="teacherQuestionSelect" class="mb-0 mr-2 font-weight-bold text-dark text-nowrap">🎯 Chọn Bài tập / Câu hỏi:</label>
+            <div style="max-width: 480px; flex: 1 1 300px;">
+                <select class="custom-select custom-select-sm font-weight-bold" id="teacherQuestionSelect" name="question" onchange="this.form.submit()" style="max-width: 480px; width: 100%;">
+                    {{#questions}}
+                    <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+                    {{/questions}}
+                </select>
+            </div>
+            <span class="badge badge-light border text-dark p-2 text-nowrap">Ngôn ngữ: <strong class="text-primary">{{coderunnertype}}</strong></span>
         </form>
     </div>
 </div>
@@ -634,7 +636,7 @@
             <strong>{{#str}} previewmode_banner, local_testcase_exchange {{/str}}</strong>
         </div>
     </div>
-    <a href="{{exit_preview_url}}" class="btn btn-dark btn-sm font-weight-bold shadow-sm">
+    <a href="{{exit_preview_url}}" class="btn btn-primary btn-sm font-weight-bold shadow-sm text-white">
         ⬅️ {{#str}} previewmode_exit, local_testcase_exchange {{/str}}
     </a>
 </div>
@@ -727,9 +729,9 @@
                 <span class="badge badge-light text-dark font-weight-bold">Quiz: {{current_quiz_name}} | {{coderunnertype}}</span>
             </div>
             <div class="card-body">
-                <div class="form-group mb-3">
+                <div class="form-group mb-3" style="max-width: 550px;">
                     <label for="question"><strong>🎯 Đổi bài tập khác:</strong></label>
-                    <select class="form-control font-weight-bold" id="question" name="question">
+                    <select class="custom-select font-weight-bold" id="question" name="question" style="max-width: 550px; width: 100%;">
                         {{#questions}}
                         <option value="{{value}}" {{#disabled}}disabled{{/disabled}} {{#selected}}selected{{/selected}}>{{label}}</option>
                         {{/questions}}
@@ -1286,5 +1288,39 @@ tr[id^="run-"]:target {
     background-color: #fff3cd !important;
     outline: 2px solid #ffc107;
     transition: background-color 0.4s ease;
+}
+
+/* Fix dropdown options list shifting left and clipping text */
+#question {
+    width: 100% !important;
+    max-width: 550px !important;
+    direction: ltr !important;
+    text-align: left !important;
+    text-align-last: left !important;
+    text-indent: 0 !important;
+    padding-left: 0.75rem !important;
+    box-sizing: border-box !important;
+}
+
+#teacherQuestionSelect {
+    width: 100% !important;
+    max-width: 480px !important;
+    direction: ltr !important;
+    text-align: left !important;
+    text-align-last: left !important;
+    text-indent: 0 !important;
+    padding-left: 0.75rem !important;
+    box-sizing: border-box !important;
+}
+
+#question option,
+#teacherQuestionSelect option {
+    direction: ltr !important;
+    text-align: left !important;
+    text-align-last: left !important;
+    text-indent: 0 !important;
+    padding: 6px 10px !important;
+    font-weight: normal !important;
+    white-space: normal !important;
 }
 </style>

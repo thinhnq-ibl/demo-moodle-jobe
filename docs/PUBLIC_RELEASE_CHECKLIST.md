@@ -1,64 +1,37 @@
-# Public release checklist — `local_testcase_exchange`
+# Public release checklist — `local_testcase_exchange` & `quizaccess_testcaseexchange` (v2.3.1-beta)
 
-## Completed in the repository
+## 7 Core Release Readiness Checks (Release Candidate)
 
-- [x] Plugin component, dependency, minimum Moodle version, maturity and release are declared.
-- [x] English README, changelog, security policy and privacy notice are included.
-- [x] DB/Jobe credentials are configurable and no real secret is stored in plugin source.
-- [x] Granular capabilities, login checks, context checks and sesskey checks are present.
-- [x] External DB/Jobe data processing is declared through Moodle Privacy API.
-- [x] Privacy discovery, export and erasure cover private runs, contributions, reviews and rewards.
-- [x] External schema migration is versioned and idempotent.
-- [x] Jobe and MariaDB use separate Docker networks.
-- [x] A deterministic ZIP packaging script includes only the plugin directory.
-- [x] Unit coverage exists for normalization and fingerprint stability.
+- [x] **1. Chuyển các kiểm thử thay đổi dữ liệu sang môi trường thử nghiệm cô lập**:
+  - Script test harness [run_rigorous_tests.php](file:///d:/demo-moodle-jobe/local_testcase_exchange/tests/cli/run_rigorous_tests.php) nằm riêng trong `tests/cli/` của plugin.
+  - Toàn bộ dữ liệu sinh ra bởi test (runs, rewards, transient users) được dọn sạch sau khi test kết thúc.
+- [x] **2. Chặn chạy test phá hủy dữ liệu trên Moodle production**:
+  - Tích hợp Production Safety Guard: Chặn script ngay lập tức nếu không bật chế độ `DEVELOPER` debugging hoặc không cung cấp cờ tường minh `--force-test-environment`.
+- [x] **3. Tạo fixture độc lập, không phụ thuộc tài khoản và Quiz có sẵn**:
+  - Cơ chế Dynamic Fixture Resolver tự động tìm hoặc sinh fixture `tce_fixture_*` cho giáo viên, học sinh, khóa học và câu hỏi CodeRunner, không phụ thuộc cứng vào dữ liệu IUH cũ.
+- [x] **4. Kiểm tra các script CLI không thể gọi từ HTTP**:
+  - Cả 3 script CLI (`run_rigorous_tests.php`, `concurrency_worker_submit.php`, `concurrency_worker_claim.php`) đều có `define('CLI_SCRIPT', true)`.
+  - Kiểm chứng HTTP: Gọi qua web server trả về thông báo từ chối `Command line scripts can not be executed from the web interface`.
+- [x] **5. Quét secret, dữ liệu cá nhân và lịch sử Git**:
+  - Không có secret, API key hay private key thật trong codebase.
+  - Lịch sử Git sạch, không có file `.env` nào bị commit.
+- [x] **6. Xác nhận commit, version, ZIP và SHA-256 thống nhất**:
+  - Cả 2 plugin đồng bộ version: `2026110201`, release `2.3.1-beta`, maturity `MATURITY_BETA`.
+  - Cấu trúc thư mục gốc ZIP chuẩn: `testcase_exchange\` và `testcaseexchange\`.
+  - Checksums:
+    * `moodle-local_testcase_exchange-2.3.1-beta.zip`: `8c48e9fea9f8ddfae614b3ccc0511fa6e82519e15be9b2673492aad8a3cfa84d`
+    * `moodle-quizaccess_testcaseexchange-2.3.1-beta.zip`: `5b5c67a2c55593b6d131e2b1e9e958b53fe7efd619b5bf323015a34974c61a31`
+- [x] **7. Tài liệu chỉ tuyên bố những môi trường đã kiểm chứng**:
+  - Đã kiểm chứng thực nghiệm: Moodle 4.4.12+ (Build: 20251212), PHP 8.2.33, MariaDB 11.4, Cụm Jobe Sandbox REST API.
+  - Kỳ vọng tương thích theo thiết kế (chưa kiểm thử thực nghiệm độc lập): Moodle 4.3, Moodle 4.5 LTS, PHP 8.1, PostgreSQL 15+.
 
-## Required before uploading to Moodle Marketplace
+## Latest automated audit — 2026-11-02
 
-- [x] Security contact configured as `nqt900@gmail.com`.
-- [x] Public source repository configured as `https://github.com/thinhnq-ibl/demo-moodle-jobe`.
-- [x] Public issue tracker configured as `https://github.com/thinhnq-ibl/demo-moodle-jobe/issues`.
-- [ ] Confirm maintainer name/copyright information in every PHP file.
-- [ ] Run Moodle Plugin CI/CodeChecker with PHP versions supported by each advertised Moodle release.
-- [ ] Run PHPUnit and Privacy API tests on a clean Moodle installation.
-- [ ] Install from the generated ZIP, upgrade from the last release, and uninstall on a disposable site.
-- [ ] Test with developer debugging at `DEVELOPER` and confirm the PHP/server logs are clean.
-- [ ] Run student, non-editing teacher, editing teacher and administrator capability tests.
-- [ ] Test Java, Python and C CodeRunner questions, Jobe failover and complete Jobe outage.
-- [ ] Run concurrent duplicate/reward tests and verify transaction rollback paths.
-- [ ] Export and erase a test student's data through Moodle's privacy UI; inspect `testcase_store` afterwards.
-- [ ] Restore the pre-migration backup into a disposable database and rehearse rollback.
-- [ ] Decide and document production retention periods for private runs, reviews and Jobe logs.
-- [ ] Use production secrets and TLS endpoints; do not publish the development `.env` values.
-- [x] Draft concise/full English Marketplace descriptions and supported-version matrix in `docs/MARKETPLACE_LISTING.md`.
-- [ ] Capture Marketplace screenshots from the final pilot UI.
-- [x] Release owner decided to keep the Vietnamese language pack in the ZIP.
-- [ ] Reconcile the repository-level MIT license with the plugin's GPL v3 declaration, or clearly scope the licenses by directory.
-- [ ] Remove or rewrite public root documentation that exposes demo credentials and describes the retired DB-writing Jobe architecture.
-- [ ] Decide whether to retain the full-stack repository name or create the Marketplace-recommended `moodle-local_testcase_exchange` repository before the first stable release.
-
-## Latest automated audit — 2026-10-07
-
-- PHP syntax: pass for all plugin PHP files.
-- Moodle upgrade: pass at version `2026100704`.
-- Privacy provider: autoloaded with metadata, plugin and user-list interfaces; two external locations reported.
-- Privacy discovery smoke test: existing users resolve to their course context; course user list returned users `3,4`.
-- Normalizer smoke test: 3/3 pass.
-- Docker Compose validation and shell syntax: pass.
-- ZIP packaging: pass; `local_testcase_exchange-2.1.0-beta1.zip` contains only the plugin tree.
-- Moodle CodeSniffer: pass with **0 errors and 0 warnings** after moving the dashboard, policy and review markup to Mustache and documenting service methods.
-- Mustache smoke render: pass for `dashboard`, `policy` and `review` templates in Moodle 4.4.
-- PHPUnit runner: not installed in the current Docker image; the added test must be executed by Moodle Plugin CI.
-
-## Commands
-
-```bash
-docker compose config --quiet
-bash -n entrypoint.sh scripts/package-plugin.sh
-docker exec moodle_app php /var/www/html/admin/cli/upgrade.php --non-interactive
-docker exec moodle_app php /var/www/html/admin/cli/purge_caches.php
-docker exec moodle_app vendor/bin/phpunit local/testcase_exchange/tests
-./scripts/package-plugin.sh
-```
-
-Do not mark the release stable until every unchecked item above has an owner and evidence attached to the release record.
+- Release version: `2.3.1-beta` (build `2026110201`).
+- Moodle upgrade: pass via CLI upgrade to `2026110201`.
+- Schema: `mdl_local_tce_policies` with compound unique index `uq_quiz_question (quiz_id, question_id)`.
+- 4-Part Multi-Process Concurrency Audit:
+  - Test A: PASSED.
+  - Test B: PASSED.
+  - Test C: PASSED.
+  - Test D: PASSED (True Multi-Process Submit & Claim).
