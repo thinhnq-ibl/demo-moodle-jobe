@@ -134,8 +134,8 @@
             </div>
             <div class="col-6 col-lg-3 mb-2 px-1">
                 <div class="card h-100 border-0 bg-light p-2 p-md-3 shadow-sm tce-stat-card-mobile" style="border-left: 4px solid #7c3aed !important;">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="text-muted small font-weight-bold text-uppercase text-truncate">{{#str}} rewards_granted_title, local_testcase_exchange {{/str}}</div>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="text-muted small font-weight-bold text-uppercase" style="line-height: 1.2;">{{#str}} rewards_granted_title, local_testcase_exchange {{/str}}</div>
                         <span class="badge badge-light border text-muted small d-none d-md-inline">{{overview_stats.scope_label}}</span>
                     </div>
                     <div class="h4 font-weight-bold mb-1 mt-1 text-dark">{{overview_stats.claimed_rewards}} <small class="text-muted" style="font-size: 0.85rem;">/ {{overview_stats.total_rewards}}</small></div>
@@ -403,11 +403,11 @@
                                     </label>
                                     <select class="custom-select" name="rating">
                                         <option value="0">{{#str}} rating_none, local_testcase_exchange {{/str}}</option>
-                                        <option value="5" {{#is_rating_5}}selected{{/is_rating_5}}>⭐⭐⭐⭐⭐ 5 sao - {{#str}} rating_5, local_testcase_exchange {{/str}}</option>
-                                        <option value="4" {{#is_rating_4}}selected{{/is_rating_4}}>⭐⭐⭐⭐ 4 sao - {{#str}} rating_4, local_testcase_exchange {{/str}}</option>
-                                        <option value="3" {{#is_rating_3}}selected{{/is_rating_3}}>⭐⭐⭐ 3 sao - {{#str}} rating_3, local_testcase_exchange {{/str}}</option>
-                                        <option value="2" {{#is_rating_2}}selected{{/is_rating_2}}>⭐⭐ 2 sao - {{#str}} rating_2, local_testcase_exchange {{/str}}</option>
-                                        <option value="1" {{#is_rating_1}}selected{{/is_rating_1}}>⭐ 1 sao - {{#str}} rating_1, local_testcase_exchange {{/str}}</option>
+                                        <option value="5" {{#is_rating_5}}selected{{/is_rating_5}}>⭐⭐⭐⭐⭐ {{#str}} rating_5, local_testcase_exchange {{/str}}</option>
+                                        <option value="4" {{#is_rating_4}}selected{{/is_rating_4}}>⭐⭐⭐⭐ {{#str}} rating_4, local_testcase_exchange {{/str}}</option>
+                                        <option value="3" {{#is_rating_3}}selected{{/is_rating_3}}>⭐⭐⭐ {{#str}} rating_3, local_testcase_exchange {{/str}}</option>
+                                        <option value="2" {{#is_rating_2}}selected{{/is_rating_2}}>⭐⭐ {{#str}} rating_2, local_testcase_exchange {{/str}}</option>
+                                        <option value="1" {{#is_rating_1}}selected{{/is_rating_1}}>⭐ {{#str}} rating_1, local_testcase_exchange {{/str}}</option>
                                     </select>
                                 </div>
                             </div>
@@ -816,7 +816,7 @@
 {{/has_unclaimed_rewards}}
 
 <!-- Student Navigation Tabs -->
-<ul class="nav nav-tabs font-weight-bold mb-3" role="tablist">
+<ul class="nav nav-tabs font-weight-bold mb-3 tce-nav-tabs-scroll" role="tablist">
     <li class="nav-item">
         <a class="nav-link active" data-toggle="tab" href="#student_solve">
             <i class="fa fa-terminal mr-1"></i>{{#str}} tab_solve, local_testcase_exchange {{/str}}
@@ -877,7 +877,7 @@
                 <span class="font-weight-bold text-dark">
                     <i class="fa fa-file-text-o text-primary mr-1"></i>{{#str}} question_prompt_title, local_testcase_exchange {{/str}}: {{current_question_name}}
                 </span>
-                <button class="btn btn-sm btn-link text-muted p-0 font-weight-bold" type="button" data-toggle="collapse" data-target="#questionPromptBody" aria-expanded="true" aria-controls="questionPromptBody" id="btnToggleQuestionPrompt" style="white-space: nowrap !important; text-decoration: none; flex-shrink: 0;">
+                <button class="btn btn-sm btn-link text-muted p-0 font-weight-bold" type="button" data-toggle="collapse" data-target="#questionPromptBody" aria-expanded="true" aria-controls="questionPromptBody" id="btnToggleQuestionPrompt" style="white-space: nowrap !important; text-decoration: none; flex-shrink: 0; min-width: 80px; text-align: right;">
                     <small id="lblToggleQuestionPrompt" class="badge badge-light border px-2 py-1 text-nowrap" style="white-space: nowrap !important;">{{#str}} collapse, local_testcase_exchange {{/str}}</small>
                 </button>
             </div>
@@ -1045,6 +1045,9 @@
         <!-- KHỐI KẾT QUẢ LẦN CHẠY MỚI NHẤT (TÁCH BIỆT 2 NHÓM THÔNG TIN ĐỘC LẬP & TƯƠNG PHẢN CAO) -->
         {{#has_latest_run}}
         {{#latest_run}}
+        <div id="tceFormDirtyWarning" class="alert alert-warning py-2 px-3 mb-3 d-none border-warning shadow-sm" style="background-color: #fffbeb; color: #92400e;">
+            <i class="fa fa-exclamation-triangle mr-1 text-warning"></i><strong>{{#str}} form_dirty_warning, local_testcase_exchange {{/str}}</strong> Hãy bấm "Chạy thử testcase" để nhận kết quả mới nhất.
+        </div>
         <div class="tce-latest-result-card card p-3 shadow-sm mb-4" id="tceLatestResultCard">
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
                 <div class="d-flex align-items-center">
@@ -1087,6 +1090,11 @@
                         <p class="mb-2 text-dark small" style="color: #334155; line-height: 1.45;">
                             {{contrib_guidance}}
                         </p>
+                        {{#earlier_contrib_notice}}
+                        <div class="alert alert-info py-1 px-2 mt-2 mb-2 small" style="font-size: 0.82rem; background-color: #f0fdf4; border-color: #bbf7d0; color: #166534;">
+                            <i class="fa fa-info-circle mr-1"></i>{{earlier_contrib_notice}}
+                        </div>
+                        {{/earlier_contrib_notice}}
                         <div class="d-flex align-items-center justify-content-between pt-1 border-top">
                             {{#can_contribute_latest}}
                             <form method="post" class="m-0">
@@ -1213,6 +1221,11 @@
                                     {{/is_older_duplicate}}
                                     {{^is_older_duplicate}}
                                     <span class="{{display_status_class}}">{{display_status}}</span>
+                                    {{#earlier_contrib_notice}}
+                                    <div class="small text-info text-wrap mt-1 text-left" style="font-size: 0.75rem; line-height: 1.25;">
+                                        <i class="fa fa-info-circle mr-1"></i>{{earlier_contrib_notice}}
+                                    </div>
+                                    {{/earlier_contrib_notice}}
                                     {{#pending_code_fix}}
                                     <div class="small text-muted text-wrap mt-1 text-left" style="font-size: 0.75rem; line-height: 1.25;">
                                         💡 {{pending_fix_message}}
@@ -1264,6 +1277,11 @@
                                 {{/can_contribute}}
                                 {{^can_contribute}}
                                 <span class="{{display_status_class}} small">{{display_status}}</span>
+                                {{#earlier_contrib_notice}}
+                                <div class="small text-info mt-1" style="font-size: 0.75rem;">
+                                    <i class="fa fa-info-circle mr-1"></i>{{earlier_contrib_notice}}
+                                </div>
+                                {{/earlier_contrib_notice}}
                                 {{/can_contribute}}
                             </div>
                         </div>
@@ -1789,6 +1807,16 @@
         });
     }
 
+    // Question prompt mobile initial collapse (leaves screen 1 clean for editor)
+    if (window.innerWidth < 768) {
+        var promptBody = document.getElementById('questionPromptBody');
+        var promptLbl = document.getElementById('lblToggleQuestionPrompt');
+        if (promptBody && window.jQuery) {
+            window.jQuery(promptBody).collapse('hide');
+            if (promptLbl) promptLbl.textContent = getStr('expand', 'Mở rộng');
+        }
+    }
+
     // Question prompt toggle text update
     if (window.jQuery) {
         window.jQuery('#questionPromptBody').on('show.bs.collapse', function() {
@@ -1799,6 +1827,22 @@
             if (lbl) lbl.textContent = getStr('expand', 'Mở rộng');
         });
     }
+
+    // Form dirty tracking
+    function markFormDirty() {
+        var banner = document.getElementById('tceFormDirtyWarning');
+        if (banner) {
+            banner.classList.remove('d-none');
+        }
+    }
+    ['test_input', 'predicted_output', 'category', 'purpose', 'student_code'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', markFormDirty);
+            el.addEventListener('change', markFormDirty);
+        }
+    });
+    window.addEventListener('tce_editor_changed', markFormDirty);
 
     // Smooth scroll to latest result card if user just ran a test
     var latestResult = document.getElementById('tceLatestResultCard');

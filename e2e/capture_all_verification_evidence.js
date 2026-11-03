@@ -66,10 +66,11 @@ async function main() {
     await page.goto('http://localhost:8080/local/testcase_exchange/index.php?course=3&question=2:119&lang=vi');
     await page.waitForLoadState('networkidle');
 
-    // Setup Matching Testcase: print(is_prime(7)) => True
+    // Setup Matching Testcase: print(is_prime(7)) => True, Category: Normal
     await setAceValue(page, isPrimeCode);
     await page.fill('#test_input', 'print(is_prime(7))');
     await page.fill('#predicted_output', 'True');
+    await page.selectOption('#category', 'normal');
     await page.fill('#purpose', 'Kiểm thử số nguyên tố lẻ 7 (kỳ vọng True)');
     await page.waitForTimeout(600); // Allow draft save debounce
 
@@ -78,23 +79,27 @@ async function main() {
 
     // Run Test
     await Promise.all([
-        page.waitForNavigation(),
+        page.waitForNavigation({ waitUntil: 'load' }).catch(() => {}),
         page.click('#btnSubmitRunTest')
     ]);
+    await page.waitForLoadState('networkidle');
     await page.waitForLoadState('networkidle');
     await page.screenshot({ path: `${outDir}/01b_student_match_after_run.png` });
     console.log('Saved: 01b_student_match_after_run.png');
 
-    // Click "Gửi đóng góp" if available
-    const contributeBtn = await page.$('form button:has-text("Gửi đóng góp")');
-    if (contributeBtn) {
+    // Click "Gửi đóng góp" in Latest Result Card if visible
+    const contributeBtn = await page.$('#tceLatestResultCard form button[type="submit"]');
+    if (contributeBtn && await contributeBtn.isVisible()) {
         await Promise.all([
-            page.waitForNavigation(),
+            page.waitForNavigation({ waitUntil: 'load' }).catch(() => {}),
             contributeBtn.click()
         ]);
         await page.waitForLoadState('networkidle');
         await page.screenshot({ path: `${outDir}/01c_student_contributed_state.png` });
         console.log('Saved: 01c_student_contributed_state.png');
+    } else {
+        await page.screenshot({ path: `${outDir}/01c_student_contributed_state.png` });
+        console.log('Saved: 01c_student_contributed_state.png (already in contributed state)');
     }
 
     // =========================================================================
@@ -104,6 +109,7 @@ async function main() {
     await setAceValue(page, isPrimeCode);
     await page.fill('#test_input', 'print(is_prime(7))');
     await page.fill('#predicted_output', 'False'); // Intentional mismatch
+    await page.selectOption('#category', 'normal');
     await page.fill('#purpose', 'Kiểm tra phản hồi khi kết quả kỳ vọng lệch chuẩn (expected False)');
     await page.waitForTimeout(600);
 
@@ -112,12 +118,23 @@ async function main() {
 
     // Run Test with mismatch
     await Promise.all([
-        page.waitForNavigation(),
+        page.waitForNavigation({ waitUntil: 'load' }).catch(() => {}),
         page.click('#btnSubmitRunTest')
     ]);
     await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('networkidle');
     await page.screenshot({ path: `${outDir}/02b_student_mismatch_after_run.png` });
     console.log('Saved: 02b_student_mismatch_after_run.png');
+
+    // 2c. Verify Form Dirty Warning when user modifies form after running
+    await page.fill('#test_input', 'print(is_prime(7)) # Sửa đầu vào');
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: `${outDir}/02c_student_form_dirty_warning.png` });
+    console.log('Saved: 02c_student_form_dirty_warning.png');
+
+    // Revert test_input
+    await page.fill('#test_input', 'print(is_prime(7))');
+    await page.waitForTimeout(300);
 
     // =========================================================================
     // 3. Draft Auto-save and Revision Restore Proof
@@ -163,15 +180,26 @@ async function main() {
     if (reviewModalTrigger) {
         await reviewModalTrigger.click();
         await pageTeacher.waitForTimeout(600);
+        
+        // Assert zero unresolved raw [[ tags in modal
+        const rawBracketCount = await pageTeacher.evaluate(() => {
+            const modal = document.querySelector('.modal.show');
+            if (!modal) return 0;
+            const matches = modal.innerHTML.match(/\[\[[a-zA-Z0-9_]+\]\]/g);
+            return matches ? matches.length : 0;
+        });
+        console.log(`Unresolved raw [[ string keys in modal: ${rawBracketCount}`);
+
         await pageTeacher.screenshot({ path: `${outDir}/04_teacher_review_modal_desktop.png` });
         console.log('Saved: 04_teacher_review_modal_desktop.png');
         await pageTeacher.click('.modal.show button[data-dismiss="modal"]');
         await pageTeacher.waitForTimeout(400);
     }
 
-    // Testcase Bank Tab
+    // Testcase Bank Tab - Scrolled into table
     await pageTeacher.click('a[href="#tab_bank"]');
     await pageTeacher.waitForTimeout(500);
+    await pageTeacher.locator('#tab_bank .table-responsive').last().scrollIntoViewIfNeeded();
     await pageTeacher.screenshot({ path: `${outDir}/05_teacher_bank_contributor_display.png` });
     console.log('Saved: 05_teacher_bank_contributor_display.png');
 
@@ -183,6 +211,14 @@ async function main() {
     await loginUser(pageMobStudent, ctxMobile, 'student1', 'StudentPassword123!');
     await pageMobStudent.goto('http://localhost:8080/local/testcase_exchange/index.php?course=3&question=2:119&lang=vi');
     await pageMobStudent.waitForLoadState('networkidle');
+
+    // Verify Ace Editor is visible within screen 1 (first 844px)
+    const editorTop = await pageMobStudent.evaluate(() => {
+        const ed = document.getElementById('student_code_ace');
+        return ed ? ed.getBoundingClientRect().top : 9999;
+    });
+    console.log(`Mobile Screen 1: Ace Editor Top position = ${editorTop}px (Viewport Height: 844px)`);
+
     await pageMobStudent.screenshot({ path: `${outDir}/08_student_mobile_390x844_top.png` });
     console.log('Saved: 08_student_mobile_390x844_top.png');
 

@@ -205,6 +205,7 @@ define(['jquery', 'core/str'], function($, str) {
                         textarea.value = editor.getValue();
                         // Dispatch standard input and change events for existing auto-save listeners.
                         textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                        window.dispatchEvent(new Event('tce_editor_changed'));
                     });
 
                     // 2. Sync: Textarea -> Ace (when external scripts update textarea.value).

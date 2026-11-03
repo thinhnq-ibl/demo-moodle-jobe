@@ -179,7 +179,7 @@ $PAGE->set_context($context);
 
 $title = $is_teacher_view ? get_string('teacherview_title', 'local_testcase_exchange') : get_string('studentview_title', 'local_testcase_exchange');
 $PAGE->set_title($title);
-$PAGE->set_heading($course->fullname . ' — ' . $title);
+$PAGE->set_heading($course->fullname);
 
 $service = null;
 $databaseerror = '';
@@ -373,11 +373,17 @@ if ($service && data_submitted()) {
             require_capability('local/testcase_exchange:contribute', $context);
             $result = $service->submit_contribution(required_param('run_id', PARAM_INT), (int) $USER->id);
             if (!empty($result['is_own_duplicate'])) {
-                $message = 'Bạn đã đóng góp testcase này trước đó rồi (Đóng góp #' . $result['canonical_id'] . '). Hệ thống không tạo đề xuất mới.';
+                $message = get_string('already_contributed_notice', 'local_testcase_exchange', $result['canonical_id']);
                 $notifytype = \core\output\notification::NOTIFY_WARNING;
+            } else if (($result['status'] ?? '') === 'submitted') {
+                $message = get_string('contributionsubmitted', 'local_testcase_exchange');
+                $notifytype = \core\output\notification::NOTIFY_SUCCESS;
+            } else if (($result['status'] ?? '') === 'approved') {
+                $message = get_string('contributionapproved', 'local_testcase_exchange');
+                $notifytype = \core\output\notification::NOTIFY_SUCCESS;
             } else {
-                $message = get_string('contributionstatus', 'local_testcase_exchange', $result['status']);
-                $notifytype = ($result['status'] === 'duplicate') ?
+                $message = get_string('contributionstatus', 'local_testcase_exchange', $result['status'] ?? '');
+                $notifytype = (($result['status'] ?? '') === 'duplicate') ?
                     \core\output\notification::NOTIFY_WARNING : \core\output\notification::NOTIFY_SUCCESS;
             }
             redirect($PAGE->url, $message, null, $notifytype);
@@ -805,16 +811,32 @@ if ($is_student_view) {
         context_service::enrich_contributions($rawcontributions, $courseid) : [];
     $rewards = $service ? $service->rewards_for_user($courseid, (int) $USER->id) : [];
     $contributionbyrun = [];
-    $user_contrib_by_fp = [];
+    $user_contrib_by_run_id = [];
+    $user_contrib_by_exact_io = [];
+    $user_contrib_by_input = [];
     foreach ($contributions as $contribution) {
-        $contributionbyrun[(int) $contribution['run_id']] = $contribution;
+        $run_id_val = (int) ($contribution['run_id'] ?? 0);
+        if ($run_id_val > 0) {
+            $user_contrib_by_run_id[$run_id_val] = $contribution;
+            $contributionbyrun[$run_id_val] = $contribution;
+        }
         $fp = (string) ($contribution['input_fingerprint'] ?? '');
         if ($fp !== '') {
-            $key = (int) $contribution['question_id'] . ':' . $fp;
-            if (!isset($user_contrib_by_fp[$key])) {
-                $user_contrib_by_fp[$key] = $contribution;
-            } else if (($user_contrib_by_fp[$key]['status'] ?? '') === 'duplicate' && ($contribution['status'] ?? '') !== 'duplicate') {
-                $user_contrib_by_fp[$key] = $contribution;
+            $qid = (int) $contribution['question_id'];
+            $exp = trim((string) ($contribution['expected_output'] ?? ''));
+            $exact_key = $qid . ':' . $fp . ':' . md5($exp);
+            $input_key = $qid . ':' . $fp;
+
+            if (!isset($user_contrib_by_exact_io[$exact_key])) {
+                $user_contrib_by_exact_io[$exact_key] = $contribution;
+            } else if (($user_contrib_by_exact_io[$exact_key]['status'] ?? '') === 'duplicate' && ($contribution['status'] ?? '') !== 'duplicate') {
+                $user_contrib_by_exact_io[$exact_key] = $contribution;
+            }
+
+            if (!isset($user_contrib_by_input[$input_key])) {
+                $user_contrib_by_input[$input_key] = $contribution;
+            } else if (($user_contrib_by_input[$input_key]['status'] ?? '') === 'duplicate' && ($contribution['status'] ?? '') !== 'duplicate') {
+                $user_contrib_by_input[$input_key] = $contribution;
             }
         }
     }
@@ -908,7 +930,22 @@ if ($is_student_view) {
 
         $run_id = (int) $run['id'];
         $fp_key = $run['group_key'];
-        $user_contrib = $user_contrib_by_fp[$fp_key] ?? null;
+        $run_fp = (string) ($run['input_fingerprint'] ?? '');
+        $run_exp = trim((string) ($run['predicted_output'] ?? ''));
+        $run_io_key = (int) $run['question_id'] . ':' . $run_fp . ':' . md5($run_exp);
+
+        $direct_contrib = null;
+        if (isset($user_contrib_by_run_id[$run_id])) {
+            $direct_contrib = $user_contrib_by_run_id[$run_id];
+        } else if ($run['is_eligible'] && isset($user_contrib_by_exact_io[$run_io_key])) {
+            $direct_contrib = $user_contrib_by_exact_io[$run_io_key];
+        }
+
+        $earlier_input_contrib = null;
+        if (!$direct_contrib && isset($user_contrib_by_input[$fp_key])) {
+            $earlier_input_contrib = $user_contrib_by_input[$fp_key];
+        }
+
         $existing_canonical = ($run['input_fingerprint'] !== '' && isset($existingfingerprints[$fp_key])) ? $existingfingerprints[$fp_key] : null;
         $rep_id = $group_rep_run_id[$fp_key] ?? null;
 
@@ -920,12 +957,13 @@ if ($is_student_view) {
         $run['has_user_contrib'] = false;
         $run['contrib_id'] = null;
         $run['contrib_status'] = null;
+        $run['earlier_contrib_notice'] = null;
 
-        // 1. If student already contributed this testcase (group-wide priority)
-        if ($user_contrib) {
+        // 1. If this run itself matches an already submitted contribution
+        if ($direct_contrib) {
             $run['has_user_contrib'] = true;
-            $run['contrib_id'] = (int) $user_contrib['id'];
-            $st = (string) $user_contrib['status'];
+            $run['contrib_id'] = (int) $direct_contrib['id'];
+            $st = (string) $direct_contrib['status'];
             $run['contrib_status'] = $st;
 
             if ($st === 'submitted') {
@@ -935,15 +973,15 @@ if ($is_student_view) {
                 $run['display_status'] = 'Đóng góp đã được duyệt';
                 $run['display_status_class'] = 'badge badge-success';
             } else if ($st === 'rejected') {
-                $comment = !empty($user_contrib['teacher_comment']) ? ': ' . $user_contrib['teacher_comment'] : '';
+                $comment = !empty($direct_contrib['teacher_comment']) ? ': ' . $direct_contrib['teacher_comment'] : '';
                 $run['display_status'] = 'Đóng góp chưa được chấp thuận' . $comment;
                 $run['display_status_class'] = 'badge badge-danger';
             } else if ($st === 'needs_explanation') {
                 $run['display_status'] = 'Đóng góp cần giải trình thêm';
                 $run['display_status_class'] = 'badge badge-warning text-dark';
             } else {
-                $status_lbl = $user_contrib['status_label'] ?? $st;
-                $run['display_status'] = 'Đã đóng góp #' . $user_contrib['id'] . ' (' . $status_lbl . ')';
+                $status_lbl = $direct_contrib['status_label'] ?? $st;
+                $run['display_status'] = 'Đã đóng góp #' . $direct_contrib['id'] . ' (' . $status_lbl . ')';
                 $run['display_status_class'] = 'badge badge-info';
             }
         }
@@ -988,6 +1026,17 @@ if ($is_student_view) {
                 $run['has_eligible_peer'] = true;
                 $run['rep_id'] = $rep_id;
             }
+        }
+
+        // Informative note when user contributed an earlier run with the same input
+        if (!$direct_contrib && $earlier_input_contrib) {
+            $earlier_run_id = (int) ($earlier_input_contrib['run_id'] ?? 0);
+            $earlier_exp = trim((string) ($earlier_input_contrib['expected_output'] ?? ''));
+            $run['earlier_contrib_notice'] = get_string(
+                'earlier_contrib_notice_text',
+                'local_testcase_exchange',
+                (object)['run_id' => $earlier_run_id, 'expected' => $earlier_exp]
+            );
         }
 
         // Run outcome display badge (independent from contribution status)
@@ -1038,7 +1087,22 @@ if ($is_student_view) {
     if ($target_run !== null) {
         $first = $target_run;
         $fp_key = $first['group_key'];
-        $user_contrib = $user_contrib_by_fp[$fp_key] ?? null;
+        $first_fp = (string) ($first['input_fingerprint'] ?? '');
+        $first_exp = trim((string) ($first['predicted_output'] ?? ''));
+        $first_io_key = (int) $first['question_id'] . ':' . $first_fp . ':' . md5($first_exp);
+
+        $direct_contrib = null;
+        $first_id = (int) $first['id'];
+        if (isset($user_contrib_by_run_id[$first_id])) {
+            $direct_contrib = $user_contrib_by_run_id[$first_id];
+        } else if ($first['is_eligible'] && isset($user_contrib_by_exact_io[$first_io_key])) {
+            $direct_contrib = $user_contrib_by_exact_io[$first_io_key];
+        }
+
+        $earlier_input_contrib = null;
+        if (!$direct_contrib && isset($user_contrib_by_input[$fp_key])) {
+            $earlier_input_contrib = $user_contrib_by_input[$fp_key];
+        }
         $existing_canonical = ($first['input_fingerprint'] !== '' && isset($existingfingerprints[$fp_key])) ? $existingfingerprints[$fp_key] : null;
 
         // 1. NHÓM THÔNG TIN 1: KẾT QUẢ CHẠY THỬ
@@ -1077,13 +1141,14 @@ if ($is_student_view) {
         $contrib_badge = '';
         $contrib_guidance = '';
         $contrib_icon = '';
+        $latest_earlier_notice = null;
 
-        // Priority 1: User's own contribution already submitted
-        if ($user_contrib) {
+        // Priority 1: User's own contribution already submitted for this exact run or testcase
+        if ($direct_contrib) {
             $cancontributelatest = false;
             $hascontriblink = true;
-            $contribid = (int) $user_contrib['id'];
-            $st = (string) $user_contrib['status'];
+            $contribid = (int) $direct_contrib['id'];
+            $st = (string) $direct_contrib['status'];
 
             if ($st === 'submitted') {
                 $contrib_title = 'Đã gửi đóng góp — đang chờ giảng viên duyệt';
@@ -1096,7 +1161,7 @@ if ($is_student_view) {
                 $contrib_icon = 'fa-check-circle text-success';
                 $contrib_guidance = 'Đóng góp của bạn đã được giảng viên phê duyệt và bổ sung vào ngân hàng testcase chung của lớp học!';
             } else if ($st === 'rejected') {
-                $comment = !empty($user_contrib['teacher_comment']) ? ' Nhận xét: ' . $user_contrib['teacher_comment'] : '';
+                $comment = !empty($direct_contrib['teacher_comment']) ? ' Nhận xét: ' . $direct_contrib['teacher_comment'] : '';
                 $contrib_title = 'Đóng góp chưa được chấp thuận';
                 $contrib_badge = 'badge badge-danger';
                 $contrib_icon = 'fa-times-circle text-danger';
@@ -1162,6 +1227,17 @@ if ($is_student_view) {
             $contrib_guidance = 'Chương trình chưa thỏa mãn toàn bộ các điều kiện để đề xuất đóng góp. Vui lòng kiểm tra lại kết quả đối chiếu.';
         }
 
+        // Informative note when user contributed an earlier run with the same input
+        if (!$direct_contrib && $earlier_input_contrib) {
+            $earlier_run_id = (int) ($earlier_input_contrib['run_id'] ?? 0);
+            $earlier_exp = trim((string) ($earlier_input_contrib['expected_output'] ?? ''));
+            $latest_earlier_notice = get_string(
+                'earlier_contrib_notice_text',
+                'local_testcase_exchange',
+                (object)['run_id' => $earlier_run_id, 'expected' => $earlier_exp]
+            );
+        }
+
         $latestrun = array_merge($first, [
             // Run outcome fields
             'run_result_title' => $run_res_title,
@@ -1176,6 +1252,7 @@ if ($is_student_view) {
             'can_contribute_latest' => $cancontributelatest,
             'has_contrib_link' => $hascontriblink,
             'contrib_id' => $contribid,
+            'earlier_contrib_notice' => $latest_earlier_notice,
         ]);
     }
     $templatedata['latest_run'] = $latestrun;

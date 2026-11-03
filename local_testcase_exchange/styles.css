@@ -583,3 +583,53 @@ body.tce-noscroll {
         font-size: 1.15rem !important;
     }
 }
+#btnToggleQuestionPrompt {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+#lblToggleQuestionPrompt {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+}
+@media (max-width: 767.98px) {
+    /* Single functional header on mobile: eliminate Moodle redundant outer page-header */
+    #page-local-testcase_exchange-index #page-header,
+    #page-local-testcase_exchange-index .breadcrumb {
+        display: none !important;
+    }
+    .local-testcase-exchange-root .tce-header-bar {
+        padding: 0.15rem 0 !important;
+        margin-bottom: 0.25rem !important;
+    }
+    .local-testcase-exchange-root .tce-context-bar {
+        margin-bottom: 0.25rem !important;
+    }
+    .local-testcase-exchange-root .nav-tabs {
+        margin-bottom: 0.25rem !important;
+    }
+    .local-testcase-exchange-root .tab-content {
+        padding: 0.4rem !important;
+    }
+    .local-testcase-exchange-root .card {
+        margin-bottom: 0.35rem !important;
+    }
+    .local-testcase-exchange-root .tce-header-bar {
+        padding-top: 0.2rem !important;
+        padding-bottom: 0.25rem !important;
+        margin-bottom: 0.35rem !important;
+    }
+    .local-testcase-exchange-root .tce-header-title h4,
+    .local-testcase-exchange-root .tce-header-title h3 {
+        font-size: 1.05rem !important;
+    }
+    .local-testcase-exchange-root .tce-context-bar {
+        margin-bottom: 0.4rem !important;
+    }
+    .local-testcase-exchange-root .nav-tabs {
+        margin-bottom: 0.4rem !important;
+    }
+    .local-testcase-exchange-root .tab-content {
+        padding: 0.6rem !important;
+    }
+}
