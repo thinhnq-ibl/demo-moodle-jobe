@@ -1,0 +1,219 @@
+/* =========================================================================
+   Plugin: local_testcase_exchange
+   Styles for Student & Teacher Dashboards, Review and Policy Views
+   ========================================================================= */
+
+/* 1. TYPOGRAPHY: Tăng kích thước chữ hiển thị lên 1 size (+1 size) */
+.local-testcase-exchange-root {
+    font-size: 1.05rem !important;
+    color: #1e293b;
+    line-height: 1.6;
+}
+
+.local-testcase-exchange-root .card-header {
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+}
+
+.local-testcase-exchange-root h4 {
+    font-size: 1.45rem !important;
+}
+.local-testcase-exchange-root h5 {
+    font-size: 1.25rem !important;
+}
+.local-testcase-exchange-root h6 {
+    font-size: 1.1rem !important;
+}
+
+.local-testcase-exchange-root p,
+.local-testcase-exchange-root label,
+.local-testcase-exchange-root .form-control,
+.local-testcase-exchange-root .custom-select,
+.local-testcase-exchange-root select,
+.local-testcase-exchange-root textarea,
+.local-testcase-exchange-root input {
+    font-size: 1rem !important;
+}
+
+.local-testcase-exchange-root .btn {
+    font-size: 0.98rem !important;
+    font-weight: 600;
+}
+.local-testcase-exchange-root .btn-sm {
+    font-size: 0.9rem !important;
+}
+.local-testcase-exchange-root .btn-xs {
+    font-size: 0.825rem !important;
+}
+
+.local-testcase-exchange-root .table {
+    font-size: 0.96rem !important;
+}
+.local-testcase-exchange-root .table th {
+    font-size: 0.96rem !important;
+    font-weight: 700 !important;
+    vertical-align: middle !important;
+}
+.local-testcase-exchange-root .table td {
+    font-size: 0.95rem !important;
+    vertical-align: middle !important;
+}
+
+.local-testcase-exchange-root pre,
+.local-testcase-exchange-root code,
+.local-testcase-exchange-root textarea.font-monospace {
+    font-size: 0.95rem !important;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;
+    line-height: 1.5;
+}
+
+.local-testcase-exchange-root .badge {
+    font-size: 0.86rem !important;
+    font-weight: 600 !important;
+    padding: 0.38em 0.72em !important;
+    letter-spacing: 0.02em;
+    border-radius: 4px;
+}
+
+.local-testcase-exchange-root .small,
+.local-testcase-exchange-root small {
+    font-size: 0.875rem !important;
+}
+
+/* 2. COLOR PALETTE: Phối màu hiện đại, hài hòa, thẩm mỹ cao */
+.local-testcase-exchange-root .card {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05) !important;
+    overflow: hidden;
+}
+
+.local-testcase-exchange-root .card-header.bg-primary {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
+    color: #ffffff !important;
+    border-bottom: none !important;
+}
+
+.local-testcase-exchange-root .card-header.bg-info {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+    color: #ffffff !important;
+    border-bottom: none !important;
+}
+
+.local-testcase-exchange-root .card-header.bg-secondary {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+    color: #ffffff !important;
+    border-bottom: none !important;
+}
+
+.local-testcase-exchange-root .card-header.bg-dark {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%) !important;
+    color: #ffffff !important;
+    border-bottom: none !important;
+}
+
+.local-testcase-exchange-root .nav-tabs .nav-link {
+    font-size: 1rem !important;
+    color: #475569 !important;
+    border: none !important;
+    border-bottom: 3px solid transparent !important;
+    padding: 0.65rem 1.1rem !important;
+}
+.local-testcase-exchange-root .nav-tabs .nav-link:hover {
+    color: #2563eb !important;
+}
+.local-testcase-exchange-root .nav-tabs .nav-link.active {
+    color: #2563eb !important;
+    border-bottom: 3px solid #2563eb !important;
+    background: transparent !important;
+    font-weight: 700 !important;
+}
+
+/* Soft, Harmonious Badges */
+.local-testcase-exchange-root .badge-success {
+    background-color: #ecfdf5 !important;
+    color: #065f46 !important;
+    border: 1px solid #a7f3d0 !important;
+}
+
+.local-testcase-exchange-root .badge-danger {
+    background-color: #fef2f2 !important;
+    color: #991b1b !important;
+    border: 1px solid #fecaca !important;
+}
+
+.local-testcase-exchange-root .badge-warning {
+    background-color: #fffbeb !important;
+    color: #92400e !important;
+    border: 1px solid #fde68a !important;
+}
+
+.local-testcase-exchange-root .badge-info {
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+    border: 1px solid #bfdbfe !important;
+}
+
+.local-testcase-exchange-root .badge-primary {
+    background-color: #eef2ff !important;
+    color: #3730a3 !important;
+    border: 1px solid #c7d2fe !important;
+}
+
+.local-testcase-exchange-root .badge-secondary,
+.local-testcase-exchange-root .badge-light {
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.local-testcase-exchange-root pre.bg-success {
+    background-color: #ecfdf5 !important;
+    color: #065f46 !important;
+    border: 1px solid #a7f3d0 !important;
+}
+.local-testcase-exchange-root pre.bg-danger {
+    background-color: #fef2f2 !important;
+    color: #991b1b !important;
+    border: 1px solid #fecaca !important;
+}
+
+/* 3. TESTCASE TABLE SCROLL: Thanh cuộn mượt mà khi danh sách testcase dài */
+.local-testcase-exchange-root .table-responsive {
+    max-height: 480px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    position: relative;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.local-testcase-exchange-root .table-responsive table {
+    margin-bottom: 0 !important;
+}
+
+.local-testcase-exchange-root .table-responsive thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #f8fafc !important;
+    color: #334155 !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.local-testcase-exchange-root .table-responsive::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.local-testcase-exchange-root .table-responsive::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+.local-testcase-exchange-root .table-responsive::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+.local-testcase-exchange-root .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}

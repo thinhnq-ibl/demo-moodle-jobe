@@ -734,18 +734,22 @@ final class testcase_service {
         $codehash = hash('sha256', $trimmed);
 
         $last = $this->db->fetch_row(
-            'SELECT id, code_hash, step_number FROM {local_tce_revisions}
+            'SELECT id, code_hash, code_content, step_number FROM {local_tce_revisions}
               WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND user_id = ?
-              ORDER BY id DESC',
+              ORDER BY step_number DESC, id DESC',
             [$courseid, $quizid, $questionid, $userid]
         );
 
-        if ($last && (string) $last['code_hash'] === $codehash) {
-            return [
-                'id' => (int) $last['id'],
-                'step_number' => (int) $last['step_number'],
-                'is_new' => false,
-            ];
+        if ($last) {
+            $lasthash = (string) ($last['code_hash'] ?? '');
+            $lastcontent = trim(self::sanitize_multiline_text($last['code_content'] ?? ''));
+            if ($lasthash === $codehash || $lastcontent === $trimmed) {
+                return [
+                    'id' => (int) $last['id'],
+                    'step_number' => (int) $last['step_number'],
+                    'is_new' => false,
+                ];
+            }
         }
 
         $newstep = $last ? ((int) $last['step_number'] + 1) : 1;
@@ -799,18 +803,47 @@ final class testcase_service {
 
     /**
      * Get summary of code revisions and associated testcases for a user and question.
+     *
+     * @param int $courseid Course ID
+     * @param int $quizid Quiz ID
+     * @param int $questionid Question ID
+     * @param int $userid User ID
+     * @param int $limit Maximum number of latest revisions to return (default 3)
+     * @return array
      */
-    public function code_revisions_summary(int $courseid, int $quizid, int $questionid, int $userid): array {
-        $revisions = $this->db->fetch_all(
+    public function code_revisions_summary(int $courseid, int $quizid, int $questionid, int $userid, int $limit = 3): array {
+        $rawrevisions = $this->db->fetch_all(
             'SELECT id, step_number, code_content, code_hash, timecreated
                FROM {local_tce_revisions}
               WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND user_id = ?
-              ORDER BY step_number DESC',
+              ORDER BY step_number DESC, id DESC',
             [$courseid, $quizid, $questionid, $userid]
         );
 
-        if (empty($revisions)) {
+        if (empty($rawrevisions)) {
             return [];
+        }
+
+        // Deduplicate adjacent revisions that have identical code content/hash.
+        $revisions = [];
+        $prevCode = null;
+        $prevHash = null;
+        foreach ($rawrevisions as $rev) {
+            $curCode = trim(self::sanitize_multiline_text($rev['code_content'] ?? ''));
+            $curHash = (string) ($rev['code_hash'] ?? '');
+            if ($curHash === '' && $curCode !== '') {
+                $curHash = hash('sha256', $curCode);
+            }
+            if ($prevCode !== null && ($curCode === $prevCode || ($curHash !== '' && $curHash === $prevHash))) {
+                continue; // Skip duplicate version that matches the preceding version.
+            }
+            $prevCode = $curCode;
+            $prevHash = $curHash;
+            $revisions[] = $rev;
+        }
+
+        if ($limit > 0 && count($revisions) > $limit) {
+            $revisions = array_slice($revisions, 0, $limit);
         }
 
         $allruns = $this->db->fetch_all(

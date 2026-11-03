@@ -1,3 +1,4 @@
+<div class="local-testcase-exchange-root">
 {{! Student and teacher dashboard for private runs, contributions and rewards. }}
 {{#show_course_switcher}}
 <div class="card bg-light mb-3 p-2">
@@ -762,7 +763,7 @@
                     <div class="card border mb-3 bg-light">
                         <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center">
                             <div>
-                                <span class="font-weight-bold text-dark">🕒 Lịch sử Phiên bản Code ({{code_revisions_count}} phiên bản)</span>
+                                <span class="font-weight-bold text-dark">🕒 Lịch sử Phiên bản Code ({{code_revisions_count}} phiên bản mới nhất)</span>
                             </div>
                             <div>
                                 <a href="{{export_timeline_csv_url}}" class="btn btn-xs btn-outline-primary font-weight-bold">CSV Timeline</a>
@@ -825,8 +826,8 @@
                             </select>
                         </div>
                         <div class="col-md-8 form-group">
-                            <label for="purpose">Mục đích kiểm thử (Giải thích lý do bạn thiết kế test này):</label>
-                            <input class="form-control" id="purpose" name="purpose" maxlength="1000" value="{{last_purpose}}" placeholder="Ví dụ: Kiểm tra trường hợp biên danh sách có 1 phần tử">
+                            <label for="purpose"><strong>Mục đích kiểm thử (Giải thích lý do bạn thiết kế test này):</strong></label>
+                            <textarea class="form-control" id="purpose" name="purpose" rows="3" maxlength="1000" placeholder="Ví dụ: Kiểm tra trường hợp biên danh sách có 1 phần tử hoặc kiểm tra nhánh xử lý ngoại lệ...">{{last_purpose}}</textarea>
                         </div>
                     </div>
 
@@ -862,7 +863,7 @@
                                 <th>Đầu vào kiểm thử</th>
                                 <th>Kết quả kỳ vọng</th>
                                 <th>Kết quả nhận được</th>
-                                <th style="width: 160px;">Thẩm định Tham Chiếu</th>
+                                <th style="min-width: 150px;" class="text-center">Thẩm định với lời giải</th>
                                 <th style="width: 180px;" class="text-center">Cổng Đóng Góp</th>
                             </tr>
                         </thead>
@@ -889,16 +890,14 @@
                                 <td><pre class="mb-0 font-monospace bg-light p-1 border rounded">{{input_raw}}</pre></td>
                                 <td><pre class="mb-0 font-monospace bg-light p-1 border rounded">{{predicted_output}}</pre></td>
                                 <td>
-                                    <pre class="mb-1 font-monospace p-1 border rounded {{#student_matches_expected}}bg-success text-white{{/student_matches_expected}}{{#student_differs_expected}}bg-danger text-white{{/student_differs_expected}}">{{student_run_output}}</pre>
-                                    {{#student_matches_expected}}<span class="badge badge-success">✓ Khớp kỳ vọng</span>{{/student_matches_expected}}
-                                    {{#student_differs_expected}}<span class="badge badge-danger">❌ Lệch kỳ vọng</span>{{/student_differs_expected}}
+                                    <pre class="mb-0 font-monospace p-1 border rounded {{#student_matches_expected}}bg-success text-white{{/student_matches_expected}}{{#student_differs_expected}}bg-danger text-white{{/student_differs_expected}}">{{student_run_output}}</pre>
                                 </td>
                                 <td>
                                     {{#oracle_valid}}
-                                    <span class="badge badge-success p-2 d-block text-wrap">✓ ĐÚNG CHUẨN ĐỀ</span>
+                                    <span class="badge badge-success p-2 d-block text-center font-weight-bold">✓ Đúng</span>
                                     {{/oracle_valid}}
                                     {{^oracle_valid}}
-                                    <span class="badge badge-danger p-2 d-block text-wrap">❌ SAI QUY ƯỚC</span>
+                                    <span class="badge badge-danger p-2 d-block text-center font-weight-bold">❌ Sai</span>
                                     {{/oracle_valid}}
                                 </td>
                                 <td class="align-middle text-center">
@@ -1283,10 +1282,224 @@
 })();
 </script>
 
+</div>
+<!-- end .local-testcase-exchange-root -->
+
 <style>
+/* =========================================================================
+   1. TYPOGRAPHY: Tăng kích thước chữ hiển thị lên 1 size (+1 size)
+   ========================================================================= */
+.local-testcase-exchange-root {
+    font-size: 1.05rem !important; /* Tăng 1 size: từ ~14px lên ~16.5px */
+    color: #1e293b;
+    line-height: 1.6;
+}
+
+.local-testcase-exchange-root .card-header {
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+}
+
+.local-testcase-exchange-root h4 {
+    font-size: 1.45rem !important;
+}
+.local-testcase-exchange-root h5 {
+    font-size: 1.25rem !important;
+}
+.local-testcase-exchange-root h6 {
+    font-size: 1.1rem !important;
+}
+
+.local-testcase-exchange-root p,
+.local-testcase-exchange-root label,
+.local-testcase-exchange-root .form-control,
+.local-testcase-exchange-root .custom-select,
+.local-testcase-exchange-root select,
+.local-testcase-exchange-root textarea,
+.local-testcase-exchange-root input {
+    font-size: 1rem !important;
+}
+
+.local-testcase-exchange-root .btn {
+    font-size: 0.98rem !important;
+    font-weight: 600;
+}
+.local-testcase-exchange-root .btn-sm {
+    font-size: 0.9rem !important;
+}
+.local-testcase-exchange-root .btn-xs {
+    font-size: 0.825rem !important;
+}
+
+.local-testcase-exchange-root .table {
+    font-size: 0.96rem !important;
+}
+.local-testcase-exchange-root .table th {
+    font-size: 0.96rem !important;
+    font-weight: 700 !important;
+    vertical-align: middle !important;
+}
+.local-testcase-exchange-root .table td {
+    font-size: 0.95rem !important;
+    vertical-align: middle !important;
+}
+
+.local-testcase-exchange-root pre,
+.local-testcase-exchange-root code,
+.local-testcase-exchange-root textarea.font-monospace {
+    font-size: 0.95rem !important;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;
+    line-height: 1.5;
+}
+
+.local-testcase-exchange-root .badge {
+    font-size: 0.86rem !important;
+    font-weight: 600 !important;
+    padding: 0.38em 0.72em !important;
+    letter-spacing: 0.02em;
+    border-radius: 4px;
+}
+
+.local-testcase-exchange-root .small,
+.local-testcase-exchange-root small {
+    font-size: 0.875rem !important;
+}
+
+/* =========================================================================
+   2. COLOR PALETTE: Phối màu hiện đại, hài hòa, thẩm mỹ cao
+   ========================================================================= */
+
+.local-testcase-exchange-root .card {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05) !important;
+    overflow: hidden;
+}
+
+/* Student Step 1: Deep Indigo */
+.local-testcase-exchange-root .card-header.bg-primary {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
+    color: #ffffff !important;
+    border-bottom: none !important;
+}
+
+/* Student Step 2: Modern Slate Blue */
+.local-testcase-exchange-root .card-header.bg-info {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+    color: #ffffff !important;
+    border-bottom: none !important;
+}
+
+/* Student Step 3: Deep Slate */
+.local-testcase-exchange-root .card-header.bg-secondary {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+    color: #ffffff !important;
+    border-bottom: none !important;
+}
+
+/* Student Step 4 & 5: Dark Navy Slate */
+.local-testcase-exchange-root .card-header.bg-dark {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%) !important;
+    color: #ffffff !important;
+    border-bottom: none !important;
+}
+
+/* Soft, Harmonious Badges (Thay thế các màu chói gắt) */
+.local-testcase-exchange-root .badge-success {
+    background-color: #ecfdf5 !important;
+    color: #065f46 !important;
+    border: 1px solid #a7f3d0 !important;
+}
+
+.local-testcase-exchange-root .badge-danger {
+    background-color: #fef2f2 !important;
+    color: #991b1b !important;
+    border: 1px solid #fecaca !important;
+}
+
+.local-testcase-exchange-root .badge-warning {
+    background-color: #fffbeb !important;
+    color: #92400e !important;
+    border: 1px solid #fde68a !important;
+}
+
+.local-testcase-exchange-root .badge-info {
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+    border: 1px solid #bfdbfe !important;
+}
+
+.local-testcase-exchange-root .badge-primary {
+    background-color: #eef2ff !important;
+    color: #3730a3 !important;
+    border: 1px solid #c7d2fe !important;
+}
+
+.local-testcase-exchange-root .badge-secondary,
+.local-testcase-exchange-root .badge-light {
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+/* Testcase output colors in comparison table */
+.local-testcase-exchange-root pre.bg-success {
+    background-color: #ecfdf5 !important;
+    color: #065f46 !important;
+    border: 1px solid #a7f3d0 !important;
+}
+.local-testcase-exchange-root pre.bg-danger {
+    background-color: #fef2f2 !important;
+    color: #991b1b !important;
+    border: 1px solid #fecaca !important;
+}
+
+/* =========================================================================
+   3. TESTCASE TABLE SCROLL: Thanh cuộn mượt mà khi danh sách testcase dài
+   ========================================================================= */
+.local-testcase-exchange-root .table-responsive {
+    max-height: 480px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    position: relative;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.local-testcase-exchange-root .table-responsive table {
+    margin-bottom: 0 !important;
+}
+
+.local-testcase-exchange-root .table-responsive thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #f8fafc !important;
+    color: #334155 !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.local-testcase-exchange-root .table-responsive::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.local-testcase-exchange-root .table-responsive::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+.local-testcase-exchange-root .table-responsive::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+.local-testcase-exchange-root .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Target row highlight */
 tr[id^="run-"]:target {
-    background-color: #fff3cd !important;
-    outline: 2px solid #ffc107;
+    background-color: #fffbeb !important;
+    outline: 2px solid #f59e0b;
     transition: background-color 0.4s ease;
 }
 

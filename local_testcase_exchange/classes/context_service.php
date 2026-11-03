@@ -432,18 +432,26 @@ final class context_service {
         global $DB;
 
         try {
-            // Check previous hash for this user and question
-            $last = $DB->get_record_sql(
-                'SELECT code_hash FROM {local_tce_revisions}
+            // Check previous hash and content for this user and question
+            $records = $DB->get_records_sql(
+                'SELECT id, code_hash, code_content, step_number FROM {local_tce_revisions}
                   WHERE course_id = ? AND quiz_id = ? AND question_id = ? AND user_id = ?
-                  ORDER BY id DESC',
+                  ORDER BY step_number DESC, id DESC',
                 [$courseid, $quizid, $questionid, $userid],
-                IGNORE_MULTIPLE
+                0,
+                1
             );
+            $last = !empty($records) ? reset($records) : null;
 
-            if ($last && (string) $last->code_hash === $codehash) {
-                return false; // Deduplicated! Code hasn't changed.
+            if ($last) {
+                $lasthash = (string) ($last->code_hash ?? '');
+                $lastcontent = trim((string) ($last->code_content ?? ''));
+                if ($lasthash === $codehash || $lastcontent === $trimmed) {
+                    return false; // Deduplicated! Code hasn't changed.
+                }
             }
+
+            $step = ($stepnumber > 0) ? $stepnumber : ($last ? ((int) $last->step_number + 1) : 1);
 
             $record = (object) [
                 'course_id' => $courseid,
@@ -452,7 +460,7 @@ final class context_service {
                 'user_id' => $userid,
                 'quiz_attempt_id' => $attemptid,
                 'question_attempt_id' => $questionattemptid,
-                'step_number' => $stepnumber,
+                'step_number' => $step,
                 'code_content' => $trimmed,
                 'code_hash' => $codehash,
                 'execution_mode' => $executionmode,

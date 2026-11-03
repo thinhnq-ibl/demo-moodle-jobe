@@ -904,7 +904,7 @@ if ($is_student_view) {
                 $run['display_status'] = 'Lỗi thực thi đề bài';
                 $run['display_status_class'] = 'badge badge-danger p-1';
             } else if (!$run['expected_matches_oracle']) {
-                $run['display_status'] = 'Kỳ vọng lệch Lời giải tham chiếu';
+                $run['display_status'] = 'Chưa đóng góp được';
                 $run['display_status_class'] = 'badge badge-warning text-dark p-1';
             } else {
                 $run['display_status'] = 'Code chưa vượt qua testcase này';
