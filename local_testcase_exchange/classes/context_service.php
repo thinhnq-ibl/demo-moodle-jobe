@@ -131,11 +131,13 @@ final class context_service {
                 $c['student_username'] = $u->username;
                 $c['student_email'] = $u->email;
                 $c['student_display'] = fullname($u) . ' (' . $u->username . ')';
+                $c['contributor_name'] = fullname($u);
             } else {
                 $c['student_name'] = 'User #' . $uid;
                 $c['student_username'] = '#' . $uid;
                 $c['student_email'] = '';
                 $c['student_display'] = 'User #' . $uid;
+                $c['contributor_name'] = 'User #' . $uid;
             }
 
             $qk = $c['quiz_id'] . ':' . $c['question_id'];
@@ -157,6 +159,29 @@ final class context_service {
             $c['is_approved'] = ($st === 'approved');
             $c['is_rejected'] = ($st === 'rejected');
             $c['is_duplicate'] = ($st === 'duplicate');
+
+            // Category & Outcome localization
+            $cat = (string) ($c['category'] ?? 'normal');
+            $categorylabels = [
+                'normal' => get_string('category_normal', 'local_testcase_exchange'),
+                'boundary' => get_string('category_boundary', 'local_testcase_exchange'),
+                'branch' => get_string('category_branch', 'local_testcase_exchange'),
+                'invalid' => get_string('category_invalid', 'local_testcase_exchange'),
+                'empty' => get_string('category_empty', 'local_testcase_exchange'),
+                'large' => get_string('category_large', 'local_testcase_exchange'),
+                'other' => get_string('category_other', 'local_testcase_exchange'),
+                'edge_case' => get_string('category_boundary', 'local_testcase_exchange'),
+            ];
+            $c['category_label'] = $categorylabels[$cat] ?? get_string('category_normal', 'local_testcase_exchange');
+
+            $outcome = (string) ($c['oracle_outcome'] ?? '');
+            if ($outcome === 'success') {
+                $c['oracle_outcome_label'] = get_string('outcome_success', 'local_testcase_exchange');
+            } else if ($outcome !== '') {
+                $c['oracle_outcome_label'] = get_string('outcome_failed', 'local_testcase_exchange');
+            } else {
+                $c['oracle_outcome_label'] = get_string('outcome_success', 'local_testcase_exchange');
+            }
 
             // Star rating & teacher comment.
             $rating = !empty($c['rating']) ? (int) $c['rating'] : (!empty($c['latest_rating']) ? (int) $c['latest_rating'] : 0);
@@ -202,16 +227,16 @@ final class context_service {
                 $c['has_expected_output'] = false;
                 $c['is_expected_missing'] = true;
                 $c['is_expected_empty'] = false;
-                $c['expected_output_display'] = 'Không có dữ liệu';
-                $c['predicted_output'] = 'Không có dữ liệu';
+                $c['expected_output_display'] = get_string('no_data', 'local_testcase_exchange');
+                $c['predicted_output'] = get_string('no_data', 'local_testcase_exchange');
             } else {
                 $strval = (string) $rawexpected;
                 $c['has_expected_output'] = true;
                 $c['is_expected_missing'] = false;
                 if ($strval === '') {
                     $c['is_expected_empty'] = true;
-                    $c['expected_output_display'] = '(Chuỗi rỗng)';
-                    $c['predicted_output'] = '(Chuỗi rỗng)';
+                    $c['expected_output_display'] = get_string('empty_string', 'local_testcase_exchange');
+                    $c['predicted_output'] = get_string('empty_string', 'local_testcase_exchange');
                 } else {
                     $c['is_expected_empty'] = false;
                     $c['expected_output_display'] = $strval;
@@ -219,9 +244,9 @@ final class context_service {
                 }
             }
 
-            // Formatted submitted timestamp
+            // Formatted submitted timestamp in user's timezone
             $subtime = !empty($c['timecreated']) ? (int) $c['timecreated'] : 0;
-            $c['submitted_at'] = $subtime > 0 ? date('H:i:s d/m/Y', $subtime) : 'Không có thông tin';
+            $c['submitted_at'] = $subtime > 0 ? userdate($subtime, get_string('strftimedatetimeshort', 'core_langconfig')) : get_string('noinfo', 'local_testcase_exchange');
         }
         unset($c);
 
@@ -549,7 +574,7 @@ final class context_service {
                 $item['email'] = '';
             }
             if (!empty($item['last_run_at'])) {
-                $item['last_run_formatted'] = date('H:i:s d/m/Y', strtotime($item['last_run_at']));
+                $item['last_run_formatted'] = userdate(strtotime($item['last_run_at']), get_string('strftimedatetimeshort', 'core_langconfig'));
             } else {
                 $item['last_run_formatted'] = '—';
             }

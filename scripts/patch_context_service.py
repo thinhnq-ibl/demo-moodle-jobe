@@ -1,28 +1,30 @@
 with open('local_testcase_exchange/classes/context_service.php', 'r', encoding='utf-8') as f:
-    code = f.read()
+    content = f.read()
 
-target = """            $comment = !empty($c['review_comment']) ? trim($c['review_comment']) : (!empty($c['latest_review_note']) ? trim($c['latest_review_note']) : '');
-            $c['teacher_comment'] = $comment;
-            $c['has_teacher_comment'] = ($comment !== '');
-        }"""
+# 1. contributor_name mapping
+target1 = """                $c['student_display'] = fullname($u) . ' (' . $u->username . ')';
+            } else {
+                $c['student_name'] = 'User #' . $uid;
+                $c['student_username'] = '#' . $uid;
+                $c['student_email'] = '';
+                $c['student_display'] = 'User #' . $uid;
+            }"""
 
-replacement = """            $comment = !empty($c['review_comment']) ? trim($c['review_comment']) : (!empty($c['latest_review_note']) ? trim($c['latest_review_note']) : '');
-            $c['teacher_comment'] = $comment;
-            $c['has_teacher_comment'] = ($comment !== '');
+replacement1 = """                $c['student_display'] = fullname($u) . ' (' . $u->username . ')';
+                $c['contributor_name'] = fullname($u);
+            } else {
+                $c['student_name'] = 'User #' . $uid;
+                $c['student_username'] = '#' . $uid;
+                $c['student_email'] = '';
+                $c['student_display'] = 'User #' . $uid;
+                $c['contributor_name'] = 'User #' . $uid;
+            }"""
 
-            // Safe extraction and formatting for Expected Output according to strict requirements:
-            // 1. Distinguish valid empty string, no data recorded (null), and numerical value 0 / string '0'.
-            // 2. Never substitute missing expected output with oracle_output.
-            $rawexpected = null;
-            if (array_key_exists('expected_output', $c) && $c['expected_output'] !== null) {
-                $rawexpected = $c['expected_output'];
-            } else if (array_key_exists('predicted_output', $c) && $c['predicted_output'] !== null) {
-                $rawexpected = $c['predicted_output'];
-            } else if (array_key_exists('run_predicted_output', $c) && $c['run_predicted_output'] !== null) {
-                $rawexpected = $c['run_predicted_output'];
-            }
+assert target1 in content, "target1 not found"
+content = content.replace(target1, replacement1, 1)
 
-            if ($rawexpected === null) {
+# 2. expected output string localization
+target2 = """            if ($rawexpected === null) {
                 $c['has_expected_output'] = false;
                 $c['is_expected_missing'] = true;
                 $c['is_expected_empty'] = false;
@@ -45,13 +47,49 @@ replacement = """            $comment = !empty($c['review_comment']) ? trim($c['
 
             // Formatted submitted timestamp
             $subtime = !empty($c['timecreated']) ? (int) $c['timecreated'] : 0;
-            $c['submitted_at'] = $subtime > 0 ? date('H:i:s d/m/Y', $subtime) : 'Không có thông tin';
-        }"""
+            $c['submitted_at'] = $subtime > 0 ? date('H:i:s d/m/Y', $subtime) : 'Không có thông tin';"""
 
-if target in code:
-    code = code.replace(target, replacement, 1)
-    with open('local_testcase_exchange/classes/context_service.php', 'w', encoding='utf-8') as f:
-        f.write(code)
-    print("SUCCESS")
-else:
-    print("ERROR: target not found")
+replacement2 = """            if ($rawexpected === null) {
+                $c['has_expected_output'] = false;
+                $c['is_expected_missing'] = true;
+                $c['is_expected_empty'] = false;
+                $c['expected_output_display'] = get_string('no_data', 'local_testcase_exchange');
+                $c['predicted_output'] = get_string('no_data', 'local_testcase_exchange');
+            } else {
+                $strval = (string) $rawexpected;
+                $c['has_expected_output'] = true;
+                $c['is_expected_missing'] = false;
+                if ($strval === '') {
+                    $c['is_expected_empty'] = true;
+                    $c['expected_output_display'] = get_string('empty_string', 'local_testcase_exchange');
+                    $c['predicted_output'] = get_string('empty_string', 'local_testcase_exchange');
+                } else {
+                    $c['is_expected_empty'] = false;
+                    $c['expected_output_display'] = $strval;
+                    $c['predicted_output'] = $strval;
+                }
+            }
+
+            // Formatted submitted timestamp in user's timezone
+            $subtime = !empty($c['timecreated']) ? (int) $c['timecreated'] : 0;
+            $c['submitted_at'] = $subtime > 0 ? userdate($subtime, get_string('strftimedatetimeshort', 'core_langconfig')) : get_string('noinfo', 'local_testcase_exchange');"""
+
+assert target2 in content, "target2 not found"
+content = content.replace(target2, replacement2, 1)
+
+# 3. last_run_at format in user's timezone
+target3 = """            if (!empty($item['last_run_at'])) {
+                $item['last_run_formatted'] = date('H:i:s d/m/Y', strtotime($item['last_run_at']));
+            } else {"""
+
+replacement3 = """            if (!empty($item['last_run_at'])) {
+                $item['last_run_formatted'] = userdate(strtotime($item['last_run_at']), get_string('strftimedatetimeshort', 'core_langconfig'));
+            } else {"""
+
+assert target3 in content, "target3 not found"
+content = content.replace(target3, replacement3, 1)
+
+with open('local_testcase_exchange/classes/context_service.php', 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print("Updated context_service.php successfully")

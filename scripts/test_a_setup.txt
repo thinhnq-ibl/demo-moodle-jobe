@@ -1,0 +1,35 @@
+) ? (int)$quizzes[0]->id : 1;
+$quizB = isset($quizzes[1]) ? (int)$quizzes[1]->id : 2;
+
+echo "Fixtures Resolved:\n";
+echo " - Course ID: {$courseid} | Question: {$testQ->name} (ID={$testQId}, Type={$testQ->coderunnertype})\n";
+echo " - Quiz A: ID={$quizA} | Quiz B: ID={$quizB}\n";
+echo " - Teacher: {$teacher->username} | Students: {$sv1->username}, {$sv2->username}, {$sv3->username}\n\n";
+
+$service = new testcase_service();
+
+// =================================================================
+// TEST A: ISOLATION & MIGRATION
+// =================================================================
+echo "-----------------------------------------------------------------\n";
+echo "TEST A: ISOLATION & SCHEMA MIGRATION\n";
+echo "-----------------------------------------------------------------\n";
+
+$testQId = 567; // Question MidTestQ04
+$quizA = 3;
+$quizB = 4;
+
+// 1. Verify that the obsolete unique key on question_id alone is GONE
+$rs = $DB->get_recordset_sql("SHOW INDEX FROM {local_tce_policies}");
+$oldSingleKeyExists = false;
+$compoundCols = [];
+
+foreach ($rs as $idx) {
+    if ((int)$idx->non_unique === 0 && $idx->key_name !== 'PRIMARY') {
+        $compoundCols[$idx->key_name][] = $idx->column_name;
+    }
+}
+$rs->close();
+
+$hasCompoundUnique = false;
+foreach ($compoundCols as $kname => $co

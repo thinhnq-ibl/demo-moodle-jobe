@@ -239,7 +239,10 @@ define(['jquery', 'core/str'], function($, str) {
                     function updateCursorPos() {
                         if (!cursorPosEl) return;
                         var pos = editor.getCursorPosition();
-                        cursorPosEl.textContent = 'Dòng ' + (pos.row + 1) + ', Cột ' + (pos.column + 1);
+                        var isVi = (document.documentElement.lang === 'vi');
+                        var lineWord = isVi ? 'Dòng' : 'Line';
+                        var colWord = isVi ? 'Cột' : 'Col';
+                        cursorPosEl.textContent = lineWord + ' ' + (pos.row + 1) + ', ' + colWord + ' ' + (pos.column + 1);
                     }
                     editor.selection.on('changeCursor', updateCursorPos);
                     updateCursorPos();
@@ -260,6 +263,7 @@ define(['jquery', 'core/str'], function($, str) {
                             editor.setTheme(newTheme);
                             window.localStorage.setItem(STORAGE_THEME_KEY, newTheme);
                             EditorManager.updateThemeButton(newTheme);
+                            editor.focus();
                         });
                     }
 
@@ -305,14 +309,15 @@ define(['jquery', 'core/str'], function($, str) {
             var icon = document.getElementById('tceFullscreenIcon');
             var text = document.getElementById('tceFullscreenText');
 
+            var isVi = (document.documentElement.lang === 'vi');
             if (isFullscreen) {
                 document.body.classList.add('tce-noscroll');
                 if (icon) icon.className = 'fa fa-compress mr-1';
-                if (text) text.textContent = 'Thu nhỏ';
+                if (text) text.textContent = isVi ? 'Thu nhỏ' : 'Exit fullscreen';
             } else {
                 document.body.classList.remove('tce-noscroll');
                 if (icon) icon.className = 'fa fa-arrows-alt mr-1';
-                if (text) text.textContent = 'Toàn màn hình';
+                if (text) text.textContent = isVi ? 'Toàn màn hình' : 'Fullscreen';
             }
 
             setTimeout(function() {
@@ -329,12 +334,13 @@ define(['jquery', 'core/str'], function($, str) {
             var text = document.getElementById('tceThemeText');
             if (!icon || !text) return;
 
+            var isVi = (document.documentElement.lang === 'vi');
             if (theme === THEME_DARK) {
                 icon.className = 'fa fa-sun-o mr-1';
-                text.textContent = 'Giao diện sáng';
+                text.textContent = isVi ? 'Giao diện sáng' : 'Light theme';
             } else {
                 icon.className = 'fa fa-moon-o mr-1';
-                text.textContent = 'Giao diện tối';
+                text.textContent = isVi ? 'Giao diện tối' : 'Dark theme';
             }
         },
 

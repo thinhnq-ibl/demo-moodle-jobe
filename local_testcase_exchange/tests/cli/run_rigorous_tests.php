@@ -390,6 +390,13 @@ $questionAttemptsBefore = $DB->count_records_sql("
 ", [$quizA, $sv1->id]);
 
 // Perform exploration run and check attempts count again
+$service->save_quiz_settings($quizA, (int)$teacher->id, [
+    'enabled' => 1,
+    'approval_mode' => 'teacher',
+    'reward_policy' => 'one_for_one',
+    'max_runs_per_minute' => 20,
+    'max_input_bytes' => 8192
+]);
 $qMid = context_service::validate($courseid, $quizA, $testQId);
 \core\session\manager::set_user($sv1);
 $probeRun = $service->create_run(

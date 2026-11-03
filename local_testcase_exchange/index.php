@@ -551,18 +551,26 @@ foreach ($questions as $question) {
 $coderunnertype = $selectedquestion->coderunnertype ?? 'python3';
 $is_program_input = (stripos($coderunnertype, 'input') !== false || stripos($coderunnertype, 'stdin') !== false);
 $coderunnertype_display = $coderunnertype;
+$is_vi = (current_language() === 'vi');
 if (stripos($coderunnertype, 'python') !== false) {
-    $coderunnertype_display = $is_program_input ? 'Python (Dữ liệu stdin)' : 'Python (Hàm / Biểu thức)';
+    if ($is_vi) {
+        $coderunnertype_display = $is_program_input ? 'Python (Dữ liệu stdin)' : 'Python (Hàm / Biểu thức)';
+    } else {
+        $coderunnertype_display = $is_program_input ? 'Python (stdin input)' : 'Python (Function / Expression)';
+    }
 } else if (stripos($coderunnertype, 'java') !== false) {
-    $coderunnertype_display = 'Java (Phương thức)';
+    $coderunnertype_display = $is_vi ? 'Java (Phương thức)' : 'Java (Method)';
 } else if (stripos($coderunnertype, 'c') !== false) {
-    $coderunnertype_display = 'C/C++ (Chương trình)';
+    $coderunnertype_display = $is_vi ? 'C/C++ (Chương trình)' : 'C/C++ (Program)';
 }
 
-$input_label = $is_program_input ? 'Dữ liệu đầu vào (stdin):' : 'Lệnh gọi hàm / Biểu thức kiểm thử:';
+$input_label = $is_program_input ?
+    get_string('input_label_stdin', 'local_testcase_exchange') :
+    get_string('input_label_testcode', 'local_testcase_exchange');
+
 $input_placeholder = $is_program_input ?
-    "Nhập dữ liệu đầu vào stdin cho chương trình (ví dụ: dòng 1 là số lượng, dòng 2 là các giá trị...)" :
-    "Nhập lệnh gọi hàm kiểm thử (ví dụ: print(find_max([10, 20, 5])))";
+    get_string('input_placeholder_stdin', 'local_testcase_exchange') :
+    get_string('input_placeholder_testcode', 'local_testcase_exchange');
 
 // Common template data.
 $templatedata = [
@@ -648,6 +656,13 @@ if ($is_teacher_view) {
     $rewardstats = $service ? $service->total_rewards_count($courseid, $selected_quizid, $selected_questionid, $student_ids) : ['total' => 0, 'claimed' => 0, 'unclaimed' => 0];
     $currentquizsettings = $selected_quizid > 0 && $service ? $service->quiz_settings($selected_quizid) : ['enabled' => 0];
 
+    $scopelabel = get_string('scope_course', 'local_testcase_exchange');
+    if ($selected_questionid > 0) {
+        $scopelabel = get_string('scope_question', 'local_testcase_exchange');
+    } else if ($selected_quizid > 0) {
+        $scopelabel = get_string('scope_quiz', 'local_testcase_exchange');
+    }
+
     $templatedata['overview_stats'] = [
         'is_quiz_enabled' => !empty($currentquizsettings['enabled']),
         'total_runs' => $totalruns,
@@ -660,6 +675,7 @@ if ($is_teacher_view) {
         'claimed_rewards' => $rewardstats['claimed'],
         'unclaimed_rewards' => $rewardstats['unclaimed'],
         'active_questions_count' => count($questions),
+        'scope_label' => $scopelabel,
     ];
 
     // Tab 2: Review (All student contributions with filters)
@@ -781,6 +797,8 @@ if ($is_teacher_view) {
 // STUDENT VIEW DATA PREPARATION (Solving, Playground, History, Rewards)
 // =========================================================================
 if ($is_student_view) {
+    $student_quizid = !empty($selectedquestion) ? (int) $selectedquestion->quizid : (int) $selected_quizid;
+    $quizsettings = ($service && $student_quizid > 0) ? $service->quiz_settings($student_quizid) : [];
     $runs = $service ? $service->runs_for_user($courseid, (int) $USER->id) : [];
     $rawcontributions = $service ? $service->contributions_for_user($courseid, (int) $USER->id) : [];
     $contributions = !empty($rawcontributions) ?
@@ -840,14 +858,19 @@ if ($is_student_view) {
     // Step 1: Pre-evaluate individual run metrics & identify newest eligible run per duplicate group
     $group_rep_run_id = []; // $fp_key => ID of newest eligible run
     foreach ($runs as &$run) {
-        // CRITICAL SECURITY: Never leak Oracle stdout in student view!
-        $run['show_oracle'] = false;
-
         $oracle_valid = ($run['oracle_outcome'] === 'success');
         $run['oracle_valid'] = $oracle_valid;
         $student_out = trim((string) ($run['student_run_output'] ?? ''));
         $predicted_out = trim((string) ($run['predicted_output'] ?? ''));
         $oracle_out = trim((string) ($run['oracle_output'] ?? ''));
+
+        // CRITICAL SECURITY: Never leak Oracle stdout in student view unless permitted by policy!
+        if (empty($quizsettings['show_oracle_output'])) {
+            $run['show_oracle'] = false;
+            $run['oracle_output'] = '';
+        } else {
+            $run['show_oracle'] = true;
+        }
 
         $run['has_student_output'] = ($student_out !== '');
         $run['student_matches_expected'] = ($student_out !== '' && $student_out === $predicted_out);
@@ -988,7 +1011,7 @@ if ($is_student_view) {
         // Định dạng thời gian tạo lượt chạy: ưu tiên timecreated int, không hiển thị 01/01/1970 nếu thiếu.
         $createdtimestamp = !empty($run['timecreated']) ? (int) $run['timecreated'] : (!empty($run['created_at']) ? strtotime($run['created_at']) : 0);
         if ($createdtimestamp > 0) {
-            $run['created_at_formatted'] = date('H:i:s d/m/Y', $createdtimestamp);
+            $run['created_at_formatted'] = userdate($createdtimestamp, get_string('strftimedatetimeshort', 'core_langconfig'));
         } else {
             $run['created_at_formatted'] = get_string('noinfo', 'local_testcase_exchange');
         }
@@ -999,8 +1022,21 @@ if ($is_student_view) {
     // Tách kết quả lần chạy mới nhất (Latest Run) phục vụ khối hiển thị phản hồi tức thì
     // Đảm bảo 2 nhóm thông tin ĐỘC LẬP: Kết quả chạy vs Trạng thái đóng góp
     $latestrun = null;
-    if (!empty($runs)) {
-        $first = $runs[0];
+    $target_run = null;
+    if (!empty($selectedquestion)) {
+        foreach ($runs as $r) {
+            if ((int) $r['question_id'] === (int) $selectedquestion->questionid) {
+                $target_run = $r;
+                break;
+            }
+        }
+    }
+    if ($target_run === null && !empty($runs)) {
+        $target_run = $runs[0];
+    }
+
+    if ($target_run !== null) {
+        $first = $target_run;
         $fp_key = $first['group_key'];
         $user_contrib = $user_contrib_by_fp[$fp_key] ?? null;
         $existing_canonical = ($first['input_fingerprint'] !== '' && isset($existingfingerprints[$fp_key])) ? $existingfingerprints[$fp_key] : null;
@@ -1170,6 +1206,8 @@ if ($is_student_view) {
     $templatedata['has_prefilled_code'] = ($studentcode !== '');
     $templatedata['runs'] = $runs;
     $templatedata['run_count'] = count($runs);
+    $templatedata['has_extra_runs'] = (count($runs) > 5);
+    $templatedata['extra_runs_count'] = max(0, count($runs) - 5);
     $templatedata['contributions'] = $contributions;
     $templatedata['contribution_count'] = count($contributions);
     $templatedata['rewards'] = $rewards;
@@ -1199,7 +1237,22 @@ if ($is_student_view) {
 }
 
 if ($selectedquestion) {
-    if ($PAGE->requires->should_create_one_time_item_now('local_testcase_exchange-ace-scripts')) {
+    $PAGE->requires->strings_for_js([
+    'draft_saved_device',
+    'draft_saved_device_justnow',
+    'draft_restored_device',
+    'draft_earlier',
+    'running',
+    'revision_loaded',
+    'run_code_loaded',
+    'testcase_cleared',
+    'show_more_runs',
+    'hide_older_runs',
+    'collapse',
+    'expand',
+], 'local_testcase_exchange');
+
+if ($PAGE->requires->should_create_one_time_item_now('local_testcase_exchange-ace-scripts')) {
         $PAGE->requires->js(new moodle_url('/local/testcase_exchange/ace/ace.js'));
         $PAGE->requires->js(new moodle_url('/local/testcase_exchange/ace/ext-language_tools.js'));
         $PAGE->requires->js(new moodle_url('/local/testcase_exchange/ace/ext-modelist.js'));

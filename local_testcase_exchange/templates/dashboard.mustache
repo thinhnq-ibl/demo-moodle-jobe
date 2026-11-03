@@ -64,7 +64,7 @@
 </div>
 
 <!-- Teacher Navigation Tabs -->
-<ul class="nav nav-tabs font-weight-bold mb-3" role="tablist">
+<ul class="nav nav-tabs font-weight-bold mb-3 tce-nav-tabs-scroll" role="tablist">
     <li class="nav-item">
         <a class="nav-link {{#tab_overview_active}}active{{/tab_overview_active}}" data-toggle="tab" href="#tab_overview">
             <i class="fa fa-tachometer mr-1"></i>{{#str}} tab_overview, local_testcase_exchange {{/str}}
@@ -98,45 +98,48 @@
 <div class="tab-content border border-top-0 p-3 mb-4 bg-white rounded-bottom">
     <!-- TAB 1: OVERVIEW -->
     <div class="tab-pane {{#tab_overview_active}}active{{/tab_overview_active}}" id="tab_overview">
-        <div class="row">
-            <div class="col-sm-6 col-lg-3 mb-3">
-                <div class="card h-100 border-0 bg-light p-3 shadow-sm" style="border-left: 4px solid #0f6cbf !important;">
-                    <div class="text-muted small font-weight-bold text-uppercase">Trạng thái bài Quiz</div>
-                    <div class="h4 font-weight-bold mb-1 mt-2 text-dark">
+        <div class="row mb-2">
+            <div class="col-6 col-lg-3 mb-2 px-1">
+                <div class="card h-100 border-0 bg-light p-2 p-md-3 shadow-sm tce-stat-card-mobile" style="border-left: 4px solid #0f6cbf !important;">
+                    <div class="text-muted small font-weight-bold text-uppercase text-truncate">Trạng thái Quiz</div>
+                    <div class="h4 font-weight-bold mb-1 mt-1 text-dark">
                         {{#overview_stats.is_quiz_enabled}}
-                        <span class="text-success"><i class="fa fa-check-circle mr-1"></i>Đang bật</span>
+                        <span class="text-success"><i class="fa fa-check-circle mr-1"></i>Bật</span>
                         {{/overview_stats.is_quiz_enabled}}
                         {{^overview_stats.is_quiz_enabled}}
                         <span class="text-secondary"><i class="fa fa-pause-circle mr-1"></i>Tắt</span>
                         {{/overview_stats.is_quiz_enabled}}
                     </div>
-                    <small class="text-muted">Áp dụng cho Quiz hiện tại</small>
+                    <small class="text-muted d-none d-md-block">Áp dụng cho Quiz hiện tại</small>
                 </div>
             </div>
-            <div class="col-sm-6 col-lg-3 mb-3">
-                <div class="card h-100 border-0 bg-light p-3 shadow-sm" style="border-left: 4px solid #16a34a !important;">
-                    <div class="text-muted small font-weight-bold text-uppercase">Lượt chạy thử nghiệm</div>
-                    <div class="h4 font-weight-bold mb-1 mt-2 text-dark">{{overview_stats.total_runs}}</div>
-                    <small class="text-muted">Tổng số lần sinh viên đã chạy</small>
+            <div class="col-6 col-lg-3 mb-2 px-1">
+                <div class="card h-100 border-0 bg-light p-2 p-md-3 shadow-sm tce-stat-card-mobile" style="border-left: 4px solid #16a34a !important;">
+                    <div class="text-muted small font-weight-bold text-uppercase text-truncate">Lượt chạy thử</div>
+                    <div class="h4 font-weight-bold mb-1 mt-1 text-dark">{{overview_stats.total_runs}}</div>
+                    <small class="text-muted d-none d-md-block">Tổng số lần sinh viên đã chạy</small>
                 </div>
             </div>
-            <div class="col-sm-6 col-lg-3 mb-3">
-                <div class="card h-100 border-0 bg-light p-3 shadow-sm" style="border-left: 4px solid #f59e0b !important;">
-                    <div class="text-muted small font-weight-bold text-uppercase">Đóng góp testcase</div>
-                    <div class="h4 font-weight-bold mb-1 mt-2 text-dark">
+            <div class="col-6 col-lg-3 mb-2 px-1">
+                <div class="card h-100 border-0 bg-light p-2 p-md-3 shadow-sm tce-stat-card-mobile" style="border-left: 4px solid #f59e0b !important;">
+                    <div class="text-muted small font-weight-bold text-uppercase text-truncate">Đóng góp</div>
+                    <div class="h4 font-weight-bold mb-1 mt-1 text-dark">
                         {{overview_stats.total_contributions}}
                         {{#overview_stats.pending_contributions}}
-                        <span class="badge badge-warning text-dark ml-1" style="font-size: 0.75rem;">{{overview_stats.pending_contributions}} chờ</span>
+                        <span class="badge badge-warning text-dark ml-1" style="font-size: 0.72rem;">{{overview_stats.pending_contributions}} chờ</span>
                         {{/overview_stats.pending_contributions}}
                     </div>
-                    <small class="text-muted">{{overview_stats.approved_contributions}} đã duyệt &bull; {{overview_stats.rejected_contributions}} từ chối</small>
+                    <small class="text-muted d-none d-md-block">{{overview_stats.approved_contributions}} đã duyệt &bull; {{overview_stats.rejected_contributions}} từ chối</small>
                 </div>
             </div>
-            <div class="col-sm-6 col-lg-3 mb-3">
-                <div class="card h-100 border-0 bg-light p-3 shadow-sm" style="border-left: 4px solid #7c3aed !important;">
-                    <div class="text-muted small font-weight-bold text-uppercase">Phần thưởng đã cấp</div>
-                    <div class="h4 font-weight-bold mb-1 mt-2 text-dark">{{overview_stats.claimed_rewards}} / {{overview_stats.total_rewards}}</div>
-                    <small class="text-muted">{{overview_stats.unclaimed_rewards}} testcase chưa nhận</small>
+            <div class="col-6 col-lg-3 mb-2 px-1">
+                <div class="card h-100 border-0 bg-light p-2 p-md-3 shadow-sm tce-stat-card-mobile" style="border-left: 4px solid #7c3aed !important;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-muted small font-weight-bold text-uppercase text-truncate">{{#str}} rewards_granted_title, local_testcase_exchange {{/str}}</div>
+                        <span class="badge badge-light border text-muted small d-none d-md-inline">{{overview_stats.scope_label}}</span>
+                    </div>
+                    <div class="h4 font-weight-bold mb-1 mt-1 text-dark">{{overview_stats.claimed_rewards}} <small class="text-muted" style="font-size: 0.85rem;">/ {{overview_stats.total_rewards}}</small></div>
+                    <small class="text-muted d-none d-md-block">{{overview_stats.unclaimed_rewards}} {{#str}} unclaimed_rewards_desc, local_testcase_exchange {{/str}}</small>
                 </div>
             </div>
         </div>
@@ -307,8 +310,8 @@
                                     <span class="font-weight-bold text-dark ml-1">{{quiz_name}} — {{question_name}}</span>
                                 </div>
                                 <div>
-                                    <span class="text-muted small">Phân loại:</span>
-                                    <span class="badge badge-light border text-dark ml-1">{{category}}</span>
+                                    <span class="text-muted small">{{#str}} category, local_testcase_exchange {{/str}}:</span>
+                                    <span class="badge badge-light border text-dark ml-1">{{category_label}}</span>
                                 </div>
                             </div>
                             {{#purpose}}
@@ -323,22 +326,22 @@
                         <div class="row mb-3">
                             <div class="col-md-4 mb-2 mb-md-0">
                                 <div class="small font-weight-bold text-dark mb-1">
-                                    <i class="fa fa-terminal text-muted mr-1"></i>Dữ liệu đầu vào (Input):
+                                    <i class="fa fa-terminal text-muted mr-1"></i>{{#str}} input_data_label, local_testcase_exchange {{/str}}:
                                 </div>
                                 <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{input_normalized}}</pre>
                             </div>
                             <div class="col-md-4 mb-2 mb-md-0">
                                 <div class="small font-weight-bold text-dark mb-1">
-                                    <i class="fa fa-bullseye text-muted mr-1"></i>Expected Output (Sinh viên):
+                                    <i class="fa fa-bullseye text-muted mr-1"></i>{{#str}} student_expected_output_label, local_testcase_exchange {{/str}}:
                                 </div>
                                 <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{expected_output_display}}</pre>
                             </div>
                             <div class="col-md-4">
                                 <div class="small font-weight-bold text-dark mb-1">
-                                    <i class="fa fa-check text-muted mr-1"></i>Lời giải tham chiếu (Oracle):
+                                    <i class="fa fa-check text-muted mr-1"></i>{{#str}} reference_solution_output_label, local_testcase_exchange {{/str}}:
                                 </div>
                                 <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{oracle_output}}</pre>
-                                <div class="mt-1 small"><span class="badge badge-success"><i class="fa fa-check mr-1"></i>{{oracle_outcome}}</span></div>
+                                <div class="mt-1 small"><span class="badge badge-success"><i class="fa fa-check mr-1"></i>{{oracle_outcome_label}}</span></div>
                             </div>
                         </div>
 
@@ -385,38 +388,41 @@
                                         Quyết định duyệt: <span class="text-danger">*</span>
                                     </label>
                                     <select class="custom-select font-weight-bold" name="decision" required>
-                                        <option value="" {{^status}}selected{{/status}}>-- Chọn quyết định --</option>
-                                        <option value="approved" {{#is_approved}}selected{{/is_approved}}>✓ Chấp thuận (Approve) — Bổ sung vào kho & cấp thưởng</option>
-                                        <option value="needs_explanation" {{#is_pending}}selected{{/is_pending}}>⚠️ Cần giải trình thêm (Needs Explanation)</option>
-                                        <option value="rejected" {{#is_rejected}}selected{{/is_rejected}}>✗ Từ chối (Reject)</option>
+                                        <option value="" {{^status}}selected{{/status}}>-- {{#str}} select_decision, local_testcase_exchange {{/str}} --</option>
+                                        <option value="approved" {{#is_approved}}selected{{/is_approved}}>✓ {{#str}} decision_approved, local_testcase_exchange {{/str}}</option>
+                                        <option value="needs_explanation" {{#is_pending}}selected{{/is_pending}}>⚠️ {{#str}} decision_needs_explanation, local_testcase_exchange {{/str}}</option>
+                                        <option value="rejected" {{#is_rejected}}selected{{/is_rejected}}>✗ {{#str}} decision_rejected, local_testcase_exchange {{/str}}</option>
                                     </select>
+                                    <small class="form-text text-muted mt-1">
+                                        {{#str}} decision_help_text, local_testcase_exchange {{/str}}
+                                    </small>
                                 </div>
                                 <div class="col-md-5">
                                     <label class="font-weight-bold text-dark small mb-1">
-                                        Đánh giá chất lượng (Tùy chọn):
+                                        {{#str}} quality_rating, local_testcase_exchange {{/str}}:
                                     </label>
                                     <select class="custom-select" name="rating">
-                                        <option value="0">Chưa chấm sao...</option>
-                                        <option value="5" {{#is_rating_5}}selected{{/is_rating_5}}>⭐⭐⭐⭐⭐ 5 sao - Xuất sắc</option>
-                                        <option value="4" {{#is_rating_4}}selected{{/is_rating_4}}>⭐⭐⭐⭐ 4 sao - Tốt</option>
-                                        <option value="3" {{#is_rating_3}}selected{{/is_rating_3}}>⭐⭐⭐ 3 sao - Đạt chuẩn</option>
-                                        <option value="2" {{#is_rating_2}}selected{{/is_rating_2}}>⭐⭐ 2 sao - Trung bình</option>
-                                        <option value="1" {{#is_rating_1}}selected{{/is_rating_1}}>⭐ 1 sao - Cần cải thiện</option>
+                                        <option value="0">{{#str}} rating_none, local_testcase_exchange {{/str}}</option>
+                                        <option value="5" {{#is_rating_5}}selected{{/is_rating_5}}>⭐⭐⭐⭐⭐ 5 sao - {{#str}} rating_5, local_testcase_exchange {{/str}}</option>
+                                        <option value="4" {{#is_rating_4}}selected{{/is_rating_4}}>⭐⭐⭐⭐ 4 sao - {{#str}} rating_4, local_testcase_exchange {{/str}}</option>
+                                        <option value="3" {{#is_rating_3}}selected{{/is_rating_3}}>⭐⭐⭐ 3 sao - {{#str}} rating_3, local_testcase_exchange {{/str}}</option>
+                                        <option value="2" {{#is_rating_2}}selected{{/is_rating_2}}>⭐⭐ 2 sao - {{#str}} rating_2, local_testcase_exchange {{/str}}</option>
+                                        <option value="1" {{#is_rating_1}}selected{{/is_rating_1}}>⭐ 1 sao - {{#str}} rating_1, local_testcase_exchange {{/str}}</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="form-group mb-3">
                                 <label class="font-weight-bold text-dark small mb-1">
-                                    Nhận xét & phản hồi sư phạm cho sinh viên:
+                                    {{#str}} pedagogical_feedback, local_testcase_exchange {{/str}}:
                                 </label>
-                                <textarea class="form-control" name="review_note" rows="3" placeholder="Nhập nhận xét chi tiết, góp ý sư phạm hoặc lý do chấp thuận/từ chối...">{{teacher_comment}}</textarea>
+                                <textarea class="form-control" name="review_note" rows="3" placeholder="{{#str}} teacher_review_feedback_placeholder, local_testcase_exchange {{/str}}">{{teacher_comment}}</textarea>
                             </div>
 
                             <div class="d-flex justify-content-end align-items-center" style="gap: 8px;">
-                                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Đóng</button>
+                                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">{{#str}} close, local_testcase_exchange {{/str}}</button>
                                 <button type="submit" class="btn btn-primary font-weight-bold btn-sm">
-                                    <i class="fa fa-save mr-1"></i>Lưu quyết định thẩm định
+                                    <i class="fa fa-save mr-1"></i>{{#str}} save_decision, local_testcase_exchange {{/str}}
                                 </button>
                             </div>
                         </form>
@@ -556,9 +562,9 @@
                     </form>
                 </div>
 
-                <!-- Ghi nhận tính năng nhập XML -->
+                <!-- Hướng dẫn quản lý testcase mầm -->
                 <div class="alert alert-light border small text-muted mb-0">
-                    <i class="fa fa-info-circle mr-1 text-info"></i><strong>Nhập từ tệp XML:</strong> Để nạp hạt giống từ đề bài, thầy/cô xuất tệp XML câu hỏi từ Ngân hàng câu hỏi Moodle rồi tải lên form bên dưới.
+                    <i class="fa fa-info-circle mr-1 text-info"></i><strong>{{#str}} seed_testcases_title, local_testcase_exchange {{/str}}:</strong> {{#str}} seed_guidance_help, local_testcase_exchange {{/str}}
                 </div>
             </div>
         </div>
@@ -583,7 +589,7 @@
                                 <th>{{#str}} testinput, local_testcase_exchange {{/str}}</th>
                                 <th>{{#str}} predictedoutput, local_testcase_exchange {{/str}}</th>
                                 <th>{{#str}} purpose, local_testcase_exchange {{/str}}</th>
-                                <th style="width: 140px;">Đóng góp bởi</th>
+                                <th style="width: 140px;">{{#str}} contributed_by, local_testcase_exchange {{/str}}</th>
                                 <th style="width: 110px;">Đánh giá</th>
                             </tr>
                         </thead>
@@ -597,7 +603,7 @@
                                 <td><pre class="mb-0 font-monospace bg-light p-1 border rounded">{{input_normalized}}</pre></td>
                                 <td><pre class="mb-0 font-monospace bg-light p-1 border rounded">{{expected_output_display}}</pre></td>
                                 <td><small class="text-muted">{{purpose}}</small></td>
-                                <td><span class="badge badge-light border">{{contributor_name}}</span></td>
+                                <td><span class="badge badge-light border">{{#contributor_name}}{{contributor_name}}{{/contributor_name}}{{^contributor_name}}{{student_name}}{{/contributor_name}}</span></td>
                                 <td>
                                     {{#rating}}<span class="badge badge-warning text-dark">{{rating}} ⭐</span>{{/rating}}
                                     {{^rating}}<span class="badge badge-light border text-muted">Chuẩn</span>{{/rating}}
@@ -766,21 +772,21 @@
 {{/is_teacher_preview}}
 
 <!-- Header & Context Navigation -->
-<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
-    <div>
-        <h3 class="font-weight-bold text-dark mb-0">
-            <i class="fa fa-flask text-primary mr-2"></i>{{#str}} studentview_title, local_testcase_exchange {{/str}}
-        </h3>
-        <div class="text-muted small mt-1">
-            <span>{{current_course_name}}</span>
-            {{#current_quiz_name}} &bull; <span>{{current_quiz_name}}</span>{{/current_quiz_name}}
+<div class="tce-header-bar d-flex flex-wrap justify-content-between align-items-center mb-2 pb-2 border-bottom">
+    <div class="tce-header-title" style="min-width: 0; max-width: 100%;">
+        <h4 class="font-weight-bold text-dark mb-0 d-flex align-items-center">
+            <i class="fa fa-flask text-primary mr-2"></i>
+            <span class="text-truncate">{{#str}} studentview_title, local_testcase_exchange {{/str}}</span>
+        </h4>
+        <div class="text-muted small tce-header-subtitle text-truncate mt-1" style="max-width: 480px;">
+            <span class="font-weight-bold">{{current_course_shortname}}</span> &bull; <span>{{current_quiz_name}}</span>
         </div>
     </div>
-    <div class="mt-2 mt-md-0 d-flex align-items-center flex-wrap" style="gap: 8px;">
+    <div class="tce-header-actions mt-2 mt-sm-0 d-flex align-items-center" style="gap: 6px;">
         {{#show_course_switcher}}
-        <div class="d-inline-flex align-items-center mr-2">
+        <div class="d-none d-md-inline-flex align-items-center mr-1">
             <label for="switchCourseSelect" class="small text-muted mb-0 mr-1 text-nowrap">{{#str}} switchcourse, local_testcase_exchange {{/str}}:</label>
-            <select id="switchCourseSelect" class="custom-select custom-select-sm" style="max-width: 260px;" onchange="if (this.value) window.location.href=this.value;">
+            <select id="switchCourseSelect" class="custom-select custom-select-sm" style="max-width: 220px;" onchange="if (this.value) window.location.href=this.value;">
                 {{#available_courses}}
                 <option value="{{switch_url}}" {{#is_current}}selected{{/is_current}}>{{shortname}} - {{fullname}}</option>
                 {{/available_courses}}
@@ -789,8 +795,8 @@
         {{/show_course_switcher}}
 
         {{#has_return_url}}
-        <a class="btn btn-outline-secondary btn-sm font-weight-bold" href="{{return_url}}">
-            <i class="fa fa-arrow-left mr-1"></i>Quay lại làm bài Quiz
+        <a class="btn btn-outline-secondary btn-sm font-weight-bold text-nowrap py-1 px-2" href="{{return_url}}">
+            <i class="fa fa-arrow-left mr-1"></i>{{#str}} backtocurrentquiz, local_testcase_exchange {{/str}}
         </a>
         {{/has_return_url}}
     </div>
@@ -849,7 +855,7 @@
         <div class="tce-context-bar d-flex flex-column flex-md-row align-items-stretch align-items-md-center justify-content-between mb-3" style="gap: 8px;">
             <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center flex-grow-1 mr-md-3" style="min-width: 0;">
                 <label for="question" class="font-weight-bold text-dark mb-1 mb-sm-0 mr-2 text-nowrap">
-                    <i class="fa fa-book text-muted mr-1"></i>Bài tập:
+                    <i class="fa fa-book text-muted mr-1"></i>{{#str}} question, local_testcase_exchange {{/str}}:
                 </label>
                 <select class="custom-select custom-select-sm font-weight-bold flex-grow-1" style="min-width: 0; width: 100%; max-width: 100%;" id="question" name="question">
                     {{#questions}}
@@ -859,7 +865,7 @@
             </div>
             <div class="text-right text-md-left">
                 <span class="badge badge-light border text-muted">
-                    Kiểu kiểm thử: <strong class="text-dark">{{coderunnertype_display}}</strong>
+                    {{#str}} test_type_label, local_testcase_exchange {{/str}}: <strong class="text-dark">{{coderunnertype_display}}</strong>
                 </span>
             </div>
         </div>
@@ -871,13 +877,13 @@
                 <span class="font-weight-bold text-dark">
                     <i class="fa fa-file-text-o text-primary mr-1"></i>{{#str}} question_prompt_title, local_testcase_exchange {{/str}}: {{current_question_name}}
                 </span>
-                <button class="btn btn-sm btn-link text-muted p-0 font-weight-bold" type="button" data-toggle="collapse" data-target="#questionPromptBody" aria-expanded="true" aria-controls="questionPromptBody" id="btnToggleQuestionPrompt">
-                    <small id="lblToggleQuestionPrompt">Thu gọn</small>
+                <button class="btn btn-sm btn-link text-muted p-0 font-weight-bold" type="button" data-toggle="collapse" data-target="#questionPromptBody" aria-expanded="true" aria-controls="questionPromptBody" id="btnToggleQuestionPrompt" style="white-space: nowrap !important; text-decoration: none; flex-shrink: 0;">
+                    <small id="lblToggleQuestionPrompt" class="badge badge-light border px-2 py-1 text-nowrap" style="white-space: nowrap !important;">{{#str}} collapse, local_testcase_exchange {{/str}}</small>
                 </button>
             </div>
             <div class="collapse show" id="questionPromptBody">
                 <div class="card-body p-3 bg-white border-top">
-                    <div class="question-prompt-content text-dark">
+                    <div class="question-prompt-content text-dark" style="max-height: 160px; overflow-y: auto;">
                         {{{questiontext_html}}}
                     </div>
                 </div>
@@ -933,7 +939,7 @@
 
                                 <div class="tce-editor-statusbar d-flex justify-content-between align-items-center">
                                     <div>
-                                        <span id="tceEditorCursorPos">Dòng 1, Cột 1</span>
+                                        <span id="tceEditorCursorPos">{{#str}} cursor_pos_default, local_testcase_exchange {{/str}}</span>
                                         <span class="mx-2 text-muted">|</span>
                                         <span id="tceEditorIndentInfo">Spaces: 4</span>
                                     </div>
@@ -983,7 +989,7 @@
                     <div class="card h-100 mb-0">
                         <div class="card-header d-flex justify-content-between align-items-center py-2">
                             <span class="font-weight-bold text-dark">
-                                <i class="fa fa-flask text-success mr-1"></i>Định nghĩa Testcase kiểm thử
+                                <i class="fa fa-flask text-success mr-1"></i>{{#str}} define_testcase_title, local_testcase_exchange {{/str}}
                             </span>
                             <button type="button" id="btnClearTestInputs" class="btn btn-sm btn-link text-muted p-0" title="Xóa nội dung testcase">
                                 <i class="fa fa-eraser mr-1"></i>{{#str}} clear_test_btn, local_testcase_exchange {{/str}}
@@ -999,14 +1005,14 @@
 
                             <div class="form-group mb-2">
                                 <label for="predicted_output" class="small font-weight-bold text-dark mb-1">
-                                    {{#str}} predictedoutput, local_testcase_exchange {{/str}} (Kết quả kỳ vọng): <span class="text-danger">*</span>
+                                    {{#str}} clean_predicted_label, local_testcase_exchange {{/str}}: <span class="text-danger">*</span>
                                 </label>
                                 <textarea class="form-control font-monospace" id="predicted_output" name="predicted_output" rows="3" required placeholder="Nhập kết quả chuẩn chương trình sẽ in ra...">{{last_predicted_output}}</textarea>
                             </div>
 
                             <div class="form-group mb-2">
                                 <label for="purpose" class="small font-weight-bold text-dark mb-1">
-                                    {{#str}} purpose, local_testcase_exchange {{/str}} (Mục đích kiểm thử): <span class="text-danger">*</span>
+                                    {{#str}} clean_purpose_label, local_testcase_exchange {{/str}}: <span class="text-danger">*</span>
                                 </label>
                                 <textarea class="form-control" id="purpose" name="purpose" rows="2" required placeholder="Ví dụ: Kiểm tra trường hợp danh sách rỗng, số âm hoặc dữ liệu biên...">{{last_purpose}}</textarea>
                             </div>
@@ -1156,7 +1162,7 @@
                             <tr><td colspan="5" class="text-center text-muted py-4">{{#str}} empty_history, local_testcase_exchange {{/str}}</td></tr>
                             {{/runs}}
                             {{#runs}}
-                            <tr id="run-{{id}}">
+                            <tr id="run-{{id}}" class="{{#is_extra_run}}tce-older-run d-none{{/is_extra_run}}">
                                 <td>
                                     <div><strong>#{{id}}</strong> {{#has_revision}}<span class="badge badge-light border ml-1">{{revision_badge}}</span>{{/has_revision}}</div>
                                     <div class="small text-muted">{{created_at_formatted}}</div>
@@ -1220,6 +1226,13 @@
                             {{/runs}}
                         </tbody>
                     </table>
+                    {{#has_extra_runs}}
+                    <div class="p-2 border-top bg-light text-center d-none d-md-block">
+                        <button type="button" class="btn btn-outline-secondary btn-sm font-weight-bold btn-toggle-older-runs" onclick="toggleOlderRuns()">
+                            <i class="fa fa-chevron-down mr-1"></i>{{#str}} show_more_runs, local_testcase_exchange, {{extra_runs_count}} {{/str}}
+                        </button>
+                    </div>
+                    {{/has_extra_runs}}
                 </div>
 
                 <!-- Mobile Card View (Hiển thị 5 lượt gần nhất, có nút Xem thêm) -->
@@ -1537,20 +1550,42 @@
         }
     }
 
+    function getStr(key, fallback) {
+        if (window.M && window.M.util && typeof window.M.util.get_string === 'function') {
+            try {
+                var res = window.M.util.get_string(key, 'local_testcase_exchange');
+                if (res && res.indexOf('[[') === -1) {
+                    return res;
+                }
+            } catch (e) {}
+        }
+        return fallback;
+    }
+
+    function formatTime(d) {
+        var h = String(d.getHours()).padStart(2, '0');
+        var m = String(d.getMinutes()).padStart(2, '0');
+        var s = String(d.getSeconds()).padStart(2, '0');
+        return h + ':' + m + ':' + s;
+    }
+
     function saveDraft() {
         syncAceToCodeEl();
         var key = getStorageKey();
+        var now = new Date();
         var data = {
             code: codeEl ? sanitizeMultiline(codeEl.value) : '',
             input: inputEl ? sanitizeMultiline(inputEl.value) : '',
             predicted: predictedEl ? sanitizeMultiline(predictedEl.value) : '',
             category: categoryEl ? categoryEl.value : 'normal',
             purpose: purposeEl ? purposeEl.value : '',
-            updated_at: new Date().toLocaleTimeString()
+            updated_at: formatTime(now),
+            timestamp: now.getTime()
         };
         try {
             localStorage.setItem(key, JSON.stringify(data));
-            updateStatus('Đã lưu nháp tự động trên trình duyệt lúc ' + data.updated_at, true);
+            var msg = getStr('draft_saved_device_justnow', 'Đã lưu nháp tự động trên thiết bị này (vừa xong)');
+            updateStatus(msg, true);
         } catch (e) {
             console.warn('LocalStorage error', e);
         }
@@ -1601,7 +1636,9 @@
             syncCodeElToAce();
             saveDraft();
             if (restored) {
-                updateStatus('Đã khôi phục bản nháp từ trình duyệt (' + (data.updated_at || 'trước đó') + ')', true);
+                var tm = data.updated_at || getStr('draft_earlier', 'trước đó');
+                var restoredMsg = getStr('draft_restored_device', 'Đã khôi phục bản nháp từ thiết bị này ({$a})').replace('{$a}', tm);
+                updateStatus(restoredMsg, true);
             }
         } catch (e) {
             console.warn('LocalStorage error', e);
@@ -1628,7 +1665,7 @@
             sessionStorage.setItem('tce_just_ran', '1');
             if (btnSubmitRun) {
                 btnSubmitRun.disabled = true;
-                btnSubmitRun.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> Đang chạy...';
+                btnSubmitRun.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> ' + getStr('running', 'Đang chạy...');
             }
         });
     }
@@ -1659,7 +1696,7 @@
                 codeEl.classList.add('tce-flash-active');
                 codeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 codeEl.focus();
-                updateStatus('Đã nạp phiên bản vào vùng soạn thảo.', true);
+                updateStatus(getStr('revision_loaded', 'Đã nạp phiên bản vào vùng soạn thảo.'), true);
             }
         });
     });
@@ -1678,7 +1715,7 @@
                 codeEl.classList.add('tce-flash-active');
                 codeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 codeEl.focus();
-                updateStatus('Đã nạp mã nguồn từ lượt chạy vào vùng soạn thảo.', true);
+                updateStatus(getStr('run_code_loaded', 'Đã nạp mã nguồn từ lượt chạy vào vùng soạn thảo.'), true);
             }
         });
     });
@@ -1692,14 +1729,14 @@
             if (purposeEl) purposeEl.value = '';
             saveDraft();
             if (inputEl) inputEl.focus();
-            updateStatus('Đã xóa dữ liệu testcase để nhập mới.', false);
+            updateStatus(getStr('testcase_cleared', 'Đã xóa dữ liệu testcase để nhập mới.'), false);
         });
     }
 
-    // Toggle older runs function on mobile
+    // Toggle older runs function for both desktop table and mobile cards
     window.toggleOlderRuns = function() {
         var olderRuns = document.querySelectorAll('.tce-older-run');
-        var btn = document.getElementById('btnToggleOlderRuns');
+        var btns = document.querySelectorAll('.btn-toggle-older-runs, #btnToggleOlderRuns');
         var isHidden = true;
         olderRuns.forEach(function(el) {
             if (el.classList.contains('d-none')) {
@@ -1710,21 +1747,56 @@
                 isHidden = true;
             }
         });
-        if (btn) {
-            btn.innerHTML = isHidden ?
-                '<i class="fa fa-chevron-down mr-1"></i>Xem thêm (' + olderRuns.length + ' lượt chạy cũ hơn)' :
-                '<i class="fa fa-chevron-up mr-1"></i>Thu gọn lượt chạy cũ';
+        var count = olderRuns.length;
+        if (document.querySelector('.tce-history-desktop-table') && document.querySelector('.tce-mobile-run-card')) {
+            count = Math.round(count / 2);
         }
+        var showMoreText = getStr('show_more_runs', 'Xem thêm ({$a} lượt chạy cũ hơn)').replace('{$a}', count);
+        var hideText = getStr('hide_older_runs', 'Thu gọn lượt chạy cũ');
+        btns.forEach(function(btn) {
+            btn.innerHTML = isHidden ?
+                '<i class="fa fa-chevron-down mr-1"></i>' + showMoreText :
+                '<i class="fa fa-chevron-up mr-1"></i>' + hideText;
+        });
     };
+
+    // Auto-expand older runs if navigating directly to a hidden run via anchor
+    function checkHashTarget() {
+        if (window.location.hash && window.location.hash.indexOf('#run-') === 0) {
+            var target = document.querySelector(window.location.hash);
+            if (target && target.classList.contains('tce-older-run')) {
+                var olderRuns = document.querySelectorAll('.tce-older-run');
+                olderRuns.forEach(function(el) { el.classList.remove('d-none'); });
+                var btns = document.querySelectorAll('.btn-toggle-older-runs, #btnToggleOlderRuns');
+                var hideText = getStr('hide_older_runs', 'Thu gọn lượt chạy cũ');
+                btns.forEach(function(btn) {
+                    btn.innerHTML = '<i class="fa fa-chevron-up mr-1"></i>' + hideText;
+                });
+            }
+        }
+    }
+    window.addEventListener('hashchange', checkHashTarget);
+    setTimeout(checkHashTarget, 200);
+
+    // Modal dialog: Return focus to trigger button upon close
+    if (window.jQuery) {
+        window.jQuery('.modal').on('hidden.bs.modal', function() {
+            var id = this.id;
+            var trigger = document.querySelector('[data-target="#' + id + '"]');
+            if (trigger) {
+                trigger.focus();
+            }
+        });
+    }
 
     // Question prompt toggle text update
     if (window.jQuery) {
         window.jQuery('#questionPromptBody').on('show.bs.collapse', function() {
             var lbl = document.getElementById('lblToggleQuestionPrompt');
-            if (lbl) lbl.textContent = 'Thu gọn';
+            if (lbl) lbl.textContent = getStr('collapse', 'Thu gọn');
         }).on('hide.bs.collapse', function() {
             var lbl = document.getElementById('lblToggleQuestionPrompt');
-            if (lbl) lbl.textContent = 'Mở rộng';
+            if (lbl) lbl.textContent = getStr('expand', 'Mở rộng');
         });
     }
 
