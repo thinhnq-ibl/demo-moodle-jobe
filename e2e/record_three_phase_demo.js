@@ -177,11 +177,32 @@ async function recordScene(browser, number, name, authFile, task) {
 }
 
 async function fillWorkspace(page, { code, input, expected, category, purpose }) {
-  await setAceValue(page.locator('#student_code_ace'), code);
-  await page.locator('#test_input').fill(input);
-  await page.locator('#predicted_output').fill(expected);
-  await page.locator('#category').selectOption(category);
-  await page.locator('#purpose').fill(purpose);
+  await page.evaluate(({ code, input, expected, category, purpose }) => {
+    const aceDiv = document.getElementById('student_code_ace');
+    if (window.ace && aceDiv) {
+      try {
+        const ed = window.ace.edit(aceDiv);
+        if (ed) {
+          ed.getSession().setValue(code);
+          ed.setValue(code, -1);
+          ed.clearSelection();
+        }
+      } catch (e) {}
+    }
+    const codeEl = document.getElementById('student_code');
+    if (codeEl) codeEl.value = code;
+    const inputEl = document.getElementById('test_input');
+    if (inputEl) inputEl.value = input;
+    const expEl = document.getElementById('predicted_output');
+    if (expEl) expEl.value = expected;
+    const catEl = document.getElementById('category');
+    if (catEl) catEl.value = category;
+    const purpEl = document.getElementById('purpose');
+    if (purpEl) purpEl.value = purpose;
+  }, { code, input, expected, category, purpose });
+  await page.locator('#test_input').dispatchEvent('input');
+  await page.locator('#predicted_output').dispatchEvent('input');
+  await page.waitForTimeout(500);
 }
 
 async function runWorkspace(page) {
@@ -197,7 +218,8 @@ async function runWorkspace(page) {
 }
 
 async function contributeLatest(page) {
-  const button = page.locator('#btnSubmitLatestContrib');
+  const button = page.locator('#btnSubmitLatestContrib').first();
+  await button.waitFor({ state: 'visible', timeout: 30000 });
   await highlight(button, 1100);
   await clickAndWait(page, button);
 }
@@ -234,11 +256,29 @@ function formatSrtTime(totalSec) {
   return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')},${String(millis).padStart(3, '0')}`;
 }
 
+function findFfmpeg() {
+  const localApp = process.env.LOCALAPPDATA || '';
+  const candidates = [
+    path.join(localApp, 'ms-playwright', 'ffmpeg-1013', 'ffmpeg-win64.exe'),
+    'ffmpeg',
+  ];
+  for (const bin of candidates) {
+    if (bin !== 'ffmpeg' && fs.existsSync(bin)) return bin;
+  }
+  return 'ffmpeg';
+}
+
 function postProcessVideo() {
   const concatPath = path.join(RECORDINGS_DIR, 'concat_list.txt');
   fs.writeFileSync(concatPath, sceneRecords.map((s) => `file '${s.path.replace(/'/g, "'\\''")}'`).join('\n'), 'utf8');
   const outputPath = path.join(EVIDENCE_DIR, 'demo_testcase_exchange_three_phases.mp4');
-  execFileSync('ffmpeg', ['-y', '-f', 'concat', '-safe', '0', '-i', concatPath, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-r', '30', outputPath], { stdio: 'inherit' });
+  const ffmpegBin = findFfmpeg();
+  try {
+    execFileSync(ffmpegBin, ['-y', '-f', 'concat', '-safe', '0', '-i', concatPath, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-r', '30', outputPath], { stdio: 'inherit' });
+    console.log('Video hoàn chỉnh đã được xuất tại:', outputPath);
+  } catch (err) {
+    console.warn('Ghép video ffmpeg thất bại; các video cảnh riêng lẻ được lưu đầy đủ tại:', RECORDINGS_DIR);
+  }
 
   const captions = [
     'Phase 1: Giảng viên đi từ Dashboard vào khóa học, Quiz và khu vực soạn câu hỏi CodeRunner.',
@@ -295,7 +335,7 @@ function postProcessVideo() {
       await openQuizFromCourse(page, highlight);
       await openTeacherHubFromQuiz(page, highlight);
       await injectVideoStyles(page);
-      const policyTab = page.locator('a[href="#tab_policy"]');
+      const policyTab = page.locator('a[href="#tab_policy"]').first();
       await highlight(policyTab, 1000);
       await policyTab.click();
       await showCaption(page, 'PHASE 1/3 • SETUP', 'Cấu hình chính sách Testcase Exchange', 'Bật đóng góp, giảng viên duyệt, thưởng 1 đổi 1 và bảng xếp hạng cho Quiz.');
@@ -305,7 +345,7 @@ function postProcessVideo() {
       if (!(await leaderboard.isChecked())) await leaderboard.check();
       await page.waitForTimeout(1800);
 
-      const seedTab = page.locator('a[href="#tab_seed"]');
+      const seedTab = page.locator('a[href="#tab_seed"]').first();
       if (await seedTab.count() && await seedTab.isVisible()) {
         await highlight(seedTab, 1000);
         await seedTab.click();
@@ -415,7 +455,7 @@ function postProcessVideo() {
       await openCourseFromDashboard(page, highlight);
       await openQuizFromCourse(page, highlight);
       await openTeacherHubFromQuiz(page, highlight);
-      const reviewTab = page.locator('a[href="#tab_review"]');
+      const reviewTab = page.locator('a[href="#tab_review"]').first();
       await highlight(reviewTab, 1000);
       await reviewTab.click();
       await reviewContribution(page, 'student1', 'approved', 5, 'Testcase rõ ràng, hợp lệ và có mục đích kiểm thử tốt.');
@@ -429,12 +469,12 @@ function postProcessVideo() {
       await openCourseFromDashboard(page, highlight);
       await openQuizFromCourse(page, highlight);
       await openTeacherHubFromQuiz(page, highlight);
-      const bankTab = page.locator('a[href="#tab_bank"]');
+      const bankTab = page.locator('a[href="#tab_bank"]').first();
       await highlight(bankTab, 1000);
       await bankTab.click();
       await showCaption(page, 'PHASE 3/3 • KẾT QUẢ', 'Ngân hàng testcase đã được cập nhật', 'Các đóng góp được duyệt trở thành nguồn testcase dùng chung của lớp học.');
       await page.waitForTimeout(2200);
-      const leaderboardTab = page.locator('a[href="#tab_leaderboard"]');
+      const leaderboardTab = page.locator('a[href="#tab_leaderboard"]').first();
       if (await leaderboardTab.count() && await leaderboardTab.isVisible()) {
         await highlight(leaderboardTab, 1000);
         await leaderboardTab.click();

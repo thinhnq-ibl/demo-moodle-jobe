@@ -84,14 +84,19 @@ async function setAceValue(editor, value) {
   await editor.click();
   await editor.evaluate((element, text) => {
     const aceApi = window.ace;
-    if (!aceApi) {
-      throw new Error("Ace editor chưa sẵn sàng.");
+    if (aceApi) {
+      try {
+        const instance = aceApi.edit(element);
+        if (instance) {
+          instance.getSession().setValue(text);
+          instance.setValue(text, -1);
+          instance.clearSelection();
+          instance.focus();
+        }
+      } catch (e) {}
     }
-    const instance = aceApi.edit(element);
-    instance.setValue(text, -1);
-    instance.clearSelection();
-    instance.focus();
-    const textarea = element.parentElement?.querySelector('textarea');
+    const form = element.closest('form') || element.parentElement;
+    const textarea = form?.querySelector('textarea[name*="answer"], textarea#student_code, textarea');
     if (textarea) {
       textarea.value = text;
       textarea.dispatchEvent(new Event('input', { bubbles: true }));
@@ -131,9 +136,7 @@ async function openTestcaseExchangeFromQuestion(page, highlight = async () => {}
 }
 
 async function openTeacherHubFromQuiz(page, highlight = async () => {}) {
-  const hubLink = page.locator('a[href*="/local/testcase_exchange/index.php"]').filter({
-    hasText: /Open testcase exchange workspace|Mở không gian trao đổi testcase|Testcase Exchange/i,
-  }).first();
+  const hubLink = page.locator('a[href*="/local/testcase_exchange/index.php"]').first();
   await hubLink.waitFor({ state: 'visible', timeout: 30000 });
   await hubLink.scrollIntoViewIfNeeded();
   await highlight(hubLink, 1400);

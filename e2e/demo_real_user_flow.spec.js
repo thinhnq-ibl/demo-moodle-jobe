@@ -19,6 +19,7 @@ const CORRECT_PRIME_CODE = `def is_prime(n):
     return True`;
 
 async function login(page, username, password) {
+  await page.context().clearCookies();
   await page.goto('/login/index.php');
   await page.fill('#username', username);
   await page.fill('#password', password);
@@ -46,7 +47,7 @@ test('giảng viên đi từ Dashboard vào khóa học, Quiz và Testcase Excha
 
   await expect(page).toHaveURL(new RegExp(`/local/testcase_exchange/index\\.php\\?course=${DEMO.courseId}`));
   await expect(page.locator('a[href="#tab_policy"]')).toBeVisible();
-  await expect(page.locator('a[href="#tab_review"]')).toBeVisible();
+  await expect(page.locator('a[href="#tab_review"]').first()).toBeVisible();
 });
 
 test('sinh viên đi từ Dashboard vào Quiz, Check bài rồi mở đúng câu hỏi', async ({ page }) => {
