@@ -272,12 +272,32 @@ function postProcessVideo() {
   const concatPath = path.join(RECORDINGS_DIR, 'concat_list.txt');
   fs.writeFileSync(concatPath, sceneRecords.map((s) => `file '${s.path.replace(/'/g, "'\\''")}'`).join('\n'), 'utf8');
   const outputPath = path.join(EVIDENCE_DIR, 'demo_testcase_exchange_three_phases.mp4');
+  let merged = false;
   const ffmpegBin = findFfmpeg();
   try {
     execFileSync(ffmpegBin, ['-y', '-f', 'concat', '-safe', '0', '-i', concatPath, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-r', '30', outputPath], { stdio: 'inherit' });
+    merged = true;
     console.log('Video hoàn chỉnh đã được xuất tại:', outputPath);
   } catch (err) {
-    console.warn('Ghép video ffmpeg thất bại; các video cảnh riêng lẻ được lưu đầy đủ tại:', RECORDINGS_DIR);
+    try {
+      const workspaceRoot = path.resolve(__dirname, '..');
+      const concatLinux = path.join(RECORDINGS_DIR, 'concat_list_linux.txt');
+      const lines = sceneRecords.map((s) => {
+        const rel = path.relative(workspaceRoot, s.path).replace(/\\/g, '/');
+        return `file '/work/${rel}'`;
+      }).join('\n');
+      fs.writeFileSync(concatLinux, lines, 'utf8');
+      execFileSync('docker', [
+        'run', '--rm', '-v', `${workspaceRoot}:/work`, '-w', '/work', 'alpine',
+        'sh', '-c',
+        `apk add --no-cache ffmpeg >/dev/null 2>&1 && ffmpeg -y -f concat -safe 0 -i /work/e2e/recordings/three-phase-scenes/concat_list_linux.txt -c:v libx264 -pix_fmt yuv420p -r 30 /work/verification_evidence/demo_testcase_exchange_three_phases.mp4`
+      ], { stdio: 'inherit' });
+      fs.unlinkSync(concatLinux);
+      merged = true;
+      console.log('Video hoàn chỉnh đã được ghép qua Docker ffmpeg tại:', outputPath);
+    } catch (dockerErr) {
+      console.warn('Ghép video thất bại; các video cảnh riêng lẻ được lưu đầy đủ tại:', RECORDINGS_DIR);
+    }
   }
 
   const captions = [
