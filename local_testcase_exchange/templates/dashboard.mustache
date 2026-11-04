@@ -1054,7 +1054,7 @@
         <div id="tceFormDirtyWarning" class="alert alert-warning py-2 px-3 mb-3 d-none border-warning shadow-sm" style="background-color: #fffbeb; color: #92400e;">
             <i class="fa fa-exclamation-triangle mr-1 text-warning"></i><strong>{{#str}} form_dirty_warning, local_testcase_exchange {{/str}}</strong> Hãy bấm "Chạy thử" để nhận kết quả mới nhất.
         </div>
-        <div class="tce-latest-result-card card p-3 shadow-sm mb-4" id="tceLatestResultCard">
+        <div class="tce-latest-result-card card p-3 shadow-sm mb-4" id="tceLatestResultCard" tabindex="-1" aria-live="polite">
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
                 <div class="d-flex align-items-center">
                     <h5 class="font-weight-bold text-dark mb-0">
@@ -1695,6 +1695,10 @@
             syncAceToCodeEl();
             saveDraft();
             sessionStorage.setItem('tce_just_ran', '1');
+            // Keep a fragment across the POST/redirect cycle as a layout fallback.
+            var actionUrl = new URL(runForm.getAttribute('action') || window.location.href, window.location.href);
+            actionUrl.hash = 'tceLatestResultCard';
+            runForm.setAttribute('action', actionUrl.toString());
             if (btnSubmitRun) {
                 btnSubmitRun.disabled = true;
                 btnSubmitRun.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> ' + getStr('running', 'Đang chạy...');
@@ -1893,11 +1897,32 @@
         });
     }
 
-    // Smooth scroll to latest result card if user just ran a test
+    // Reveal the newest result only after Moodle and the editor finish their first layout.
     var latestResult = document.getElementById('tceLatestResultCard');
-    if (latestResult && sessionStorage.getItem('tce_just_ran') === '1') {
+    var shouldRevealLatest = sessionStorage.getItem('tce_just_ran') === '1' ||
+        window.location.hash === '#tceLatestResultCard';
+    if (latestResult && shouldRevealLatest) {
         sessionStorage.removeItem('tce_just_ran');
-        latestResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        window.requestAnimationFrame(function() {
+            window.setTimeout(function() {
+                latestResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                latestResult.focus({ preventScroll: true });
+                latestResult.classList.add('tce-result-reveal');
+
+                var latestRunId = '{{latest_run.id}}';
+                var latestHistoryRow = latestRunId ? document.getElementById('run-' + latestRunId) : null;
+                if (latestHistoryRow) {
+                    latestHistoryRow.classList.add('tce-result-reveal-row');
+                }
+
+                window.setTimeout(function() {
+                    latestResult.classList.remove('tce-result-reveal');
+                    if (latestHistoryRow) {
+                        latestHistoryRow.classList.remove('tce-result-reveal-row');
+                    }
+                }, 2200);
+            }, 180);
+        });
     }
 
     restoreDraft();

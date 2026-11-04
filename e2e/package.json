@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "playwright test",
+    "test:demo-flow": "playwright test demo_real_user_flow.spec.js",
+    "record:demo": "node record_full_demo_video.js"
   },
   "keywords": [],
   "author": "",

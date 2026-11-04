@@ -362,6 +362,38 @@ body#page-local-testcase_exchange-policy :not(.fa):not(.fas):not(.far):not(.fal)
     border: 1px solid #e2e8f0;
     background: #ffffff;
     margin-bottom: 1.5rem;
+    scroll-margin-top: 5.25rem;
+}
+
+@keyframes tce-result-reveal {
+    0% {
+        box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.45);
+        border-color: #0284c7;
+    }
+    35% {
+        box-shadow: 0 0 0 6px rgba(2, 132, 199, 0.18);
+        border-color: #0284c7;
+    }
+    100% {
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+        border-color: #e2e8f0;
+    }
+}
+
+.tce-latest-result-card.tce-result-reveal {
+    animation: tce-result-reveal 2.2s ease-out;
+}
+
+.tce-history-table-container tr.tce-result-reveal-row > td {
+    background-color: #e0f2fe !important;
+    transition: background-color 1.8s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tce-latest-result-card.tce-result-reveal {
+        animation: none;
+        border-color: #0284c7;
+    }
 }
 
 .tce-latest-result-card.state-eligible {
