@@ -104,6 +104,49 @@ async function slowType(locator, text) {
 }
 
 /**
+ * Điền mã nguồn qua Ace Editor nếu editor đang được bật.
+ * Textarea #student_code là phần tử tương thích submit nhưng bị ẩn khi Ace
+ * khởi tạo, vì vậy locator.fill() sẽ timeout trên giao diện hiện tại.
+ * @param {import("@playwright/test").Page} page
+ * @param {string} text
+ */
+async function setStudentCode(page, text) {
+  await page.waitForFunction(() => {
+    const textarea = document.getElementById("student_code");
+    const editorDiv = document.getElementById("student_code_ace");
+    return Boolean(textarea && editorDiv && (!window.ace || window.ace.edit));
+  });
+  await page.evaluate((value) => {
+    const textarea = document.getElementById("student_code");
+    const editorDiv = document.getElementById("student_code_ace");
+    if (!textarea) return;
+
+    if (editorDiv && window.ace && window.ace.edit) {
+      const editor = window.ace.edit(editorDiv);
+      editor.setValue(value, -1);
+      editor.clearSelection();
+      textarea.value = editor.getValue();
+    } else {
+      textarea.value = value;
+    }
+
+    textarea.dispatchEvent(new Event("input", { bubbles: true }));
+    textarea.dispatchEvent(new Event("change", { bubbles: true }));
+    window.dispatchEvent(new Event("tce_editor_changed"));
+  }, text);
+}
+
+async function submitRunForm(page) {
+  await page.locator("#runTestForm").evaluate((form) => {
+    if (typeof form.requestSubmit === "function") {
+      form.requestSubmit();
+    } else {
+      form.submit();
+    }
+  });
+}
+
+/**
  * Điều chỉnh độ phân giải và typography trang để chữ đọc rõ trên 1080p.
  * @param {import("@playwright/test").Page} page
  */
@@ -121,6 +164,12 @@ async function injectComfortableReadingStyles(page) {
 function runDbQuery(sql) {
   const sanitized = sql.replace(/"/g, '\\"');
   const res = execSync(`docker exec moodle_mariadb mariadb -u moodle_app_writer -pJobeSecret123! testcase_store -e "${sanitized}"`);
+  return res.toString();
+}
+
+function runMoodleQuery(sql) {
+  const sanitized = sql.replace(/"/g, '\\"');
+  const res = execSync(`docker exec moodle_mariadb mariadb -uroot -prootpassword moodle -e "${sanitized}"`);
   return res.toString();
 }
 
@@ -174,6 +223,37 @@ function initDemoFixtures() {
     (run_id, course_id, quiz_id, question_id, user_id, input_normalized, input_fingerprint, oracle_output, purpose, status, rating, review_comment) 
     VALUES 
     (888777, 2, 76, 794, 4, \"print(find_max([-2, -9, -5]))\", \"${fpB}\", \"-2\", \"Kiểm thử danh sách số nguyên âm\", \"approved\", 5, \"Testcase danh sách số âm chuẩn xác\")`);
+
+  // Portable stack hiện tại dùng các bảng Moodle {local_tce_*}; làm sạch
+  // fixture cũ để lần quay nào cũng bắt đầu từ cùng một trạng thái.
+  runMoodleQuery("UPDATE mdl_local_tce_quiz_settings SET is_enabled=1, enabled=1, review_mode='teacher', reward_policy='one_for_one', leaderboard_enabled=1, max_runs_per_minute=30 WHERE quiz_id=76");
+  runMoodleQuery("DELETE FROM mdl_local_tce_rewards WHERE quiz_id=76 AND question_id=794 AND receiver_user_id IN (3,4)");
+  runMoodleQuery("DELETE FROM mdl_local_tce_contributions WHERE quiz_id=76 AND question_id=794 AND user_id IN (3,4)");
+  runMoodleQuery("DELETE FROM mdl_local_tce_canonical WHERE quiz_id=76 AND question_id=794");
+  runMoodleQuery("DELETE FROM mdl_local_tce_runs WHERE quiz_id=76 AND question_id=794 AND user_id IN (3,4)");
+  runMoodleQuery("DELETE FROM mdl_local_tce_revisions WHERE quiz_id=76 AND question_id=794 AND user_id IN (3,4)");
+
+  // Candidate B đã duyệt sẵn để cảnh thưởng 1-đổi-1 luôn có dữ liệu ổn định.
+  const now = Math.floor(Date.now() / 1000);
+  runMoodleQuery(`INSERT INTO mdl_local_tce_runs
+    (course_id, quiz_id, question_id, user_id, input_raw, input_normalized, input_fingerprint,
+     predicted_output, student_run_output, oracle_output, student_outcome, oracle_outcome,
+     purpose, category, student_code_snapshot, oracle_solution_snapshot, timecreated)
+    VALUES
+    (2, 76, 794, 4, 'print(find_max([-2, -9, -5]))', 'print(find_max([-2, -9, -5]))', '${fpB}',
+     '-2', '-2', '-2', 'success', 'success', 'Kiểm thử danh sách số nguyên âm', 'boundary',
+     'def find_max(numbers): return max(numbers)', 'def find_max(lst): return max(lst)', ${now})`);
+  runMoodleQuery(`INSERT INTO mdl_local_tce_contributions
+    (run_id, course_id, quiz_id, question_id, user_id, input_normalized, input_fingerprint,
+     expected_output, oracle_output, purpose, category, status, rating, review_comment, timecreated, timemodified)
+    SELECT id, 2, 76, 794, 4, 'print(find_max([-2, -9, -5]))', '${fpB}', '-2', '-2',
+      'Kiểm thử danh sách số nguyên âm', 'boundary', 'approved', 5,
+      'Testcase danh sách số âm chuẩn xác', ${now}, ${now}
+    FROM mdl_local_tce_runs WHERE quiz_id=76 AND question_id=794 AND user_id=4 ORDER BY id DESC LIMIT 1`);
+  runMoodleQuery(`INSERT INTO mdl_local_tce_canonical
+    (course_id, quiz_id, question_id, input_fingerprint, canonical_contribution_id, timecreated)
+    SELECT 2, 76, 794, '${fpB}', id, ${now}
+    FROM mdl_local_tce_contributions WHERE quiz_id=76 AND question_id=794 AND user_id=4 ORDER BY id DESC LIMIT 1`);
 
   console.log("[DB] ✓ Đã thiết lập xong dữ liệu demo và candidate B.");
 }
@@ -329,8 +409,7 @@ async function recordScene(browser, sceneNum, sceneName, targetDurationSec, auth
       await page.waitForTimeout(3000);
 
       // 1. Nhập code đúng
-      const codeEditor = page.locator("#student_code");
-      await codeEditor.fill("def find_max(numbers):\n    return max(numbers)");
+      await setStudentCode(page, "def find_max(numbers):\n    return max(numbers)");
       await page.waitForTimeout(3500); // Đủ thời gian đọc code
 
       // 2. Nhập testcase A
@@ -341,14 +420,15 @@ async function recordScene(browser, sceneNum, sceneName, targetDurationSec, auth
       // 3. Nhập expected sai: 5 (thay vì 8)
       const expectedInput = page.locator("#predicted_output");
       await slowType(expectedInput, "5");
+      await slowType(page.locator("#purpose"), "Kiểm tra dự đoán kết quả của danh sách số nguyên dương");
       await page.waitForTimeout(3000);
 
       // 4. Bấm chạy kiểm tra vi sai
-      const runBtn = page.locator("button:has-text(\"Chạy Kiểm Tra Vi Sai\")");
+      const runBtn = page.locator("#btnSubmitRunTest");
       await highlight(runBtn, 1800);
       await Promise.all([
-        page.waitForNavigation(),
-        runBtn.click()
+        page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: 120000 }),
+        submitRunForm(page)
       ]);
       await page.waitForLoadState("networkidle");
       await injectComfortableReadingStyles(page);
@@ -384,19 +464,22 @@ async function recordScene(browser, sceneNum, sceneName, targetDurationSec, auth
       );
       await page.waitForTimeout(3000);
 
-      // Giữ nguyên code và testcase, chỉ sửa expected thành 8
+      // Lặp lại dữ liệu cần thiết, chỉ thay expected thành 8.
+      await setStudentCode(page, "def find_max(numbers):\n    return max(numbers)");
+      await slowType(page.locator("#test_input"), "print(find_max([3, 8, 5]))");
       const expectedInput = page.locator("#predicted_output");
       await expectedInput.fill("");
       await page.waitForTimeout(1000);
       await slowType(expectedInput, "8");
+      await slowType(page.locator("#purpose"), "Xác nhận kết quả lớn nhất của danh sách số nguyên dương");
       await page.waitForTimeout(3000);
 
       // Bấm chạy vi sai
-      const runBtn = page.locator("button:has-text(\"Chạy Kiểm Tra Vi Sai\")");
+      const runBtn = page.locator("#btnSubmitRunTest");
       await highlight(runBtn, 1800);
       await Promise.all([
-        page.waitForNavigation(),
-        runBtn.click()
+        page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: 120000 }),
+        submitRunForm(page)
       ]);
       await page.waitForLoadState("networkidle");
       await injectComfortableReadingStyles(page);
@@ -433,21 +516,22 @@ async function recordScene(browser, sceneNum, sceneName, targetDurationSec, auth
       await page.waitForTimeout(3000);
 
       // Đổi sang code sai có chủ đích: return numbers[-1]
-      const codeEditor = page.locator("#student_code");
-      await codeEditor.fill("def find_max(numbers):\n    return numbers[-1]");
+      await setStudentCode(page, "def find_max(numbers):\n    return numbers[-1]");
       await page.waitForTimeout(3500);
 
       // Giữ nguyên input và expected 8
+      await slowType(page.locator("#test_input"), "print(find_max([3, 8, 5]))");
       const expectedInput = page.locator("#predicted_output");
       await expectedInput.fill("8");
+      await slowType(page.locator("#purpose"), "Kiểm tra chương trình sai khi phần tử lớn nhất ở giữa danh sách");
       await page.waitForTimeout(3000);
 
       // Bấm chạy vi sai
-      const runBtn = page.locator("button:has-text(\"Chạy Kiểm Tra Vi Sai\")");
+      const runBtn = page.locator("#btnSubmitRunTest");
       await highlight(runBtn, 1800);
       await Promise.all([
-        page.waitForNavigation(),
-        runBtn.click()
+        page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: 120000 }),
+        submitRunForm(page)
       ]);
       await page.waitForLoadState("networkidle");
       await injectComfortableReadingStyles(page);
@@ -484,16 +568,18 @@ async function recordScene(browser, sceneNum, sceneName, targetDurationSec, auth
       await page.waitForTimeout(3000);
 
       // 1. Sửa lại code đúng
-      const codeEditor = page.locator("#student_code");
-      await codeEditor.fill("def find_max(numbers):\n    return max(numbers)");
+      await setStudentCode(page, "def find_max(numbers):\n    return max(numbers)");
+      await slowType(page.locator("#test_input"), "print(find_max([3, 8, 5]))");
+      await slowType(page.locator("#predicted_output"), "8");
+      await slowType(page.locator("#purpose"), "Kiểm thử danh sách số nguyên dương có số lớn nhất ở giữa");
       await page.waitForTimeout(3000);
 
       // 2. Chạy lại vi sai
-      const runBtn = page.locator("button:has-text(\"Chạy Kiểm Tra Vi Sai\")");
+      const runBtn = page.locator("#btnSubmitRunTest");
       await highlight(runBtn, 1800);
       await Promise.all([
-        page.waitForNavigation(),
-        runBtn.click()
+        page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: 120000 }),
+        submitRunForm(page)
       ]);
       await page.waitForLoadState("networkidle");
       await injectComfortableReadingStyles(page);
@@ -508,10 +594,10 @@ async function recordScene(browser, sceneNum, sceneName, targetDurationSec, auth
       }
 
       // 3. Bấm nút Đề xuất đóng góp trên lượt mới nhất đủ điều kiện
-      const contribBtn = page.locator("button:has-text(\"Đề xuất Đóng góp\"), button:has-text(\"Đề Xuất Đóng Góp\"), button:has-text(\"Đóng góp\")").first();
+      const contribBtn = page.locator('button:has-text("Gửi đóng góp"):visible').first();
       await highlight(contribBtn, 1800);
       await Promise.all([
-        page.waitForNavigation(),
+        page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: 120000 }),
         contribBtn.click()
       ]);
       await page.waitForLoadState("networkidle");
@@ -536,7 +622,7 @@ async function recordScene(browser, sceneNum, sceneName, targetDurationSec, auth
     // CẢNH 7: GIÁO VIÊN DUYỆT & CHẤM SAO
     // -------------------------------------------------------------------------
     await recordScene(browser, 7, "Giáo viên thẩm định & Chấm sao", 0, "auth_teacher.json", async (page) => {
-      await page.goto("/local/testcase_exchange/index.php?course=2&tab=review");
+      await page.goto("/local/testcase_exchange/review.php?course=2");
       await page.waitForLoadState("networkidle");
       await injectComfortableReadingStyles(page);
 
@@ -548,22 +634,14 @@ async function recordScene(browser, sceneNum, sceneName, targetDurationSec, auth
       );
       await page.waitForTimeout(3500);
 
-      // 1. Lọc theo Sinh viên A (student1 - user_id 3)
-      const studentFilter = page.locator("select[name=\"review_student\"]");
-      if (await studentFilter.count() > 0) {
-        const optionCount = await studentFilter.locator("option[value=\"3\"]").count();
-        if (optionCount > 0) {
-          await highlight(studentFilter, 1800);
-          await Promise.all([
-            page.waitForNavigation(),
-            studentFilter.selectOption("3")
-          ]);
-          await page.waitForLoadState("networkidle");
-        }
-      }
+      // 1. Mở modal thẩm định của đóng góp student1 vừa tạo ở cảnh trước.
+      const reviewBtn = page.locator('tr:has-text("student1") button:has-text("Xem và duyệt")').first();
+      await highlight(reviewBtn, 1800);
+      await reviewBtn.click();
+      await page.locator('.modal.show form:has(select[name="decision"])').waitFor({ state: "visible" });
 
-      // 2. Tìm form thẩm định đóng góp mới nhất
-      const reviewForm = page.locator("form:has(select[name=\"decision\"])").first();
+      // 2. Điền form thẩm định trong modal.
+      const reviewForm = page.locator('.modal.show form:has(select[name="decision"])').first();
       await reviewForm.scrollIntoViewIfNeeded();
       await page.waitForTimeout(3000);
 
@@ -578,15 +656,15 @@ async function recordScene(browser, sceneNum, sceneName, targetDurationSec, auth
       await page.waitForTimeout(1000);
 
       // Nhập nhận xét
-      const noteInput = reviewForm.locator("input[name=\"review_note\"]");
+      const noteInput = reviewForm.locator("textarea[name=\"review_note\"]");
       await slowType(noteInput, "Testcase chuẩn xác, bao quát giá trị lớn nhất ở giữa mảng");
       await page.waitForTimeout(3000);
 
       // 3. Bấm Lưu Đánh Giá
-      const saveBtn = reviewForm.locator("button[type=\"submit\"]:has-text(\"Lưu Đánh Giá\")");
+      const saveBtn = reviewForm.locator("button[type=\"submit\"]");
       await highlight(saveBtn, 1800);
       await Promise.all([
-        page.waitForNavigation(),
+        page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: 120000 }),
         saveBtn.click()
       ]);
       await page.waitForLoadState("networkidle");
@@ -628,7 +706,7 @@ async function recordScene(browser, sceneNum, sceneName, targetDurationSec, auth
       if (await claimBtn.count() > 0 && await claimBtn.isVisible()) {
         await highlight(claimBtn, 1800);
         await Promise.all([
-          page.waitForNavigation(),
+          page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: 120000 }),
           claimBtn.click()
         ]);
         await page.waitForLoadState("networkidle");
@@ -646,13 +724,14 @@ async function recordScene(browser, sceneNum, sceneName, targetDurationSec, auth
 
       await page.locator("#test_input").fill("print(find_max([-2, -9, -5]))");
       await page.locator("#predicted_output").fill("-2");
+      await page.locator("#purpose").fill("Kiểm thử testcase thưởng với toàn bộ số nguyên âm");
       await page.waitForTimeout(3000);
 
-      const runBtn = page.locator("button:has-text(\"Chạy Kiểm Tra Vi Sai\")");
+      const runBtn = page.locator("#btnSubmitRunTest");
       await highlight(runBtn, 1800);
       await Promise.all([
-        page.waitForNavigation(),
-        runBtn.click()
+        page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: 120000 }),
+        submitRunForm(page)
       ]);
       await page.waitForLoadState("networkidle");
       await injectComfortableReadingStyles(page);
@@ -732,16 +811,17 @@ async function recordScene(browser, sceneNum, sceneName, targetDurationSec, auth
       await page.waitForTimeout(3000);
 
       // Sinh viên B nhập Code đúng và đề xuất lại Testcase A đã được duyệt
-      await page.locator("#student_code").fill("def find_max(numbers):\n    return max(numbers)");
+      await setStudentCode(page, "def find_max(numbers):\n    return max(numbers)");
       await slowType(page.locator("#test_input"), "print(find_max([3, 8, 5]))");
       await slowType(page.locator("#predicted_output"), "8");
+      await slowType(page.locator("#purpose"), "Thử đóng góp testcase đã tồn tại để kiểm tra chống trùng lặp");
       await page.waitForTimeout(3000);
 
-      const runBtn = page.locator("button:has-text(\"Chạy Kiểm Tra Vi Sai\")");
+      const runBtn = page.locator("#btnSubmitRunTest");
       await highlight(runBtn, 1800);
       await Promise.all([
-        page.waitForNavigation(),
-        runBtn.click()
+        page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: 120000 }),
+        submitRunForm(page)
       ]);
       await page.waitForLoadState("networkidle");
       await injectComfortableReadingStyles(page);
@@ -812,10 +892,10 @@ async function recordScene(browser, sceneNum, sceneName, targetDurationSec, auth
       await page.waitForTimeout(3000);
 
       // 1. Bấm nút Xem thử như sinh viên
-      const previewBtn = page.locator("a:has-text(\"Xem thử như sinh viên\"), a:has-text(\"Preview as Student\")").first();
+      const previewBtn = page.locator("a:has-text(\"Xem thử như sinh viên\"), a:has-text(\"Preview as Student\"), a:has-text(\"View as student\")").first();
       await highlight(previewBtn, 1800);
       await Promise.all([
-        page.waitForNavigation(),
+        page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: 120000 }),
         previewBtn.click()
       ]);
       await page.waitForLoadState("networkidle");
@@ -829,13 +909,10 @@ async function recordScene(browser, sceneNum, sceneName, targetDurationSec, auth
       await page.waitForTimeout(3000);
 
       // 2. Bấm nút Quay lại quản lý
-      const returnBtn = page.locator("a:has-text(\"Quay lại quản lý\"), a:has-text(\"Return to Management\")").first();
+      const returnBtn = page.locator("a:has-text(\"Quay lại quản lý\"), a:has-text(\"Return to Management\"), a:has-text(\"Back to management\")").first();
       await highlight(returnBtn, 1800);
-      await Promise.all([
-        page.waitForNavigation(),
-        returnBtn.click()
-      ]);
-      await page.waitForLoadState("networkidle");
+      await returnBtn.click();
+      await page.waitForTimeout(2500);
       await injectComfortableReadingStyles(page);
 
       await showCaption(
@@ -863,13 +940,13 @@ async function recordScene(browser, sceneNum, sceneName, targetDurationSec, auth
   const concatLines = sceneRecords.map(r => `file \x27${r.videoPath}\x27`).join("\n");
   fs.writeFileSync(concatListPath, concatLines);
 
-  const finalMp4Path = path.resolve(EVIDENCE_DIR, "demo_testcase_exchange.mp4");
+  const finalMp4Path = path.resolve(EVIDENCE_DIR, "demo_testcase_exchange_new.mp4");
   console.log("[FFMPEG] Ghép 12 cảnh vào:", finalMp4Path);
 
   execSync(`ffmpeg -y -f concat -safe 0 -i "${concatListPath}" -c:v h264_videotoolbox -b:v 4500k -pix_fmt yuv420p -r 30 "${finalMp4Path}"`, { stdio: "inherit" });
 
   // 2. Tạo phụ đề SRT đồng bộ theo thời gian thực tế
-  const srtPath = path.resolve(EVIDENCE_DIR, "demo_testcase_exchange.srt");
+  const srtPath = path.resolve(EVIDENCE_DIR, "demo_testcase_exchange_new.srt");
   let currentSec = 0;
   const srtItems = [];
 
