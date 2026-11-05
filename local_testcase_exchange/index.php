@@ -521,24 +521,6 @@ if ($databaseerror) {
     exit;
 }
 
-// Available courses switcher.
-$rawcourses = context_service::courses_with_coderunner();
-$availablecourselist = [];
-foreach ($rawcourses as $rc) {
-    $cid = (int) $rc->courseid;
-    if (!$issiteadmin && !has_capability('local/testcase_exchange:view', context_course::instance($cid))) {
-        continue;
-    }
-    $dispname = ($rc->shortname !== $rc->fullname) ? ($rc->shortname . ' — ' . $rc->fullname) : $rc->fullname;
-    $availablecourselist[] = [
-        'courseid' => $cid,
-        'fullname' => $rc->fullname,
-        'shortname' => $rc->shortname,
-        'display_name' => $dispname,
-        'switch_url' => (new moodle_url('/local/testcase_exchange/index.php', ['course' => $cid]))->out(false),
-        'is_current' => ($cid === $courseid),
-    ];
-}
 
 // Form options for question selection preserving state across tabs.
 $viewquestions = [];
@@ -589,8 +571,7 @@ $templatedata = [
     'selected_question_value' => $requestedselection,
     'current_course_name' => $course->fullname,
     'current_course_shortname' => $course->shortname,
-    'available_courses' => $availablecourselist,
-    'show_course_switcher' => (count($availablecourselist) > 1 || $issiteadmin),
+    'show_course_switcher' => false,
     'course_hub_url' => (new moodle_url('/local/testcase_exchange/index.php'))->out(false),
     'return_url' => $returnurl,
     'has_return_url' => ($returnurl !== ''),
