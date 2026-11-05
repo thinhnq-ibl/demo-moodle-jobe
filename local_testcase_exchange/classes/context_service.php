@@ -93,7 +93,7 @@ final class context_service {
         $users = [];
         if (!empty($userids)) {
             [$insql, $inparams] = $DB->get_in_or_equal($userids);
-            $userrecords = $DB->get_records_select('user', "id $insql", $inparams, '', 'id, username, firstname, lastname, email');
+            $userrecords = $DB->get_records_select('user', "id $insql", $inparams, '', '*');
             foreach ($userrecords as $u) {
                 $users[(int) $u->id] = $u;
             }
@@ -131,11 +131,13 @@ final class context_service {
                 $c['student_username'] = $u->username;
                 $c['student_email'] = $u->email;
                 $c['student_display'] = fullname($u) . ' (' . $u->username . ')';
+                $c['contributor_name'] = fullname($u);
             } else {
                 $c['student_name'] = 'User #' . $uid;
                 $c['student_username'] = '#' . $uid;
                 $c['student_email'] = '';
                 $c['student_display'] = 'User #' . $uid;
+                $c['contributor_name'] = 'User #' . $uid;
             }
 
             $qk = $c['quiz_id'] . ':' . $c['question_id'];
@@ -157,6 +159,29 @@ final class context_service {
             $c['is_approved'] = ($st === 'approved');
             $c['is_rejected'] = ($st === 'rejected');
             $c['is_duplicate'] = ($st === 'duplicate');
+
+            // Category & Outcome localization
+            $cat = (string) ($c['category'] ?? 'normal');
+            $categorylabels = [
+                'normal' => get_string('category_normal', 'local_testcase_exchange'),
+                'boundary' => get_string('category_boundary', 'local_testcase_exchange'),
+                'branch' => get_string('category_branch', 'local_testcase_exchange'),
+                'invalid' => get_string('category_invalid', 'local_testcase_exchange'),
+                'empty' => get_string('category_empty', 'local_testcase_exchange'),
+                'large' => get_string('category_large', 'local_testcase_exchange'),
+                'other' => get_string('category_other', 'local_testcase_exchange'),
+                'edge_case' => get_string('category_boundary', 'local_testcase_exchange'),
+            ];
+            $c['category_label'] = $categorylabels[$cat] ?? get_string('category_normal', 'local_testcase_exchange');
+
+            $outcome = (string) ($c['oracle_outcome'] ?? '');
+            if ($outcome === 'success') {
+                $c['oracle_outcome_label'] = get_string('outcome_success', 'local_testcase_exchange');
+            } else if ($outcome !== '') {
+                $c['oracle_outcome_label'] = get_string('outcome_failed', 'local_testcase_exchange');
+            } else {
+                $c['oracle_outcome_label'] = get_string('outcome_success', 'local_testcase_exchange');
+            }
 
             // Star rating & teacher comment.
             $rating = !empty($c['rating']) ? (int) $c['rating'] : (!empty($c['latest_rating']) ? (int) $c['latest_rating'] : 0);
@@ -185,6 +210,43 @@ final class context_service {
             $comment = !empty($c['review_comment']) ? trim($c['review_comment']) : (!empty($c['latest_review_note']) ? trim($c['latest_review_note']) : '');
             $c['teacher_comment'] = $comment;
             $c['has_teacher_comment'] = ($comment !== '');
+
+            // Safe extraction and formatting for Expected Output according to strict requirements:
+            // 1. Distinguish valid empty string, no data recorded (null), and numerical value 0 / string '0'.
+            // 2. Never substitute missing expected output with oracle_output.
+            $rawexpected = null;
+            if (array_key_exists('expected_output', $c) && $c['expected_output'] !== null) {
+                $rawexpected = $c['expected_output'];
+            } else if (array_key_exists('predicted_output', $c) && $c['predicted_output'] !== null) {
+                $rawexpected = $c['predicted_output'];
+            } else if (array_key_exists('run_predicted_output', $c) && $c['run_predicted_output'] !== null) {
+                $rawexpected = $c['run_predicted_output'];
+            }
+
+            if ($rawexpected === null) {
+                $c['has_expected_output'] = false;
+                $c['is_expected_missing'] = true;
+                $c['is_expected_empty'] = false;
+                $c['expected_output_display'] = get_string('no_data', 'local_testcase_exchange');
+                $c['predicted_output'] = get_string('no_data', 'local_testcase_exchange');
+            } else {
+                $strval = (string) $rawexpected;
+                $c['has_expected_output'] = true;
+                $c['is_expected_missing'] = false;
+                if ($strval === '') {
+                    $c['is_expected_empty'] = true;
+                    $c['expected_output_display'] = get_string('empty_string', 'local_testcase_exchange');
+                    $c['predicted_output'] = get_string('empty_string', 'local_testcase_exchange');
+                } else {
+                    $c['is_expected_empty'] = false;
+                    $c['expected_output_display'] = $strval;
+                    $c['predicted_output'] = $strval;
+                }
+            }
+
+            // Formatted submitted timestamp in user's timezone
+            $subtime = !empty($c['timecreated']) ? (int) $c['timecreated'] : 0;
+            $c['submitted_at'] = $subtime > 0 ? userdate($subtime, get_string('strftimedatetimeshort', 'core_langconfig')) : get_string('noinfo', 'local_testcase_exchange');
         }
         unset($c);
 
@@ -512,7 +574,7 @@ final class context_service {
                 $item['email'] = '';
             }
             if (!empty($item['last_run_at'])) {
-                $item['last_run_formatted'] = date('H:i:s d/m/Y', strtotime($item['last_run_at']));
+                $item['last_run_formatted'] = userdate(strtotime($item['last_run_at']), get_string('strftimedatetimeshort', 'core_langconfig'));
             } else {
                 $item['last_run_formatted'] = '—';
             }

@@ -100,6 +100,7 @@
         <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="input_normalized" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="input_fingerprint" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="expected_output" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="oracle_output" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="purpose" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="category" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false"/>

@@ -1,0 +1,209 @@
+Total lines with raw Vietnamese text: 208
+L32: <i class="fa fa-arrow-left mr-1"></i>Quay lại bài quiz
+L42: <!-- Thanh chọn bài tập / câu hỏi giảng viên gọn gàng, co giãn an toàn trên mobile -->
+L60: Kiểu: <strong class="text-dark"></strong>
+L104: <div class="text-muted small font-weight-bold text-uppercase">Trạng thái bài Quiz</div>
+L107: <span class="text-success"><i class="fa fa-check-circle mr-1"></i>Đang bật</span>
+L110: <span class="text-secondary"><i class="fa fa-pause-circle mr-1"></i>Tắt</span>
+L113: <small class="text-muted">Áp dụng cho Quiz hiện tại</small>
+L118: <div class="text-muted small font-weight-bold text-uppercase">Lượt chạy thử nghiệm</div>
+L120: <small class="text-muted">Tổng số lần sinh viên đã chạy</small>
+L125: <div class="text-muted small font-weight-bold text-uppercase">Đóng góp testcase</div>
+L129: <span class="badge badge-warning text-dark ml-1" style="font-size: 0.75rem;"> chờ</span>
+L132: <small class="text-muted"> đã duyệt &bull;  từ chối</small>
+L137: <div class="text-muted small font-weight-bold text-uppercase">Phần thưởng đã cấp</div>
+L139: <small class="text-muted"> testcase chưa nhận</small>
+L146: <h6 class="font-weight-bold text-dark mb-2">Lối tắt thao tác nhanh:</h6>
+L149: <i class="fa fa-check-square mr-1"></i>Duyệt  đề xuất chờ
+L155: <i class="fa fa-download mr-1"></i>Xuất timeline (CSV)
+L166: <small class="text-muted">Thẩm định tính chính xác, chấm sao và phản hồi sư phạm cho sinh viên</small>
+L179: <option value="all" selected>Tất cả trạng thái</option>
+L180: <option value="pending" selected>Chờ duyệt / Cần giải trình</option>
+L181: <option value="submitted" selected>Mới nộp (submitted)</option>
+L182: <option value="approved" selected>Đã duyệt (approved)</option>
+L183: <option value="rejected" selected>Đã từ chối (rejected)</option>
+L184: <option value="duplicate" selected>Trùng lặp (duplicate)</option>
+L207: <th style="min-width: 160px;">Câu hỏi</th>
+L208: <th style="min-width: 180px;">Testcase tóm tắt</th>
+L209: <th style="width: 140px;">Thời gian</th>
+L210: <th style="width: 130px;">Trạng thái</th>
+L259: <i class="fa fa-check-square mr-1"></i>Xem và duyệt
+L264: <i class="fa fa-eye mr-1"></i>Xem chi tiết
+L281: <i class="fa fa-check-circle text-primary mr-2"></i>Thẩm định đóng góp #
+L291: <div class="small text-muted">Sinh viên đóng góp:</div>
+L296: <div class="small text-muted">Thời gian gửi &bull; Trạng thái:</div>
+L306: <span class="text-muted small">Bài tập / Câu hỏi:</span>
+L310: <span class="text-muted small">Phân loại:</span>
+L316: <span class="text-muted small font-weight-bold">Mục đích kiểm thử khai báo:</span>
+L326: <i class="fa fa-terminal text-muted mr-1"></i>Dữ liệu đầu vào (Input):
+L332: <i class="fa fa-bullseye text-muted mr-1"></i>Expected Output (Sinh viên):
+L338: <i class="fa fa-check text-muted mr-1"></i>Lời giải tham chiếu (Oracle):
+L350: <i class="fa fa-history text-muted mr-1"></i>Kết quả thẩm định hiện tại:
+L356: <span class="text-muted small">Đánh giá sao:</span>
+L357: <div class="font-weight-bold text-warning"> ( sao)Chưa chấm sao</div>
+L360: <span class="text-muted small">Nhận xét sư phạm:</span>
+L361: <div class="text-dark bg-light p-2 border rounded mt-1"><em>(Không có nhận xét)</em></div>
+L366: <i class="fa fa-pencil mr-1"></i>Chỉnh sửa thẩm định
+L379: <i class="fa fa-gavel text-primary mr-1"></i>Quyết định thẩm định của Giảng viên:
+L385: Quyết định duyệt: <span class="text-danger">*</span>
+L388: <option value="" selected>-- Chọn quyết định --</option>
+L389: <option value="approved" selected>✓ Chấp thuận (Approve) — Bổ sung vào kho & cấp thưởng</option>
+L390: <option value="needs_explanation" selected>⚠️ Cần giải trình thêm (Needs Explanation)</option>
+L391: <option value="rejected" selected>✗ Từ chối (Reject)</option>
+L396: Đánh giá chất lượng (Tùy chọn):
+L399: <option value="0">Chưa chấm sao...</option>
+L400: <option value="5" selected>⭐⭐⭐⭐⭐ 5 sao - Xuất sắc</option>
+L401: <option value="4" selected>⭐⭐⭐⭐ 4 sao - Tốt</option>
+L402: <option value="3" selected>⭐⭐⭐ 3 sao - Đạt chuẩn</option>
+L403: <option value="2" selected>⭐⭐ 2 sao - Trung bình</option>
+L404: <option value="1" selected>⭐ 1 sao - Cần cải thiện</option>
+L411: Nhận xét & phản hồi sư phạm cho sinh viên:
+L413: <textarea class="form-control" name="review_note" rows="3" placeholder="Nhập nhận xét chi tiết, góp ý sư phạm hoặc lý do chấp thuận/từ chối..."></textarea>
+L417: <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Đóng</button>
+L419: <i class="fa fa-save mr-1"></i>Lưu quyết định thẩm định
+L434: <small class="text-muted">Phân định rõ 3 nguồn ca kiểm thử độc lập cho câu hỏi hiện tại</small>
+L445: <span class="badge badge-info p-1">Testcase mẫu công khai</span>
+L456: <th style="width: 100px;">Điểm</th>
+L457: <th style="width: 100px;">Hiển thị</th>
+L462: <tr><td colspan="5" class="text-center text-muted py-2">Câu hỏi hiện tại không có testcase mẫu công khai nào.</td></tr>
+L470: <td><span class="badge badge-success">Công khai</span></td>
+L487: <span class="small text-muted">Dự phòng trao thưởng ban đầu</span>
+L499: <th style="width: 120px;">Nguồn</th>
+L505: <tr><td colspan="6" class="text-center text-muted py-2">Chưa có testcase mầm nào cho câu hỏi này.</td></tr>
+L515: <form method="post" class="m-0" onsubmit="return confirm('Bạn có chắc muốn xóa testcase hạt giống này?');">
+L519: <button class="btn btn-sm btn-outline-danger py-0 px-2" type="submit">Xóa</button>
+L531: <i class="fa fa-plus-circle text-primary mr-1"></i>Thêm testcase mầm thủ công:
+L541: <label class="small font-weight-bold">Dữ liệu kiểm thử (Test Code / Input):</label>
+L542: <textarea class="form-control form-control-sm font-monospace" name="seed_testcode" rows="2" required placeholder="// Lệnh gọi hàm hoặc dữ liệu stdin"></textarea>
+L545: <label class="small font-weight-bold">Kết quả chuẩn kỳ vọng:</label>
+L546: <textarea class="form-control form-control-sm font-monospace" name="seed_expected" rows="2" required placeholder="// Kết quả in ra"></textarea>
+L549: <label class="small font-weight-bold">Mục đích kiểm thử:</label>
+L550: <input class="form-control form-control-sm mb-2" name="seed_purpose" placeholder="Ví dụ: Trường hợp biên số âm">
+L552: Thêm testcase mầm
+L559: <!-- Ghi nhận tính năng nhập XML -->
+L561: <i class="fa fa-info-circle mr-1 text-info"></i><strong>Nhập từ tệp XML:</strong> Để nạp hạt giống từ đề bài, thầy/cô xuất tệp XML câu hỏi từ Ngân hàng câu hỏi Moodle rồi tải lên form bên dưới.
+L574: <span class="small text-muted">Kho luân chuyển trao thưởng</span>
+L586: <th style="width: 140px;">Đóng góp bởi</th>
+L587: <th style="width: 110px;">Đánh giá</th>
+L592: <tr><td colspan="6" class="text-center text-muted py-2">Chưa có testcase nào do sinh viên đóng góp được duyệt cho câu hỏi này.</td></tr>
+L603: <span class="badge badge-light border text-muted">Chuẩn</span>
+L619: <small class="text-muted">Theo dõi tiến độ chạy thử, số lần sửa code và đóng góp của sinh viên</small>
+L623: <i class="fa fa-download mr-1"></i>Tải CSV Dòng thời gian
+L632: <th>Sinh viên</th>
+L633: <th class="text-center" style="width: 120px;">Số lần sửa code</th>
+L634: <th class="text-center" style="width: 120px;">Lượt chạy thử</th>
+L635: <th class="text-center" style="width: 120px;">Đã đóng góp</th>
+L636: <th class="text-center" style="width: 120px;">Được duyệt</th>
+L637: <th class="text-center" style="width: 120px;">Sao tích lũy</th>
+L638: <th class="text-center" style="width: 120px;">Đã nhận thưởng</th>
+L643: <tr><td colspan="7" class="text-center text-muted py-4">Chưa có sinh viên nào thực hiện chạy thử nghiệm trong bài tập này.</td></tr>
+L668: <small class="text-muted">Cấu hình tham số điều khiển cho bài Quiz và từng câu hỏi</small>
+L679: <i class="fa fa-sliders text-primary mr-1"></i>Chính sách toàn bài Quiz (Quiz-Level Policy)
+L685: Bật chức năng trao đổi testcase cho bài Quiz này
+L691: <label class="small font-weight-bold">Chế độ duyệt đóng góp:</label>
+L693: <option value="teacher" selected>Thủ công (Giảng viên duyệt trước khi cấp thưởng)</option>
+L694: <option value="auto" selected>Tự động (Duyệt ngay nếu testcase hợp lệ)</option>
+L698: <label class="small font-weight-bold">Chính sách cấp phần thưởng:</label>
+L700: <option value="one_for_one" selected>1 đổi 1 (Mỗi đóng góp được duyệt mở khóa 1 testcase)</option>
+L701: <option value="none" selected>Không cấp phần thưởng</option>
+L709: <small class="text-muted d-block font-italic">Lưu ý bảo mật: Nhằm chống lộ đáp án bài thi, hệ thống luôn giữ an toàn output chi tiết của lời giải tham chiếu đối với sinh viên; trường này chỉ áp dụng cho chế độ hiển thị đối chiếu được phép theo chính sách.</small>
+L720: <i class="fa fa-question-circle text-primary mr-1"></i>Tham số câu hỏi hiện tại:
+L725: <label class="small font-weight-bold">Chuẩn hóa dữ liệu đầu vào (Input):</label>
+L727: <option value="trim" selected>Cắt khoảng trắng thừa (Trim)</option>
+L728: <option value="raw" selected>Giữ nguyên dữ liệu thô (Raw)</option>
+L732: <label class="small font-weight-bold">Giới hạn tốc độ chạy (Rate limit):</label>
+L734: <small class="text-muted">Số lượt chạy tối đa trong 1 phút / sinh viên</small>
+L737: <label class="small font-weight-bold">Kích thước input tối đa (Bytes):</label>
+L745: <i class="fa fa-save mr-1"></i>Lưu cấu hình chính sách
+L793: <i class="fa fa-arrow-left mr-1"></i>Quay lại làm bài Quiz
+L804: <span style="color: #1e3a8a;">Bạn có <strong></strong> testcase thưởng có thể nhận (đã nhận / trong kho).</span>
+L807: Xem và nhận testcase
+L852: <i class="fa fa-book text-muted mr-1"></i>Bài tập:
+L862: Kiểu kiểm thử: <strong class="text-dark"></strong>
+L875: <small id="lblToggleQuestionPrompt">Thu gọn</small>
+L888: <!-- Form Chạy thử & Không gian làm việc 2 cột -->
+L895: <!-- Cột Trái (54%): Mã nguồn của bạn -->
+L931: <!-- Textarea gốc: Đảm bảo tương thích hoàn toàn cho submit form, khôi phục bài và fallback -->
+L932: <textarea class="form-control font-monospace flex-grow-1 mb-2" id="student_code" name="student_code" rows="12" required placeholder="// Dán hoặc chỉnh sửa mã nguồn chương trình của bạn tại đây..."></textarea>
+L936: <span id="tceEditorCursorPos">Dòng 1, Cột 1</span>
+L946: <!-- Lịch sử phiên bản mã nguồn (Default Collapsed để tiết kiệm chiều dọc) -->
+L951: <i class="fa fa-history text-muted mr-1"></i> code_revisions_title, local_testcase_exchange  ( phiên bản gần nhất)
+L954: <a href="" class="badge badge-light border text-primary" title="Xuất CSV">CSV</a>
+L955: <a href="" class="badge badge-light border text-secondary" title="Xuất JSON">JSON</a>
+L967: <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 btn-apply-revision" title="Nạp phiên bản này vào khung soạn thảo">
+L968: Nạp v
+L981: <!-- Cột Phải (46%): Testcase của bạn -->
+L986: <i class="fa fa-flask text-success mr-1"></i>Định nghĩa Testcase kiểm thử
+L988: <button type="button" id="btnClearTestInputs" class="btn btn-sm btn-link text-muted p-0" title="Xóa nội dung testcase">
+L1002: predictedoutput, local_testcase_exchange  (Kết quả kỳ vọng): <span class="text-danger">*</span>
+L1004: <textarea class="form-control font-monospace" id="predicted_output" name="predicted_output" rows="3" required placeholder="Nhập kết quả chuẩn chương trình sẽ in ra..."></textarea>
+L1009: purpose, local_testcase_exchange  (Mục đích kiểm thử): <span class="text-danger">*</span>
+L1011: <textarea class="form-control" id="purpose" name="purpose" rows="2" required placeholder="Ví dụ: Kiểm tra trường hợp danh sách rỗng, số âm hoặc dữ liệu biên..."></textarea>
+L1039: <!-- KHỐI KẾT QUẢ LẦN CHẠY MỚI NHẤT (TÁCH BIỆT 2 NHÓM THÔNG TIN ĐỘC LẬP & TƯƠNG PHẢN CAO) -->
+L1046: <i class="fa fa-check-circle mr-2 text-primary"></i> latest_result_heading, local_testcase_exchange  (Lượt #)
+L1057: <!-- TÁCH 2 NHÓM THÔNG TIN ĐỘC LẬP -->
+L1059: <!-- 1. KẾT QUẢ CHẠY THỬ -->
+L1064: <span class="font-weight-bold text-dark">Kết quả chạy thử:</span>
+L1073: <!-- 2. TRẠNG THÁI ĐÓNG GÓP -->
+L1078: <span class="font-weight-bold text-dark">Trạng thái đóng góp:</span>
+L1097: <i class="fa fa-external-link mr-1"></i>Xem đóng góp (#)
+L1110: <!-- Đối chiếu kết quả chi tiết (High Contrast) -->
+L1123: <span class="badge badge-success small py-0 px-1">Khớp</span>
+L1124: <span class="badge badge-danger small py-0 px-1">Không khớp</span>
+L1133: <!-- BẢNG LỊCH SỬ CHẠY THỬ NGHIỆM -->
+L1139: <span class="badge badge-light border text-muted"> lượt chạy</span>
+L1147: <th style="width: 170px;">Thời gian / Phiên bản</th>
+L1149: <th>Kỳ vọng vs Thực tế</th>
+L1150: <th style="width: 150px;" class="text-center">Kết quả đối chiếu</th>
+L1151: <th style="width: 200px;" class="text-center">Trạng thái đóng góp</th>
+L1165: <i class="fa fa-code mr-1"></i>Nạp code
+L1174: <div class="small text-muted">Kỳ vọng:</div>
+L1176: <div class="small text-muted">Thực tế:</div>
+L1189: <i class="fa fa-paper-plane mr-1"></i>Gửi đóng góp
+L1199: Xem đóng góp (#)
+L1204: <a href="#run-" class="badge badge-light border text-secondary text-wrap" title="Trùng với lượt đại diện">
+L1205: 🔗 Trùng ở lượt #
+L1225: <!-- Mobile Card View (Hiển thị 5 lượt gần nhất, có nút Xem thêm) -->
+L1240: <span class="small text-muted mr-1">Kết quả:</span>
+L1249: <button class="btn btn-sm btn-success font-weight-bold" type="submit">Gửi đóng góp</button>
+L1261: <i class="fa fa-chevron-down mr-1"></i>Xem chi tiết Input & Output
+L1269: <div class="small text-muted">Kỳ vọng:</div>
+L1273: <div class="small text-muted">Thực tế:</div>
+L1281: <i class="fa fa-code mr-1"></i>Nạp code vào khung soạn
+L1293: <i class="fa fa-chevron-down mr-1"></i>Xem thêm ( lượt chạy cũ hơn)
+L1312: <th>Trạng thái</th>
+L1313: <th>Đánh giá & Nhận xét của giảng viên</th>
+L1314: <th>Thời gian</th>
+L1319: <tr><td colspan="6" class="text-center text-muted py-4">Bạn chưa có đóng góp nào. Hãy thử nghiệm testcase đạt chuẩn và gửi đóng góp!</td></tr>
+L1334: <input class="form-control" name="explanation" placeholder="Nhập giải trình của bạn..." required>
+L1336: <button class="btn btn-warning font-weight-bold" type="submit">Gửi giải trình</button>
+L1350: <small class="text-muted font-italic">Chưa có nhận xét</small>
+L1371: <th>Loại testcase</th>
+L1372: <th>Trạng thái nhận</th>
+L1373: <th style="width: 130px; text-align: center;">Thao tác</th>
+L1378: <tr><td colspan="6" class="text-center text-muted py-4">Bạn chưa có phần thưởng nào. Hãy đóng góp testcase được duyệt để mở khóa phần thưởng mới!</td></tr>
+L1388: <span class="text-muted font-italic"><i class="fa fa-lock mr-1"></i>(Đầu vào được ẩn - Nhận thưởng để mở khóa)</span>
+L1396: <span class="text-muted font-italic"><i class="fa fa-lock mr-1"></i>(Kết quả được ẩn)</span>
+L1401: <span class="badge badge-success"><i class="fa fa-check mr-1"></i>Đã nhận</span>
+L1402: <span class="badge badge-warning text-dark"><i class="fa fa-gift mr-1"></i>Chưa nhận</span>
+L1411: <i class="fa fa-gift mr-1"></i>Nhận ngay
+L1416: <span class="badge badge-light border text-muted">Đã sở hữu</span>
+L1431: <small class="text-muted">Vinh danh các sinh viên đóng góp nhiều testcase chất lượng cho khóa học</small>
+L1435: Vị trí của bạn: <strong>#</strong> &bull; Tổng sao: <strong> ⭐</strong>
+L1444: <th style="width: 70px;" class="text-center">Hạng</th>
+L1445: <th>Sinh viên</th>
+L1446: <th class="text-center" style="width: 140px;">Testcase đã duyệt</th>
+L1447: <th class="text-center" style="width: 140px;">Tổng sao ⭐</th>
+L1448: <th>Đóng góp đầu tiên</th>
+L1453: <tr><td colspan="5" class="text-center text-muted py-4">Chưa có dữ liệu xếp hạng trong khóa học này.</td></tr>
+L1464: <span class="badge badge-primary ml-1">Bạn</span>
+L1553: updateStatus('Đã lưu nháp tự động trên trình duyệt lúc ' + data.updated_at, true);
+L1604: updateStatus('Đã khôi phục bản nháp từ trình duyệt (' + (data.updated_at || 'trước đó') + ')', true);
+L1631: btnSubmitRun.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> Đang chạy...';
+L1662: updateStatus('Đã nạp phiên bản vào vùng soạn thảo.', true);
+L1681: updateStatus('Đã nạp mã nguồn từ lượt chạy vào vùng soạn thảo.', true);
+L1695: updateStatus('Đã xóa dữ liệu testcase để nhập mới.', false);
+L1715: '<i class="fa fa-chevron-down mr-1"></i>Xem thêm (' + olderRuns.length + ' lượt chạy cũ hơn)' :
+L1716: '<i class="fa fa-chevron-up mr-1"></i>Thu gọn lượt chạy cũ';
+L1724: if (lbl) lbl.textContent = 'Thu gọn';
+L1727: if (lbl) lbl.textContent = 'Mở rộng';

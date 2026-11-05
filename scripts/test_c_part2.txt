@@ -1,0 +1,43 @@
+// 3. Edge Cases: Empty string and whitespace inputs
+$runEmpty = execution_service::run_pair($testQId, (string)$answerMid, "", $polMid, $quizObjMid);
+$emptyHandled = is_array($runEmpty) && isset($runEmpty['oracle']);
+echo " - [Edge Case] Xử lý an toàn đầu vào chuỗi rỗng '': " . ($emptyHandled ? "✅ PASS" : "❌ FAIL") . "\n";
+
+$runWhitespace = execution_service::run_pair($testQId, (string)$answerMid, "   \n\t  ", $polMid, $quizObjMid);
+$wsHandled = is_array($runWhitespace) && isset($runWhitespace['oracle']);
+echo " - [Edge Case] Xử lý an toàn đầu vào khoảng trắng '   \\n\\t  ': " . ($wsHandled ? "✅ PASS" : "❌ FAIL") . "\n";
+
+// 4. Zero Grading / Penalty Interference Verification
+// Inspect mdl_quiz_attempts and mdl_question_attempts
+$studentAttemptsBefore = $DB->count_records('quiz_attempts', ['quiz' => $quizA, 'userid' => $sv1->id]);
+$questionAttemptsBefore = $DB->count_records_sql("
+    SELECT COUNT(*) FROM {question_attempts} qa
+      JOIN {question_usages} qu ON qu.id = qa.questionusageid
+      JOIN {quiz_attempts} qza ON qza.uniqueid = qu.id
+     WHERE qza.quiz = ? AND qza.userid = ?
+", [$quizA, $sv1->id]);
+
+// Perform exploration run and check attempts count again
+$qMid = context_service::validate($courseid, $quizA, $testQId);
+\core\session\manager::set_user($sv1);
+$probeRun = $service->create_run(
+    $courseid, $quizObjMid, $qMid, (int)$sv1->id,
+    (string)$answerMid, $sampleInputMid, (string)$runMid['oracle']['output'],
+    "Auditing interference", "edge_case", "reflection"
+);
+
+$studentAttemptsAfter = $DB->count_records('quiz_attempts', ['quiz' => $quizA, 'userid' => $sv1->id]);
+$questionAttemptsAfter = $DB->count_records_sql("
+    SELECT COUNT(*) FROM {question_attempts} qa
+      JOIN {question_usages} qu ON qu.id = qa.questionusageid
+      JOIN {quiz_attempts} qza ON qza.uniqueid = qu.id
+     WHERE qza.quiz = ? AND qza.userid = ?
+", [$quizA, $sv1->id]);
+
+$zeroInterference = ($studentAttemptsBefore === $studentAttemptsAfter && $questionAttemptsBefore === $questionAttemptsAfter);
+echo " - [Zero Interference] Hoạt động của plugin không làm tăng attempts hoặc can thiệp điểm số Quiz ({$studentAttemptsBefore} -> {$studentAttemptsAfter} quiz attempts): " . ($zeroInterference ? "✅ PASS" : "❌ FAIL") . "\n";
+
+$results['test_c'] = ($passPython3 && $passP3W && $emptyHandled && $wsHandled && $zeroInterference);
+echo " => KẾT QUẢ TEST C: " . ($results['test_c'] ? "PASSED" : "FAILED") . "\n\n";
+
+// ================================================================

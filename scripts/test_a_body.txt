@@ -1,0 +1,39 @@
+TEST A: ISOLATION & MIGRATION
+// =================================================================
+echo "-----------------------------------------------------------------\n";
+echo "TEST A: ISOLATION & SCHEMA MIGRATION\n";
+echo "-----------------------------------------------------------------\n";
+
+$testQId = 567; // Question MidTestQ04
+$quizA = 3;
+$quizB = 4;
+
+// 1. Verify that the obsolete unique key on question_id alone is GONE
+$rs = $DB->get_recordset_sql("SHOW INDEX FROM {local_tce_policies}");
+$oldSingleKeyExists = false;
+$compoundCols = [];
+
+foreach ($rs as $idx) {
+    if ((int)$idx->non_unique === 0 && $idx->key_name !== 'PRIMARY') {
+        $compoundCols[$idx->key_name][] = $idx->column_name;
+    }
+}
+$rs->close();
+
+$hasCompoundUnique = false;
+foreach ($compoundCols as $kname => $cols) {
+    if (count($cols) === 1 && $cols[0] === 'question_id') {
+        $oldSingleKeyExists = true;
+    }
+    if (in_array('quiz_id', $cols) && in_array('question_id', $cols)) {
+        $hasCompoundUnique = true;
+    }
+}
+
+echo " - [Schema] Khóa đơn cũ uq_question (chỉ trên question_id) đã bị loại bỏ: " . (!$oldSingleKeyExists ? "✅ PASS" : "❌ FAIL") . "\n";
+echo " - [Schema] Khóa liên hợp mới uq_quiz_question (quiz_id, question_id) hiện diện: " . ($hasCompoundUnique ? "✅ PASS" : "❌ FAIL") . "\n";
+
+// 2. Verify independent policy across Quiz A and Quiz B for identical question
+$service->save_question_policy($quizA, $testQId, (int)$teacher->id, [
+    'input_mode' => 'stdin',
+    'testcode_tem

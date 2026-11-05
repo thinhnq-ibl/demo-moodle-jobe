@@ -244,22 +244,6 @@ foreach ($questions as $q) {
     ];
 }
 
-$rawcourses = context_service::courses_with_coderunner();
-$availablecourselist = [];
-$issiteadmin = is_siteadmin();
-foreach ($rawcourses as $rc) {
-    $cid = (int) $rc->courseid;
-    if (!$issiteadmin && !has_capability('local/testcase_exchange:review', context_course::instance($cid))) {
-        continue;
-    }
-    $availablecourselist[] = [
-        'courseid' => $cid,
-        'fullname' => $rc->fullname,
-        'shortname' => $rc->shortname,
-        'switch_url' => (new moodle_url('/local/testcase_exchange/review.php', ['course' => $cid]))->out(false),
-        'is_current' => ($cid === $courseid),
-    ];
-}
 
 $quizid = optional_param('quiz', 0, PARAM_INT);
 $returnurl = '';
@@ -279,8 +263,7 @@ echo $OUTPUT->render_from_template('local_testcase_exchange/review', [
     'course_hub_url' => (new moodle_url('/local/testcase_exchange/review.php'))->out(false),
     'current_course_name' => $course->fullname,
     'current_course_shortname' => $course->shortname,
-    'available_courses' => $availablecourselist,
-    'show_course_switcher' => (count($availablecourselist) > 1 || $issiteadmin),
+    'show_course_switcher' => false,
     'return_url' => $returnurl,
     'has_return_url' => ($returnurl !== ''),
     'return_quiz_name' => $returnquizname,

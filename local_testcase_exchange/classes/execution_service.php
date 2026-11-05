@@ -51,8 +51,8 @@ final class execution_service {
         $question = $ctx['question'];
 
         $testcase = self::make_testcase($question, $input, $policy);
-        $student = self::run_source($question, $testcase, $studentsource, $quiz, $USER);
-        $oracle = ($cachedoracle !== null) ? $cachedoracle : self::run_source($question, $testcase, (string) $question->answer, $quiz, $USER);
+        $student = self::run_source($question, $testcase, $studentsource, $quiz, $USER, $ctx['template']);
+        $oracle = ($cachedoracle !== null) ? $cachedoracle : self::run_source($question, $testcase, (string) $question->answer, $quiz, $USER, $ctx['template']);
         return [
             'student' => $student,
             'oracle' => $oracle,
@@ -90,7 +90,23 @@ final class execution_service {
         $proto = $question->get_prototype();
         $template = (string) ($policy['testcode_template'] ?? '');
         if ($template === '') {
-            $template = (string) ($question->template ?: ($proto ? $proto->template : ''));
+            $qtemplate = (string) $question->template;
+            $hasplaceholder = ($qtemplate !== '' && (
+                strpos($qtemplate, 'TEST.testcode') !== false ||
+                strpos($qtemplate, 'TESTCASES') !== false ||
+                strpos($qtemplate, 'TEST.stdin') !== false ||
+                strpos($qtemplate, 'testCase.testcode') !== false ||
+                strpos($qtemplate, 'TEST_CASES') !== false
+            ));
+            if ($hasplaceholder) {
+                $template = $qtemplate;
+            } else {
+                $prototemplate = ($proto && !empty($proto->template)) ? (string) $proto->template : '';
+                if ($prototemplate === '' && isset($question->prototype) && is_object($question->prototype)) {
+                    $prototemplate = (string) $question->prototype->template;
+                }
+                $template = ($prototemplate !== '') ? $prototemplate : $qtemplate;
+            }
         }
         $grader = (string) ($question->grader ?: 'EqualityGrader');
         $qversion = isset($question->version) ? (int) $question->version : 1;
@@ -180,13 +196,26 @@ final class execution_service {
      * @param \stdClass $user User record.
      * @return array Normalised execution outcome.
      */
-    private static function run_source($question, \stdClass $testcase, string $source, \stdClass $quiz, \stdClass $user): array {
+    private static function run_source(
+        $question,
+        \stdClass $testcase,
+        string $source,
+        \stdClass $quiz,
+        \stdClass $user,
+        string $resolvedtemplate = ''
+    ): array {
         try {
             $runquestion = clone $question;
             $runquestion->testcases = [$testcase];
             $runquestion->student = $user;
             $runquestion->quiz = $quiz;
             $runquestion->contextid = \context_course::instance((int) $quiz->course)->id;
+            if ($resolvedtemplate !== '') {
+                $runquestion->template = $resolvedtemplate;
+            }
+            if (empty($runquestion->prototype)) {
+                $runquestion->get_prototype();
+            }
             [, , $cache] = $runquestion->grade_response(['answer' => $source], false, false, false);
             $outcome = unserialize($cache['_testoutcome'], ['allowed_classes' => true]);
             $server = '';
@@ -229,7 +258,9 @@ final class execution_service {
         ) ||
         str_contains($output, 'Traceback (most recent call last):') ||
         (bool) preg_match('/^Exception in thread\b/m', $output) ||
-        (bool) preg_match('/\b(Segmentation fault|core dumped)\b/i', $output);
+        (bool) preg_match('/\b(Segmentation fault|core dumped)\b/i', $output) ||
+        str_contains($output, 'All tests passed! Code của bạn hoàn toàn chính xác khi đối chiếu') ||
+        str_contains($output, 'All tests passed! Thuật toán của bạn hoạt động');
     }
 }
 

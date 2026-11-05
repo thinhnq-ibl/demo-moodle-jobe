@@ -1,0 +1,7 @@
+<select class="custom-select font-weight-bold" name="decision" required>
+                                <option value="" {{^status}}selected{{/status}}>-- Chọn quyết định --</option>
+                                <option value="approved" {{#is_approved}}selected{{/is_approved}}>✓ Chấp thuận (Approve) — Bổ sung vào kho & cấp thưởng</option>
+                                <option value="needs_explanation" {{#is_pending}}selected{{/is_pending}}>⚠️ Cần giải trình thêm (Needs Explanation)</option>
+                                <option value="rejected" {{#is_rejected}}selected{{/is_rejected}}>✗ Từ chối (Reject)</option>
+                            </select>
+---

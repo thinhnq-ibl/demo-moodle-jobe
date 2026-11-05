@@ -1,23 +1,5 @@
 <div class="local-testcase-exchange-root">
 {{! Contribution review table and filters for teacher. }}
-{{#show_course_switcher}}
-<div class="tce-context-bar d-flex flex-wrap justify-content-between align-items-center mb-3">
-    <div>
-        <span class="text-muted mr-1"><i class="fa fa-graduation-cap text-primary mr-1"></i>{{#str}} course {{/str}}:</span>
-        <strong>{{current_course_name}}</strong>
-        <a href="{{course_hub_url}}" class="badge badge-light border ml-2">&larr; {{#str}} allcourses, local_testcase_exchange {{/str}}</a>
-    </div>
-    <div class="d-flex align-items-center mt-1 mt-md-0">
-        <label for="switchReviewCourseSelect" class="small text-muted mb-0 mr-2 text-nowrap">{{#str}} switchcourse, local_testcase_exchange {{/str}}:</label>
-        <select id="switchReviewCourseSelect" class="custom-select custom-select-sm" onchange="if (this.value) window.location.href=this.value;">
-            {{#available_courses}}
-            <option value="{{switch_url}}" {{#is_current}}selected{{/is_current}}>{{shortname}} - {{fullname}}</option>
-            {{/available_courses}}
-        </select>
-    </div>
-</div>
-{{/show_course_switcher}}
-
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
     <div>
         <h3 class="font-weight-bold text-dark mb-1">
@@ -39,7 +21,7 @@
     </div>
 </div>
 
-<div class="card mb-3 border-0 bg-light p-2">
+<div class="card mb-3 border bg-light p-2" style="border-radius: 8px;">
     <form method="get" class="form-inline d-flex flex-wrap align-items-center">
         <input type="hidden" name="course" value="{{course_id}}">
         <input type="hidden" name="status" value="{{current_status}}">
@@ -67,24 +49,23 @@
     {{/status_tabs}}
 </ul>
 
-<div class="table-responsive bg-white rounded border p-0 mb-4">
+<div class="table-responsive bg-white rounded border p-0 mb-4 shadow-sm">
     <table class="table table-hover align-middle mb-0">
-        <thead class="bg-light">
+        <thead class="bg-light text-dark">
             <tr>
                 <th style="width: 50px;">ID</th>
-                <th style="width: 180px;">{{#str}} student, local_testcase_exchange {{/str}}</th>
-                <th>{{#str}} quizquestion, local_testcase_exchange {{/str}}</th>
-                <th>{{#str}} testinput, local_testcase_exchange {{/str}}</th>
-                <th>{{#str}} oracleoutput, local_testcase_exchange {{/str}}</th>
-                <th>{{#str}} purpose, local_testcase_exchange {{/str}}</th>
-                <th style="width: 120px;">{{#str}} status {{/str}}</th>
-                <th style="min-width: 240px;">{{#str}} actions, local_testcase_exchange {{/str}}</th>
+                <th style="min-width: 160px;">{{#str}} student, local_testcase_exchange {{/str}}</th>
+                <th style="min-width: 160px;">{{#str}} quizquestion, local_testcase_exchange {{/str}}</th>
+                <th style="min-width: 180px;">Testcase tóm tắt</th>
+                <th style="width: 140px;">Thời gian</th>
+                <th style="width: 130px;">{{#str}} status {{/str}}</th>
+                <th style="width: 150px; text-align: center;">{{#str}} actions, local_testcase_exchange {{/str}}</th>
             </tr>
         </thead>
         <tbody>
             {{^has_items}}
             <tr>
-                <td colspan="8" class="text-center py-5 text-muted">
+                <td colspan="7" class="text-center py-5 text-muted">
                     <div class="mb-2"><i class="fa fa-check-circle-o text-muted" style="font-size: 2.5rem;"></i></div>
                     <p class="mb-0 font-weight-bold">{{#str}} nocontributionsfound, local_testcase_exchange {{/str}}</p>
                 </td>
@@ -94,22 +75,23 @@
             <tr>
                 <td><strong>#{{id}}</strong></td>
                 <td>
-                    <div class="font-weight-bold">{{student_name}}</div>
+                    <div class="font-weight-bold text-dark">{{student_name}}</div>
                     <small class="text-muted">{{student_username}}</small>
                 </td>
                 <td>
-                    <div class="font-weight-bold">{{quiz_name}}</div>
-                    <small class="text-muted">{{question_name}}</small>
+                    <div class="font-weight-bold text-dark">{{question_name}}</div>
+                    <small class="text-muted">{{quiz_name}}</small>
                 </td>
                 <td>
-                    <pre class="bg-light p-2 rounded mb-0 text-wrap font-monospace border" style="max-height: 100px; overflow-y: auto;">{{input_normalized}}</pre>
+                    <div class="small text-muted mb-1">
+                        In: <span class="badge badge-light border font-monospace text-truncate d-inline-block" style="max-width: 150px; vertical-align: bottom;">{{input_normalized}}</span>
+                    </div>
+                    <div class="small text-muted">
+                        Exp: <span class="badge badge-light border font-monospace text-truncate d-inline-block" style="max-width: 150px; vertical-align: bottom;">{{expected_output_display}}</span>
+                    </div>
                 </td>
                 <td>
-                    <pre class="bg-light p-2 rounded mb-0 text-wrap font-monospace border" style="max-height: 100px; overflow-y: auto;">{{oracle_output}}</pre>
-                </td>
-                <td>
-                    <div><span class="badge badge-light border">{{category}}</span></div>
-                    {{#purpose}}<small class="text-muted d-block mt-1">{{purpose}}</small>{{/purpose}}
+                    <small class="text-muted">{{submitted_at}}</small>
                 </td>
                 <td>
                     <span class="{{status_badge_class}}">{{status_label}}</span>
@@ -118,49 +100,17 @@
                         <span class="badge badge-warning text-dark">{{rating_val}} ⭐</span>
                     </div>
                     {{/has_rating}}
-                    {{#has_teacher_comment}}
-                    <div class="small bg-light p-1 rounded border mt-1 text-dark" style="max-width: 220px; word-break: break-word;">
-                        💬 {{teacher_comment}}
-                    </div>
-                    {{/has_teacher_comment}}
-                    <div class="small text-muted mt-1">{{submitted_at}}</div>
                 </td>
-                <td>
+                <td class="text-center">
                     {{#is_pending}}
-                    <form method="post" class="border p-2 rounded bg-light">
-                        <input type="hidden" name="sesskey" value="{{sesskey}}">
-                        <input type="hidden" name="contribution_id" value="{{id}}">
-                        <div class="form-group mb-2">
-                            <label class="small font-weight-bold mb-1 d-block text-muted">{{#str}} starrating, local_testcase_exchange {{/str}}:</label>
-                            <select class="custom-select custom-select-sm" name="rating">
-                                <option value="0">Chấm sao...</option>
-                                <option value="5">⭐⭐⭐⭐⭐ 5 sao - {{#str}} rating_5_desc, local_testcase_exchange {{/str}}</option>
-                                <option value="4">⭐⭐⭐⭐ 4 sao - {{#str}} rating_4_desc, local_testcase_exchange {{/str}}</option>
-                                <option value="3">⭐⭐⭐ 3 sao - {{#str}} rating_3_desc, local_testcase_exchange {{/str}}</option>
-                                <option value="2">⭐⭐ 2 sao - {{#str}} rating_2_desc, local_testcase_exchange {{/str}}</option>
-                                <option value="1">⭐ 1 sao - {{#str}} rating_1_desc, local_testcase_exchange {{/str}}</option>
-                            </select>
-                        </div>
-                        <div class="form-group mb-2">
-                            <input class="form-control form-control-sm" name="review_note" placeholder="Nhận xét phản hồi cho sinh viên...">
-                        </div>
-                        <div class="d-flex gap-1" style="gap: 6px;">
-                            <button class="btn btn-sm btn-success font-weight-bold flex-grow-1" name="decision" value="approved" title="{{#str}} approvecontribution, local_testcase_exchange {{/str}}">
-                                <i class="fa fa-check mr-1"></i>Chấp thuận
-                            </button>
-                            <button class="btn btn-sm btn-outline-warning text-dark font-weight-bold" name="decision" value="needs_explanation" title="Yêu cầu giải trình thêm">
-                                ? Cần giải thích
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger font-weight-bold" name="decision" value="rejected" title="{{#str}} rejectcontribution, local_testcase_exchange {{/str}}">
-                                <i class="fa fa-times mr-1"></i>Từ chối
-                            </button>
-                        </div>
-                    </form>
+                    <button type="button" class="btn btn-sm btn-primary font-weight-bold" data-toggle="modal" data-target="#reviewModal_{{id}}">
+                        <i class="fa fa-check-square mr-1"></i>Xem và duyệt
+                    </button>
                     {{/is_pending}}
                     {{^is_pending}}
-                    <div class="text-muted small font-italic py-2">
-                        Đã xử lý ({{status_label}})
-                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold" data-toggle="modal" data-target="#reviewModal_{{id}}">
+                        <i class="fa fa-eye mr-1"></i>Xem chi tiết
+                    </button>
                     {{/is_pending}}
                 </td>
             </tr>
@@ -168,6 +118,163 @@
         </tbody>
     </table>
 </div>
+
+<!-- REVIEW MODAL DIALOGS -->
+{{#items}}
+<div class="modal fade" id="reviewModal_{{id}}" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel_{{id}}" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content shadow border-0" style="border-radius: 8px;">
+            <div class="modal-header bg-light py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
+                <h5 class="modal-title font-weight-bold text-dark mb-0" id="reviewModalLabel_{{id}}">
+                    <i class="fa fa-check-circle text-primary mr-2"></i>Thẩm định đóng góp #{{id}}
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-3">
+                <!-- Meta summary -->
+                <div class="row mb-3 pb-2 border-bottom">
+                    <div class="col-md-6 mb-2 mb-md-0">
+                        <div class="small text-muted">Sinh viên đóng góp:</div>
+                        <div class="font-weight-bold text-dark">{{student_name}} ({{student_username}})</div>
+                        <div class="small text-muted">{{student_email}}</div>
+                    </div>
+                    <div class="col-md-6 text-md-right">
+                        <div class="small text-muted">Thời gian gửi &bull; Trạng thái:</div>
+                        <span class="small text-muted mr-1">{{submitted_at}}</span>
+                        <span class="{{status_badge_class}}">{{status_label}}</span>
+                    </div>
+                </div>
+
+                <!-- Question & Purpose info -->
+                <div class="bg-light p-2 rounded border mb-3">
+                    <div class="d-flex flex-wrap justify-content-between">
+                        <div>
+                            <span class="text-muted small">Bài tập / Câu hỏi:</span>
+                            <span class="font-weight-bold text-dark ml-1">{{quiz_name}} — {{question_name}}</span>
+                        </div>
+                        <div>
+                            <span class="text-muted small">{{#str}} category, local_testcase_exchange {{/str}}:</span>
+                            <span class="badge badge-light border text-dark ml-1">{{category_label}}</span>
+                        </div>
+                    </div>
+                    {{#purpose}}
+                    <div class="mt-2 pt-2 border-top">
+                        <span class="text-muted small font-weight-bold">Mục đích kiểm thử khai báo:</span>
+                        <div class="text-dark small font-italic mt-1">{{purpose}}</div>
+                    </div>
+                    {{/purpose}}
+                </div>
+
+                <!-- Testcase inspection grid -->
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-2 mb-md-0">
+                        <div class="small font-weight-bold text-dark mb-1">
+                            <i class="fa fa-terminal text-muted mr-1"></i>{{#str}} input_data_label, local_testcase_exchange {{/str}}:
+                        </div>
+                        <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{input_normalized}}</pre>
+                    </div>
+                    <div class="col-md-4 mb-2 mb-md-0">
+                        <div class="small font-weight-bold text-dark mb-1">
+                            <i class="fa fa-bullseye text-muted mr-1"></i>{{#str}} student_expected_output_label, local_testcase_exchange {{/str}}:
+                        </div>
+                        <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{expected_output_display}}</pre>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="small font-weight-bold text-dark mb-1">
+                            <i class="fa fa-check text-muted mr-1"></i>{{#str}} reference_solution_output_label, local_testcase_exchange {{/str}}:
+                        </div>
+                        <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{oracle_output}}</pre>
+                    </div>
+                </div>
+
+                {{^is_pending}}
+                <!-- Display existing review summary for approved/rejected/needs_explanation -->
+                <div class="card bg-white border p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="font-weight-bold text-dark mb-0">
+                            <i class="fa fa-history text-muted mr-1"></i>Kết quả thẩm định hiện tại:
+                        </h6>
+                        <span class="{{status_badge_class}}">{{status_label}}</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <span class="text-muted small">Đánh giá sao:</span>
+                            <div class="font-weight-bold text-warning">{{#has_rating}}{{stars_display}} ({{rating_val}} sao){{/has_rating}}{{^has_rating}}Chưa chấm sao{{/has_rating}}</div>
+                        </div>
+                        <div class="col-md-8">
+                            <span class="text-muted small">Nhận xét sư phạm:</span>
+                            <div class="text-dark bg-light p-2 border rounded mt-1">{{#teacher_comment}}{{teacher_comment}}{{/teacher_comment}}{{^teacher_comment}}<em>(Không có nhận xét)</em>{{/teacher_comment}}</div>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-right">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="document.getElementById('editReviewForm_{{id}}').classList.toggle('d-none');">
+                            <i class="fa fa-pencil mr-1"></i>Chỉnh sửa thẩm định
+                        </button>
+                    </div>
+                </div>
+                {{/is_pending}}
+
+                <!-- Review Form -->
+                <form method="post" id="editReviewForm_{{id}}" class="{{^is_pending}}d-none{{/is_pending}} card bg-light border p-3 mb-0">
+                    <input type="hidden" name="sesskey" value="{{sesskey}}">
+                    <input type="hidden" name="action" value="teacher_review">
+            <input type="hidden" name="contribution_id" value="{{id}}">
+
+                    <h6 class="font-weight-bold text-dark mb-3">
+                        <i class="fa fa-gavel text-primary mr-1"></i>Quyết định thẩm định của Giảng viên:
+                    </h6>
+
+                    <div class="form-row mb-3">
+                        <div class="col-md-7 mb-2 mb-md-0">
+                            <label class="font-weight-bold text-dark small mb-1">
+                                Quyết định duyệt: <span class="text-danger">*</span>
+                            </label>
+                            <select class="custom-select font-weight-bold" name="decision" required>
+                                <option value="" {{^status}}selected{{/status}}>-- {{#str}} select_decision, local_testcase_exchange {{/str}} --</option>
+                                <option value="approved" {{#is_approved}}selected{{/is_approved}}>✓ {{#str}} decision_approved, local_testcase_exchange {{/str}}</option>
+                                <option value="needs_explanation" {{#is_pending}}selected{{/is_pending}}>⚠️ {{#str}} decision_needs_explanation, local_testcase_exchange {{/str}}</option>
+                                <option value="rejected" {{#is_rejected}}selected{{/is_rejected}}>✗ {{#str}} decision_rejected, local_testcase_exchange {{/str}}</option>
+                            </select>
+                            <small class="form-text text-muted mt-1">
+                                {{#str}} decision_help_text, local_testcase_exchange {{/str}}
+                            </small>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="font-weight-bold text-dark small mb-1">
+                                {{#str}} quality_rating, local_testcase_exchange {{/str}}:
+                            </label>
+                            <select class="custom-select" name="rating">
+                                <option value="0">{{#str}} rating_none, local_testcase_exchange {{/str}}</option>
+                                <option value="5" {{#is_rating_5}}selected{{/is_rating_5}}>⭐⭐⭐⭐⭐ {{#str}} rating_5, local_testcase_exchange {{/str}}</option>
+                                <option value="4" {{#is_rating_4}}selected{{/is_rating_4}}>⭐⭐⭐⭐ {{#str}} rating_4, local_testcase_exchange {{/str}}</option>
+                                <option value="3" {{#is_rating_3}}selected{{/is_rating_3}}>⭐⭐⭐ {{#str}} rating_3, local_testcase_exchange {{/str}}</option>
+                                <option value="2" {{#is_rating_2}}selected{{/is_rating_2}}>⭐⭐ {{#str}} rating_2, local_testcase_exchange {{/str}}</option>
+                                <option value="1" {{#is_rating_1}}selected{{/is_rating_1}}>⭐ {{#str}} rating_1, local_testcase_exchange {{/str}}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark small mb-1">
+                            {{#str}} pedagogical_feedback, local_testcase_exchange {{/str}}:
+                        </label>
+                        <textarea class="form-control" name="review_note" rows="3" placeholder="{{#str}} teacher_review_feedback_placeholder, local_testcase_exchange {{/str}}">{{teacher_comment}}</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end align-items-center" style="gap: 8px;">
+                        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">{{#str}} close, local_testcase_exchange {{/str}}</button>
+                        <button type="submit" class="btn btn-primary font-weight-bold btn-sm">
+                            <i class="fa fa-save mr-1"></i>{{#str}} save_decision, local_testcase_exchange {{/str}}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{{/items}}
 
 </div>
 <!-- end .local-testcase-exchange-root -->

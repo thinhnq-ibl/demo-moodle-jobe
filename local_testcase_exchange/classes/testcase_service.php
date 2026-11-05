@@ -426,6 +426,25 @@ final class testcase_service {
             $fingerprint = (string) $run['input_fingerprint'];
             $timenow = time();
 
+            // Idempotency check: if student already submitted this testcase, return existing contribution directly
+            $existingcontrib = $this->db->fetch_row(
+                'SELECT id, status, duplicate_of FROM {local_tce_contributions}
+                  WHERE quiz_id = ? AND question_id = ? AND user_id = ? AND input_fingerprint = ?
+               ORDER BY id ASC',
+                [$quizid, $questionid, $userid, $fingerprint]
+            );
+            if ($existingcontrib) {
+                $canonical_id = !empty($existingcontrib['duplicate_of']) ? (int) $existingcontrib['duplicate_of'] : (int) $existingcontrib['id'];
+                $tx->allow_commit();
+                return [
+                    'id' => (int) $existingcontrib['id'],
+                    'status' => (string) $existingcontrib['status'],
+                    'is_own_duplicate' => true,
+                    'canonical_id' => $canonical_id,
+                ];
+            }
+
+            $predicted_val = isset($run['predicted_output']) ? (string) $run['predicted_output'] : '';
             $contributionid = $this->db->insert('local_tce_contributions', [
                 'run_id' => $runpk,
                 'course_id' => $courseid,
@@ -434,6 +453,7 @@ final class testcase_service {
                 'user_id' => $userid,
                 'input_normalized' => (string) $run['input_normalized'],
                 'input_fingerprint' => $fingerprint,
+                'expected_output' => $predicted_val,
                 'oracle_output' => (string) $run['oracle_output'],
                 'purpose' => (string) $run['purpose'],
                 'category' => (string) $run['category'],
@@ -903,6 +923,11 @@ final class testcase_service {
     public function contributions_for_user(int $courseid, int $userid): array {
         return $this->db->fetch_all(
             'SELECT c.*,
+                    COALESCE(c.expected_output, r.predicted_output) AS expected_output,
+                    r.predicted_output AS run_predicted_output,
+                    r.student_run_output,
+                    r.oracle_output AS run_oracle_output,
+                    r.oracle_outcome,
                     (SELECT cr.review_note FROM {local_tce_reviews} cr
                       WHERE cr.id = (
                           SELECT MAX(cr2.id) FROM {local_tce_reviews} cr2
@@ -914,6 +939,7 @@ final class testcase_service {
                            WHERE cr3.contribution_id = c.id AND cr3.rating IS NOT NULL AND cr3.rating > 0
                       )) AS latest_rating
                FROM {local_tce_contributions} c
+          LEFT JOIN {local_tce_runs} r ON r.id = c.run_id
               WHERE c.course_id = ? AND c.user_id = ? ORDER BY c.id DESC',
             [$courseid, $userid]
         );
@@ -952,6 +978,11 @@ final class testcase_service {
 
         $where = implode(' AND ', $conditions);
                 $sql = "SELECT c.*,
+                       COALESCE(c.expected_output, r.predicted_output) AS expected_output,
+                       r.predicted_output AS run_predicted_output,
+                       r.student_run_output,
+                       r.oracle_output AS run_oracle_output,
+                       r.oracle_outcome,
                        (SELECT cr.review_note FROM {local_tce_reviews} cr
                          WHERE cr.id = (
                              SELECT MAX(cr2.id) FROM {local_tce_reviews} cr2
@@ -963,6 +994,7 @@ final class testcase_service {
                               WHERE cr3.contribution_id = c.id AND cr3.rating IS NOT NULL AND cr3.rating > 0
                          )) AS latest_rating
                   FROM {local_tce_contributions} c
+             LEFT JOIN {local_tce_runs} r ON r.id = c.run_id
                  WHERE {$where}
               ORDER BY c.id DESC";
         return $this->db->fetch_all($sql, $params);

@@ -1,14 +1,60 @@
 /* =========================================================================
    Plugin: local_testcase_exchange
    Styles for Student & Teacher Dashboards, Review and Policy Views
-   Clean, Moodle-aligned, accessible, mobile-first design
+   Clean, Moodle-aligned, accessible, mobile-first design (WCAG AA compliant)
    ========================================================================= */
 
+.local-testcase-exchange-root,
+.local-testcase-exchange-root * {
+    box-sizing: border-box;
+}
+
 .local-testcase-exchange-root {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
     font-size: 1rem;
     line-height: 1.5;
-    color: #1e293b;
+    color: #1e293b; /* High contrast primary body text (13:1) */
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Explicit universal sans-serif inheritance for all text UI components, while preserving icon fonts */
+body#page-local-testcase_exchange-index :not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not([class*="fa-"]):not(.font-monospace):not(code):not(pre),
+body#page-local-testcase_exchange-review :not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not([class*="fa-"]):not(.font-monospace):not(code):not(pre),
+body#page-local-testcase_exchange-policy :not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not([class*="fa-"]):not(.font-monospace):not(code):not(pre),
+.modal :not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not([class*="fa-"]):not(.font-monospace):not(code):not(pre),
+.local-testcase-exchange-root,
+.local-testcase-exchange-root h1,
+.local-testcase-exchange-root h2,
+.local-testcase-exchange-root h3,
+.local-testcase-exchange-root h4,
+.local-testcase-exchange-root h5,
+.local-testcase-exchange-root h6,
+.local-testcase-exchange-root p,
+.local-testcase-exchange-root span:not(.fa):not([class*="fa-"]),
+.local-testcase-exchange-root a:not(.fa):not([class*="fa-"]),
+.local-testcase-exchange-root label,
+.local-testcase-exchange-root button:not(.fa):not([class*="fa-"]),
+.local-testcase-exchange-root input,
+.local-testcase-exchange-root select,
+.local-testcase-exchange-root textarea:not(.font-monospace),
+.local-testcase-exchange-root .table,
+.local-testcase-exchange-root .nav-tabs,
+.local-testcase-exchange-root .nav-link,
+.local-testcase-exchange-root .badge,
+.local-testcase-exchange-root .card-header,
+.local-testcase-exchange-root .modal-content {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif !important;
+}
+
+/* Bảo toàn font-family cho Font Awesome để các icon hữu ích (spinner, checkmark) hiển thị đúng chuẩn */
+.local-testcase-exchange-root .fa,
+.local-testcase-exchange-root .fas,
+.local-testcase-exchange-root .far,
+.local-testcase-exchange-root .fal,
+.local-testcase-exchange-root .fab,
+.local-testcase-exchange-root [class*="fa-"] {
+    font-family: "Font Awesome 6 Free", "FontAwesome" !important;
 }
 
 /* 1. TYPOGRAPHY & HEADINGS */
@@ -29,14 +75,18 @@
 .local-testcase-exchange-root h5 {
     font-size: 1.05rem;
     font-weight: 600;
-    color: #334155;
+    color: #1e293b;
 }
 
 .local-testcase-exchange-root .small,
 .local-testcase-exchange-root small,
 .local-testcase-exchange-root .tce-subtext {
     font-size: 0.875rem;
-    color: #64748b;
+    color: #475569; /* WCAG AA contrast (5.4:1 on white) */
+}
+
+.local-testcase-exchange-root .text-muted {
+    color: #475569 !important; /* Ensure readable contrast */
 }
 
 /* 2. SPACING & ELEVATION */
@@ -45,7 +95,7 @@
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
-    margin-bottom: 1.5rem; /* 24px */
+    margin-bottom: 1.25rem;
 }
 
 .local-testcase-exchange-root .card-header {
@@ -70,7 +120,7 @@
 }
 
 .local-testcase-exchange-root .nav-tabs .nav-link {
-    color: #475569;
+    color: #334155;
     font-size: 0.95rem;
     font-weight: 600;
     border: 1px solid transparent;
@@ -127,15 +177,84 @@
     outline-offset: 2px !important;
 }
 
-/* 5. FORM CONTROLS & MONOSPACE */
-.local-testcase-exchange-root .form-control,
-.local-testcase-exchange-root .custom-select {
+/* 5. FORM CONTROLS & SELECT DROPDOWNS */
+.local-testcase-exchange-root .form-control {
     font-size: 0.95rem;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
     color: #1e293b;
     padding: 0.45rem 0.75rem;
+    max-width: 100%;
+    min-width: 0;
 }
+
+.local-testcase-exchange-root select,
+.local-testcase-exchange-root .custom-select,
+.local-testcase-exchange-root .form-select {
+    display: inline-block;
+    width: 100%;
+    height: 40px !important;
+    min-height: 40px !important;
+    font-size: 0.95rem !important;
+    font-weight: 400;
+    line-height: 1.5 !important;
+    color: #1e293b !important;
+    vertical-align: middle;
+    background-color: #ffffff !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23334155' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 0.75rem center !important;
+    background-size: 16px 12px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    padding: 0.35rem 2.5rem 0.35rem 0.75rem !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    box-sizing: border-box !important;
+    max-width: 100%;
+}
+
+.local-testcase-exchange-root select.custom-select-sm,
+.local-testcase-exchange-root select.form-select-sm,
+.local-testcase-exchange-root .custom-select.custom-select-sm,
+.local-testcase-exchange-root .form-select.form-select-sm {
+    height: 36px !important;
+    min-height: 36px !important;
+    font-size: 0.9rem !important;
+    line-height: 1.4 !important;
+    padding: 0.25rem 2.25rem 0.25rem 0.75rem !important;
+}
+
+.local-testcase-exchange-root select option {
+    font-size: 0.95rem;
+    padding: 6px 10px;
+    color: #1e293b;
+    background-color: #ffffff;
+}
+
+/* Ensure inline selects in filter bars have appropriate sizing and no text collision */
+.local-testcase-exchange-root .form-inline select,
+.local-testcase-exchange-root .form-inline .custom-select,
+.local-testcase-exchange-root .form-inline .form-select,
+.local-testcase-exchange-root .tce-inline-filter-select {
+    width: auto !important;
+    min-width: 190px;
+}
+
+/* Bootstrap 5 compatibility for form-row */
+.local-testcase-exchange-root .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -5px;
+    margin-left: -5px;
+}
+.local-testcase-exchange-root .form-row > .col,
+.local-testcase-exchange-root .form-row > [class*="col-"] {
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
 
 .local-testcase-exchange-root .form-control:focus,
 .local-testcase-exchange-root .custom-select:focus {
@@ -152,7 +271,7 @@
     line-height: 1.5;
 }
 
-/* 6. BADGES & NOTIFICATIONS (Moodle Palette with text labels) */
+/* 6. BADGES & NOTIFICATIONS (High contrast WCAG AA) */
 .local-testcase-exchange-root .badge {
     font-size: 0.85rem;
     font-weight: 600;
@@ -161,61 +280,101 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
+    white-space: normal !important;
+    word-break: break-word !important;
+    max-width: 100% !important;
+    text-align: left !important;
 }
 
 .local-testcase-exchange-root .badge-success {
-    background-color: #ecfdf5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
+    background-color: #ecfdf5 !important;
+    color: #065f46 !important;
+    border: 1px solid #a7f3d0 !important;
 }
 
 .local-testcase-exchange-root .badge-danger {
-    background-color: #fef2f2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+    background-color: #fef2f2 !important;
+    color: #991b1b !important;
+    border: 1px solid #fecaca !important;
 }
 
 .local-testcase-exchange-root .badge-warning {
-    background-color: #fffbeb;
-    color: #92400e;
-    border: 1px solid #fde68a;
+    background-color: #fffbeb !important;
+    color: #92400e !important;
+    border: 1px solid #fde68a !important;
 }
 
 .local-testcase-exchange-root .badge-info {
-    background-color: #eff6ff;
-    color: #1d4ed8;
-    border: 1px solid #bfdbfe;
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+    border: 1px solid #bfdbfe !important;
 }
 
 .local-testcase-exchange-root .badge-secondary {
-    background-color: #f1f5f9;
-    color: #475569;
-    border: 1px solid #cbd5e1;
+    background-color: #f1f5f9 !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
 }
 
-/* 7. STUDENT WORKSPACE (2 Columns on Desktop: 55% Code / 45% Testcase) */
+/* Semantic output contrast classes */
+.bg-success-light {
+    background-color: #ecfdf5 !important;
+    color: #065f46 !important;
+    border: 1px solid #a7f3d0 !important;
+}
+
+.bg-danger-light {
+    background-color: #fef2f2 !important;
+    color: #991b1b !important;
+    border: 1px solid #fecaca !important;
+}
+
+.bg-warning-light {
+    background-color: #fffbeb !important;
+    color: #92400e !important;
+    border: 1px solid #fde68a !important;
+}
+
+.bg-info-light {
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+    border: 1px solid #bfdbfe !important;
+}
+
+.bg-neutral-light {
+    background-color: #f8fafc !important;
+    color: #1e293b !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+/* 7. STUDENT WORKSPACE (2 Columns on Desktop: ~60% Code / 40% Testcase) */
 .tce-workspace-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 1.25rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
+    width: 100%;
 }
 
 .tce-code-column {
-    flex: 1 1 54%;
+    flex: 3 1 58%;
     min-width: 320px;
 }
 
 .tce-testcase-column {
-    flex: 1 1 42%;
-    min-width: 300px;
+    flex: 2 1 38%;
+    min-width: 280px;
 }
 
 @media (max-width: 991.98px) {
+    .tce-workspace-grid {
+        flex-direction: column;
+    }
     .tce-code-column,
     .tce-testcase-column {
-        flex: 1 1 100%;
-        min-width: 100%;
+        flex: 1 1 100% !important;
+        min-width: 0 !important;
+        width: 100% !important;
     }
 }
 
@@ -241,6 +400,38 @@
     border: 1px solid #e2e8f0;
     background: #ffffff;
     margin-bottom: 1.5rem;
+    scroll-margin-top: 5.25rem;
+}
+
+@keyframes tce-result-reveal {
+    0% {
+        box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.45);
+        border-color: #0284c7;
+    }
+    35% {
+        box-shadow: 0 0 0 6px rgba(2, 132, 199, 0.18);
+        border-color: #0284c7;
+    }
+    100% {
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+        border-color: #e2e8f0;
+    }
+}
+
+.tce-latest-result-card.tce-result-reveal {
+    animation: tce-result-reveal 2.2s ease-out;
+}
+
+.tce-history-table-container tr.tce-result-reveal-row > td {
+    background-color: #e0f2fe !important;
+    transition: background-color 1.8s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tce-latest-result-card.tce-result-reveal {
+        animation: none;
+        border-color: #0284c7;
+    }
 }
 
 .tce-latest-result-card.state-eligible {
@@ -275,6 +466,7 @@
     border: 1px solid #e2e8f0;
     border-radius: 6px;
     position: relative;
+    -webkit-overflow-scrolling: touch;
 }
 
 .tce-history-table-container thead th {
@@ -282,7 +474,7 @@
     top: 0;
     z-index: 5;
     background-color: #f8fafc;
-    color: #475569;
+    color: #334155;
     border-bottom: 2px solid #cbd5e1;
 }
 
@@ -301,8 +493,9 @@
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
-    padding: 1rem;
+    padding: 0.85rem;
     margin-bottom: 0.75rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 @media (max-width: 767.98px) {
@@ -310,7 +503,20 @@
         display: none !important;
     }
     .tce-mobile-run-card {
-        display: block;
+        display: block !important;
+    }
+    .tce-context-bar form {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+    }
+    .tce-context-bar select {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .local-testcase-exchange-root select {
+        width: 100% !important;
+        max-width: 100% !important;
     }
 }
 
@@ -327,4 +533,228 @@ tr[id^="run-"]:target {
     border-radius: 8px;
     padding: 0.75rem 1rem;
     margin-bottom: 1.25rem;
+    width: 100%;
+}
+
+/* Cursor pointer utility */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Modals */
+.local-testcase-exchange-root .modal-content {
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+}
+
+.local-testcase-exchange-root .modal-dialog {
+    max-width: 800px;
+}
+
+
+/* =========================================================================
+   ACE EDITOR INTEGRATION STYLES
+   ========================================================================= */
+.tce-editor-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 0;
+    border-radius: 6px;
+    background-color: #ffffff;
+}
+
+.tce-editor-header {
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-bottom: none;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    min-height: 42px;
+}
+
+.tce-ace-editor {
+    height: 480px;
+    min-height: 420px;
+    width: 100%;
+    border-left: 1px solid #cbd5e1;
+    border-right: 1px solid #cbd5e1;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+    font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    font-size: 14px !important;
+    line-height: 1.5;
+}
+
+.tce-editor-statusbar {
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-top: none;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    color: #64748b;
+    min-height: 30px;
+}
+
+.tce-editor-wrapper textarea#student_code {
+    border-radius: 0;
+    border-left: 1px solid #cbd5e1;
+    border-right: 1px solid #cbd5e1;
+    border-top: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+    min-height: 480px;
+}
+
+
+/* Fullscreen Mode */
+.tce-editor-wrapper.tce-fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 10500 !important;
+    background: #ffffff;
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+
+.tce-editor-wrapper.tce-fullscreen .tce-editor-header,
+.tce-editor-wrapper.tce-fullscreen .tce-editor-statusbar {
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    flex-shrink: 0;
+}
+
+.tce-editor-wrapper.tce-fullscreen .tce-editor-header {
+    border-top: none !important;
+}
+
+.tce-editor-wrapper.tce-fullscreen .tce-editor-statusbar {
+    border-bottom: none !important;
+}
+
+.tce-editor-wrapper.tce-fullscreen .tce-ace-editor {
+    flex: 1 1 auto !important;
+    height: auto !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+body.tce-noscroll {
+    overflow: hidden !important;
+}
+
+/* Fallback mode when Ace cannot load */
+.tce-editor-wrapper.tce-fallback-active .tce-editor-header,
+.tce-editor-wrapper.tce-fallback-active .tce-editor-statusbar,
+.tce-editor-wrapper.tce-fallback-active .tce-ace-editor {
+    display: none !important;
+}
+.tce-editor-wrapper.tce-fallback-active textarea#student_code {
+    display: block !important;
+}
+
+/* =========================================================================
+   MOBILE HEADER, HORIZONTAL TAB SCROLL & COMPACT RHYTHM
+   ========================================================================= */
+.tce-nav-tabs-scroll {
+    display: flex;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap !important;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 1px;
+}
+.tce-nav-tabs-scroll .nav-item {
+    flex: 0 0 auto !important;
+}
+.tce-nav-tabs-scroll::-webkit-scrollbar {
+    height: 3px;
+}
+.tce-nav-tabs-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+@media (max-width: 767.98px) {
+    .local-testcase-exchange-root .tce-header-bar {
+        margin-bottom: 0.5rem !important;
+        padding-bottom: 0.4rem !important;
+    }
+    .local-testcase-exchange-root .tce-header-title h4,
+    .local-testcase-exchange-root .tce-header-title h3 {
+        font-size: 1.1rem !important;
+    }
+    .local-testcase-exchange-root .tce-header-subtitle {
+        font-size: 0.8rem !important;
+    }
+    .local-testcase-exchange-root .tce-nav-tabs-scroll .nav-link {
+        padding: 0.4rem 0.65rem !important;
+        font-size: 0.85rem !important;
+    }
+    .local-testcase-exchange-root .tce-stat-card-mobile {
+        padding: 0.5rem 0.6rem !important;
+    }
+    .local-testcase-exchange-root .tce-stat-card-mobile .h4 {
+        font-size: 1.15rem !important;
+    }
+}
+#btnToggleQuestionPrompt {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+#lblToggleQuestionPrompt {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+}
+@media (max-width: 767.98px) {
+    /* Single functional header on mobile: eliminate Moodle redundant outer page-header */
+    #page-local-testcase_exchange-index #page-header,
+    #page-local-testcase_exchange-index .breadcrumb {
+        display: none !important;
+    }
+    .local-testcase-exchange-root .tce-header-bar {
+        padding: 0.15rem 0 !important;
+        margin-bottom: 0.25rem !important;
+    }
+    .local-testcase-exchange-root .tce-context-bar {
+        margin-bottom: 0.25rem !important;
+    }
+    .local-testcase-exchange-root .nav-tabs {
+        margin-bottom: 0.25rem !important;
+    }
+    .local-testcase-exchange-root .tab-content {
+        padding: 0.4rem !important;
+    }
+    .local-testcase-exchange-root .card {
+        margin-bottom: 0.35rem !important;
+    }
+    .local-testcase-exchange-root .tce-header-bar {
+        padding-top: 0.2rem !important;
+        padding-bottom: 0.25rem !important;
+        margin-bottom: 0.35rem !important;
+    }
+    .local-testcase-exchange-root .tce-header-title h4,
+    .local-testcase-exchange-root .tce-header-title h3 {
+        font-size: 1.05rem !important;
+    }
+    .local-testcase-exchange-root .tce-context-bar {
+        margin-bottom: 0.4rem !important;
+    }
+    .local-testcase-exchange-root .nav-tabs {
+        margin-bottom: 0.4rem !important;
+    }
+    .local-testcase-exchange-root .tab-content {
+        padding: 0.6rem !important;
+    }
 }

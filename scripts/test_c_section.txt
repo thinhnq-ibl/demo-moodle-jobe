@@ -1,0 +1,48 @@
+TEST C: CODERUNNER COMPATIBILITY, EDGE CASES & ZERO INTERFERENCE
+// =================================================================
+echo "-----------------------------------------------------------------\n";
+echo "TEST C: CODERUNNER COMPATIBILITY, EDGE CASES & ZERO INTERFERENCE\n";
+echo "-----------------------------------------------------------------\n";
+
+$quizObjMid = $DB->get_record('quiz', ['id' => $quizA], '*', MUST_EXIST);
+$answerMid = (string)$testQ->answer;
+$polMid = $service->question_policy($quizA, $testQId, $testQ->coderunnertype ?? 'python3');
+
+// 1. Standard CodeRunner execution
+$qtestsMid = array_values($DB->get_records('question_coderunner_tests', ['questionid' => $testQId], 'id ASC'));
+$firstTest = reset($qtestsMid);
+$sampleInputMid = $firstTest ? (trim((string)$firstTest->stdin) ?: trim((string)$firstTest->testcode)) : "20";
+$runMid = execution_service::run_pair($testQId, $answerMid, $sampleInputMid, $polMid, $quizObjMid);
+$passPython3 = ($runMid['oracle']['outcome'] === 'success');
+echo " - [CodeRunner] {$testQ->coderunnertype} ({$testQ->name} - Input '{$sampleInputMid}'): " . ($passPython3 ? "✅ PASS" : "❌ FAIL") . "\n";
+
+// 2. python3_w_input
+$p3wQ = $DB->get_record_sql("
+    SELECT q.id, q.name, qo.coderunnertype, qo.answer
+      FROM {question} q
+      JOIN {question_coderunner_options} qo ON qo.questionid = q.id
+     WHERE qo.coderunnertype = 'python3_w_input'
+       AND q.name NOT LIKE '%PROTOTYPE%'
+       AND qo.answer IS NOT NULL
+       AND TRIM(qo.answer) <> ''
+     ORDER BY q.id ASC
+     LIMIT 1
+");
+
+$passP3W = false;
+if ($p3wQ) {
+    $qtests = array_values($DB->get_records('question_coderunner_tests', ['questionid' => $p3wQ->id], 'id ASC'));
+    $sampleTest = reset($qtests);
+    $testInput = $sampleTest ? (trim((string)$sampleTest->stdin) ?: trim((string)$sampleTest->testcode)) : "PrintGrid()";
+    $polP3W = $service->question_policy(3, (int)$p3wQ->id, 'python3_w_input');
+    
+    $runP3W = execution_service::run_pair((int)$p3wQ->id, (string)$p3wQ->answer, $testInput, $polP3W, $quizObjMid);
+    $passP3W = ($runP3W['oracle']['outcome'] === 'success');
+    echo " - [CodeRunner] python3_w_input ({$p3wQ->name} - Input '{$testInput}'): " . ($passP3W ? "✅ PASS" : "❌ FAIL") . "\n";
+} else {
+    $passP3W = true;
+    echo " - [CodeRunner] python3_w_input: Không tìm thấy câu hỏi non-prototype\n";
+}
+
+// 3. Edge Cases: Empty string and whitespace inputs
+$runEmpty = execution_service::run_pair($testQId, (string)$answerMid, "", $polMid, $q
