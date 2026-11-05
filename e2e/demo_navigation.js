@@ -40,17 +40,17 @@ async function openCourseFromDashboard(page, highlight = async () => {}) {
   await waitForPage(page);
 
   const myCourses = page.locator('a[href*="/my/courses.php"]').first();
-  await highlight(myCourses, 900);
+  await highlight(myCourses, 2000);
   await clickAndWait(page, myCourses);
 
   const course = page.locator(`a[href*="/course/view.php?id=${DEMO.courseId}"]`).first();
-  await highlight(course, 1200);
+  await highlight(course, 2000);
   await clickAndWait(page, course);
 }
 
 async function openQuizFromCourse(page, highlight = async () => {}) {
   const quiz = page.locator(`main a[href*="/mod/quiz/view.php?id=${DEMO.quizCmId}"], #region-main a[href*="/mod/quiz/view.php?id=${DEMO.quizCmId}"], .activity a[href*="/mod/quiz/view.php?id=${DEMO.quizCmId}"]`).first();
-  await highlight(quiz, 1200);
+  await highlight(quiz, 2000);
   await clickAndWait(page, quiz);
 }
 
@@ -68,7 +68,7 @@ async function startOrContinueAttempt(page, highlight = async () => {}) {
     throw new Error("Không tìm thấy nút bắt đầu/tiếp tục lượt làm Quiz trên trang hiện tại.");
   }
 
-  await highlight(attemptButton, 1200);
+  await highlight(attemptButton, 2000);
   await clickAndWait(page, attemptButton);
 
   const confirm = page.locator('.modal.show').getByRole('button', {
@@ -115,7 +115,7 @@ async function submitPrimeAnswer(page, code, highlight = async () => {}) {
   const checkButton = question.locator('button[type="submit"], input[type="submit"]').filter({
     hasText: /Check|Kiểm tra/i,
   }).first();
-  await highlight(checkButton, 1000);
+  await highlight(checkButton, 2000);
   await clickAndWait(page, checkButton);
 }
 
@@ -123,7 +123,7 @@ async function openProgrammingQuestion(page, highlight = async () => {}) {
   const question = page.locator('.que').filter({ hasText: /is_prime|prime/i }).first();
   await question.waitFor({ state: 'visible', timeout: 30000 });
   await question.scrollIntoViewIfNeeded();
-  await highlight(question, 1200);
+  await highlight(question, 2000);
   return question;
 }
 
@@ -131,7 +131,7 @@ async function openTestcaseExchangeFromQuestion(page, highlight = async () => {}
   const contributionLink = page.locator('a[href*="/local/testcase_exchange/index.php"][href*="question="]').first();
   await contributionLink.waitFor({ state: 'visible', timeout: 30000 });
   await contributionLink.scrollIntoViewIfNeeded();
-  await highlight(contributionLink, 1400);
+  await highlight(contributionLink, 2000);
   await clickAndWait(page, contributionLink);
 }
 
@@ -139,7 +139,7 @@ async function openTeacherHubFromQuiz(page, highlight = async () => {}) {
   const hubLink = page.locator('a[href*="/local/testcase_exchange/index.php"]').first();
   await hubLink.waitFor({ state: 'visible', timeout: 30000 });
   await hubLink.scrollIntoViewIfNeeded();
-  await highlight(hubLink, 1400);
+  await highlight(hubLink, 2000);
   await clickAndWait(page, hubLink);
 }
 
