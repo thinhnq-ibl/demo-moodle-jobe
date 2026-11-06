@@ -156,10 +156,7 @@
     <!-- TAB 2: REVIEW & CONTRIBUTIONS (CLEAN COMPACT TABLE + MODAL DIALOGS) -->
     <div class="tab-pane {{#tab_review_active}}active{{/tab_review_active}}" id="tab_review">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-            <div>
-                <h5 class="font-weight-bold text-dark mb-0">{{#str}} tab_review, local_testcase_exchange {{/str}}</h5>
-                <small class="text-muted">Thẩm định tính chính xác, chấm sao và phản hồi sư phạm cho sinh viên</small>
-            </div>
+            <h5 class="font-weight-bold text-dark mb-0">{{#str}} tab_review, local_testcase_exchange {{/str}}</h5>
         </div>
 
         <!-- Filter bar -->
@@ -428,8 +425,7 @@
     <!-- TAB 3: TESTCASE BANK (DISTINGUISHING 3 SOURCES) -->
     <div class="tab-pane {{#tab_bank_active}}active{{/tab_bank_active}}" id="tab_bank">
         <div class="mb-3">
-            <h5 class="font-weight-bold text-dark mb-1">{{#str}} tab_bank, local_testcase_exchange {{/str}}</h5>
-            <small class="text-muted">Phân định rõ 3 nguồn ca kiểm thử độc lập cho câu hỏi hiện tại</small>
+            <h5 class="font-weight-bold text-dark mb-0">{{#str}} tab_bank, local_testcase_exchange {{/str}}</h5>
         </div>
 
         <!-- Section 1: Public Samples -->
@@ -612,10 +608,7 @@
     <!-- TAB 4: STUDENT ACTIVITY -->
     <div class="tab-pane {{#tab_activity_active}}active{{/tab_activity_active}}" id="tab_activity">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-            <div>
-                <h5 class="font-weight-bold text-dark mb-0">{{#str}} tab_activity, local_testcase_exchange {{/str}}</h5>
-                <small class="text-muted">Theo dõi tiến độ chạy thử, số lần sửa code và đóng góp của sinh viên</small>
-            </div>
+            <h5 class="font-weight-bold text-dark mb-0">{{#str}} tab_activity, local_testcase_exchange {{/str}}</h5>
             <div>
                 <a class="btn btn-sm btn-outline-secondary font-weight-bold" href="{{export_activity_csv_url}}">
                     <i class="fa fa-download mr-1"></i>Tải CSV Dòng thời gian
@@ -663,7 +656,6 @@
     <div class="tab-pane {{#tab_policy_active}}active{{/tab_policy_active}}" id="tab_policy">
         <div class="mb-3">
             <h5 class="font-weight-bold text-dark mb-0">{{#str}} tab_policy, local_testcase_exchange {{/str}}</h5>
-            <small class="text-muted">Cấu hình tham số điều khiển cho bài Quiz và từng câu hỏi</small>
         </div>
 
         <form method="post" action="index.php?course={{course_id}}&question={{selected_question_value}}&tab=policy">
@@ -1440,10 +1432,7 @@
     <!-- STUDENT TAB 4: LEADERBOARD -->
     <div class="tab-pane" id="leaderboard">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-            <div>
-                <h5 class="font-weight-bold text-dark mb-0">{{#str}} leaderboard, local_testcase_exchange {{/str}}</h5>
-                <small class="text-muted">Vinh danh các sinh viên đóng góp nhiều testcase chất lượng cho khóa học</small>
-            </div>
+            <h5 class="font-weight-bold text-dark mb-0">{{#str}} leaderboard, local_testcase_exchange {{/str}}</h5>
             <div>
                 <span class="badge badge-light border text-dark p-2">
                     Vị trí của bạn: <strong>#{{my_rank}}</strong> &bull; Tổng sao: <strong>{{my_stars}} ⭐</strong>

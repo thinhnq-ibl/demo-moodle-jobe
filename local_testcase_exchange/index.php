@@ -239,22 +239,55 @@ $studentcode = '';
 $returnurl = '';
 $returnquizname = '';
 
-if ($attemptid > 0 && $selectedquestion) {
-    $attempt = $DB->get_record_select(
-        'quiz_attempts',
-        'id = :id AND quiz = :quiz AND userid = :userid AND state <> :abandoned',
-        [
-            'id' => $attemptid,
-            'quiz' => $selectedquestion->quizid,
-            'userid' => $USER->id,
-            'abandoned' => 'abandoned',
-        ]
-    );
+if ($selectedquestion) {
+    if ($attemptid > 0) {
+        $attempt = $DB->get_record_select(
+            'quiz_attempts',
+            'id = :id AND quiz = :quiz AND userid = :userid AND state <> :abandoned',
+            [
+                'id' => $attemptid,
+                'quiz' => $selectedquestion->quizid,
+                'userid' => $USER->id,
+                'abandoned' => 'abandoned',
+            ]
+        );
+    } else {
+        $attempt = $DB->get_record_sql(
+            "SELECT *
+               FROM {quiz_attempts}
+              WHERE quiz = :quiz
+                    AND userid = :userid
+                    AND state <> :abandoned
+           ORDER BY attempt DESC",
+            [
+                'quiz' => $selectedquestion->quizid,
+                'userid' => $USER->id,
+                'abandoned' => 'abandoned',
+            ],
+            IGNORE_MULTIPLE
+        );
+        if ($attempt) {
+            $attemptid = (int) $attempt->id;
+        }
+    }
     if ($attempt) {
         $studentcode = context_service::get_latest_valid_submission_code(
             (int) $attempt->uniqueid,
             (int) $selectedquestion->questionid
         );
+        if ($studentcode !== '') {
+            context_service::record_code_revision_if_changed(
+                (int) $courseid,
+                (int) $selectedquestion->quizid,
+                (int) $selectedquestion->questionid,
+                (int) $USER->id,
+                $studentcode,
+                (int) $attempt->id,
+                (int) $attempt->uniqueid,
+                0,
+                'check'
+            );
+        }
         $cm = get_coursemodule_from_instance('quiz', $attempt->quiz, $courseid, false, IGNORE_MISSING);
         if ($cm) {
             $returnquizname = $selectedquestion->quizname ?? '';

@@ -204,10 +204,10 @@ function local_testcase_exchange_before_footer(): string {
     if (!$cm || $cm->modname !== 'quiz') {
         return '';
     }
+    // Quiz view page (mod-quiz-view) already displays the access rule banner for testcase exchange.
     if (!in_array($PAGE->pagetype, [
         'mod-quiz-attempt',
         'mod-quiz-summary',
-        'mod-quiz-view',
         'mod-quiz-review',
     ], true)) {
         return '';
