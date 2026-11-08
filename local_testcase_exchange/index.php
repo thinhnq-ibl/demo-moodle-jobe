@@ -239,22 +239,55 @@ $studentcode = '';
 $returnurl = '';
 $returnquizname = '';
 
-if ($attemptid > 0 && $selectedquestion) {
-    $attempt = $DB->get_record_select(
-        'quiz_attempts',
-        'id = :id AND quiz = :quiz AND userid = :userid AND state <> :abandoned',
-        [
-            'id' => $attemptid,
-            'quiz' => $selectedquestion->quizid,
-            'userid' => $USER->id,
-            'abandoned' => 'abandoned',
-        ]
-    );
+if ($selectedquestion) {
+    if ($attemptid > 0) {
+        $attempt = $DB->get_record_select(
+            'quiz_attempts',
+            'id = :id AND quiz = :quiz AND userid = :userid AND state <> :abandoned',
+            [
+                'id' => $attemptid,
+                'quiz' => $selectedquestion->quizid,
+                'userid' => $USER->id,
+                'abandoned' => 'abandoned',
+            ]
+        );
+    } else {
+        $attempt = $DB->get_record_sql(
+            "SELECT *
+               FROM {quiz_attempts}
+              WHERE quiz = :quiz
+                    AND userid = :userid
+                    AND state <> :abandoned
+           ORDER BY attempt DESC",
+            [
+                'quiz' => $selectedquestion->quizid,
+                'userid' => $USER->id,
+                'abandoned' => 'abandoned',
+            ],
+            IGNORE_MULTIPLE
+        );
+        if ($attempt) {
+            $attemptid = (int) $attempt->id;
+        }
+    }
     if ($attempt) {
         $studentcode = context_service::get_latest_valid_submission_code(
             (int) $attempt->uniqueid,
             (int) $selectedquestion->questionid
         );
+        if ($studentcode !== '') {
+            context_service::record_code_revision_if_changed(
+                (int) $courseid,
+                (int) $selectedquestion->quizid,
+                (int) $selectedquestion->questionid,
+                (int) $USER->id,
+                $studentcode,
+                (int) $attempt->id,
+                (int) $attempt->uniqueid,
+                0,
+                'check'
+            );
+        }
         $cm = get_coursemodule_from_instance('quiz', $attempt->quiz, $courseid, false, IGNORE_MISSING);
         if ($cm) {
             $returnquizname = $selectedquestion->quizname ?? '';
@@ -521,24 +554,6 @@ if ($databaseerror) {
     exit;
 }
 
-// Available courses switcher.
-$rawcourses = context_service::courses_with_coderunner();
-$availablecourselist = [];
-foreach ($rawcourses as $rc) {
-    $cid = (int) $rc->courseid;
-    if (!$issiteadmin && !has_capability('local/testcase_exchange:view', context_course::instance($cid))) {
-        continue;
-    }
-    $dispname = ($rc->shortname !== $rc->fullname) ? ($rc->shortname . ' — ' . $rc->fullname) : $rc->fullname;
-    $availablecourselist[] = [
-        'courseid' => $cid,
-        'fullname' => $rc->fullname,
-        'shortname' => $rc->shortname,
-        'display_name' => $dispname,
-        'switch_url' => (new moodle_url('/local/testcase_exchange/index.php', ['course' => $cid]))->out(false),
-        'is_current' => ($cid === $courseid),
-    ];
-}
 
 // Form options for question selection preserving state across tabs.
 $viewquestions = [];
@@ -589,8 +604,7 @@ $templatedata = [
     'selected_question_value' => $requestedselection,
     'current_course_name' => $course->fullname,
     'current_course_shortname' => $course->shortname,
-    'available_courses' => $availablecourselist,
-    'show_course_switcher' => (count($availablecourselist) > 1 || $issiteadmin),
+    'show_course_switcher' => false,
     'course_hub_url' => (new moodle_url('/local/testcase_exchange/index.php'))->out(false),
     'return_url' => $returnurl,
     'has_return_url' => ($returnurl !== ''),

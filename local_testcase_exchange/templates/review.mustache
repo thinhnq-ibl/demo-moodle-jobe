@@ -1,23 +1,5 @@
 <div class="local-testcase-exchange-root">
 {{! Contribution review table and filters for teacher. }}
-{{#show_course_switcher}}
-<div class="tce-context-bar d-flex flex-wrap justify-content-between align-items-center mb-3">
-    <div>
-        <span class="text-muted mr-1"><i class="fa fa-graduation-cap text-primary mr-1"></i>{{#str}} course {{/str}}:</span>
-        <strong class="text-dark">{{current_course_name}}</strong>
-        <a href="{{course_hub_url}}" class="badge badge-light border ml-2">&larr; {{#str}} allcourses, local_testcase_exchange {{/str}}</a>
-    </div>
-    <div class="d-flex align-items-center mt-1 mt-md-0">
-        <label for="switchReviewCourseSelect" class="small text-muted mb-0 mr-2 text-nowrap">{{#str}} switchcourse, local_testcase_exchange {{/str}}:</label>
-        <select id="switchReviewCourseSelect" class="custom-select custom-select-sm" onchange="if (this.value) window.location.href=this.value;">
-            {{#available_courses}}
-            <option value="{{switch_url}}" {{#is_current}}selected{{/is_current}}>{{shortname}} - {{fullname}}</option>
-            {{/available_courses}}
-        </select>
-    </div>
-</div>
-{{/show_course_switcher}}
-
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
     <div>
         <h3 class="font-weight-bold text-dark mb-1">

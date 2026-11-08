@@ -16,17 +16,6 @@
         </div>
     </div>
     <div class="mt-2 mt-md-0 d-flex align-items-center flex-wrap" style="gap: 8px;">
-        {{#show_course_switcher}}
-        <div class="d-inline-flex align-items-center mr-2">
-            <label for="switchCourseSelect" class="small text-muted mb-0 mr-1 text-nowrap">{{#str}} switchcourse, local_testcase_exchange {{/str}}:</label>
-            <select id="switchCourseSelect" class="custom-select custom-select-sm tce-course-switcher-select" onchange="if (this.value) window.location.href=this.value;">
-                {{#available_courses}}
-                <option value="{{switch_url}}" {{#is_current}}selected{{/is_current}} title="{{shortname}} — {{fullname}}">{{#display_name}}{{display_name}}{{/display_name}}{{^display_name}}{{shortname}} - {{fullname}}{{/display_name}}</option>
-                {{/available_courses}}
-            </select>
-        </div>
-        {{/show_course_switcher}}
-
         {{#has_return_url}}
         <a class="btn btn-outline-secondary btn-sm" href="{{return_url}}">
             Quay lại bài quiz
@@ -49,7 +38,7 @@
             <label for="teacherQuestionSelect" class="font-weight-bold text-dark mb-1 mb-sm-0 mr-2 text-nowrap">
                 {{#str}} question, local_testcase_exchange {{/str}}:
             </label>
-            <select class="custom-select custom-select-sm font-weight-bold flex-grow-1" style="min-width: 0; width: 100%; max-width: 100%;" id="teacherQuestionSelect" name="question" onchange="this.form.submit()">
+            <select class="custom-select custom-select-sm form-select form-select-sm font-weight-bold flex-grow-1" style="min-width: 0; width: 100%; max-width: 100%;" id="teacherQuestionSelect" name="question" onchange="this.form.submit()">
                 {{#questions}}
                 <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
                 {{/questions}}
@@ -167,10 +156,7 @@
     <!-- TAB 2: REVIEW & CONTRIBUTIONS (CLEAN COMPACT TABLE + MODAL DIALOGS) -->
     <div class="tab-pane {{#tab_review_active}}active{{/tab_review_active}}" id="tab_review">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-            <div>
-                <h5 class="font-weight-bold text-dark mb-0">{{#str}} tab_review, local_testcase_exchange {{/str}}</h5>
-                <small class="text-muted">Thẩm định tính chính xác, chấm sao và phản hồi sư phạm cho sinh viên</small>
-            </div>
+            <h5 class="font-weight-bold text-dark mb-0">{{#str}} tab_review, local_testcase_exchange {{/str}}</h5>
         </div>
 
         <!-- Filter bar -->
@@ -181,7 +167,7 @@
                 <input type="hidden" name="tab" value="review">
 
                 <label class="mr-2 small font-weight-bold">{{#str}} filter_by_status, local_testcase_exchange {{/str}}:</label>
-                <select class="custom-select custom-select-sm mr-3 mb-1" name="review_status" onchange="this.form.submit()">
+                <select class="custom-select custom-select-sm form-select form-select-sm tce-inline-filter-select mr-3 mb-1" name="review_status" onchange="this.form.submit()">
                     <option value="all" {{#review_status_all}}selected{{/review_status_all}}>Tất cả trạng thái</option>
                     <option value="pending" {{#review_status_pending}}selected{{/review_status_pending}}>Chờ duyệt / Cần giải trình</option>
                     <option value="submitted" {{#review_status_submitted}}selected{{/review_status_submitted}}>Mới nộp (submitted)</option>
@@ -191,7 +177,7 @@
                 </select>
 
                 <label class="mr-2 small font-weight-bold">{{#str}} filter_by_student, local_testcase_exchange {{/str}}:</label>
-                <select class="custom-select custom-select-sm mr-3 mb-1" name="review_student" onchange="this.form.submit()">
+                <select class="custom-select custom-select-sm form-select form-select-sm tce-inline-filter-select mr-3 mb-1" name="review_student" onchange="this.form.submit()">
                     <option value="0">{{#str}} all_students, local_testcase_exchange {{/str}}</option>
                     {{#review_filter_students}}
                     <option value="{{user_id}}" {{#selected}}selected{{/selected}}>{{name}}</option>
@@ -439,8 +425,7 @@
     <!-- TAB 3: TESTCASE BANK (DISTINGUISHING 3 SOURCES) -->
     <div class="tab-pane {{#tab_bank_active}}active{{/tab_bank_active}}" id="tab_bank">
         <div class="mb-3">
-            <h5 class="font-weight-bold text-dark mb-1">{{#str}} tab_bank, local_testcase_exchange {{/str}}</h5>
-            <small class="text-muted">Phân định rõ 3 nguồn ca kiểm thử độc lập cho câu hỏi hiện tại</small>
+            <h5 class="font-weight-bold text-dark mb-0">{{#str}} tab_bank, local_testcase_exchange {{/str}}</h5>
         </div>
 
         <!-- Section 1: Public Samples -->
@@ -623,10 +608,7 @@
     <!-- TAB 4: STUDENT ACTIVITY -->
     <div class="tab-pane {{#tab_activity_active}}active{{/tab_activity_active}}" id="tab_activity">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-            <div>
-                <h5 class="font-weight-bold text-dark mb-0">{{#str}} tab_activity, local_testcase_exchange {{/str}}</h5>
-                <small class="text-muted">Theo dõi tiến độ chạy thử, số lần sửa code và đóng góp của sinh viên</small>
-            </div>
+            <h5 class="font-weight-bold text-dark mb-0">{{#str}} tab_activity, local_testcase_exchange {{/str}}</h5>
             <div>
                 <a class="btn btn-sm btn-outline-secondary font-weight-bold" href="{{export_activity_csv_url}}">
                     <i class="fa fa-download mr-1"></i>Tải CSV Dòng thời gian
@@ -674,7 +656,6 @@
     <div class="tab-pane {{#tab_policy_active}}active{{/tab_policy_active}}" id="tab_policy">
         <div class="mb-3">
             <h5 class="font-weight-bold text-dark mb-0">{{#str}} tab_policy, local_testcase_exchange {{/str}}</h5>
-            <small class="text-muted">Cấu hình tham số điều khiển cho bài Quiz và từng câu hỏi</small>
         </div>
 
         <form method="post" action="index.php?course={{course_id}}&question={{selected_question_value}}&tab=policy">
@@ -695,17 +676,17 @@
                         </label>
                     </div>
 
-                    <div class="form-row">
-                        <div class="col-md-6 form-group">
+                    <div class="row form-row">
+                        <div class="col-md-6 form-group mb-3">
                             <label class="small font-weight-bold">Chế độ duyệt đóng góp:</label>
-                            <select class="custom-select custom-select-sm" name="review_mode">
+                            <select class="custom-select custom-select-sm form-select form-select-sm " name="review_mode">
                                 <option value="teacher" {{#policy.review_teacher}}selected{{/policy.review_teacher}}>Thủ công (Giảng viên duyệt trước khi cấp thưởng)</option>
                                 <option value="auto" {{#policy.review_auto}}selected{{/policy.review_auto}}>Tự động (Duyệt ngay nếu testcase hợp lệ)</option>
                             </select>
                         </div>
-                        <div class="col-md-6 form-group">
+                        <div class="col-md-6 form-group mb-3">
                             <label class="small font-weight-bold">Chính sách cấp phần thưởng:</label>
-                            <select class="custom-select custom-select-sm" name="reward_policy">
+                            <select class="custom-select custom-select-sm form-select form-select-sm " name="reward_policy">
                                 <option value="one_for_one" {{#policy.reward_one_for_one}}selected{{/policy.reward_one_for_one}}>1 đổi 1 (Mỗi đóng góp được duyệt mở khóa 1 testcase)</option>
                                 <option value="none" {{#policy.reward_none}}selected{{/policy.reward_none}}>Không cấp phần thưởng</option>
                             </select>
@@ -732,7 +713,7 @@
                     <div class="form-row">
                         <div class="col-md-4 form-group">
                             <label class="small font-weight-bold">Chuẩn hóa dữ liệu đầu vào (Input):</label>
-                            <select class="custom-select custom-select-sm" name="normalization_mode">
+                            <select class="custom-select custom-select-sm form-select form-select-sm " name="normalization_mode">
                                 <option value="trim" {{#policy.norm_trim}}selected{{/policy.norm_trim}}>Cắt khoảng trắng thừa (Trim)</option>
                                 <option value="raw" {{#policy.norm_raw}}selected{{/policy.norm_raw}}>Giữ nguyên dữ liệu thô (Raw)</option>
                             </select>
@@ -785,17 +766,6 @@
         </div>
     </div>
     <div class="tce-header-actions mt-2 mt-sm-0 d-flex align-items-center" style="gap: 6px;">
-        {{#show_course_switcher}}
-        <div class="d-none d-md-inline-flex align-items-center mr-1">
-            <label for="switchCourseSelect" class="small text-muted mb-0 mr-1 text-nowrap">{{#str}} switchcourse, local_testcase_exchange {{/str}}:</label>
-            <select id="switchCourseSelect" class="custom-select custom-select-sm tce-course-switcher-select" onchange="if (this.value) window.location.href=this.value;">
-                {{#available_courses}}
-                <option value="{{switch_url}}" {{#is_current}}selected{{/is_current}} title="{{shortname}} — {{fullname}}">{{#display_name}}{{display_name}}{{/display_name}}{{^display_name}}{{shortname}} - {{fullname}}{{/display_name}}</option>
-                {{/available_courses}}
-            </select>
-        </div>
-        {{/show_course_switcher}}
-
         {{#has_return_url}}
         <a class="btn btn-outline-secondary btn-sm font-weight-bold text-nowrap py-1 px-2" href="{{return_url}}">
             {{#str}} backtocurrentquiz, local_testcase_exchange {{/str}}
@@ -863,7 +833,7 @@
                 <label for="question" class="font-weight-bold text-dark mb-1 mb-sm-0 mr-2 text-nowrap">
                     {{#str}} question, local_testcase_exchange {{/str}}:
                 </label>
-                <select class="custom-select custom-select-sm font-weight-bold flex-grow-1" style="min-width: 0; width: 100%; max-width: 100%;" id="question" name="question">
+                <select class="custom-select custom-select-sm form-select form-select-sm font-weight-bold flex-grow-1" style="min-width: 0; width: 100%; max-width: 100%;" id="question" name="question">
                     {{#questions}}
                     <option value="{{value}}" {{#disabled}}disabled{{/disabled}} {{#selected}}selected{{/selected}}>{{label}}</option>
                     {{/questions}}
@@ -904,90 +874,81 @@
             <input type="hidden" name="question" value="{{selected_question_value}}">
 
             <div class="tce-workspace-grid">
-                <!-- Cột Trái (54%): Mã nguồn của bạn -->
-                <div class="tce-code-column">
-                    <div class="card h-100 mb-0">
-                        <div class="card-header d-flex justify-content-between align-items-center py-2">
-                            <span class="font-weight-bold text-dark">
-                                <i class="fa fa-code text-primary mr-1"></i>{{#str}} studentsource, local_testcase_exchange {{/str}}
-                            </span>
-                            <span id="storageStatusBadge" class="small text-muted font-italic"></span>
-                        </div>
-                        <div class="card-body p-3 d-flex flex-column">
-                            <!-- Ace Code Editor Component -->
-                            <div class="tce-editor-wrapper" id="tceEditorWrapper">
-                                <div class="tce-editor-header d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center" style="gap: 8px;">
-                                        <span class="small font-weight-bold text-dark">
-                                            <i class="fa fa-terminal text-primary mr-1"></i>{{#str}} code_editor_title, local_testcase_exchange {{/str}}
-                                        </span>
-                                        <span class="badge badge-primary font-weight-normal px-2 py-1" id="tceEditorLangBadge">
-                                            {{coderunnertype_display}}
-                                        </span>
-                                        <span class="badge badge-warning text-dark font-weight-bold px-2 py-1 d-none" id="tceEditorReadonlyBadge">
-                                            {{#str}} editor_readonly_badge, local_testcase_exchange {{/str}}
-                                        </span>
-                                    </div>
-                                    <div class="d-flex align-items-center" style="gap: 6px;">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" id="tceToggleThemeBtn" title="{{#str}} theme_dark, local_testcase_exchange {{/str}}">
-                                            <i class="fa fa-moon-o mr-1" id="tceThemeIcon"></i><span id="tceThemeText">{{#str}} theme_dark, local_testcase_exchange {{/str}}</span>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" id="tceToggleFullscreenBtn" title="{{#str}} fullscreen_enter, local_testcase_exchange {{/str}}">
-                                            <i class="fa fa-arrows-alt mr-1" id="tceFullscreenIcon"></i><span id="tceFullscreenText">{{#str}} fullscreen_enter, local_testcase_exchange {{/str}}</span>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div id="student_code_ace" class="tce-ace-editor" style="display: none;"></div>
-
-                                <!-- Textarea gốc: Đảm bảo tương thích hoàn toàn cho submit form, khôi phục bài và fallback -->
-                                <textarea class="form-control font-monospace flex-grow-1 mb-2" id="student_code" name="student_code" rows="12" required placeholder="// Dán hoặc chỉnh sửa mã nguồn chương trình của bạn tại đây...">{{student_code}}</textarea>
-
-                                <div class="tce-editor-statusbar d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <span id="tceEditorCursorPos">{{#str}} cursor_pos_default, local_testcase_exchange {{/str}}</span>
-                                        <span class="mx-2 text-muted">|</span>
-                                        <span id="tceEditorIndentInfo">Spaces: 4</span>
-                                    </div>
-                                    <div>
-                                        <span id="tceEditorLangInfo">{{coderunnertype_display}}</span>
-                                    </div>
-                                </div>
+                <!-- Cột Trái (58%): Trình soạn thảo mã nguồn -->
+                <div class="tce-code-column d-flex flex-column">
+                    <!-- Ace Code Editor Component trực tiếp làm khung chính -->
+                    <div class="tce-editor-wrapper shadow-sm flex-grow-1" id="tceEditorWrapper">
+                        <div class="tce-editor-header d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                                <span class="font-weight-bold text-dark">
+                                    <i class="fa fa-code text-primary mr-1"></i>{{#str}} studentsource, local_testcase_exchange {{/str}}
+                                </span>
+                                <span class="badge badge-primary font-weight-normal px-2 py-1" id="tceEditorLangBadge">
+                                    {{coderunnertype_display}}
+                                </span>
+                                <span class="badge badge-warning text-dark font-weight-bold px-2 py-1 d-none" id="tceEditorReadonlyBadge">
+                                    {{#str}} editor_readonly_badge, local_testcase_exchange {{/str}}
+                                </span>
+                                <span id="storageStatusBadge" class="small text-muted font-italic ml-2"></span>
                             </div>
+                            <div class="d-flex align-items-center" style="gap: 6px;">
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" id="tceToggleThemeBtn" title="{{#str}} theme_dark, local_testcase_exchange {{/str}}">
+                                    <i class="fa fa-moon-o mr-1" id="tceThemeIcon"></i><span id="tceThemeText">{{#str}} theme_dark, local_testcase_exchange {{/str}}</span>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" id="tceToggleFullscreenBtn" title="{{#str}} fullscreen_enter, local_testcase_exchange {{/str}}">
+                                    <i class="fa fa-arrows-alt mr-1" id="tceFullscreenIcon"></i><span id="tceFullscreenText">{{#str}} fullscreen_enter, local_testcase_exchange {{/str}}</span>
+                                </button>
+                            </div>
+                        </div>
 
-                            <!-- Lịch sử phiên bản mã nguồn (Default Collapsed để tiết kiệm chiều dọc) -->
-                            {{#has_code_revisions}}
-                            <details class="border rounded bg-light p-2 mt-auto">
-                                <summary class="small font-weight-bold text-dark cursor-pointer d-flex justify-content-between align-items-center">
-                                    <span>
-                                        <i class="fa fa-history text-muted mr-1"></i>{{#str}} code_revisions_title, local_testcase_exchange {{/str}} ({{code_revisions_count}} phiên bản gần nhất)
-                                    </span>
-                                    <div>
-                                        <a href="{{export_timeline_csv_url}}" class="badge badge-light border text-primary" title="Xuất CSV">CSV</a>
-                                        <a href="{{export_timeline_json_url}}" class="badge badge-light border text-secondary" title="Xuất JSON">JSON</a>
-                                    </div>
-                                </summary>
-                                <div class="list-group list-group-flush mt-2">
-                                    {{#code_revisions}}
-                                    <div class="list-group-item bg-white p-2 d-flex justify-content-between align-items-center border rounded mb-1">
-                                        <div>
-                                            <span class="badge badge-light border font-weight-bold">v{{step_number}}</span>
-                                            <span class="small text-muted ml-1">{{created_at_formatted}}</span>
-                                            {{#is_latest}}<span class="badge badge-success ml-1">{{#str}} latest_badge, local_testcase_exchange {{/str}}</span>{{/is_latest}}
-                                        </div>
-                                        <div>
-                                            <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 btn-apply-revision" title="Nạp phiên bản này vào khung soạn thảo">
-                                                Nạp v{{step_number}}
-                                            </button>
-                                            <textarea class="d-none revision-full-code">{{code_content}}</textarea>
-                                        </div>
-                                    </div>
-                                    {{/code_revisions}}
-                                </div>
-                            </details>
-                            {{/has_code_revisions}}
+                        <div id="student_code_ace" class="tce-ace-editor" style="display: none;"></div>
+
+                        <!-- Textarea gốc: Đảm bảo tương thích hoàn toàn cho submit form, khôi phục bài và fallback -->
+                        <textarea class="form-control font-monospace flex-grow-1 mb-0" id="student_code" name="student_code" rows="18" required placeholder="// Dán hoặc chỉnh sửa mã nguồn chương trình của bạn tại đây...">{{student_code}}</textarea>
+
+                        <div class="tce-editor-statusbar d-flex justify-content-between align-items-center">
+                            <div>
+                                <span id="tceEditorCursorPos">{{#str}} cursor_pos_default, local_testcase_exchange {{/str}}</span>
+                                <span class="mx-2 text-muted">|</span>
+                                <span id="tceEditorIndentInfo">Spaces: 4</span>
+                            </div>
+                            <div>
+                                <span id="tceEditorLangInfo">{{coderunnertype_display}}</span>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Lịch sử phiên bản mã nguồn (Default Collapsed để tiết kiệm chiều dọc) -->
+                    {{#has_code_revisions}}
+                    <details class="border rounded bg-light p-2 mt-2">
+                        <summary class="small font-weight-bold text-dark cursor-pointer d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fa fa-history text-muted mr-1"></i>{{#str}} code_revisions_title, local_testcase_exchange {{/str}} ({{code_revisions_count}} phiên bản gần nhất)
+                            </span>
+                            <div>
+                                <a href="{{export_timeline_csv_url}}" class="badge badge-light border text-primary" title="Xuất CSV">CSV</a>
+                                <a href="{{export_timeline_json_url}}" class="badge badge-light border text-secondary" title="Xuất JSON">JSON</a>
+                            </div>
+                        </summary>
+                        <div class="list-group list-group-flush mt-2">
+                            {{#code_revisions}}
+                            <div class="list-group-item bg-white p-2 d-flex justify-content-between align-items-center border rounded mb-1">
+                                <div>
+                                    <span class="badge badge-light border font-weight-bold">v{{step_number}}</span>
+                                    <span class="small text-muted ml-1">{{created_at_formatted}}</span>
+                                    {{#is_latest}}<span class="badge badge-success ml-1">{{#str}} latest_badge, local_testcase_exchange {{/str}}</span>{{/is_latest}}
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 btn-apply-revision" title="Nạp phiên bản này vào khung soạn thảo">
+                                        Nạp v{{step_number}}
+                                    </button>
+                                    <textarea class="d-none revision-full-code">{{code_content}}</textarea>
+                                </div>
+                            </div>
+                            {{/code_revisions}}
+                        </div>
+                    </details>
+                    {{/has_code_revisions}}
                 </div>
 
                 <!-- Cột Phải (46%): Testcase của bạn -->
@@ -1027,7 +988,7 @@
                                 <label for="category" class="small font-weight-bold text-dark mb-1">
                                     {{#str}} category, local_testcase_exchange {{/str}}:
                                 </label>
-                                <select class="custom-select custom-select-sm" id="category" name="category">
+                                <select class="custom-select custom-select-sm form-select form-select-sm " id="category" name="category">
                                     {{#categories}}
                                     <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
                                     {{/categories}}
@@ -1054,7 +1015,7 @@
         <div id="tceFormDirtyWarning" class="alert alert-warning py-2 px-3 mb-3 d-none border-warning shadow-sm" style="background-color: #fffbeb; color: #92400e;">
             <i class="fa fa-exclamation-triangle mr-1 text-warning"></i><strong>{{#str}} form_dirty_warning, local_testcase_exchange {{/str}}</strong> Hãy bấm "Chạy thử" để nhận kết quả mới nhất.
         </div>
-        <div class="tce-latest-result-card card p-3 shadow-sm mb-4" id="tceLatestResultCard">
+        <div class="tce-latest-result-card card p-3 shadow-sm mb-4" id="tceLatestResultCard" tabindex="-1" aria-live="polite">
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
                 <div class="d-flex align-items-center">
                     <h5 class="font-weight-bold text-dark mb-0">
@@ -1471,10 +1432,7 @@
     <!-- STUDENT TAB 4: LEADERBOARD -->
     <div class="tab-pane" id="leaderboard">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-            <div>
-                <h5 class="font-weight-bold text-dark mb-0">{{#str}} leaderboard, local_testcase_exchange {{/str}}</h5>
-                <small class="text-muted">Vinh danh các sinh viên đóng góp nhiều testcase chất lượng cho khóa học</small>
-            </div>
+            <h5 class="font-weight-bold text-dark mb-0">{{#str}} leaderboard, local_testcase_exchange {{/str}}</h5>
             <div>
                 <span class="badge badge-light border text-dark p-2">
                     Vị trí của bạn: <strong>#{{my_rank}}</strong> &bull; Tổng sao: <strong>{{my_stars}} ⭐</strong>
@@ -1695,6 +1653,10 @@
             syncAceToCodeEl();
             saveDraft();
             sessionStorage.setItem('tce_just_ran', '1');
+            // Keep a fragment across the POST/redirect cycle as a layout fallback.
+            var actionUrl = new URL(runForm.getAttribute('action') || window.location.href, window.location.href);
+            actionUrl.hash = 'tceLatestResultCard';
+            runForm.setAttribute('action', actionUrl.toString());
             if (btnSubmitRun) {
                 btnSubmitRun.disabled = true;
                 btnSubmitRun.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> ' + getStr('running', 'Đang chạy...');
@@ -1893,11 +1855,32 @@
         });
     }
 
-    // Smooth scroll to latest result card if user just ran a test
+    // Reveal the newest result only after Moodle and the editor finish their first layout.
     var latestResult = document.getElementById('tceLatestResultCard');
-    if (latestResult && sessionStorage.getItem('tce_just_ran') === '1') {
+    var shouldRevealLatest = sessionStorage.getItem('tce_just_ran') === '1' ||
+        window.location.hash === '#tceLatestResultCard';
+    if (latestResult && shouldRevealLatest) {
         sessionStorage.removeItem('tce_just_ran');
-        latestResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        window.requestAnimationFrame(function() {
+            window.setTimeout(function() {
+                latestResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                latestResult.focus({ preventScroll: true });
+                latestResult.classList.add('tce-result-reveal');
+
+                var latestRunId = '{{latest_run.id}}';
+                var latestHistoryRow = latestRunId ? document.getElementById('run-' + latestRunId) : null;
+                if (latestHistoryRow) {
+                    latestHistoryRow.classList.add('tce-result-reveal-row');
+                }
+
+                window.setTimeout(function() {
+                    latestResult.classList.remove('tce-result-reveal');
+                    if (latestHistoryRow) {
+                        latestHistoryRow.classList.remove('tce-result-reveal-row');
+                    }
+                }, 2200);
+            }, 180);
+        });
     }
 
     restoreDraft();

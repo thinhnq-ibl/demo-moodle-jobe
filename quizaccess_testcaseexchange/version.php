@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'quizaccess_testcaseexchange';
-$plugin->version   = 2026110201;
+$plugin->version   = 2026110601;
 $plugin->requires  = 2023100900; // Moodle 4.3+.
 $plugin->maturity  = MATURITY_BETA;
 $plugin->release   = '2.3.1-beta';
 $plugin->dependencies = [
-    'local_testcase_exchange' => 2026110201,
+    'local_testcase_exchange' => 2026110601,
 ];
