@@ -157,6 +157,14 @@ async function prepareAuthSessions(browser) {
   await loginAndSave(browser, 'student3', 'StudentPassword123!', 'auth_studentC.json');
 }
 
+async function switchToSavedSession(page, filename) {
+  const savedState = JSON.parse(fs.readFileSync(path.resolve(__dirname, filename), 'utf8'));
+  await page.context().clearCookies();
+  await page.context().addCookies(savedState.cookies || []);
+  await page.goto('/my/');
+  await waitForPage(page);
+}
+
 async function recordScene(browser, number, name, authFile, task) {
   const started = Date.now();
   const sceneDir = path.join(RECORDINGS_DIR, `scene_${String(number).padStart(2, '0')}`);
@@ -615,15 +623,8 @@ function postProcessVideo() {
         await page.waitForTimeout(2500);
       }
 
-      // SV1 đăng nhập để nhận thưởng mở khóa testcase 1-đổi-1
-      await page.context().clearCookies();
-      await page.goto('/login/index.php');
-      await page.fill('#username', 'student1');
-      await page.fill('#password', 'StudentPassword123!');
-      await Promise.all([
-        page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
-        page.locator('form#login').evaluate((form) => form.submit()),
-      ]);
+      // Chuyển sang sinh viên 1 để nhận phần thưởng đã mở khóa.
+      await switchToSavedSession(page, 'auth_studentA.json');
       await openCourseFromDashboard(page, highlight);
       await openQuizFromCourse(page, highlight);
       await startOrContinueAttempt(page, highlight);
@@ -684,20 +685,11 @@ function postProcessVideo() {
         await page.waitForTimeout(3000);
       }
 
-      // Đăng nhập student1 để mở Tab Leaderboard hiển thị sao và xếp hạng
-      await page.context().clearCookies();
-      await page.goto('/login/index.php');
-      await page.fill('#username', 'student1');
-      await page.fill('#password', 'StudentPassword123!');
-      await Promise.all([
-        page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
-        page.locator('form#login').evaluate((form) => form.submit()),
-      ]);
-      await openCourseFromDashboard(page, highlight);
-      await openQuizFromCourse(page, highlight);
-      await startOrContinueAttempt(page, highlight);
-      await openProgrammingQuestion(page, highlight);
-      await openTestcaseExchangeFromQuestion(page, highlight);
+      // Chuyển sang góc nhìn sinh viên để kết thúc bằng bảng xếp hạng của lớp.
+      const previewLink = page.locator('a[href*="preview=1"]').first();
+      await previewLink.waitFor({ state: 'visible', timeout: 30000 });
+      await highlight(previewLink, 2000);
+      await clickAndWait(page, previewLink);
       await injectVideoStyles(page);
 
       const leaderboardTab = page.locator('a[href="#seed_search"]').first();
@@ -705,7 +697,7 @@ function postProcessVideo() {
         await highlight(leaderboardTab, 2000);
         await leaderboardTab.click();
         await page.locator('#leaderboard').scrollIntoViewIfNeeded();
-        await showCaption(page, 'HOÀN TẤT DEMO', 'Bảng xếp hạng lớp học cập nhật đầy đủ', 'Điểm sao ⭐ và số lượng đóng góp của cả 3 sinh viên được ghi nhận công bằng.');
+        await showCaption(page, 'HOÀN TẤT DEMO', 'Bảng xếp hạng lớp học cập nhật đầy đủ', 'Góc nhìn sinh viên cho thấy điểm sao và số lượng đóng góp được ghi nhận công bằng.');
         await page.waitForTimeout(3500);
       }
     });
