@@ -152,10 +152,11 @@ test.describe('Nghiệp vụ Local Plugin Testcase Exchange', () => {
     await page.goto('/local/testcase_exchange/index.php?course=5&question=7:131');
     await page.waitForLoadState('networkidle');
 
-    // 3. Mở tab Phần thưởng (Rewards)
-    const rewardsTab = page.locator('a[href="#rewards"]').first();
-    if (await rewardsTab.isVisible()) {
-      await rewardsTab.click();
+    // 3. Phần thưởng nằm cùng luồng với đóng góp để sinh viên không phải đổi ngữ cảnh.
+    const contributionsTab = page.locator('a[href="#contributions"]').first();
+    if (await contributionsTab.isVisible()) {
+      await contributionsTab.click();
+      await page.locator('#rewards').scrollIntoViewIfNeeded();
       await page.waitForTimeout(1000);
 
       // Nếu có nút nhận thưởng chưa mở khóa thì click nhận
@@ -166,9 +167,10 @@ test.describe('Nghiệp vụ Local Plugin Testcase Exchange', () => {
       }
     }
 
-    // 4. Mở tab Bảng xếp hạng (Leaderboard)
-    const leaderboardTab = page.locator('a[href="#leaderboard"]').first();
-    await leaderboardTab.click();
+    // 4. Bảng xếp hạng là phần cuối của khu khám phá testcase.
+    const discoveryTab = page.locator('a[href="#seed_search"]').first();
+    await discoveryTab.click();
+    await page.locator('#leaderboard').scrollIntoViewIfNeeded();
     await page.waitForTimeout(1000);
 
     // Kiểm tra tên sinh viên trên Leaderboard

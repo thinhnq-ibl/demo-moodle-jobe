@@ -210,9 +210,10 @@ test.describe('Kịch bản Hướng dẫn Sử dụng Hệ thống Testcase Exc
 
     // Mở tab Phần thưởng (Rewards)
     console.log('[Bước 17] Sinh viên mở Tab Phần thưởng (Rewards)...');
-    const rewardsTab = page.locator('a[href="#rewards"]').first();
+    const rewardsTab = page.locator('a[href="#contributions"]').first();
     if (await rewardsTab.isVisible()) {
       await rewardsTab.click();
+      await page.locator('#rewards').scrollIntoViewIfNeeded();
       await page.waitForTimeout(3000);
 
       // Tìm nút nhận thưởng (Claim Reward)
@@ -227,8 +228,9 @@ test.describe('Kịch bản Hướng dẫn Sử dụng Hệ thống Testcase Exc
 
     // Mở tab Bảng xếp hạng (Leaderboard)
     console.log('[Bước 19] Mở Tab Bảng Xếp Hạng vinh danh (Leaderboard)...');
-    const leaderboardTab = page.locator('a[href="#leaderboard"]').first();
+    const leaderboardTab = page.locator('a[href="#seed_search"]').first();
     await leaderboardTab.click();
+    await page.locator('#leaderboard').scrollIntoViewIfNeeded();
     await page.waitForTimeout(3000);
 
     // Cuộn nhẹ xem vị trí Top 1 của mình

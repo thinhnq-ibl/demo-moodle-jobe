@@ -607,7 +607,7 @@ function postProcessVideo() {
         await highlight(explainInput, 2000);
         await explainInput.fill('1009 là số nguyên tố ngay sau 1000, kiểm tra tính đúng đắn ở ngưỡng chuyển bậc phân tích.');
         await page.waitForTimeout(2000);
-        const submitExplain = page.locator('#contributions button[type="submit"]:has-text("Gửi giải trình")').first();
+        const submitExplain = explainInput.locator('xpath=ancestor::form').locator('button[type="submit"]').first();
         await highlight(submitExplain, 2000);
         await clickAndWait(page, submitExplain);
         await showCaption(page, 'PHASE 3/3 • GIẢI TRÌNH', 'Đã gửi giải trình thành công', 'Giảng viên sẽ nhận được thông báo để xem xét phê duyệt chính thức.');
@@ -630,13 +630,14 @@ function postProcessVideo() {
       await openTestcaseExchangeFromQuestion(page, highlight);
       await injectVideoStyles(page);
 
-      const rewardsTab = page.locator('a[href="#rewards"]').first();
+      const rewardsTab = page.locator('a[href="#contributions"]').first();
       await highlight(rewardsTab, 2000);
       await rewardsTab.click();
+      await page.locator('#rewards').scrollIntoViewIfNeeded();
       await showCaption(page, 'PHASE 3/3 • PHẦN THƯỞNG 1-ĐỔI-1', 'Kho phần thưởng mở khóa testcase', 'Sinh viên 1 sở hữu 1 suất phần thưởng từ testcase được duyệt.');
       await page.waitForTimeout(2200);
 
-      const claimBtn = page.locator('#rewards button:has-text("Nhận ngay")').first();
+      const claimBtn = page.locator('#rewards form:has(input[name="action"][value="claim_reward"]) button[type="submit"]').first();
       if (await claimBtn.count() && await claimBtn.isVisible()) {
         await highlight(claimBtn, 2000);
         await clickAndWait(page, claimBtn);
@@ -649,6 +650,8 @@ function postProcessVideo() {
     // SCENE 8: Duyệt giải trình, Ngân hàng & Bảng xếp hạng
     // ==========================================
     await recordScene(browser, 8, 'Ngân hàng và bảng xếp hạng', 'auth_teacher.json', async (page) => {
+      await page.goto('/my/');
+      await waitForPage(page);
       await openCourseFromDashboard(page, highlight);
       await openQuizFromCourse(page, highlight);
       await openTeacherHubFromQuiz(page, highlight);
@@ -696,10 +699,11 @@ function postProcessVideo() {
       await openTestcaseExchangeFromQuestion(page, highlight);
       await injectVideoStyles(page);
 
-      const leaderboardTab = page.locator('a[href="#leaderboard"]').first();
+      const leaderboardTab = page.locator('a[href="#seed_search"]').first();
       if (await leaderboardTab.count() && await leaderboardTab.isVisible()) {
         await highlight(leaderboardTab, 2000);
         await leaderboardTab.click();
+        await page.locator('#leaderboard').scrollIntoViewIfNeeded();
         await showCaption(page, 'HOÀN TẤT DEMO', 'Bảng xếp hạng lớp học cập nhật đầy đủ', 'Điểm sao ⭐ và số lượng đóng góp của cả 3 sinh viên được ghi nhận công bằng.');
         await page.waitForTimeout(3500);
       }

@@ -159,10 +159,11 @@ test.describe('Video 2: Hướng dẫn Sử dụng dành cho Sinh viên (Student
     }
 
     // Bước 6: Mở khóa Phần thưởng Hạt giống (Rewards) & Xem Bảng Xếp Hạng (Leaderboard)
-    const rewardsTab = page.locator('a[href="#rewards"]').first();
+    const rewardsTab = page.locator('a[href="#contributions"]').first();
     if (await rewardsTab.isVisible()) {
       await highlight(rewardsTab, 1200);
       await rewardsTab.click();
+      await page.locator('#rewards').scrollIntoViewIfNeeded();
       await showCaption(
         page,
         'SINH VIÊN • BƯỚC 6/6',
@@ -178,9 +179,10 @@ test.describe('Video 2: Hướng dẫn Sử dụng dành cho Sinh viên (Student
         await page.waitForLoadState('networkidle');
 
         await page.evaluate(() => window.scrollBy({ top: 480, behavior: 'smooth' }));
-        const rewardsTabAfter = page.locator('a[href="#rewards"]').first();
+        const rewardsTabAfter = page.locator('a[href="#contributions"]').first();
         if (await rewardsTabAfter.isVisible()) {
           await rewardsTabAfter.click();
+          await page.locator('#rewards').scrollIntoViewIfNeeded();
         }
         await showCaption(
           page,
@@ -193,9 +195,10 @@ test.describe('Video 2: Hướng dẫn Sử dụng dành cho Sinh viên (Student
     }
 
     // Chuyển sang tab Leaderboard
-    const leaderboardTab = page.locator('a[href="#leaderboard"]').first();
+    const leaderboardTab = page.locator('a[href="#seed_search"]').first();
     await highlight(leaderboardTab, 1200);
     await leaderboardTab.click();
+    await page.locator('#leaderboard').scrollIntoViewIfNeeded();
     await showCaption(
       page,
       'HOÀN TẤT VIDEO SINH VIÊN',

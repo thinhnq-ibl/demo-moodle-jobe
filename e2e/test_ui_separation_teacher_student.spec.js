@@ -56,8 +56,13 @@ test.describe('Phân tách rõ nét View Sinh viên và View Giáo viên (UI Sep
     // 1.3 Sub-tabs của sinh viên
     await expect(page.locator('.nav-tabs a.nav-link[href="#student_solve"]')).toBeVisible();
     await expect(page.locator('.nav-tabs a.nav-link[href="#contributions"]')).toBeVisible();
-    await expect(page.locator('.nav-tabs a.nav-link[href="#rewards"]')).toBeVisible();
-    await expect(page.locator('.nav-tabs a.nav-link[href="#leaderboard"]')).toBeVisible();
+    await expect(page.locator('.nav-tabs a.nav-link[href="#seed_search"]')).toBeVisible();
+    await expect(page.locator('.nav-tabs a.nav-link[href="#rewards"]')).toHaveCount(0);
+    await expect(page.locator('.nav-tabs a.nav-link[href="#leaderboard"]')).toHaveCount(0);
+    await page.locator('.nav-tabs a.nav-link[href="#contributions"]').click();
+    await expect(page.locator('#rewards')).toBeVisible();
+    await page.locator('.nav-tabs a.nav-link[href="#seed_search"]').click();
+    await expect(page.locator('#leaderboard')).toBeVisible();
 
     // 1.4 Đảm bảo KHÔNG xuất hiện view quản lý của giáo viên
     await expect(page.locator('h4:has-text("Teacher Management Hub"), h4:has-text("Trung Tâm Quản Lý Giáo Viên")')).not.toBeVisible();

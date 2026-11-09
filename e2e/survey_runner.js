@@ -143,7 +143,8 @@ async function runSurvey() {
 
     // SV_13: Tab Phần thưởng đã mở khóa
     console.log('14. Chụp SV_13: Tab Phần thưởng đã mở khóa...');
-    await studentPage.click('a[href="#rewards"]');
+    await studentPage.click('a[href="#contributions"]');
+    await studentPage.locator('#rewards').scrollIntoViewIfNeeded();
     await studentPage.waitForTimeout(600);
     await studentPage.screenshot({ path: path.join(STUDENT_DIR, 'SV_13_claimed_rewards_tab_desktop.png'), fullPage: true });
 
@@ -159,7 +160,8 @@ async function runSurvey() {
 
     // SV_15: Tab Bảng xếp hạng
     console.log('16. Chụp SV_15: Tab Bảng xếp hạng...');
-    await studentPage.click('a[href="#leaderboard"]');
+    await studentPage.click('a[href="#seed_search"]');
+    await studentPage.locator('#leaderboard').scrollIntoViewIfNeeded();
     await studentPage.waitForTimeout(600);
     await studentPage.screenshot({ path: path.join(STUDENT_DIR, 'SV_15_leaderboard_tab_desktop.png'), fullPage: true });
 

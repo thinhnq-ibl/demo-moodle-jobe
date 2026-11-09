@@ -536,6 +536,30 @@ tr[id^="run-"]:target {
     width: 100%;
 }
 
+/* A short visual hierarchy keeps the next action obvious for both roles. */
+.local-testcase-exchange-root .tce-next-action-card {
+    background: linear-gradient(135deg, #eff6ff 0%, #ffffff 70%);
+    border: 1px solid #bfdbfe !important;
+}
+
+.local-testcase-exchange-root .tce-section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.local-testcase-exchange-root .tce-student-section {
+    scroll-margin-top: 5.25rem;
+}
+
+@media (max-width: 575.98px) {
+    .local-testcase-exchange-root .tce-section-heading h5 {
+        font-size: 1rem;
+    }
+}
+
 /* Cursor pointer utility */
 .cursor-pointer {
     cursor: pointer;

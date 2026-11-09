@@ -136,6 +136,23 @@
             </div>
         </div>
 
+        <div class="card tce-next-action-card border-0 p-3 mb-3">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between" style="gap: 12px;">
+                <div>
+                    <h6 class="font-weight-bold text-dark mb-1"><i class="fa fa-bolt text-warning mr-1"></i>Việc cần làm tiếp theo</h6>
+                    {{#overview_stats.pending_contributions}}
+                    <p class="text-muted small mb-0">Có <strong>{{overview_stats.pending_contributions}}</strong> đóng góp đang chờ. Duyệt trước để sinh viên nhận phản hồi kịp thời.</p>
+                    {{/overview_stats.pending_contributions}}
+                    {{^overview_stats.pending_contributions}}
+                    <p class="text-muted small mb-0">Không có đóng góp chờ duyệt. Bạn có thể xem kho testcase hoặc theo dõi tiến độ lớp.</p>
+                    {{/overview_stats.pending_contributions}}
+                </div>
+                <a class="btn {{#overview_stats.pending_contributions}}btn-primary{{/overview_stats.pending_contributions}}{{^overview_stats.pending_contributions}}btn-outline-primary{{/overview_stats.pending_contributions}} font-weight-bold text-nowrap" href="#tab_review" data-toggle="tab">
+                    <i class="fa fa-check-square mr-1"></i>Duyệt đóng góp{{#overview_stats.pending_contributions}} ({{overview_stats.pending_contributions}}){{/overview_stats.pending_contributions}}
+                </a>
+            </div>
+        </div>
+
         <!-- Quick actions -->
         <div class="card bg-light border-0 p-3 mb-0">
             <h6 class="font-weight-bold text-dark mb-2">Lối tắt thao tác nhanh:</h6>
@@ -837,27 +854,15 @@
     </li>
     <li class="nav-item">
         <a class="nav-link" data-toggle="tab" href="#contributions">
-            <i class="fa fa-paper-plane text-info mr-1"></i> {{#str}} tab_my_contributions, local_testcase_exchange {{/str}}
+            <i class="fa fa-paper-plane text-info mr-1"></i> {{#str}} tab_contributions_rewards, local_testcase_exchange {{/str}}
             {{#contribution_count}}<span class="badge badge-light border ml-1">{{contribution_count}}</span>{{/contribution_count}}
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#rewards">
-            <i class="fa fa-gift text-warning mr-1"></i> {{#str}} tab_my_rewards, local_testcase_exchange {{/str}}
-            {{#has_unclaimed_rewards}}
-            <span class="badge badge-warning text-dark ml-1 font-weight-bold px-2 py-1 shadow-sm"><i class="fa fa-sparkles mr-1"></i>{{unclaimed_rewards_count}} mới</span>
-            {{/has_unclaimed_rewards}}
+            {{#has_unclaimed_rewards}}<span class="badge badge-warning text-dark ml-1">{{unclaimed_rewards_count}}</span>{{/has_unclaimed_rewards}}
         </a>
     </li>
     <li class="nav-item">
         <a class="nav-link" data-toggle="tab" href="#seed_search">
-            <i class="fa fa-database text-success mr-1"></i> {{#str}} tab_seed_search, local_testcase_exchange {{/str}}
+            <i class="fa fa-compass text-success mr-1"></i> {{#str}} tab_discover_testcases, local_testcase_exchange {{/str}}
             {{#public_seeds_count}}<span class="badge badge-light border ml-1">{{public_seeds_count}}</span>{{/public_seeds_count}}
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#leaderboard">
-            <i class="fa fa-trophy text-danger mr-1"></i> {{#str}} leaderboard, local_testcase_exchange {{/str}}
         </a>
     </li>
 </ul>
@@ -1318,10 +1323,15 @@
                 </tbody>
             </table>
         </div>
-    </div>
 
-    <!-- STUDENT TAB 3: REWARD CENTER -->
-    <div class="tab-pane" id="rewards">
+    <!-- Rewards are intentionally grouped with contribution status: submit, receive feedback, then claim. -->
+    <section id="rewards" class="tce-student-section border-top mt-4 pt-4">
+        <div class="tce-section-heading">
+            <div>
+                <h5 class="font-weight-bold text-dark mb-1"><i class="fa fa-gift text-warning mr-1"></i>{{#str}} unlocked_testcases_title, local_testcase_exchange {{/str}}</h5>
+                <p class="text-muted small mb-0">{{#str}} unlocked_testcases_desc, local_testcase_exchange {{/str}}</p>
+            </div>
+        </div>
         <!-- 3 Distinct KPI Stat Cards for Rewards -->
         <div class="row mb-3">
             <div class="col-12 col-md-4 mb-2 px-1">
@@ -1432,9 +1442,10 @@
             {{/rewards}}
         </div>
         {{/has_rewards}}
+    </section>
     </div>
 
-    <!-- STUDENT TAB 4: SEED REPOSITORY & DUPLICATE CHECKER -->
+    <!-- STUDENT TAB 3: SEED REPOSITORY & DUPLICATE CHECKER -->
     <div class="tab-pane" id="seed_search">
         <!-- 3 KPI Stat Cards for Seed Repository -->
         <div class="row mb-3">
@@ -1609,10 +1620,15 @@
 
         <!-- Known inputs data island for duplicate checking -->
         <script type="application/json" id="tceAllKnownInputsData">{{{all_known_inputs_json}}}</script>
-    </div>
 
-    <!-- STUDENT TAB 5: LEADERBOARD -->
-    <div class="tab-pane" id="leaderboard">
+    <!-- Leaderboard is supporting context within testcase discovery, not a primary task. -->
+    <section id="leaderboard" class="tce-student-section border-top mt-4 pt-4">
+        <div class="tce-section-heading">
+            <div>
+                <h5 class="font-weight-bold text-dark mb-1"><i class="fa fa-trophy text-warning mr-1"></i>{{#str}} leaderboard_section_title, local_testcase_exchange {{/str}}</h5>
+                <p class="text-muted small mb-0">{{#str}} leaderboard_section_desc, local_testcase_exchange {{/str}}</p>
+            </div>
+        </div>
         <!-- Personal Achievement Card -->
         <div class="card border-0 mb-3 shadow-sm" style="background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border-left: 4px solid #2563eb !important;">
             <div class="card-body py-2 px-3 d-flex align-items-center">
@@ -1709,6 +1725,7 @@
                 </tbody>
             </table>
         </div>
+    </section>
     </div>
 </div>
 {{/is_student_view}}
