@@ -51,7 +51,16 @@ final class execution_service {
         $question = $ctx['question'];
 
         $testcase = self::make_testcase($question, $input, $policy);
-        $student = self::run_source($question, $testcase, $studentsource, $quiz, $USER, $ctx['template']);
+        if (trim($studentsource) !== '') {
+            $student = self::run_source($question, $testcase, $studentsource, $quiz, $USER, $ctx['template']);
+        } else {
+            $student = [
+                'output' => '',
+                'outcome' => 'none',
+                'server' => '',
+                'error' => '',
+            ];
+        }
         $oracle = ($cachedoracle !== null) ? $cachedoracle : self::run_source($question, $testcase, (string) $question->answer, $quiz, $USER, $ctx['template']);
         return [
             'student' => $student,

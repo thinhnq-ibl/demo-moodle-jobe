@@ -232,6 +232,23 @@ if (empty($requestedselection) && !empty($questions)) {
 }
 
 $selectedquestion = $questionmap[$requestedselection] ?? null;
+if (!$selectedquestion && is_numeric($requestedselection)) {
+    // If user passed question ID directly like question=119
+    foreach ($questions as $q) {
+        if ((int) $q->questionid === (int) $requestedselection) {
+            $selectedquestion = $q;
+            break;
+        }
+    }
+} else if (!$selectedquestion && strpos($requestedselection, '-') !== false) {
+    // If user passed quizid-questionid like 2-119
+    $normkey = str_replace('-', ':', $requestedselection);
+    $selectedquestion = $questionmap[$normkey] ?? null;
+}
+if (!$selectedquestion && !empty($questions)) {
+    $selectedquestion = $questions[0];
+}
+
 $selected_quizid = $selectedquestion ? (int) $selectedquestion->quizid : ($quizid > 0 ? $quizid : 0);
 $selected_questionid = $selectedquestion ? (int) $selectedquestion->questionid : 0;
 
@@ -356,9 +373,9 @@ if ($service && data_submitted()) {
             }
             $questioncontext = $questionmap[$selection];
             $quiz = $DB->get_record('quiz', ['id' => $questioncontext->quizid, 'course' => $courseid], '*', MUST_EXIST);
-            $studentcode = required_param('student_code', PARAM_RAW);
+            $studentcode = optional_param('student_code', '', PARAM_RAW);
             $testinput = required_param('test_input', PARAM_RAW);
-            $predictedoutput = optional_param('predicted_output', '', PARAM_RAW);
+            $predictedoutput = required_param('predicted_output', PARAM_RAW);
             $run = $service->create_run(
                 $courseid,
                 $quiz,
@@ -368,35 +385,22 @@ if ($service && data_submitted()) {
                 $testinput,
                 $predictedoutput,
                 optional_param('purpose', '', PARAM_TEXT),
-                optional_param('category', 'other', PARAM_ALPHANUMEXT),
+                optional_param('category', 'normal', PARAM_ALPHANUMEXT),
                 optional_param('reflection', '', PARAM_TEXT)
             );
             if (!empty($run['is_duplicate_run'])) {
-                $message = 'Bạn đã chạy thử nghiệm testcase này với mã nguồn hiện tại ở lượt chạy #' . $run['id'] .
-                    ' rồi. Để giảm tải hệ thống và chống spam, hệ thống không chạy lại trên Sandbox.';
+                $message = 'Bạn đã chạy thử nghiệm testcase này ở lượt chạy #' . $run['id'] .
+                    ' rồi. Để giảm tải hệ thống, hệ thống không chạy lại trên Sandbox.';
                 $notifytype = \core\output\notification::NOTIFY_WARNING;
             } else if ($run['oracle']['outcome'] !== 'success') {
                 $message = get_string('runcreatedoraclefailed', 'local_testcase_exchange', $run['oracle']['outcome']);
                 $notifytype = \core\output\notification::NOTIFY_ERROR;
-            } else if ($run['prediction_matches_oracle']) {
-                $student_passed = ($run['student']['outcome'] === 'success' &&
-                    trim((string)$run['student']['output']) === trim((string)$run['oracle']['output']));
-                if ($student_passed) {
-                    $message = 'Kết quả mong đợi đã khớp với tham chiếu và chương trình của bạn đã vượt qua testcase này! Bạn đã đủ điều kiện đóng góp.';
-                    $notifytype = \core\output\notification::NOTIFY_SUCCESS;
-                } else {
-                    $message = 'Kết quả mong đợi của bạn đã được xác nhận. Chương trình hiện tại chưa vượt qua testcase này. Hãy sửa chương trình và chạy lại để đủ điều kiện đóng góp.';
-                    $notifytype = \core\output\notification::NOTIFY_INFO;
-                }
-            } else if ($run['student']['outcome'] !== 'success') {
-                $message = get_string('runcreatedstudenterror', 'local_testcase_exchange');
-                $notifytype = \core\output\notification::NOTIFY_INFO;
-            } else if (trim($predictedoutput) !== '') {
-                $message = get_string('runcreatedmismatch', 'local_testcase_exchange');
-                $notifytype = \core\output\notification::NOTIFY_WARNING;
-            } else {
-                $message = get_string('runcreatedsaved', 'local_testcase_exchange');
+            } else if (!empty($run['prediction_matches_oracle'])) {
+                $message = 'Kết quả kỳ vọng đã khớp chính xác với Lời giải mẫu (Solution)! Bạn đã đủ điều kiện đóng góp testcase này.';
                 $notifytype = \core\output\notification::NOTIFY_SUCCESS;
+            } else {
+                $message = 'Kết quả kỳ vọng không khớp với Lời giải mẫu (Solution). Vui lòng kiểm tra lại testcase!';
+                $notifytype = \core\output\notification::NOTIFY_WARNING;
             }
             redirect($PAGE->url, $message, null, $notifytype);
         } else if ($action === 'contribute') {
@@ -781,8 +785,28 @@ if ($is_teacher_view) {
     $raw_activities = $service ? $service->student_activity_summary($courseid, $selected_quizid, $selected_questionid, $student_ids) : [];
     $enriched_activities = context_service::enrich_student_activity($raw_activities, $courseid);
     $templatedata['student_activities'] = $enriched_activities;
+    $templatedata['student_activity_rows'] = $enriched_activities;
     $templatedata['has_student_activities'] = !empty($enriched_activities);
     $templatedata['student_activities_count'] = count($enriched_activities);
+
+    $total_active_students = count($enriched_activities);
+    $total_student_runs = 0;
+    $total_student_contribs = 0;
+    $total_student_approved = 0;
+    $total_student_stars = 0;
+    foreach ($enriched_activities as $act) {
+        $total_student_runs += (int)($act['total_runs'] ?? 0);
+        $total_student_contribs += (int)($act['total_contributions'] ?? 0);
+        $total_student_approved += (int)($act['approved_contributions'] ?? 0);
+        $total_student_stars += (int)($act['total_stars'] ?? 0);
+    }
+    $templatedata['activity_stats'] = [
+        'active_students' => $total_active_students,
+        'total_runs' => $total_student_runs,
+        'total_contributions' => $total_student_contribs,
+        'total_approved' => $total_student_approved,
+        'total_stars' => $total_student_stars,
+    ];
 
     $templatedata['export_activity_csv_url'] = (new moodle_url('/local/testcase_exchange/export.php', [
         'course' => $courseid, 'quiz' => $selected_quizid, 'format' => 'csv',
@@ -918,11 +942,7 @@ if ($is_student_view) {
         $testcase_valid = ($oracle_valid && $predicted_out !== '' && $predicted_out === $oracle_out);
         $run['expected_matches_oracle'] = $testcase_valid;
 
-        // Student passes testcase
-        $student_passed_test = ($run['student_outcome'] === 'success' && $student_out !== '' && $student_out === $oracle_out);
-        $run['student_passed_test'] = $student_passed_test;
-
-        $is_eligible = ($cancontribute && $testcase_valid && $student_passed_test);
+        $is_eligible = ($cancontribute && $testcase_valid);
         $run['is_eligible'] = $is_eligible;
 
         $run_fp = (string) ($run['input_fingerprint'] ?? '');
@@ -1037,18 +1057,10 @@ if ($is_student_view) {
             $run['display_status'] = 'Trùng đầu vào ở lượt #' . $rep_id;
             $run['display_status_class'] = 'badge badge-secondary';
         }
-        // 6. Ineligible because student code did not pass testcase
+        // 6. Other Ineligible
         else {
-            $run['display_status'] = 'Hãy sửa mã nguồn và chạy lại trước khi đóng góp';
-            $run['display_status_class'] = 'badge badge-warning text-dark';
-            $run['pending_code_fix'] = true;
-            $run['pending_fix_message'] = 'Kết quả mong đợi đã được xác nhận. Chương trình hiện tại chưa vượt qua testcase này. Hãy sửa chương trình và chạy lại để đủ điều kiện đóng góp.';
-
-            // If an older/other run in this same group was eligible, let student easily jump to it
-            if ($rep_id !== null && $rep_id !== $run_id) {
-                $run['has_eligible_peer'] = true;
-                $run['rep_id'] = $rep_id;
-            }
+            $run['display_status'] = 'Chưa đủ điều kiện đóng góp';
+            $run['display_status_class'] = 'badge badge-secondary';
         }
 
         // Informative note when user contributed an earlier run with the same input
@@ -1068,13 +1080,10 @@ if ($is_student_view) {
             $run['run_outcome_label'] = 'Lỗi thực thi';
         } else if (!$run['expected_matches_oracle']) {
             $run['run_outcome_badge'] = 'badge badge-warning text-dark';
-            $run['run_outcome_label'] = 'Không khớp tham chiếu';
-        } else if (!$run['student_passed_test']) {
-            $run['run_outcome_badge'] = 'badge badge-info';
-            $run['run_outcome_label'] = 'Mã SV không khớp';
+            $run['run_outcome_label'] = 'Không khớp Solution';
         } else {
             $run['run_outcome_badge'] = 'badge badge-success';
-            $run['run_outcome_label'] = 'Khớp hoàn toàn';
+            $run['run_outcome_label'] = 'Khớp Solution';
         }
 
         $run['has_revision'] = !empty($run['revision_step']);
@@ -1144,14 +1153,14 @@ if ($is_student_view) {
             $run_res_guidance = 'Kết quả kỳ vọng bạn dự đoán không khớp với kết quả từ lời giải tham chiếu. Vui lòng kiểm tra lại đề bài, dữ liệu đầu vào và kết quả kỳ vọng.';
             $run_res_badge = 'badge badge-warning text-dark';
             $run_res_icon = 'fa-exclamation-triangle text-warning';
-        } else if (!$first['student_passed_test']) {
-            $run_res_title = 'Lời giải tham chiếu khớp, mã sinh viên không khớp';
-            $run_res_guidance = 'Kết quả mong đợi đã được xác nhận bởi lời giải tham chiếu. Tuy nhiên chương trình hiện tại của bạn chưa vượt qua testcase này.';
-            $run_res_badge = 'badge badge-info';
-            $run_res_icon = 'fa-info-circle text-info';
+        } else if (!$first['expected_matches_oracle']) {
+            $run_res_title = 'Kết quả kỳ vọng không khớp Lời giải mẫu';
+            $run_res_guidance = 'Kết quả kỳ vọng bạn dự đoán không trùng khớp với kết quả từ Lời giải mẫu (Solution) của Thầy/Cô. Vui lòng kiểm tra lại dữ liệu đầu vào và kết quả kỳ vọng.';
+            $run_res_badge = 'badge badge-warning text-dark';
+            $run_res_icon = 'fa-exclamation-triangle text-warning';
         } else {
-            $run_res_title = 'Kết quả khớp hoàn toàn';
-            $run_res_guidance = 'Mã nguồn của bạn và lời giải tham chiếu đều cho kết quả khớp chính xác với kết quả kỳ vọng.';
+            $run_res_title = 'Khớp chính xác với Lời giải mẫu';
+            $run_res_guidance = 'Kết quả kỳ vọng của bạn hoàn toàn trùng khớp với kết quả thực thi từ Lời giải mẫu (Solution) của Thầy/Cô.';
             $run_res_badge = 'badge badge-success';
             $run_res_icon = 'fa-check-circle text-success';
         }
@@ -1223,7 +1232,7 @@ if ($is_student_view) {
             $contrib_title = 'Đủ điều kiện đóng góp';
             $contrib_badge = 'badge badge-success';
             $contrib_icon = 'fa-paper-plane text-success';
-            $contrib_guidance = 'Testcase pass cả lời giải tham chiếu và mã sinh viên. Bạn đủ điều kiện gửi đóng góp testcase này cho lớp học!';
+            $contrib_guidance = 'Testcase đã khớp chính xác với Lời giải mẫu của Thầy/Cô. Bạn đủ điều kiện gửi đóng góp testcase này cho lớp học!';
         }
         // Priority 4: Duplicate against seed testcase
         else if ($existing_canonical && $existing_canonical['type'] === 'seed') {
@@ -1257,21 +1266,13 @@ if ($is_student_view) {
             $contrib_icon = 'fa-copy text-secondary';
             $contrib_guidance = 'Đầu vào này đã từng được chạy và đủ điều kiện ở lượt #' . $first['rep_id'] . '. Bạn có thể chuyển tới lượt đạt để đóng góp.';
         }
-        // Priority 8: Code not passing testcase
-        else if (!empty($first['pending_code_fix'])) {
-            $cancontributelatest = false;
-            $contrib_title = 'Hãy sửa mã nguồn và chạy lại trước khi đóng góp';
-            $contrib_badge = 'badge badge-warning text-dark';
-            $contrib_icon = 'fa-wrench text-warning';
-            $contrib_guidance = 'Kết quả mong đợi đã được xác nhận bởi lời giải tham chiếu. Chương trình hiện tại của bạn chưa vượt qua testcase này. Hãy sửa chương trình và chạy lại để đủ điều kiện đóng góp.';
-        }
-        // Priority 9: Other Ineligible
+        // Priority 8: Other Ineligible
         else {
             $cancontributelatest = false;
             $contrib_title = 'Chưa đủ điều kiện đóng góp';
             $contrib_badge = 'badge badge-secondary';
             $contrib_icon = 'fa-info-circle text-muted';
-            $contrib_guidance = 'Chương trình chưa thỏa mãn toàn bộ các điều kiện để đề xuất đóng góp. Vui lòng kiểm tra lại kết quả đối chiếu.';
+            $contrib_guidance = 'Testcase chưa thỏa mãn toàn bộ các điều kiện để đề xuất đóng góp. Vui lòng kiểm tra lại kết quả đối chiếu.';
         }
 
         // Informative note when user contributed an earlier run with the same input
@@ -1332,30 +1333,233 @@ if ($is_student_view) {
     $templatedata['run_count'] = count($runs);
     $templatedata['has_extra_runs'] = (count($runs) > 5);
     $templatedata['extra_runs_count'] = max(0, count($runs) - 5);
-    $templatedata['contributions'] = $contributions;
-    $templatedata['contribution_count'] = count($contributions);
-    $templatedata['rewards'] = $rewards;
-    $templatedata['reward_count'] = count($rewards);
 
-    $unclaimedrewards = 0;
-    $claimedrewards = 0;
-    foreach ($rewards as $rw) {
-        if (empty($rw['is_claimed_bool'])) {
-            $unclaimedrewards++;
-        } else {
-            $claimedrewards++;
+    // Calculate detailed statistics for Tab 2: My Contributions
+    $contrib_total = count($contributions);
+    $contrib_approved = 0;
+    $contrib_pending = 0;
+    $contrib_rejected = 0;
+    $contrib_needs_explanation = 0;
+    $contrib_stars = 0;
+    foreach ($contributions as $cb) {
+        $st = $cb['status'] ?? '';
+        if ($st === 'approved') {
+            $contrib_approved++;
+            $contrib_stars += (int)($cb['rating_val'] ?? 0);
+        } else if ($st === 'pending') {
+            $contrib_pending++;
+        } else if ($st === 'rejected') {
+            $contrib_rejected++;
+        } else if ($st === 'needs_explanation') {
+            $contrib_needs_explanation++;
         }
     }
+    $templatedata['contributions'] = $contributions;
+    $templatedata['contribution_count'] = $contrib_total;
+    $templatedata['contrib_stats'] = [
+        'total' => $contrib_total,
+        'approved' => $contrib_approved,
+        'pending' => $contrib_pending,
+        'rejected' => $contrib_rejected,
+        'needs_explanation' => $contrib_needs_explanation,
+        'total_stars' => $contrib_stars,
+        'approval_rate' => $contrib_total > 0 ? round(($contrib_approved / $contrib_total) * 100) : 0,
+        'has_contributions' => ($contrib_total > 0),
+    ];
+
+    // Calculate detailed statistics and enrich items for Tab 3: Reward Center
+    $unclaimedrewards = 0;
+    $claimedrewards = 0;
+    $seedrewards = 0;
+    $peerrewards = 0;
+    foreach ($rewards as &$rw) {
+        $is_claimed = !empty($rw['is_claimed_bool']);
+        $rw['is_claimed'] = $is_claimed;
+        $rw['is_unclaimed'] = !$is_claimed;
+        if ($is_claimed) {
+            $claimedrewards++;
+        } else {
+            $unclaimedrewards++;
+        }
+
+        $source = $rw['reward_source'] ?? '';
+        if ($source === 'seed') {
+            $seedrewards++;
+            $rw['source_is_seed'] = true;
+            $rw['source_is_peer'] = false;
+            $rw['source_badge_text'] = 'Ngân hàng mầm (Thầy/Cô)';
+            $rw['source_badge_class'] = 'badge-primary';
+            $rw['source_icon'] = 'fa-university';
+        } else {
+            $peerrewards++;
+            $rw['source_is_seed'] = false;
+            $rw['source_is_peer'] = true;
+            $rw['source_badge_text'] = 'Đóng góp xuất sắc từ Bạn học';
+            $rw['source_badge_class'] = 'badge-success';
+            $rw['source_icon'] = 'fa-users';
+        }
+
+        $cat = $rw['category'] ?? 'normal';
+        $rw['category_label'] = get_string_manager()->string_exists('category_' . $cat, 'local_testcase_exchange') ?
+            get_string('category_' . $cat, 'local_testcase_exchange') : ucfirst($cat);
+        $rw['formatted_created'] = !empty($rw['timecreated']) ? userdate($rw['timecreated'], '%d/%m/%Y %H:%M') : '';
+        $rw['formatted_claimed'] = !empty($rw['claimed_at']) ? userdate($rw['claimed_at'], '%d/%m/%Y %H:%M') : '';
+    }
+    unset($rw);
+
+    $total_rw = count($rewards);
+    $templatedata['rewards'] = $rewards;
+    $templatedata['reward_count'] = $total_rw;
     $templatedata['unclaimed_rewards_count'] = (string) $unclaimedrewards;
     $templatedata['claimed_rewards_count'] = (string) $claimedrewards;
-    $templatedata['total_rewards_count'] = (string) count($rewards);
+    $templatedata['total_rewards_count'] = (string) $total_rw;
     $templatedata['has_unclaimed_rewards'] = ($unclaimedrewards > 0);
+    $templatedata['has_rewards'] = ($total_rw > 0);
+    $templatedata['reward_stats'] = [
+        'total' => $total_rw,
+        'claimed' => $claimedrewards,
+        'unclaimed' => $unclaimedrewards,
+        'from_seeds' => $seedrewards,
+        'from_peers' => $peerrewards,
+        'claim_rate' => $total_rw > 0 ? round(($claimedrewards / $total_rw) * 100) : 0,
+        'has_rewards' => ($total_rw > 0),
+        'has_unclaimed' => ($unclaimedrewards > 0),
+    ];
 
+    // Calculate detailed statistics and podium for Tab 4: Leaderboard
     $leaderboarddata = $service ? $service->course_leaderboard($courseid, (int) $USER->id) : [
         'leaderboard' => [], 'my_rank' => 0, 'my_stars' => 0, 'my_count' => 0,
         'top_user_name' => '', 'top_stars' => 0, 'top_count' => 0, 'has_leaderboard' => false,
     ];
+
+    $lb_list = $leaderboarddata['leaderboard'] ?? [];
+    $podium_first = null;
+    $podium_second = null;
+    $podium_third = null;
+
+    foreach ($lb_list as &$lb_entry) {
+        $rk = (int)($lb_entry['rank'] ?? 0);
+        $is_me = !empty($lb_entry['is_current_user']) || ((int)($lb_entry['user_id'] ?? 0) === (int)$USER->id);
+        $lb_entry['is_me'] = $is_me;
+        $lb_entry['rank_1'] = ($rk === 1);
+        $lb_entry['rank_2'] = ($rk === 2);
+        $lb_entry['rank_3'] = ($rk === 3);
+        $lb_entry['rank_other'] = ($rk > 3);
+
+        if ($rk === 1 && !$podium_first) {
+            $podium_first = $lb_entry;
+        } else if ($rk === 2 && !$podium_second) {
+            $podium_second = $lb_entry;
+        } else if ($rk === 3 && !$podium_third) {
+            $podium_third = $lb_entry;
+        }
+    }
+    unset($lb_entry);
+    $leaderboarddata['leaderboard'] = $lb_list;
+
     $templatedata = array_merge($templatedata, $leaderboarddata);
+    $templatedata['has_leaderboard'] = !empty($lb_list);
+    $templatedata['podium'] = [
+        'first' => $podium_first,
+        'second' => $podium_second,
+        'third' => $podium_third,
+        'has_first' => ($podium_first !== null),
+        'has_second' => ($podium_second !== null),
+        'has_third' => ($podium_third !== null),
+    ];
+    $templatedata['has_podium'] = ($podium_first !== null);
+
+    // Tab: Published Seed Inputs & Duplicate Search
+    $public_seeds = [];
+    $raw_seeds = ($service && $selected_questionid > 0) ?
+        $service->list_seed_testcases($courseid, $selected_quizid, $selected_questionid) : [];
+
+    $idx = 0;
+    foreach ($raw_seeds as $sd) {
+        $idx++;
+        $in_raw = trim((string) ($sd['input_raw'] ?? ''));
+        if ($in_raw === '') {
+            $in_raw = trim((string) ($sd['testcode'] ?? ($sd['stdin'] ?? '')));
+        }
+        $in_norm = \local_testcase_exchange\normalizer::normalize($in_raw, 'trim');
+        $cat = (string) ($sd['category'] ?? 'normal');
+        $cat_label = get_string_manager()->string_exists('category_' . $cat, 'local_testcase_exchange') ?
+            get_string('category_' . $cat, 'local_testcase_exchange') : ucfirst($cat);
+
+        $public_seeds[] = [
+            'index' => $idx,
+            'id' => (int) $sd['id'],
+            'input' => $in_raw,
+            'input_normalized' => $in_norm,
+            'input_fingerprint' => \local_testcase_exchange\normalizer::fingerprint($in_norm),
+            'category' => $cat,
+            'category_label' => $cat_label,
+            'formatted_created' => !empty($sd['timecreated']) ? userdate($sd['timecreated'], '%d/%m/%Y') : '',
+        ];
+    }
+
+    $approved_peer_inputs = [];
+    if ($service && $selected_questionid > 0) {
+        $approved_rows = $DB->get_records_sql(
+            'SELECT c.id, c.input_normalized, c.input_fingerprint, c.category, c.timecreated
+               FROM {local_tce_contributions} c
+              WHERE c.course_id = ? AND c.question_id = ? AND c.status = ?
+              ORDER BY c.id ASC',
+            [$courseid, $selected_questionid, 'approved']
+        );
+        $ap_idx = 0;
+        foreach ($approved_rows as $ap) {
+            $ap_idx++;
+            $cat = (string) ($ap->category ?? 'normal');
+            $cat_label = get_string_manager()->string_exists('category_' . $cat, 'local_testcase_exchange') ?
+                get_string('category_' . $cat, 'local_testcase_exchange') : ucfirst($cat);
+            $approved_peer_inputs[] = [
+                'index' => $ap_idx,
+                'id' => (int) $ap->id,
+                'input' => $ap->input_normalized,
+                'input_normalized' => $ap->input_normalized,
+                'input_fingerprint' => $ap->input_fingerprint,
+                'category' => $cat,
+                'category_label' => $cat_label,
+                'formatted_created' => !empty($ap->timecreated) ? userdate($ap->timecreated, '%d/%m/%Y') : '',
+            ];
+        }
+    }
+
+    $all_known_for_search = [];
+    foreach ($public_seeds as $s) {
+        $all_known_for_search[] = [
+            'id' => $s['id'],
+            'type' => 'seed',
+            'source_label' => 'Kho Seed',
+            'badge_class' => 'badge-primary',
+            'input' => $s['input'],
+            'input_normalized' => $s['input_normalized'],
+            'fingerprint' => $s['input_fingerprint'],
+            'category_label' => $s['category_label'],
+        ];
+    }
+    foreach ($approved_peer_inputs as $p) {
+        $all_known_for_search[] = [
+            'id' => $p['id'],
+            'type' => 'peer',
+            'source_label' => 'Đã duyệt từ bạn học',
+            'badge_class' => 'badge-info',
+            'input' => $p['input'],
+            'input_normalized' => $p['input_normalized'],
+            'fingerprint' => $p['input_fingerprint'],
+            'category_label' => $p['category_label'],
+        ];
+    }
+
+    $templatedata['public_seeds'] = $public_seeds;
+    $templatedata['public_seeds_count'] = count($public_seeds);
+    $templatedata['has_public_seeds'] = !empty($public_seeds);
+    $templatedata['approved_peer_inputs'] = $approved_peer_inputs;
+    $templatedata['approved_peer_inputs_count'] = count($approved_peer_inputs);
+    $templatedata['has_approved_peer_inputs'] = !empty($approved_peer_inputs);
+    $templatedata['total_known_inputs_count'] = count($all_known_for_search);
+    $templatedata['all_known_inputs_json'] = json_encode($all_known_for_search, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 
     $templatedata['export_timeline_csv_url'] = (new moodle_url('/local/testcase_exchange/export.php', [
         'course' => $courseid, 'quiz' => $selected_quizid, 'format' => 'csv',

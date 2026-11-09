@@ -115,35 +115,7 @@ foreach ($test_inputs as $tc) {
 $total_now = $DB->count_records('local_tce_runs', ['question_id' => $questionid, 'user_id' => $student->id]);
 echo "Updated runs count for Question 119: {$total_now}\n";
 
-// 3. Ensure meaningful Reward Records exist in local_tce_rewards for Course 3 / Quiz 2
-$rewards_count = $DB->count_records('local_tce_rewards', ['course_id' => $courseid]);
-if ($rewards_count === 0) {
-    // Insert 2 sample granted rewards
-    $DB->insert_record('local_tce_rewards', (object)[
-        'course_id' => $courseid,
-        'quiz_id' => $quizid,
-        'question_id' => $questionid,
-        'giver_user_id' => 0, // system/peer
-        'receiver_user_id' => $student->id,
-        'testcase_id' => 1,
-        'is_claimed' => 1,
-        'timecreated' => $now - 3600,
-        'timeclaimed' => $now - 1800
-    ]);
-    $DB->insert_record('local_tce_rewards', (object)[
-        'course_id' => $courseid,
-        'quiz_id' => $quizid,
-        'question_id' => $questionid,
-        'giver_user_id' => 0,
-        'receiver_user_id' => $student->id,
-        'testcase_id' => 2,
-        'is_claimed' => 0,
-        'timecreated' => $now - 1200,
-        'timeclaimed' => 0
-    ]);
-    echo "Inserted 2 sample rewards (1 claimed, 1 unclaimed).\n";
-} else {
-    echo "Rewards already exist: {$rewards_count}.\n";
-}
+// 3. Ensure Seeds & meaningful Reward Records exist in local_tce_rewards for Course 3 / Quiz 2
+require_once(__DIR__ . '/fix_rewards_data.php');
 
 echo "=== Seeding Completed Successfully ===\n";

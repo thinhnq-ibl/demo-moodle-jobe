@@ -192,6 +192,9 @@ final class testcase_service {
             $issameprediction = (trim((string) $existingrun['predicted_output']) === trim((string) $predicted));
             if ($issameprediction) {
                 // Toàn bộ code, input và expected đều giống hệt -> Chặn hoàn toàn và trả lại lượt chạy cũ
+                $matches_oracle = ($existingrun['oracle_outcome'] === 'success' &&
+                    trim((string) $predicted) !== '' &&
+                    trim((string) $predicted) === trim((string) $existingrun['oracle_output']));
                 return [
                     'id' => (int) $existingrun['id'],
                     'is_duplicate_run' => true,
@@ -209,6 +212,7 @@ final class testcase_service {
                     'normalized' => $normalized,
                     'fingerprint' => $fingerprint,
                     'code_revision_id' => $existingrun['code_revision_id'],
+                    'prediction_matches_oracle' => $matches_oracle,
                 ];
             }
 
@@ -349,6 +353,10 @@ final class testcase_service {
             'timecreated' => time(),
         ]);
 
+        $matches_oracle = ($results['oracle']['outcome'] === 'success' &&
+            trim((string) $predicted) !== '' &&
+            trim((string) $predicted) === trim((string) $results['oracle']['output']));
+
         return [
             'id' => $runid,
             'is_duplicate_run' => false,
@@ -358,6 +366,7 @@ final class testcase_service {
             'normalized' => $normalized,
             'fingerprint' => $fingerprint,
             'code_revision_id' => $coderevid,
+            'prediction_matches_oracle' => $matches_oracle,
         ];
     }
 
@@ -408,11 +417,6 @@ final class testcase_service {
             trim((string) $run['predicted_output']) !== trim((string) $run['oracle_output'])) {
             throw new \moodle_exception('predictionmismatchoracle', 'local_testcase_exchange', '',
                 'Kết quả kỳ vọng (Expected Output) không khớp với Solution của Thầy/Cô nên không thể đề xuất đóng góp!');
-        }
-        if ($run['student_outcome'] !== 'success' ||
-            trim((string) $run['student_run_output']) !== trim((string) $run['oracle_output'])) {
-            throw new \moodle_exception('studentcodenotpassing', 'local_testcase_exchange', '',
-                'Kết quả mong đợi của bạn đã được xác nhận. Chương trình hiện tại chưa vượt qua testcase này. Hãy sửa chương trình và chạy lại để đủ điều kiện đóng góp.');
         }
 
         $settings = $this->quiz_settings((int) $run['quiz_id']);
@@ -1254,7 +1258,7 @@ final class testcase_service {
                     r.reward_source, r.seed_id, r.is_claimed, r.claimed_at, r.timecreated,
                     COALESCE(c.input_normalized, s.input_normalized, \'\') AS input_normalized,
                     COALESCE(c.oracle_output, s.expected_output, \'\') AS oracle_output,
-                    COALESCE(c.category, s.category, \'seed\') AS category
+                    COALESCE(c.category, s.category, \'normal\') AS category
                FROM {local_tce_rewards} r
           LEFT JOIN {local_tce_contributions} c ON (r.reward_source = \'contribution\' AND c.id = r.contribution_id)
           LEFT JOIN {local_tce_seeds} s ON (r.reward_source = \'seed\' AND s.id = r.seed_id)
@@ -1269,8 +1273,8 @@ final class testcase_service {
                 $row['display_input'] = '🔒 [Nhấn "Nhận thưởng" để xem nội dung kiểm thử]';
                 $row['display_oracle'] = '🔒 [Ẩn cho đến khi bạn bấm nhận]';
             } else {
-                $row['display_input'] = $row['input_normalized'];
-                $row['display_oracle'] = $row['oracle_output'];
+                $row['display_input'] = ($row['input_normalized'] !== '') ? $row['input_normalized'] : '(Không có dữ liệu đầu vào)';
+                $row['display_oracle'] = ($row['oracle_output'] !== '') ? $row['oracle_output'] : '(Không có kết quả chuẩn)';
             }
         }
         unset($row);
