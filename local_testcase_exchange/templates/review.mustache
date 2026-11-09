@@ -104,12 +104,12 @@
                 <td class="text-center">
                     {{#is_pending}}
                     <button type="button" class="btn btn-sm btn-primary font-weight-bold" data-toggle="modal" data-target="#reviewModal_{{id}}">
-                        <i class="fa fa-check-square mr-1"></i>Xem và duyệt
+                        Duyệt
                     </button>
                     {{/is_pending}}
                     {{^is_pending}}
                     <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold" data-toggle="modal" data-target="#reviewModal_{{id}}">
-                        <i class="fa fa-eye mr-1"></i>Xem chi tiết
+                        Xem
                     </button>
                     {{/is_pending}}
                 </td>
@@ -138,12 +138,10 @@
                     <div class="col-md-6 mb-2 mb-md-0">
                         <div class="small text-muted">Sinh viên đóng góp:</div>
                         <div class="font-weight-bold text-dark">{{student_name}} ({{student_username}})</div>
-                        <div class="small text-muted">{{student_email}}</div>
                     </div>
                     <div class="col-md-6 text-md-right">
-                        <div class="small text-muted">Thời gian gửi &bull; Trạng thái:</div>
-                        <span class="small text-muted mr-1">{{submitted_at}}</span>
-                        <span class="{{status_badge_class}}">{{status_label}}</span>
+                        <div class="small text-muted">Thời gian gửi:</div>
+                        <span class="small text-muted">{{submitted_at}}</span>
                     </div>
                 </div>
 
@@ -169,23 +167,17 @@
 
                 <!-- Testcase inspection grid -->
                 <div class="row mb-3">
-                    <div class="col-md-4 mb-2 mb-md-0">
+                    <div class="col-md-6 mb-2 mb-md-0">
                         <div class="small font-weight-bold text-dark mb-1">
                             <i class="fa fa-terminal text-muted mr-1"></i>{{#str}} input_data_label, local_testcase_exchange {{/str}}:
                         </div>
                         <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{input_normalized}}</pre>
                     </div>
-                    <div class="col-md-4 mb-2 mb-md-0">
+                    <div class="col-md-6">
                         <div class="small font-weight-bold text-dark mb-1">
                             <i class="fa fa-bullseye text-muted mr-1"></i>{{#str}} student_expected_output_label, local_testcase_exchange {{/str}}:
                         </div>
                         <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{expected_output_display}}</pre>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="small font-weight-bold text-dark mb-1">
-                            <i class="fa fa-check text-muted mr-1"></i>{{#str}} reference_solution_output_label, local_testcase_exchange {{/str}}:
-                        </div>
-                        <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{oracle_output}}</pre>
                     </div>
                 </div>
 
@@ -237,9 +229,6 @@
                                 <option value="needs_explanation" {{#is_pending}}selected{{/is_pending}}>⚠️ {{#str}} decision_needs_explanation, local_testcase_exchange {{/str}}</option>
                                 <option value="rejected" {{#is_rejected}}selected{{/is_rejected}}>✗ {{#str}} decision_rejected, local_testcase_exchange {{/str}}</option>
                             </select>
-                            <small class="form-text text-muted mt-1">
-                                {{#str}} decision_help_text, local_testcase_exchange {{/str}}
-                            </small>
                         </div>
                         <div class="col-md-5">
                             <label class="font-weight-bold text-dark small mb-1">

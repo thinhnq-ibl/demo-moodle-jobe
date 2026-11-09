@@ -20,6 +20,8 @@ test.describe('Simplified testcase exchange journeys', () => {
     await page.waitForLoadState('networkidle');
 
     await expect(page.getByRole('heading', { name: /Testcase experimentation and exchange/i })).toBeVisible();
+    await expect(page.locator('#tceLatestResultCard')).toHaveCount(0);
+    await expect(page.locator('.tce-history-desktop-table')).toBeVisible();
     const studentTabs = page.locator('.nav-tabs a[href="#student_solve"], .nav-tabs a[href="#contributions"], .nav-tabs a[href="#seed_search"]');
     await expect(studentTabs).toHaveCount(3);
     await expect(page.locator('.nav-tabs a[href="#rewards"]')).toHaveCount(0);
@@ -38,8 +40,8 @@ test.describe('Simplified testcase exchange journeys', () => {
     await page.waitForLoadState('networkidle');
 
     await expect(page.locator('.local-testcase-exchange-root h3')).toBeVisible();
-    await expect(page.locator('.tce-next-action-card')).toBeVisible();
-    await page.locator('.tce-next-action-card a[href="#tab_review"]').click();
+    await expect(page.locator('.tce-next-action-card')).toHaveCount(0);
+    await page.locator('a[href="#tab_review"]').click();
     await expect(page.locator('#tab_review')).toBeVisible();
   });
 });

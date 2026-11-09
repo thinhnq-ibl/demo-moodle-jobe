@@ -17,11 +17,11 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Quy tắc đóng góp và trao đổi testcase';
-$string['testcaseexchangehdr'] = 'Cổng đóng góp và trao đổi testcase (ca kiểm thử)';
+$string['testcaseexchangehdr'] = 'Cổng đóng góp testcase';
 $string['enabletestcaseexchange'] = 'Cho phép sinh viên thử nghiệm và đóng góp testcase';
 $string['enabletestcaseexchange_help'] = 'Nếu bật, sinh viên trong bài quiz này có thể thử nghiệm các testcase riêng tư và đóng góp các testcase mới đạt chuẩn. Sau khi giảng viên duyệt, sinh viên sẽ nhận lại các testcase thưởng từ bạn học.';
 $string['testcasebanner'] = 'Bài quiz hỗ trợ thử nghiệm và trao đổi testcase';
 $string['testcasebanner_desc'] = 'Khám phá và đóng góp các ca kiểm thử độc lập để tích hợp vào bộ kiểm thử và nhận testcase chia sẻ từ cộng đồng.';
-$string['gotodashboard'] = 'Thử nghiệm và trao đổi testcase';
+$string['gotodashboard'] = 'Thử nghiệm testcase';
 $string['disabled_notice'] = 'Tính năng trao đổi testcase hiện đang tắt cho bài quiz này.';
 $string['privacy:metadata'] = 'Plugin quy tắc truy cập Testcase Exchange không lưu trữ dữ liệu cá nhân. Nó chỉ kiểm soát cấu hình bật/tắt cho bài quiz.';

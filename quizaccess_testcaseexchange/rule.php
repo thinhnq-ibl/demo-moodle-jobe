@@ -159,7 +159,7 @@ class quizaccess_testcaseexchange extends access_rule_base {
     }
 
     /**
-     * Display informative banner and action button on Quiz view page when rule is enabled.
+     * Display the testcase experimentation action on the Quiz view page when enabled.
      *
      * @return string
      */
@@ -175,15 +175,12 @@ class quizaccess_testcaseexchange extends access_rule_base {
         $btn = \html_writer::link(
             $dashboardurl,
             get_string('gotodashboard', 'quizaccess_testcaseexchange'),
-            ['class' => 'btn btn-outline-primary font-weight-bold text-nowrap']
+            ['class' => 'btn btn-primary font-weight-bold text-nowrap']
         );
 
-        $desctext = get_string('testcasebanner_desc', 'quizaccess_testcaseexchange');
-
         $content = \html_writer::div(
-            '<div class="text-muted">' . $desctext . '</div>' .
-            '<div class="mt-3">' . $btn . '</div>',
-            'card bg-light border p-3 my-4'
+            $btn,
+            'my-4'
         );
 
         return $content;

@@ -116,8 +116,7 @@ $DB->set_field('question_coderunner_options', 'iscombinatortemplate', NULL, ['qu
 $DB->set_field('question_coderunner_options', 'grader', 'EqualityGrader', ['questionid' => 120]);
 
 // Cập nhật câu hỏi trong Quiz
-$desc_clean_prime = '<p><b>Yêu cầu:</b> Viết hàm <code>is_prime(n)</code> nhận vào số nguyên <code>n</code> và trả về <code>True</code> nếu là số nguyên tố, ngược lại <code>False</code>.</p>
-<p><i>Lưu ý:</i> Hãy kiểm tra và thử nghiệm thuật toán của bạn với các ca kiểm thử thu thập được tại mục <b><a href="/local/testcase_exchange/index.php?course=3" target="_blank">Kho Testcase & Đổi thưởng</a></b> trước khi hoàn thành bài nộp minh chứng.</p>';
+$desc_clean_prime = '<p><b>Yêu cầu:</b> Viết hàm <code>is_prime(n)</code> nhận vào số nguyên <code>n</code> và trả về <code>True</code> nếu là số nguyên tố, ngược lại <code>False</code>.</p>';
 
 $desc_clean_palin = '<p><b>Yêu cầu:</b> Viết hàm <code>is_palindrome(s)</code> nhận vào chuỗi ký tự <code>s</code> và trả về <code>True</code> nếu là chuỗi đối xứng, ngược lại <code>False</code>.</p>
 <p><i>Lưu ý:</i> Tham khảo thêm các testcase bạn đã mở khóa tại mục <b><a href="/local/testcase_exchange/index.php?course=3" target="_blank">Kho Testcase & Đổi thưởng</a></b>.</p>';

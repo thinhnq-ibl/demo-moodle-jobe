@@ -10,10 +10,6 @@
         <h3 class="font-weight-bold text-dark mb-0">
             {{#str}} teacherview_title, local_testcase_exchange {{/str}}
         </h3>
-        <div class="text-muted small mt-1">
-            <span>{{current_course_name}}</span>
-            {{#current_quiz_name}} &bull; <span>{{current_quiz_name}}</span>{{/current_quiz_name}}
-        </div>
     </div>
     <div class="mt-2 mt-md-0 d-flex align-items-center flex-wrap" style="gap: 8px;">
         {{#has_return_url}}
@@ -118,7 +114,6 @@
                         <span class="badge badge-warning text-dark ml-1" style="font-size: 0.72rem;">{{overview_stats.pending_contributions}} chờ</span>
                         {{/overview_stats.pending_contributions}}
                     </div>
-                    <small class="text-muted d-none d-md-block">{{overview_stats.approved_contributions}} đã duyệt &bull; {{overview_stats.rejected_contributions}} từ chối</small>
                 </div>
             </div>
             <div class="col-6 col-lg-3 mb-2 px-1">
@@ -133,23 +128,6 @@
                         <span class="text-nowrap">Chờ nhận: <strong class="text-dark">{{overview_stats.unclaimed_rewards}}</strong></span>
                     </small>
                 </div>
-            </div>
-        </div>
-
-        <div class="card tce-next-action-card border-0 p-3 mb-3">
-            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between" style="gap: 12px;">
-                <div>
-                    <h6 class="font-weight-bold text-dark mb-1"><i class="fa fa-bolt text-warning mr-1"></i>Việc cần làm tiếp theo</h6>
-                    {{#overview_stats.pending_contributions}}
-                    <p class="text-muted small mb-0">Có <strong>{{overview_stats.pending_contributions}}</strong> đóng góp đang chờ. Duyệt trước để sinh viên nhận phản hồi kịp thời.</p>
-                    {{/overview_stats.pending_contributions}}
-                    {{^overview_stats.pending_contributions}}
-                    <p class="text-muted small mb-0">Không có đóng góp chờ duyệt. Bạn có thể xem kho testcase hoặc theo dõi tiến độ lớp.</p>
-                    {{/overview_stats.pending_contributions}}
-                </div>
-                <a class="btn {{#overview_stats.pending_contributions}}btn-primary{{/overview_stats.pending_contributions}}{{^overview_stats.pending_contributions}}btn-outline-primary{{/overview_stats.pending_contributions}} font-weight-bold text-nowrap" href="#tab_review" data-toggle="tab">
-                    <i class="fa fa-check-square mr-1"></i>Duyệt đóng góp{{#overview_stats.pending_contributions}} ({{overview_stats.pending_contributions}}){{/overview_stats.pending_contributions}}
-                </a>
             </div>
         </div>
 
@@ -265,12 +243,12 @@
                         <td class="text-center">
                             {{#is_pending}}
                             <button type="button" class="btn btn-sm btn-primary font-weight-bold" data-toggle="modal" data-target="#reviewModal_{{id}}">
-                                <i class="fa fa-check-square mr-1"></i>Xem và duyệt
+                                Duyệt
                             </button>
                             {{/is_pending}}
                             {{^is_pending}}
                             <button type="button" class="btn btn-sm btn-outline-secondary font-weight-bold" data-toggle="modal" data-target="#reviewModal_{{id}}">
-                                <i class="fa fa-eye mr-1"></i>Xem chi tiết
+                                Xem
                             </button>
                             {{/is_pending}}
                         </td>
@@ -299,12 +277,10 @@
                             <div class="col-md-6 mb-2 mb-md-0">
                                 <div class="small text-muted">Sinh viên đóng góp:</div>
                                 <div class="font-weight-bold text-dark">{{student_name}} ({{student_username}})</div>
-                                <div class="small text-muted">{{student_email}}</div>
                             </div>
                             <div class="col-md-6 text-md-right">
-                                <div class="small text-muted">Thời gian gửi &bull; Trạng thái:</div>
-                                <span class="small text-muted mr-1">{{submitted_at}}</span>
-                                <span class="{{status_badge_class}}">{{status_label}}</span>
+                                <div class="small text-muted">Thời gian gửi:</div>
+                                <span class="small text-muted">{{submitted_at}}</span>
                             </div>
                         </div>
 
@@ -330,24 +306,17 @@
 
                         <!-- Testcase inspection grid -->
                         <div class="row mb-3">
-                            <div class="col-md-4 mb-2 mb-md-0">
+                            <div class="col-md-6 mb-2 mb-md-0">
                                 <div class="small font-weight-bold text-dark mb-1">
                                     <i class="fa fa-terminal text-muted mr-1"></i>{{#str}} input_data_label, local_testcase_exchange {{/str}}:
                                 </div>
                                 <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{input_normalized}}</pre>
                             </div>
-                            <div class="col-md-4 mb-2 mb-md-0">
+                            <div class="col-md-6">
                                 <div class="small font-weight-bold text-dark mb-1">
                                     <i class="fa fa-bullseye text-muted mr-1"></i>{{#str}} student_expected_output_label, local_testcase_exchange {{/str}}:
                                 </div>
                                 <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{expected_output_display}}</pre>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="small font-weight-bold text-dark mb-1">
-                                    <i class="fa fa-check text-muted mr-1"></i>{{#str}} reference_solution_output_label, local_testcase_exchange {{/str}}:
-                                </div>
-                                <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{oracle_output}}</pre>
-                                <div class="mt-1 small"><span class="badge badge-success"><i class="fa fa-check mr-1"></i>{{oracle_outcome_label}}</span></div>
                             </div>
                         </div>
 
@@ -399,9 +368,6 @@
                                         <option value="needs_explanation" {{#is_pending}}selected{{/is_pending}}>⚠️ {{#str}} decision_needs_explanation, local_testcase_exchange {{/str}}</option>
                                         <option value="rejected" {{#is_rejected}}selected{{/is_rejected}}>✗ {{#str}} decision_rejected, local_testcase_exchange {{/str}}</option>
                                     </select>
-                                    <small class="form-text text-muted mt-1">
-                                        {{#str}} decision_help_text, local_testcase_exchange {{/str}}
-                                    </small>
                                 </div>
                                 <div class="col-md-5">
                                     <label class="font-weight-bold text-dark small mb-1">
@@ -700,10 +666,6 @@
 
     <!-- TAB 5: POLICY CONFIGURATION -->
     <div class="tab-pane {{#tab_policy_active}}active{{/tab_policy_active}}" id="tab_policy">
-        <div class="mb-3">
-            <h5 class="font-weight-bold text-dark mb-0">{{#str}} tab_policy, local_testcase_exchange {{/str}}</h5>
-        </div>
-
         <form method="post" action="index.php?course={{course_id}}&question={{selected_question_value}}&tab=policy">
             <input type="hidden" name="sesskey" value="{{sesskey}}">
             <input type="hidden" name="action" value="save_policy">
@@ -739,11 +701,6 @@
                         </div>
                     </div>
 
-                    <div class="custom-control custom-checkbox mb-2">
-                        <input type="checkbox" class="custom-control-input" id="policyShowOracle" name="show_oracle_output" value="1" {{#policy.show_oracle_output}}checked{{/policy.show_oracle_output}}>
-                        <label class="custom-control-label" for="policyShowOracle">{{#str}} showoracle, local_testcase_exchange {{/str}}</label>
-                        <small class="text-muted d-block font-italic">Lưu ý bảo mật: Nhằm chống lộ đáp án bài thi, hệ thống luôn giữ an toàn output chi tiết của lời giải tham chiếu đối với sinh viên; trường này chỉ áp dụng cho chế độ hiển thị đối chiếu được phép theo chính sách.</small>
-                    </div>
                     <div class="custom-control custom-checkbox mb-2">
                         <input type="checkbox" class="custom-control-input" id="policyLeaderboard" name="leaderboard_enabled" value="1" {{#policy.leaderboard_enabled}}checked{{/policy.leaderboard_enabled}}>
                         <label class="custom-control-label" for="policyLeaderboard">{{#str}} enableleaderboard, local_testcase_exchange {{/str}}</label>
@@ -807,9 +764,6 @@
         <h4 class="font-weight-bold text-dark mb-0 d-flex align-items-center">
             <span class="text-truncate">{{#str}} studentview_title, local_testcase_exchange {{/str}}</span>
         </h4>
-        <div class="text-muted small tce-header-subtitle text-truncate mt-1" style="max-width: 480px;">
-            <span class="font-weight-bold">{{current_course_shortname}}</span> &bull; <span>{{current_quiz_name}}</span>
-        </div>
     </div>
     <div class="tce-header-actions mt-2 mt-sm-0 d-flex align-items-center" style="gap: 6px;">
         {{#has_return_url}}
@@ -918,7 +872,6 @@
                                 {{input_label}} <span class="text-danger">*</span>
                             </label>
                             <textarea class="form-control font-monospace" id="test_input" name="test_input" rows="6" required placeholder="{{input_placeholder}}">{{last_test_input}}</textarea>
-                            <small class="text-muted">Nhập dữ liệu đầu vào hoặc biểu thức kiểm thử theo quy định của đề bài.</small>
                         </div>
 
                         <!-- Expected output của học viên -->
@@ -927,7 +880,6 @@
                                 {{#str}} clean_predicted_label, local_testcase_exchange {{/str}} (Kết quả kỳ vọng): <span class="text-danger">*</span>
                             </label>
                             <textarea class="form-control font-monospace" id="predicted_output" name="predicted_output" rows="6" required placeholder="Nhập kết quả chuẩn chương trình sẽ in ra khi nhận đầu vào trên...">{{last_predicted_output}}</textarea>
-                            <small class="text-muted">Kết quả in ra màn hình mà bạn dự đoán chương trình sẽ trả về.</small>
                         </div>
                     </div>
 
@@ -937,7 +889,7 @@
                             <label for="purpose" class="small font-weight-bold text-dark mb-1">
                                 {{#str}} clean_purpose_label, local_testcase_exchange {{/str}}: <span class="text-danger">*</span>
                             </label>
-                            <textarea class="form-control" id="purpose" name="purpose" rows="2" required placeholder="Ví dụ: Kiểm tra trường hợp danh sách rỗng, số âm hoặc dữ liệu biên...">{{last_purpose}}</textarea>
+                            <textarea class="form-control" id="purpose" name="purpose" rows="6" required placeholder="Ví dụ: Kiểm tra trường hợp danh sách rỗng, số âm hoặc dữ liệu biên...">{{last_purpose}}</textarea>
                         </div>
 
                         <!-- Phân loại testcase -->
@@ -953,10 +905,7 @@
                         </div>
                     </div>
 
-                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center pt-2 border-top">
-                        <small class="text-muted mb-2 mb-sm-0">
-                            <i class="fa fa-info-circle mr-1 text-primary"></i>Hệ thống sẽ chạy dữ liệu đầu vào với <strong>Lời giải mẫu (Solution)</strong> của Thầy/Cô để kiểm tra kết quả kỳ vọng.
-                        </small>
+                    <div class="d-flex justify-content-end align-items-center pt-2 border-top">
                         <button class="btn btn-primary font-weight-bold px-4 shadow-sm" type="submit" id="btnSubmitRunTest" {{#is_teacher_preview}}disabled title="{{#str}} previewmode_run_disabled_notice, local_testcase_exchange {{/str}}"{{/is_teacher_preview}}>
                             <i class="fa fa-play mr-1"></i>{{#str}} run_test_btn, local_testcase_exchange {{/str}}
                         </button>
@@ -964,112 +913,6 @@
                 </div>
             </div>
         </form>
-
-        <!-- KHỐI KẾT QUẢ LẦN CHẠY MỚI NHẤT (TÁCH BIỆT 2 NHÓM THÔNG TIN ĐỘC LẬP & TƯƠNG PHẢN CAO) -->
-        {{#has_latest_run}}
-        {{#latest_run}}
-        <div id="tceFormDirtyWarning" class="alert alert-warning py-2 px-3 mb-3 d-none border-warning shadow-sm" style="background-color: #fffbeb; color: #92400e;">
-            <i class="fa fa-exclamation-triangle mr-1 text-warning"></i><strong>{{#str}} form_dirty_warning, local_testcase_exchange {{/str}}</strong> Hãy bấm "Kiểm tra với Lời giải mẫu" để nhận kết quả mới nhất.
-        </div>
-        <div class="tce-latest-result-card card p-3 shadow-sm mb-4" id="tceLatestResultCard" tabindex="-1" aria-live="polite">
-            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                <div class="d-flex align-items-center">
-                    <h5 class="font-weight-bold text-dark mb-0">
-                        <i class="fa fa-check-circle mr-2 text-primary"></i>{{#str}} latest_result_heading, local_testcase_exchange {{/str}} (Lượt #{{id}})
-                    </h5>
-                </div>
-                <div class="text-muted small">
-                    {{created_at_formatted}}
-                </div>
-            </div>
-
-            <!-- TÁCH 2 NHÓM THÔNG TIN ĐỘC LẬP -->
-            <div class="row mb-3">
-                <!-- 1. KẾT QUẢ CHẠY VỚI LỜI GIẢI MẪU -->
-                <div class="col-md-6 mb-2 mb-md-0">
-                    <div class="card h-100 p-3 border-0 shadow-none" style="background-color: #f8fafc; border-left: 4px solid #0284c7 !important;">
-                        <div class="d-flex align-items-center mb-1">
-                            <i class="fa {{run_result_icon}} mr-2 font-weight-bold"></i>
-                            <span class="font-weight-bold text-dark">Kiểm tra với Solution:</span>
-                            <span class="{{run_result_badge}} ml-2">{{run_result_title}}</span>
-                        </div>
-                        <p class="mb-0 text-dark small" style="color: #334155; line-height: 1.45;">
-                            {{run_result_guidance}}
-                        </p>
-                    </div>
-                </div>
-
-                <!-- 2. TRẠNG THÁI ĐÓNG GÓP -->
-                <div class="col-md-6">
-                    <div class="card h-100 p-3 border-0 shadow-none" style="background-color: #f8fafc; border-left: 4px solid #16a34a !important;">
-                        <div class="d-flex align-items-center mb-1">
-                            <i class="fa {{contrib_icon}} mr-2 font-weight-bold"></i>
-                            <span class="font-weight-bold text-dark">Trạng thái đóng góp:</span>
-                            <span class="{{contrib_badge}} ml-2">{{contrib_title}}</span>
-                        </div>
-                        <p class="mb-2 text-dark small" style="color: #334155; line-height: 1.45;">
-                            {{contrib_guidance}}
-                        </p>
-                        {{#earlier_contrib_notice}}
-                        <div class="alert alert-info py-1 px-2 mt-2 mb-2 small" style="font-size: 0.82rem; background-color: #f0fdf4; border-color: #bbf7d0; color: #166534;">
-                            <i class="fa fa-info-circle mr-1"></i>{{earlier_contrib_notice}}
-                        </div>
-                        {{/earlier_contrib_notice}}
-                        <div class="d-flex flex-column pt-1 border-top">
-                            {{#can_contribute_latest}}
-                            <form method="post" class="m-0" id="formSubmitLatestContrib">
-                                <input type="hidden" name="sesskey" value="{{sesskey}}">
-                                <input type="hidden" name="action" value="contribute">
-                                <input type="hidden" name="run_id" value="{{id}}">
-                                <button class="btn btn-success btn-sm font-weight-bold shadow-sm" type="submit" id="btnSubmitLatestContrib">
-                                    <i class="fa fa-paper-plane mr-1"></i><span id="btnSubmitContribLabel">{{#str}} submit_contribution_btn, local_testcase_exchange {{/str}}</span>
-                                </button>
-                                <div id="dirtyContribHint" class="small text-warning mt-1 d-none" style="font-size: 0.78rem; line-height: 1.3;">
-                                    <i class="fa fa-info-circle mr-1"></i>Bạn đang sửa dữ liệu mới. Nút này sẽ gửi kết quả của <strong>Lượt #{{id}}</strong>. Để gửi dữ liệu mới sửa, hãy bấm "Kiểm tra với Lời giải mẫu" trước.
-                                </div>
-                            </form>
-                            {{/can_contribute_latest}}
-                            {{#has_contrib_link}}
-                            <div>
-                                <a href="#contributions" data-toggle="tab" class="btn btn-outline-info btn-sm font-weight-bold" onclick="document.querySelector('a[href=\'#contributions\']').click();">
-                                    <i class="fa fa-external-link mr-1"></i>Xem đóng góp (#{{contrib_id}})
-                                </a>
-                            </div>
-                            {{/has_contrib_link}}
-                            {{^can_contribute_latest}}
-                            {{^has_contrib_link}}
-                            <div>
-                                <span class="badge badge-light border text-muted py-1 px-2">{{contrib_title}}</span>
-                            </div>
-                            {{/has_contrib_link}}
-                            {{/can_contribute_latest}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Đối chiếu kết quả chi tiết (High Contrast) -->
-            <div class="row mb-2">
-                <div class="col-md-4 mb-2 mb-md-0">
-                    <div class="small font-weight-bold text-dark mb-1">{{#str}} testinput, local_testcase_exchange {{/str}}:</div>
-                    <pre class="font-monospace bg-light p-2 border rounded mb-0 text-dark" style="max-height: 100px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{input_raw}}</pre>
-                </div>
-                <div class="col-md-4 mb-2 mb-md-0">
-                    <div class="small font-weight-bold text-dark mb-1">{{#str}} predictedoutput, local_testcase_exchange {{/str}}:</div>
-                    <pre class="font-monospace bg-light p-2 border rounded mb-0 text-dark" style="max-height: 100px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{predicted_output}}</pre>
-                </div>
-                <div class="col-md-4">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="small font-weight-bold text-dark">{{#str}} oracleoutput, local_testcase_exchange {{/str}}:</span>
-                        {{#expected_matches_oracle}}<span class="badge badge-success small py-0 px-1">Khớp hoàn toàn</span>{{/expected_matches_oracle}}
-                        {{^expected_matches_oracle}}<span class="badge badge-warning text-dark small py-0 px-1">Không khớp</span>{{/expected_matches_oracle}}
-                    </div>
-                    <pre class="font-monospace p-2 border rounded mb-0 {{#expected_matches_oracle}}bg-success-light text-dark border-success{{/expected_matches_oracle}}{{^expected_matches_oracle}}bg-warning-light text-dark border-warning{{/expected_matches_oracle}}" style="max-height: 100px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{#show_oracle}}{{oracle_output}}{{/show_oracle}}{{^show_oracle}}{{#expected_matches_oracle}}✓ Đã xác nhận khớp với Lời giải mẫu{{/expected_matches_oracle}}{{^expected_matches_oracle}}✗ Không khớp với Lời giải mẫu{{/expected_matches_oracle}}{{/show_oracle}}</pre>
-                </div>
-            </div>
-        </div>
-        {{/latest_run}}
-        {{/has_latest_run}}
 
         <!-- BẢNG LỊCH SỬ CHẠY THỬ NGHIỆM -->
         <div class="card mb-3">
@@ -1097,7 +940,7 @@
                             <tr><td colspan="5" class="text-center text-muted py-4">{{#str}} empty_history, local_testcase_exchange {{/str}}</td></tr>
                             {{/runs}}
                             {{#runs}}
-                            <tr id="run-{{id}}" class="{{#is_extra_run}}tce-older-run d-none{{/is_extra_run}}">
+                            <tr id="run-{{id}}" class="{{#is_extra_run}}tce-older-run d-none{{/is_extra_run}}" tabindex="-1">
                                 <td>
                                     <div><strong>#{{id}}</strong></div>
                                     <div class="small text-muted">{{created_at_formatted}}</div>
@@ -1267,15 +1110,23 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table table-hover table-bordered mb-0">
+            <table class="table table-hover table-bordered mb-0" style="table-layout: fixed; width: 100%;">
+                <colgroup>
+                    <col style="width: 5%;">
+                    <col style="width: 25%;">
+                    <col style="width: 12%;">
+                    <col style="width: 22%;">
+                    <col style="width: 25%;">
+                    <col style="width: 11%;">
+                </colgroup>
                 <thead class="bg-light">
                     <tr>
-                        <th style="width: 50px;">ID</th>
+                        <th>ID</th>
                         <th>{{#str}} testinput, local_testcase_exchange {{/str}}</th>
-                        <th style="width: 120px;">{{#str}} category, local_testcase_exchange {{/str}}</th>
-                        <th style="width: 160px;">Trạng thái</th>
+                        <th>{{#str}} category, local_testcase_exchange {{/str}}</th>
+                        <th>Trạng thái</th>
                         <th>Đánh giá & Nhận xét của giảng viên</th>
-                        <th style="width: 130px;">Thời gian</th>
+                        <th>Thời gian</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1324,14 +1175,7 @@
             </table>
         </div>
 
-    <!-- Rewards are intentionally grouped with contribution status: submit, receive feedback, then claim. -->
     <section id="rewards" class="tce-student-section border-top mt-4 pt-4">
-        <div class="tce-section-heading">
-            <div>
-                <h5 class="font-weight-bold text-dark mb-1"><i class="fa fa-gift text-warning mr-1"></i>{{#str}} unlocked_testcases_title, local_testcase_exchange {{/str}}</h5>
-                <p class="text-muted small mb-0">{{#str}} unlocked_testcases_desc, local_testcase_exchange {{/str}}</p>
-            </div>
-        </div>
         <!-- 3 Distinct KPI Stat Cards for Rewards -->
         <div class="row mb-3">
             <div class="col-12 col-md-4 mb-2 px-1">
@@ -1387,14 +1231,6 @@
                         <span class="font-weight-bold text-dark text-nowrap mr-1">#{{id}}</span>
                         <span class="badge badge-light border text-muted text-nowrap">{{category_label}}</span>
                     </div>
-                    <div class="flex-shrink-0">
-                        {{#is_claimed}}
-                        <span class="badge badge-success text-nowrap"><i class="fa fa-check mr-1"></i>Đã mở</span>
-                        {{/is_claimed}}
-                        {{#is_unclaimed}}
-                        <span class="badge badge-warning text-dark font-weight-bold text-nowrap"><i class="fa fa-gift mr-1"></i>Chưa nhận</span>
-                        {{/is_unclaimed}}
-                    </div>
                 </div>
 
                 <!-- Card Body -->
@@ -1402,7 +1238,6 @@
                     {{#is_unclaimed}}
                     <div class="text-center py-3">
                         <div class="text-warning mb-2" style="font-size: 2.2rem; line-height: 1;">🎁</div>
-                        <div class="text-muted small mb-3 font-italic">Nội dung testcase đang được khóa</div>
                         <form method="post" class="m-0">
                             <input type="hidden" name="sesskey" value="{{sesskey}}">
                             <input type="hidden" name="action" value="claim_reward">
@@ -1794,8 +1629,6 @@
         };
         try {
             localStorage.setItem(key, JSON.stringify(data));
-            var msg = getStr('draft_saved_device_justnow', 'Đã lưu nháp tự động trên thiết bị này (vừa xong)');
-            updateStatus(msg, true);
         } catch (e) {
             console.warn('LocalStorage error', e);
         }
@@ -1858,9 +1691,6 @@
         runForm.addEventListener('submit', function() {
             saveDraft();
             sessionStorage.setItem('tce_just_ran', '1');
-            var actionUrl = new URL(runForm.getAttribute('action') || window.location.href, window.location.href);
-            actionUrl.hash = 'tceLatestResultCard';
-            runForm.setAttribute('action', actionUrl.toString());
             if (btnSubmitRun) {
                 btnSubmitRun.disabled = true;
                 btnSubmitRun.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> ' + getStr('running', 'Đang chạy...');
@@ -1989,79 +1819,20 @@
         });
     }
 
-    // Form dirty tracking
-    var isFormDirty = false;
-    function markFormDirty() {
-        if (isFormDirty) return;
-        isFormDirty = true;
-        var banner = document.getElementById('tceFormDirtyWarning');
-        if (banner) {
-            banner.classList.remove('d-none');
-        }
-        var btnLbl = document.getElementById('btnSubmitContribLabel');
-        var dirtyHint = document.getElementById('dirtyContribHint');
-        var latestRunId = '{{latest_run.id}}';
-        if (btnLbl && latestRunId) {
-            btnLbl.textContent = 'Gửi Lượt đã chạy #' + latestRunId;
-        }
-        if (dirtyHint) {
-            dirtyHint.classList.remove('d-none');
-        }
-    }
-    ['test_input', 'predicted_output', 'category', 'purpose'].forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el) {
-            el.addEventListener('input', markFormDirty);
-            el.addEventListener('change', markFormDirty);
-        }
-    });
-
-    // Confirmation if student clicks "Gửi đóng góp" while form is dirty
-    var contribForm = document.getElementById('formSubmitLatestContrib');
-    if (contribForm) {
-        contribForm.addEventListener('submit', function(e) {
-            if (isFormDirty) {
-                var latestRunId = '{{latest_run.id}}';
-                var msg = 'Dữ liệu trong khung soạn đã thay đổi và chưa được kiểm tra với Lời giải mẫu!\n\n' +
-                          '• Nút này sẽ gửi kết quả đã chạy thành công ở Lượt #' + latestRunId + '.\n' +
-                          '• Nếu bạn muốn gửi dữ liệu vừa chỉnh sửa, vui lòng bấm "Hủy" rồi bấm "Kiểm tra với Lời giải mẫu" trước.\n\n' +
-                          'Bạn có chắc chắn muốn gửi kết quả Lượt #' + latestRunId + ' không?';
-                if (!window.confirm(msg)) {
-                    e.preventDefault();
-                    var runBtn = document.getElementById('btnSubmitRunTest');
-                    if (runBtn) {
-                        runBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        runBtn.focus();
-                    }
-                    return false;
-                }
-            }
-        });
-    }
-
-    // Reveal the newest result only after layout completes
-    var latestResult = document.getElementById('tceLatestResultCard');
-    var shouldRevealLatest = sessionStorage.getItem('tce_just_ran') === '1' ||
-        window.location.hash === '#tceLatestResultCard';
-    if (latestResult && shouldRevealLatest) {
+    // After a new run, bring its row in the history into view.
+    var shouldRevealLatest = sessionStorage.getItem('tce_just_ran') === '1';
+    var latestRunId = '{{latest_run.id}}';
+    var latestHistoryRow = latestRunId ? document.getElementById('run-' + latestRunId) : null;
+    if (latestHistoryRow && shouldRevealLatest) {
         sessionStorage.removeItem('tce_just_ran');
         window.requestAnimationFrame(function() {
             window.setTimeout(function() {
-                latestResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                latestResult.focus({ preventScroll: true });
-                latestResult.classList.add('tce-result-reveal');
-
-                var latestRunId = '{{latest_run.id}}';
-                var latestHistoryRow = latestRunId ? document.getElementById('run-' + latestRunId) : null;
-                if (latestHistoryRow) {
-                    latestHistoryRow.classList.add('tce-result-reveal-row');
-                }
+                latestHistoryRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                latestHistoryRow.focus({ preventScroll: true });
+                latestHistoryRow.classList.add('tce-result-reveal-row');
 
                 window.setTimeout(function() {
-                    latestResult.classList.remove('tce-result-reveal');
-                    if (latestHistoryRow) {
-                        latestHistoryRow.classList.remove('tce-result-reveal-row');
-                    }
+                    latestHistoryRow.classList.remove('tce-result-reveal-row');
                 }, 2200);
             }, 180);
         });

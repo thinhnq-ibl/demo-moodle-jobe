@@ -15,7 +15,7 @@ $existing_url = $DB->get_record('url', ['course' => $course->id, 'externalurl' =
 if (!$existing_url) {
     $u = new stdClass();
     $u->course = $course->id;
-    $u->name = '🎁 Kho Testcase & Đổi thưởng (Bảng xếp hạng đóng góp)';
+    $u->name = 'Kho phần thưởng testcase';
     $u->intro = '<p>Bấm vào đây để đóng góp testcase độc lạ, mở khóa các ca kiểm thử mới từ ngân hàng và thi đua cùng các bạn trong lớp!</p>';
     $u->introformat = FORMAT_HTML;
     $u->externalurl = $link_url;

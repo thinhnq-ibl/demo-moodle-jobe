@@ -143,7 +143,8 @@ async function loginAndSave(browser, username, password, filename) {
     page.locator('form#login').evaluate((form) => form.submit()),
   ]);
   if (page.url().includes('/login/')) {
-    throw new Error(`Đăng nhập thất bại cho tài khoản ${username}`);
+    const loginError = await page.locator('.loginerrors, #loginerrormessage, .alert-danger').allTextContents();
+    throw new Error(`Đăng nhập thất bại cho tài khoản ${username}: ${loginError.join(' ').trim() || page.url()}`);
   }
   await context.storageState({ path: path.resolve(__dirname, filename) });
   await context.close();
@@ -211,15 +212,15 @@ async function runWorkspace(page) {
     runButton.click(),
   ]);
   await waitForPage(page);
-  const resultCard = page.locator('#tceLatestResultCard');
-  await resultCard.waitFor({ state: 'visible', timeout: 30000 });
-  await resultCard.scrollIntoViewIfNeeded();
-  await highlight(resultCard, 2500);
+  const latestRun = page.locator('.tce-history-desktop-table tbody tr[id^="run-"]').first();
+  await latestRun.waitFor({ state: 'visible', timeout: 30000 });
+  await latestRun.scrollIntoViewIfNeeded();
+  await highlight(latestRun, 2500);
   await page.waitForTimeout(2000);
 }
 
 async function contributeLatest(page) {
-  const button = page.locator('#btnSubmitLatestContrib').first();
+  const button = page.locator('.tce-history-desktop-table tbody tr[id^="run-"] form button[type="submit"]').first();
   await button.waitFor({ state: 'visible', timeout: 30000 });
   await highlight(button, 2000);
   await clickAndWait(page, button);
@@ -325,9 +326,9 @@ function postProcessVideo() {
   const captions = [
     'Phase 1: Giảng viên kích hoạt quy tắc Quiz Settings và kiểm tra câu hỏi CodeRunner.',
     'Phase 1: Giảng viên mở Testcase Exchange từ Quiz, xem KPI và cấu hình chính sách lớp học.',
-    'Phase 2: Sinh viên 1 làm bài, mở workspace từ câu hỏi và gửi testcase hợp lệ.',
+    'Phase 2: Sinh viên 1 làm bài, mở workspace chung của Quiz và gửi testcase hợp lệ.',
     'Phase 2: Sinh viên 2 phát hiện lỗi logic từ ca số âm, sửa code trong Ace và đóng góp.',
-    'Phase 2: Sinh viên 3 nhận cảnh báo trùng lặp và thiết kế testcase biên mới.',
+    'Phase 2: Sinh viên 3 phát hiện testcase trùng lặp và thiết kế testcase biên mới.',
     'Phase 3: Giảng viên thẩm định chậm rãi từng đóng góp và xem nhật ký Audit Log.',
     'Phase 3: Sinh viên 3 gửi giải trình bổ sung và Sinh viên 1 nhận thưởng mở khóa 1-đổi-1.',
     'Phase 3: Giảng viên duyệt giải trình, xem kho testcase chung và bảng xếp hạng cập nhật.',
@@ -477,7 +478,7 @@ function postProcessVideo() {
         purpose: 'Kiểm tra số nguyên tố lớn không chia hết cho các số nhỏ.',
       });
       await runWorkspace(page);
-      await showCaption(page, 'PHASE 2/3 • SINH VIÊN 1', 'Kết quả chạy thử mới nhất', 'Trang tự cuộn xuống card kết quả; testcase hợp lệ có thể gửi đóng góp.');
+      await showCaption(page, 'PHASE 2/3 • SINH VIÊN 1', 'Lịch sử chạy thử được cập nhật', 'Lượt chạy mới xuất hiện trong bảng lịch sử; testcase hợp lệ có thể gửi đóng góp ngay tại đó.');
       await page.waitForTimeout(2500);
       await contributeLatest(page);
       await returnToQuiz(page);
@@ -504,7 +505,7 @@ function postProcessVideo() {
         purpose: 'Kiểm tra số âm; thuật toán thiếu điều kiện n <= 1 nên nhận nhầm số âm là số nguyên tố.',
       });
       await runWorkspace(page);
-      await showCaption(page, 'PHASE 2/3 • SINH VIÊN 2', 'Phát hiện lỗi logic từ ca số âm', 'Expected (False) và Oracle (False) khớp nhau; code sinh viên trả về True do thiếu kiểm tra n <= 1.');
+      await showCaption(page, 'PHASE 2/3 • SINH VIÊN 2', 'Phát hiện lỗi logic từ ca số âm', 'Sinh viên so sánh kết quả dự đoán với hành vi chương trình và nhận ra cần bổ sung điều kiện n <= 1.');
       await page.waitForTimeout(2500);
       await fillWorkspace(page, {
         code: CORRECT_PRIME_CODE, input: 'print(is_prime(-7))', expected: 'False', category: 'boundary',

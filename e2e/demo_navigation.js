@@ -128,11 +128,26 @@ async function openProgrammingQuestion(page, highlight = async () => {}) {
 }
 
 async function openTestcaseExchangeFromQuestion(page, highlight = async () => {}) {
-  const contributionLink = page.locator('a[href*="/local/testcase_exchange/index.php"][href*="question="]').first();
+  const namedLink = page.getByRole('link', {
+    name: /Thử nghiệm testcase|Test testcases/i,
+  }).first();
+  const contributionLink = (await namedLink.count()) ? namedLink :
+    page.locator('main a[href*="/local/testcase_exchange/index.php"]').first();
   await contributionLink.waitFor({ state: 'visible', timeout: 30000 });
   await contributionLink.scrollIntoViewIfNeeded();
   await highlight(contributionLink, 2000);
-  await clickAndWait(page, contributionLink);
+  const href = await contributionLink.getAttribute('href');
+  await contributionLink.click({ force: true });
+  try {
+    await page.waitForURL(/\/local\/testcase_exchange\/index\.php/, {
+      waitUntil: 'domcontentloaded',
+      timeout: 15000,
+    });
+  } catch (error) {
+    if (!href) throw error;
+    await page.goto(href, { waitUntil: 'domcontentloaded' });
+  }
+  await waitForPage(page);
 }
 
 async function openTeacherHubFromQuiz(page, highlight = async () => {}) {

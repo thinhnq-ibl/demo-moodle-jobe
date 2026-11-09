@@ -251,7 +251,7 @@ function local_testcase_exchange_before_footer(): string {
         return '';
     }
 
-    $links = [];
+    $hasvalidsubmission = false;
     $questions = \local_testcase_exchange\context_service::questions_for_course($cm->course);
     foreach ($questions as $question) {
         if ((int) $question->quizid !== (int) $cm->instance) {
@@ -264,6 +264,7 @@ function local_testcase_exchange_before_footer(): string {
         if (!$hasanswer) {
             continue;
         }
+        $hasvalidsubmission = true;
 
         // Record code revision automatically if changed during this check/attempt step
         $latestcode = \local_testcase_exchange\context_service::get_latest_valid_submission_code(
@@ -284,26 +285,22 @@ function local_testcase_exchange_before_footer(): string {
             );
         }
 
-        $url = new moodle_url('/local/testcase_exchange/index.php', [
-            'course' => $cm->course,
-            'question' => $question->quizid . ':' . $question->questionid,
-            'attempt' => $attempt->id,
-        ]);
-        $links[] = html_writer::link(
-            $url,
-            get_string('contributetestcaseafterquiz', 'local_testcase_exchange') . ': ' . $question->questionname,
-            ['class' => 'btn btn-primary mr-2 mb-2']
-        );
     }
-    if (!$links) {
+    if (!$hasvalidsubmission) {
         return '';
     }
 
-    $content = html_writer::tag(
-        'p',
-        get_string('contributetestcaseafterquizintro', 'local_testcase_exchange'),
-        ['class' => 'mb-2']
+    $url = new moodle_url('/local/testcase_exchange/index.php', [
+        'course' => $cm->course,
+        'quiz' => $cm->instance,
+        'attempt' => $attempt->id,
+    ]);
+    return html_writer::div(
+        html_writer::link(
+            $url,
+            get_string('contributetestcaseafterquiz', 'local_testcase_exchange'),
+            ['class' => 'btn btn-primary']
+        ),
+        'mt-4 mb-4'
     );
-    $content .= implode('', $links);
-    return html_writer::div($content, 'card card-body mt-4 mb-4');
 }

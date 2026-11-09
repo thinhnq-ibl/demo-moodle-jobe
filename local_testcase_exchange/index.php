@@ -926,13 +926,10 @@ if ($is_student_view) {
         $predicted_out = trim((string) ($run['predicted_output'] ?? ''));
         $oracle_out = trim((string) ($run['oracle_output'] ?? ''));
 
-        // CRITICAL SECURITY: Never leak Oracle stdout in student view unless permitted by policy!
-        if (empty($quizsettings['show_oracle_output'])) {
-            $run['show_oracle'] = false;
-            $run['oracle_output'] = '';
-        } else {
-            $run['show_oracle'] = true;
-        }
+        // Never disclose reference-solution output in the student workflow.
+        // Reward testcases are prepared separately and remain the only student-facing source of it.
+        $run['show_oracle'] = false;
+        $run['oracle_output'] = '';
 
         $run['has_student_output'] = ($student_out !== '');
         $run['student_matches_expected'] = ($student_out !== '' && $student_out === $predicted_out);
@@ -1083,7 +1080,7 @@ if ($is_student_view) {
             $run['run_outcome_label'] = 'Không khớp Solution';
         } else {
             $run['run_outcome_badge'] = 'badge badge-success';
-            $run['run_outcome_label'] = 'Khớp Solution';
+            $run['run_outcome_label'] = 'Khớp';
         }
 
         $run['has_revision'] = !empty($run['revision_step']);
