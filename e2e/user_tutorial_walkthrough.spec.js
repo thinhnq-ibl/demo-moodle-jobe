@@ -228,7 +228,7 @@ test.describe('Kịch bản Hướng dẫn Sử dụng Hệ thống Testcase Exc
 
     // Mở tab Bảng xếp hạng (Leaderboard)
     console.log('[Bước 19] Mở Tab Bảng Xếp Hạng vinh danh (Leaderboard)...');
-    const leaderboardTab = page.locator('a[href="#seed_search"]').first();
+    const leaderboardTab = page.locator('a[href="#tab_leaderboard"], a[href="#seed_search"]').first();
     await leaderboardTab.click();
     await page.locator('#leaderboard').scrollIntoViewIfNeeded();
     await page.waitForTimeout(3000);

@@ -57,6 +57,7 @@
                 <th style="min-width: 160px;">{{#str}} student, local_testcase_exchange {{/str}}</th>
                 <th style="min-width: 160px;">{{#str}} quizquestion, local_testcase_exchange {{/str}}</th>
                 <th style="min-width: 180px;">Testcase tóm tắt</th>
+                <th style="width: 130px;">{{#str}} category, local_testcase_exchange {{/str}}</th>
                 <th style="width: 140px;">Thời gian</th>
                 <th style="width: 130px;">{{#str}} status {{/str}}</th>
                 <th style="width: 150px; text-align: center;">{{#str}} actions, local_testcase_exchange {{/str}}</th>
@@ -65,7 +66,7 @@
         <tbody>
             {{^has_items}}
             <tr>
-                <td colspan="7" class="text-center py-5 text-muted">
+                <td colspan="8" class="text-center py-5 text-muted">
                     <div class="mb-2"><i class="fa fa-check-circle-o text-muted" style="font-size: 2.5rem;"></i></div>
                     <p class="mb-0 font-weight-bold">{{#str}} nocontributionsfound, local_testcase_exchange {{/str}}</p>
                 </td>
@@ -75,23 +76,34 @@
             <tr>
                 <td><strong>#{{id}}</strong></td>
                 <td>
-                    <div class="font-weight-bold text-dark">{{student_name}}</div>
-                    <small class="text-muted">{{student_username}}</small>
+                    <span class="font-weight-bold text-dark">{{student_username}}</span>
                 </td>
                 <td>
                     <div class="font-weight-bold text-dark">{{question_name}}</div>
                     <small class="text-muted">{{quiz_name}}</small>
                 </td>
                 <td>
-                    <div class="small text-muted mb-1">
-                        In: <span class="badge badge-light border font-monospace text-truncate d-inline-block" style="max-width: 150px; vertical-align: bottom;">{{input_normalized}}</span>
-                    </div>
-                    <div class="small text-muted">
-                        Exp: <span class="badge badge-light border font-monospace text-truncate d-inline-block" style="max-width: 150px; vertical-align: bottom;">{{expected_output_display}}</span>
+                    <div class="d-flex flex-column" style="gap: 3px; max-width: 320px;">
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted small font-weight-bold" style="width: 34px; flex-shrink: 0;">In:</span>
+                            <span class="badge badge-light border font-monospace text-truncate text-dark text-left" style="max-width: 240px; font-size: 0.82rem; padding: 3px 6px;" title="{{input_normalized}}">{{input_normalized}}</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted small font-weight-bold" style="width: 34px; flex-shrink: 0;">Exp:</span>
+                            <span class="badge badge-light border font-monospace text-truncate text-dark text-left" style="max-width: 240px; font-size: 0.82rem; padding: 3px 6px;" title="{{expected_output_display}}">{{expected_output_display}}</span>
+                        </div>
+                        {{#purpose}}
+                        <div class="small text-muted text-truncate mt-1" style="max-width: 270px; font-size: 0.78rem;" title="{{purpose}}">
+                            <i class="fa fa-commenting-o mr-1 text-info"></i>{{purpose}}
+                        </div>
+                        {{/purpose}}
                     </div>
                 </td>
                 <td>
-                    <small class="text-muted">{{submitted_at}}</small>
+                    <span class="badge badge-light border text-dark">{{category_label}}</span>
+                </td>
+                <td>
+                    <small class="text-muted" title="{{submitted_at_full}}">{{submitted_at}}</small>
                 </td>
                 <td>
                     <span class="{{status_badge_class}}">{{status_label}}</span>
@@ -126,52 +138,13 @@
         <div class="modal-content shadow border-0" style="border-radius: 8px;">
             <div class="modal-header bg-light py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
                 <h5 class="modal-title font-weight-bold text-dark mb-0" id="reviewModalLabel_{{id}}">
-                    <i class="fa fa-check-circle text-primary mr-2"></i>Thẩm định đóng góp #{{id}}
+                    <i class="fa fa-check-circle text-primary mr-2"></i>Thẩm định đóng góp #{{id}} — <span class="text-primary">{{student_username}}</span>
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body p-3">
-                <!-- Meta summary -->
-                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
-                    <div class="font-weight-bold text-dark">
-                        <i class="fa fa-user-circle text-primary mr-1"></i>{{student_name}} <span class="text-muted font-weight-normal">({{student_username}})</span>
-                    </div>
-                    <div class="small text-muted">
-                        <i class="fa fa-clock-o mr-1"></i>{{submitted_at}}
-                    </div>
-                </div>
-
-                <!-- Question & Purpose info -->
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="font-weight-bold text-dark text-truncate mr-2">
-                        <i class="fa fa-book text-muted mr-1"></i>{{question_name}}
-                    </div>
-                    <span class="badge badge-light border text-dark">{{category_label}}</span>
-                </div>
-                {{#purpose}}
-                <div class="small text-muted mb-3 p-2 bg-light rounded border">
-                    <strong class="text-dark">Lý do sinh testcase:</strong> {{purpose}}
-                </div>
-                {{/purpose}}
-
-                <!-- Testcase inspection grid -->
-                <div class="row mb-3">
-                    <div class="col-md-6 mb-2 mb-md-0">
-                        <div class="small font-weight-bold text-dark mb-1">
-                            {{#str}} input_data_label, local_testcase_exchange {{/str}}:
-                        </div>
-                        <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 110px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{input_normalized}}</pre>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="small font-weight-bold text-dark mb-1">
-                            {{#str}} student_expected_output_label, local_testcase_exchange {{/str}}:
-                        </div>
-                        <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 110px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{expected_output_display}}</pre>
-                    </div>
-                </div>
-
                 {{^is_pending}}
                 <!-- Display existing review summary for approved/rejected/needs_explanation -->
                 <div class="card bg-white border p-3 mb-3">

@@ -244,9 +244,15 @@ final class context_service {
                 }
             }
 
-            // Formatted submitted timestamp in user's timezone
+            // Formatted submitted timestamp in user's timezone: concise (time + ngay + thang, no year)
             $subtime = !empty($c['timecreated']) ? (int) $c['timecreated'] : 0;
-            $c['submitted_at'] = $subtime > 0 ? userdate($subtime, get_string('strftimedatetimeshort', 'core_langconfig')) : get_string('noinfo', 'local_testcase_exchange');
+            if ($subtime > 0) {
+                $c['submitted_at'] = userdate($subtime, '%H:%M %d/%m');
+                $c['submitted_at_full'] = userdate($subtime, '%d/%m/%Y %H:%M:%S');
+            } else {
+                $c['submitted_at'] = get_string('noinfo', 'local_testcase_exchange');
+                $c['submitted_at_full'] = '';
+            }
         }
         unset($c);
 
@@ -568,13 +574,19 @@ final class context_service {
                 $item['fullname'] = fullname($u);
                 $item['username'] = $u->username;
                 $item['email'] = $u->email;
+                $item['student_name'] = fullname($u);
+                $item['student_username'] = $u->username;
+                $item['student_email'] = $u->email;
             } else {
                 $item['fullname'] = 'User #' . $uid;
                 $item['username'] = '#' . $uid;
                 $item['email'] = '';
+                $item['student_name'] = 'User #' . $uid;
+                $item['student_username'] = '#' . $uid;
+                $item['student_email'] = '';
             }
             if (!empty($item['last_run_at'])) {
-                $item['last_run_formatted'] = userdate(strtotime($item['last_run_at']), get_string('strftimedatetimeshort', 'core_langconfig'));
+                $item['last_run_formatted'] = userdate(strtotime($item['last_run_at']), '%H:%M %d/%m');
             } else {
                 $item['last_run_formatted'] = '—';
             }

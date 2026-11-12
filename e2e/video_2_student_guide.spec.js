@@ -195,7 +195,7 @@ test.describe('Video 2: Hướng dẫn Sử dụng dành cho Sinh viên (Student
     }
 
     // Chuyển sang tab Leaderboard
-    const leaderboardTab = page.locator('a[href="#seed_search"]').first();
+    const leaderboardTab = page.locator('a[href="#tab_leaderboard"], a[href="#seed_search"]').first();
     await highlight(leaderboardTab, 1200);
     await leaderboardTab.click();
     await page.locator('#leaderboard').scrollIntoViewIfNeeded();

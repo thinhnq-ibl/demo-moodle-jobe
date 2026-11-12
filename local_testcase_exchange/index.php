@@ -357,6 +357,23 @@ if ($returnurl === '') {
 
 // Service initialized above.
 
+// Allow downloading seed CSV template for teachers.
+$downloadtemplate = optional_param('download_template', '', PARAM_ALPHA);
+if ($downloadtemplate === 'csv') {
+    require_capability('local/testcase_exchange:manage', $context);
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="seed_testcases_template.csv"');
+    // UTF-8 BOM for Excel support on Windows.
+    echo "\xEF\xBB\xBF";
+    echo "test_input,expected_output\n";
+    echo "\"print(is_prime(2))\",True\n";
+    echo "\"print(is_prime(1009))\",True\n";
+    echo "\"print(is_prime(4))\",False\n";
+    echo "\"print(is_prime(-7))\",False\n";
+    echo "\"print(is_prime(0))\",False\n";
+    exit;
+}
+
 // Handle POST actions with strict sesskey and capability checks.
 if ($service && data_submitted()) {
     require_sesskey();
@@ -530,6 +547,60 @@ if ($service && data_submitted()) {
             $service->add_manual_seed($courseid, $targetquizid, $targetquestionid, $testcode, $stdin, $expected, $purpose, 'manual');
             $returntaburl = new moodle_url($PAGE->url, ['tab' => 'bank']);
             redirect($returntaburl, 'Đã thêm testcase hạt giống thủ công thành công!', null, \core\output\notification::NOTIFY_SUCCESS);
+        } else if ($action === 'import_csv_seeds') {
+            require_capability('local/testcase_exchange:manage', $context);
+            $targetquizid = required_param('seed_quiz_id', PARAM_INT);
+            $targetquestionid = required_param('seed_question_id', PARAM_INT);
+            $quiz = $DB->get_record('quiz', ['id' => $targetquizid, 'course' => $courseid], '*', MUST_EXIST);
+            context_service::validate($courseid, $targetquizid, $targetquestionid);
+
+            $csvcontent = '';
+            if (!empty($_FILES['seed_csv_file']['tmp_name']) && is_uploaded_file($_FILES['seed_csv_file']['tmp_name'])) {
+                $csvcontent = file_get_contents($_FILES['seed_csv_file']['tmp_name']);
+            }
+            if (empty($csvcontent)) {
+                $csvcontent = optional_param('seed_csv_content', '', PARAM_RAW);
+            }
+
+            $imported = 0;
+            if (trim($csvcontent) !== '') {
+                $csvcontent = str_replace(["\r\n", "\r"], "\n", $csvcontent);
+                $lines = explode("\n", $csvcontent);
+
+                foreach ($lines as $line) {
+                    $trimmed = trim($line);
+                    if ($trimmed === '') {
+                        continue;
+                    }
+                    $row = str_getcsv($trimmed);
+                    if (count($row) < 2) {
+                        $row = str_getcsv($trimmed, ';');
+                    }
+                    if (count($row) < 2) {
+                        $row = str_getcsv($trimmed, "\t");
+                    }
+                    if (count($row) >= 2) {
+                        $input = trim($row[0]);
+                        $expected = trim($row[1]);
+
+                        if ($imported === 0 && (strtolower($input) === 'input' || strtolower($input) === 'testcode' || strtolower($input) === 'dữ liệu')) {
+                            continue;
+                        }
+
+                        if ($input !== '' || $expected !== '') {
+                            $service->add_manual_seed($courseid, $targetquizid, $targetquestionid, $input, '', $expected, '', 'csv_import');
+                            $imported++;
+                        }
+                    }
+                }
+            }
+
+            $returntaburl = new moodle_url($PAGE->url, ['tab' => 'bank']);
+            if ($imported > 0) {
+                redirect($returntaburl, "Đã nhập thành công {$imported} testcase hạt giống từ CSV!", null, \core\output\notification::NOTIFY_SUCCESS);
+            } else {
+                redirect($returntaburl, 'Không tìm thấy dữ liệu testcase hợp lệ trong nội dung CSV.', null, \core\output\notification::NOTIFY_WARNING);
+            }
         } else if ($action === 'delete_seed') {
             require_capability('local/testcase_exchange:manage', $context);
             $seedid = required_param('seed_id', PARAM_INT);
@@ -1086,12 +1157,14 @@ if ($is_student_view) {
         $run['has_revision'] = !empty($run['revision_step']);
         $run['revision_badge'] = !empty($run['revision_step']) ? 'Code v' . $run['revision_step'] : null;
 
-        // Định dạng thời gian tạo lượt chạy: ưu tiên timecreated int, không hiển thị 01/01/1970 nếu thiếu.
+        // Định dạng thời gian tạo lượt chạy: hiển thị ngắn gọn (time + ngày + tháng, không ghi năm).
         $createdtimestamp = !empty($run['timecreated']) ? (int) $run['timecreated'] : (!empty($run['created_at']) ? strtotime($run['created_at']) : 0);
         if ($createdtimestamp > 0) {
-            $run['created_at_formatted'] = userdate($createdtimestamp, get_string('strftimedatetimeshort', 'core_langconfig'));
+            $run['created_at_formatted'] = userdate($createdtimestamp, '%H:%M %d/%m');
+            $run['created_at_full'] = userdate($createdtimestamp, '%d/%m/%Y %H:%M:%S');
         } else {
             $run['created_at_formatted'] = get_string('noinfo', 'local_testcase_exchange');
+            $run['created_at_full'] = '';
         }
         $run['has_code_snapshot'] = !empty($run['student_code_snapshot']);
     }
@@ -1399,8 +1472,8 @@ if ($is_student_view) {
         $cat = $rw['category'] ?? 'normal';
         $rw['category_label'] = get_string_manager()->string_exists('category_' . $cat, 'local_testcase_exchange') ?
             get_string('category_' . $cat, 'local_testcase_exchange') : ucfirst($cat);
-        $rw['formatted_created'] = !empty($rw['timecreated']) ? userdate($rw['timecreated'], '%d/%m/%Y %H:%M') : '';
-        $rw['formatted_claimed'] = !empty($rw['claimed_at']) ? userdate($rw['claimed_at'], '%d/%m/%Y %H:%M') : '';
+        $rw['formatted_created'] = !empty($rw['timecreated']) ? userdate($rw['timecreated'], '%H:%M %d/%m') : '';
+        $rw['formatted_claimed'] = !empty($rw['claimed_at']) ? userdate($rw['claimed_at'], '%H:%M %d/%m') : '';
     }
     unset($rw);
 
@@ -1549,6 +1622,10 @@ if ($is_student_view) {
         ];
     }
 
+    $all_public_testcases = array_merge($public_seeds, $approved_peer_inputs);
+    $templatedata['all_public_testcases'] = $all_public_testcases;
+    $templatedata['all_public_testcases_count'] = count($all_public_testcases);
+    $templatedata['has_all_public_testcases'] = !empty($all_public_testcases);
     $templatedata['public_seeds'] = $public_seeds;
     $templatedata['public_seeds_count'] = count($public_seeds);
     $templatedata['has_public_seeds'] = !empty($public_seeds);

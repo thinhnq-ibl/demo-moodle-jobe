@@ -1,0 +1,6 @@
+test_input,expected_output
+"print(is_prime(2))",True
+"print(is_prime(1009))",True
+"print(is_prime(4))",False
+"print(is_prime(-7))",False
+"print(is_prime(0))",False

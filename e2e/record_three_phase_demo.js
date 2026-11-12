@@ -692,11 +692,28 @@ function postProcessVideo() {
       await clickAndWait(page, previewLink);
       await injectVideoStyles(page);
 
-      const leaderboardTab = page.locator('a[href="#seed_search"]').first();
+      const leaderboardTab = page.locator('a[href="#tab_leaderboard"]').first();
       if (await leaderboardTab.count() && await leaderboardTab.isVisible()) {
         await highlight(leaderboardTab, 2000);
         await leaderboardTab.click();
-        await page.locator('#leaderboard').scrollIntoViewIfNeeded();
+        await page.evaluate(() => {
+          if (typeof $ !== 'undefined' && $.fn && $.fn.tab) {
+            $('a[href="#tab_leaderboard"]').tab('show');
+          } else if (window.jQuery && window.jQuery.fn && window.jQuery.fn.tab) {
+            window.jQuery('a[href="#tab_leaderboard"]').tab('show');
+          } else {
+            const pane = document.querySelector('#tab_leaderboard');
+            if (pane) {
+              document.querySelectorAll('.tab-content > .tab-pane').forEach(el => el.classList.remove('active', 'show'));
+              pane.classList.add('active', 'show');
+            }
+          }
+        }).catch(() => {});
+        await page.waitForTimeout(2000);
+        const lb = page.locator('#leaderboard');
+        if (await lb.count() && await lb.isVisible()) {
+          await lb.scrollIntoViewIfNeeded().catch(() => {});
+        }
         await showCaption(page, 'HOÀN TẤT DEMO', 'Bảng xếp hạng lớp học cập nhật đầy đủ', 'Góc nhìn sinh viên cho thấy điểm sao và số lượng đóng góp được ghi nhận công bằng.');
         await page.waitForTimeout(3500);
       }
