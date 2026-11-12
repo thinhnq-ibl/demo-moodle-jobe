@@ -134,50 +134,41 @@
             </div>
             <div class="modal-body p-3">
                 <!-- Meta summary -->
-                <div class="row mb-3 pb-2 border-bottom">
-                    <div class="col-md-6 mb-2 mb-md-0">
-                        <div class="small text-muted">Sinh viên đóng góp:</div>
-                        <div class="font-weight-bold text-dark">{{student_name}} ({{student_username}})</div>
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                    <div class="font-weight-bold text-dark">
+                        <i class="fa fa-user-circle text-primary mr-1"></i>{{student_name}} <span class="text-muted font-weight-normal">({{student_username}})</span>
                     </div>
-                    <div class="col-md-6 text-md-right">
-                        <div class="small text-muted">Thời gian gửi:</div>
-                        <span class="small text-muted">{{submitted_at}}</span>
+                    <div class="small text-muted">
+                        <i class="fa fa-clock-o mr-1"></i>{{submitted_at}}
                     </div>
                 </div>
 
                 <!-- Question & Purpose info -->
-                <div class="bg-light p-2 rounded border mb-3">
-                    <div class="d-flex flex-wrap justify-content-between">
-                        <div>
-                            <span class="text-muted small">Bài tập / Câu hỏi:</span>
-                            <span class="font-weight-bold text-dark ml-1">{{quiz_name}} — {{question_name}}</span>
-                        </div>
-                        <div>
-                            <span class="text-muted small">{{#str}} category, local_testcase_exchange {{/str}}:</span>
-                            <span class="badge badge-light border text-dark ml-1">{{category_label}}</span>
-                        </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="font-weight-bold text-dark text-truncate mr-2">
+                        <i class="fa fa-book text-muted mr-1"></i>{{question_name}}
                     </div>
-                    {{#purpose}}
-                    <div class="mt-2 pt-2 border-top">
-                        <span class="text-muted small font-weight-bold">Mục đích kiểm thử khai báo:</span>
-                        <div class="text-dark small font-italic mt-1">{{purpose}}</div>
-                    </div>
-                    {{/purpose}}
+                    <span class="badge badge-light border text-dark">{{category_label}}</span>
                 </div>
+                {{#purpose}}
+                <div class="small text-muted mb-3 p-2 bg-light rounded border">
+                    <strong class="text-dark">Lý do sinh testcase:</strong> {{purpose}}
+                </div>
+                {{/purpose}}
 
                 <!-- Testcase inspection grid -->
                 <div class="row mb-3">
                     <div class="col-md-6 mb-2 mb-md-0">
                         <div class="small font-weight-bold text-dark mb-1">
-                            <i class="fa fa-terminal text-muted mr-1"></i>{{#str}} input_data_label, local_testcase_exchange {{/str}}:
+                            {{#str}} input_data_label, local_testcase_exchange {{/str}}:
                         </div>
-                        <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{input_normalized}}</pre>
+                        <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 110px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{input_normalized}}</pre>
                     </div>
                     <div class="col-md-6">
                         <div class="small font-weight-bold text-dark mb-1">
-                            <i class="fa fa-bullseye text-muted mr-1"></i>{{#str}} student_expected_output_label, local_testcase_exchange {{/str}}:
+                            {{#str}} student_expected_output_label, local_testcase_exchange {{/str}}:
                         </div>
-                        <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{expected_output_display}}</pre>
+                        <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 110px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{expected_output_display}}</pre>
                     </div>
                 </div>
 
@@ -212,14 +203,10 @@
                 <form method="post" id="editReviewForm_{{id}}" class="{{^is_pending}}d-none{{/is_pending}} card bg-light border p-3 mb-0">
                     <input type="hidden" name="sesskey" value="{{sesskey}}">
                     <input type="hidden" name="action" value="teacher_review">
-            <input type="hidden" name="contribution_id" value="{{id}}">
+                    <input type="hidden" name="contribution_id" value="{{id}}">
 
-                    <h6 class="font-weight-bold text-dark mb-3">
-                        <i class="fa fa-gavel text-primary mr-1"></i>Quyết định thẩm định của Giảng viên:
-                    </h6>
-
-                    <div class="form-row mb-3">
-                        <div class="col-md-7 mb-2 mb-md-0">
+                    <div class="form-row mb-2">
+                        <div class="col-md-6 mb-2 mb-md-0">
                             <label class="font-weight-bold text-dark small mb-1">
                                 Quyết định duyệt: <span class="text-danger">*</span>
                             </label>
@@ -230,7 +217,7 @@
                                 <option value="rejected" {{#is_rejected}}selected{{/is_rejected}}>✗ {{#str}} decision_rejected, local_testcase_exchange {{/str}}</option>
                             </select>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-6">
                             <label class="font-weight-bold text-dark small mb-1">
                                 {{#str}} quality_rating, local_testcase_exchange {{/str}}:
                             </label>
@@ -249,7 +236,7 @@
                         <label class="font-weight-bold text-dark small mb-1">
                             {{#str}} pedagogical_feedback, local_testcase_exchange {{/str}}:
                         </label>
-                        <textarea class="form-control" name="review_note" rows="3" placeholder="{{#str}} teacher_review_feedback_placeholder, local_testcase_exchange {{/str}}">{{teacher_comment}}</textarea>
+                        <textarea class="form-control" name="review_note" rows="2" placeholder="{{#str}} teacher_review_feedback_placeholder, local_testcase_exchange {{/str}}">{{teacher_comment}}</textarea>
                     </div>
 
                     <div class="d-flex justify-content-end align-items-center" style="gap: 8px;">

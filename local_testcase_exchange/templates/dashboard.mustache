@@ -87,7 +87,7 @@
             <div class="col-6 col-lg-3 mb-2 px-1">
                 <div class="card h-100 border-0 bg-light p-2 p-md-3 shadow-sm tce-stat-card-mobile" style="border-left: 4px solid #0f6cbf !important;">
                     <div class="text-muted small font-weight-bold text-uppercase text-truncate">Trạng thái Quiz</div>
-                    <div class="h4 font-weight-bold mb-1 mt-1 text-dark">
+                    <div class="h4 font-weight-bold mb-0 mt-1 text-dark">
                         {{#overview_stats.is_quiz_enabled}}
                         <span class="text-success"><i class="fa fa-check-circle mr-1"></i>Bật</span>
                         {{/overview_stats.is_quiz_enabled}}
@@ -95,20 +95,18 @@
                         <span class="text-secondary"><i class="fa fa-pause-circle mr-1"></i>Tắt</span>
                         {{/overview_stats.is_quiz_enabled}}
                     </div>
-                    <small class="text-muted d-none d-md-block">Áp dụng cho Quiz hiện tại</small>
                 </div>
             </div>
             <div class="col-6 col-lg-3 mb-2 px-1">
                 <div class="card h-100 border-0 bg-light p-2 p-md-3 shadow-sm tce-stat-card-mobile" style="border-left: 4px solid #16a34a !important;">
                     <div class="text-muted small font-weight-bold text-uppercase text-truncate">Lượt chạy thử</div>
-                    <div class="h4 font-weight-bold mb-1 mt-1 text-dark">{{overview_stats.total_runs}}</div>
-                    <small class="text-muted d-none d-md-block">Tổng số lần sinh viên đã chạy</small>
+                    <div class="h4 font-weight-bold mb-0 mt-1 text-dark">{{overview_stats.total_runs}}</div>
                 </div>
             </div>
             <div class="col-6 col-lg-3 mb-2 px-1">
                 <div class="card h-100 border-0 bg-light p-2 p-md-3 shadow-sm tce-stat-card-mobile" style="border-left: 4px solid #f59e0b !important;">
                     <div class="text-muted small font-weight-bold text-uppercase text-truncate">Đóng góp</div>
-                    <div class="h4 font-weight-bold mb-1 mt-1 text-dark">
+                    <div class="h4 font-weight-bold mb-0 mt-1 text-dark">
                         {{overview_stats.total_contributions}}
                         {{#overview_stats.pending_contributions}}
                         <span class="badge badge-warning text-dark ml-1" style="font-size: 0.72rem;">{{overview_stats.pending_contributions}} chờ</span>
@@ -118,15 +116,8 @@
             </div>
             <div class="col-6 col-lg-3 mb-2 px-1">
                 <div class="card h-100 border-0 bg-light p-2 p-md-3 shadow-sm tce-stat-card-mobile" style="border-left: 4px solid #7c3aed !important;">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <div class="text-muted small font-weight-bold text-uppercase" style="line-height: 1.2;">{{#str}} rewards_granted_title, local_testcase_exchange {{/str}}</div>
-                        <span class="badge badge-light border text-muted small d-none d-md-inline">{{overview_stats.scope_label}}</span>
-                    </div>
-                    <div class="h4 font-weight-bold mb-1 mt-1 text-dark">{{overview_stats.total_rewards}} <small class="text-muted font-weight-normal" style="font-size: 0.82rem;">suất đã cấp</small></div>
-                    <small class="text-muted d-block" style="font-size: 0.8rem; line-height: 1.35;">
-                        <span class="text-nowrap mr-2">Đã nhận: <strong class="text-dark">{{overview_stats.claimed_rewards}}</strong></span>
-                        <span class="text-nowrap">Chờ nhận: <strong class="text-dark">{{overview_stats.unclaimed_rewards}}</strong></span>
-                    </small>
+                    <div class="text-muted small font-weight-bold text-uppercase text-truncate">{{#str}} rewards_granted_title, local_testcase_exchange {{/str}}</div>
+                    <div class="h4 font-weight-bold mb-0 mt-1 text-dark">{{overview_stats.total_rewards}}</div>
                 </div>
             </div>
         </div>
@@ -273,50 +264,41 @@
                     </div>
                     <div class="modal-body p-3">
                         <!-- Meta summary -->
-                        <div class="row mb-3 pb-2 border-bottom">
-                            <div class="col-md-6 mb-2 mb-md-0">
-                                <div class="small text-muted">Sinh viên đóng góp:</div>
-                                <div class="font-weight-bold text-dark">{{student_name}} ({{student_username}})</div>
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <div class="font-weight-bold text-dark">
+                                <i class="fa fa-user-circle text-primary mr-1"></i>{{student_name}} <span class="text-muted font-weight-normal">({{student_username}})</span>
                             </div>
-                            <div class="col-md-6 text-md-right">
-                                <div class="small text-muted">Thời gian gửi:</div>
-                                <span class="small text-muted">{{submitted_at}}</span>
+                            <div class="small text-muted">
+                                <i class="fa fa-clock-o mr-1"></i>{{submitted_at}}
                             </div>
                         </div>
 
                         <!-- Question & Purpose info -->
-                        <div class="bg-light p-2 rounded border mb-3">
-                            <div class="d-flex flex-wrap justify-content-between">
-                                <div>
-                                    <span class="text-muted small">Bài tập / Câu hỏi:</span>
-                                    <span class="font-weight-bold text-dark ml-1">{{quiz_name}} — {{question_name}}</span>
-                                </div>
-                                <div>
-                                    <span class="text-muted small">{{#str}} category, local_testcase_exchange {{/str}}:</span>
-                                    <span class="badge badge-light border text-dark ml-1">{{category_label}}</span>
-                                </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="font-weight-bold text-dark text-truncate mr-2">
+                                <i class="fa fa-book text-muted mr-1"></i>{{question_name}}
                             </div>
-                            {{#purpose}}
-                            <div class="mt-2 pt-2 border-top">
-                                <span class="text-muted small font-weight-bold">Mục đích kiểm thử khai báo:</span>
-                                <div class="text-dark small font-italic mt-1">{{purpose}}</div>
-                            </div>
-                            {{/purpose}}
+                            <span class="badge badge-light border text-dark">{{category_label}}</span>
                         </div>
+                        {{#purpose}}
+                        <div class="small text-muted mb-3 p-2 bg-light rounded border">
+                            <strong class="text-dark">Lý do sinh testcase:</strong> {{purpose}}
+                        </div>
+                        {{/purpose}}
 
                         <!-- Testcase inspection grid -->
                         <div class="row mb-3">
                             <div class="col-md-6 mb-2 mb-md-0">
                                 <div class="small font-weight-bold text-dark mb-1">
-                                    <i class="fa fa-terminal text-muted mr-1"></i>{{#str}} input_data_label, local_testcase_exchange {{/str}}:
+                                    {{#str}} input_data_label, local_testcase_exchange {{/str}}:
                                 </div>
-                                <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{input_normalized}}</pre>
+                                <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 110px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{input_normalized}}</pre>
                             </div>
                             <div class="col-md-6">
                                 <div class="small font-weight-bold text-dark mb-1">
-                                    <i class="fa fa-bullseye text-muted mr-1"></i>{{#str}} student_expected_output_label, local_testcase_exchange {{/str}}:
+                                    {{#str}} student_expected_output_label, local_testcase_exchange {{/str}}:
                                 </div>
-                                <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{expected_output_display}}</pre>
+                                <pre class="font-monospace bg-light p-2 border rounded text-dark mb-0" style="max-height: 110px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">{{expected_output_display}}</pre>
                             </div>
                         </div>
 
@@ -353,12 +335,8 @@
                             <input type="hidden" name="action" value="teacher_review">
                             <input type="hidden" name="contribution_id" value="{{id}}">
 
-                            <h6 class="font-weight-bold text-dark mb-3">
-                                <i class="fa fa-gavel text-primary mr-1"></i>Quyết định thẩm định của Giảng viên:
-                            </h6>
-
-                            <div class="form-row mb-3">
-                                <div class="col-md-7 mb-2 mb-md-0">
+                            <div class="form-row mb-2">
+                                <div class="col-md-6 mb-2 mb-md-0">
                                     <label class="font-weight-bold text-dark small mb-1">
                                         Quyết định duyệt: <span class="text-danger">*</span>
                                     </label>
@@ -369,7 +347,7 @@
                                         <option value="rejected" {{#is_rejected}}selected{{/is_rejected}}>✗ {{#str}} decision_rejected, local_testcase_exchange {{/str}}</option>
                                     </select>
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-6">
                                     <label class="font-weight-bold text-dark small mb-1">
                                         {{#str}} quality_rating, local_testcase_exchange {{/str}}:
                                     </label>
@@ -388,7 +366,7 @@
                                 <label class="font-weight-bold text-dark small mb-1">
                                     {{#str}} pedagogical_feedback, local_testcase_exchange {{/str}}:
                                 </label>
-                                <textarea class="form-control" name="review_note" rows="3" placeholder="{{#str}} teacher_review_feedback_placeholder, local_testcase_exchange {{/str}}">{{teacher_comment}}</textarea>
+                                <textarea class="form-control" name="review_note" rows="2" placeholder="{{#str}} teacher_review_feedback_placeholder, local_testcase_exchange {{/str}}">{{teacher_comment}}</textarea>
                             </div>
 
                             <div class="d-flex justify-content-end align-items-center" style="gap: 8px;">
@@ -877,7 +855,7 @@
                         <!-- Expected output của học viên -->
                         <div class="col-md-6 mb-3">
                             <label for="predicted_output" class="small font-weight-bold text-dark mb-1">
-                                {{#str}} clean_predicted_label, local_testcase_exchange {{/str}} (Kết quả kỳ vọng): <span class="text-danger">*</span>
+                                {{#str}} clean_predicted_label, local_testcase_exchange {{/str}}: <span class="text-danger">*</span>
                             </label>
                             <textarea class="form-control font-monospace" id="predicted_output" name="predicted_output" rows="6" required placeholder="Nhập kết quả chuẩn chương trình sẽ in ra khi nhận đầu vào trên...">{{last_predicted_output}}</textarea>
                         </div>
@@ -885,7 +863,7 @@
 
                     <div class="row">
                         <!-- Mục đích kiểm thử -->
-                        <div class="col-md-8 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="purpose" class="small font-weight-bold text-dark mb-1">
                                 {{#str}} clean_purpose_label, local_testcase_exchange {{/str}}: <span class="text-danger">*</span>
                             </label>
@@ -893,7 +871,7 @@
                         </div>
 
                         <!-- Phân loại testcase -->
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="category" class="small font-weight-bold text-dark mb-1">
                                 {{#str}} category, local_testcase_exchange {{/str}}:
                             </label>
@@ -916,12 +894,6 @@
 
         <!-- BẢNG LỊCH SỬ CHẠY THỬ NGHIỆM -->
         <div class="card mb-3">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
-                <span class="font-weight-bold text-dark">
-                    <i class="fa fa-history text-muted mr-1"></i>{{#str}} run_history_heading, local_testcase_exchange {{/str}}
-                </span>
-                <span class="badge badge-light border text-muted">{{run_count}} lượt chạy</span>
-            </div>
             <div class="card-body p-0">
                 <!-- Desktop Table View -->
                 <div class="tce-history-table-container tce-history-desktop-table mb-0">
@@ -967,12 +939,7 @@
                                     {{/can_contribute}}
                                     {{^can_contribute}}
                                     {{#has_user_contrib}}
-                                    <div>
-                                        <span class="{{display_status_class}}">{{display_status}}</span>
-                                    </div>
-                                    <a href="#contributions" data-toggle="tab" class="btn btn-link btn-sm py-0 mt-1 font-weight-bold" onclick="document.querySelector('a[href=\'#contributions\']').click();">
-                                        Xem đóng góp (#{{contrib_id}})
-                                    </a>
+                                    <span class="{{display_status_class}}">{{display_status}}</span>
                                     {{/has_user_contrib}}
                                     {{^has_user_contrib}}
                                     {{#is_older_duplicate}}
@@ -1113,11 +1080,11 @@
             <table class="table table-hover table-bordered mb-0" style="table-layout: fixed; width: 100%;">
                 <colgroup>
                     <col style="width: 5%;">
-                    <col style="width: 25%;">
-                    <col style="width: 12%;">
                     <col style="width: 22%;">
-                    <col style="width: 25%;">
-                    <col style="width: 11%;">
+                    <col style="width: 10%;">
+                    <col style="width: 30%;">
+                    <col style="width: 23%;">
+                    <col style="width: 10%;">
                 </colgroup>
                 <thead class="bg-light">
                     <tr>
@@ -1142,16 +1109,16 @@
                             <span class="{{status_badge_class}}">{{status_label}}</span>
                             {{#can_explain}}
                             <div class="alert alert-warning p-2 mt-2 mb-0 small">
-                                <strong><i class="fa fa-info-circle mr-1"></i>Thầy/Cô yêu cầu giải trình:</strong>
+                                <div class="font-weight-bold mb-1"><i class="fa fa-info-circle mr-1"></i>Thầy/Cô yêu cầu giải trình:</div>
                                 <form method="post" class="mt-1">
                                     <input type="hidden" name="sesskey" value="{{sesskey}}">
                                     <input type="hidden" name="action" value="explain">
                                     <input type="hidden" name="contribution_id" value="{{id}}">
-                                    <div class="input-group input-group-sm">
-                                        <input class="form-control" name="explanation" placeholder="Nhập lý do hoặc mục đích testcase..." required>
-                                        <div class="input-group-append">
-                                            <button class="btn btn-warning font-weight-bold" type="submit">Gửi</button>
-                                        </div>
+                                    <textarea class="form-control form-control-sm mb-2" name="explanation" rows="3" placeholder="Nhập lý do hoặc mục đích testcase..." required style="resize: vertical;"></textarea>
+                                    <div class="text-right">
+                                        <button class="btn btn-warning btn-sm font-weight-bold px-3 shadow-sm" type="submit">
+                                            <i class="fa fa-paper-plane mr-1"></i>Gửi giải trình
+                                        </button>
                                     </div>
                                 </form>
                             </div>
@@ -1207,14 +1174,10 @@
         </div>
 
         {{^has_rewards}}
-        <div class="card bg-light border text-center py-5 px-3">
-            <div class="text-warning mb-2" style="font-size: 3rem;">🎁</div>
-            <h5 class="font-weight-bold text-dark">Bạn chưa có phần thưởng testcase nào</h5>
-            <p class="text-muted small mx-auto" style="max-width: 500px;">
-                Hãy chuyển sang tab <strong>Thử nghiệm & Đóng góp</strong>, đề xuất các testcase mới đạt chuẩn để được Thầy/Cô duyệt và nhận ngay phần thưởng hỗ trợ!
-            </p>
+        <div class="card bg-light border text-center py-4 px-3">
+            <div class="text-warning mb-3" style="font-size: 3rem;">🎁</div>
             <div>
-                <a href="#student_solve" data-toggle="tab" class="btn btn-primary font-weight-bold" onclick="document.querySelector('a[href=\'#student_solve\']').click();">
+                <a href="#student_solve" data-toggle="tab" class="btn btn-primary font-weight-bold shadow-sm" onclick="document.querySelector('a[href=\'#student_solve\']').click();">
                     <i class="fa fa-flask mr-1"></i> Bắt đầu thử nghiệm ngay
                 </a>
             </div>

@@ -611,7 +611,7 @@ function postProcessVideo() {
       await contribTab.click();
       await page.waitForTimeout(2000);
 
-      const explainInput = page.locator('#contributions input[name="explanation"]').first();
+      const explainInput = page.locator('#contributions [name="explanation"]').first();
       if (await explainInput.count() && await explainInput.isVisible()) {
         await highlight(explainInput, 2000);
         await explainInput.fill('1009 là số nguyên tố ngay sau 1000, kiểm tra tính đúng đắn ở ngưỡng chuyển bậc phân tích.');

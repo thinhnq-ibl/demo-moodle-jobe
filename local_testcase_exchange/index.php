@@ -1000,7 +1000,7 @@ if ($is_student_view) {
             $run['contrib_status'] = $st;
 
             if ($st === 'submitted') {
-                $run['display_status'] = 'Đã gửi đóng góp — đang chờ giảng viên duyệt';
+                $run['display_status'] = 'Chờ duyệt';
                 $run['display_status_class'] = 'badge badge-info';
             } else if ($st === 'approved') {
                 $run['display_status'] = 'Đóng góp đã được duyệt';
@@ -1038,7 +1038,7 @@ if ($is_student_view) {
             $run['display_status_class'] = 'badge badge-secondary';
         }
         else if ($existing_canonical) {
-            $run['display_status'] = 'Trùng testcase đã có trong kho (#' . $existing_canonical['id'] . ')';
+            $run['display_status'] = 'Đã có trong kho';
             $run['display_status_class'] = 'badge badge-secondary';
         }
         // 4. Unclaimed: Latest eligible run in group receives the contribution proposal button
@@ -1180,7 +1180,7 @@ if ($is_student_view) {
             $st = (string) $direct_contrib['status'];
 
             if ($st === 'submitted') {
-                $contrib_title = 'Đã gửi đóng góp — đang chờ giảng viên duyệt';
+                $contrib_title = 'Chờ duyệt';
                 $contrib_badge = 'badge badge-info';
                 $contrib_icon = 'fa-hourglass-half text-info';
                 $contrib_guidance = 'Bạn đã gửi đóng góp testcase này thành công (Mã #' . $contribid . '). Vui lòng theo dõi tiến độ duyệt tại tab "Đóng góp của tôi".';
@@ -1250,7 +1250,7 @@ if ($is_student_view) {
         // Priority 6: Duplicate against another student's contribution in peer bank
         else if ($existing_canonical) {
             $cancontributelatest = false;
-            $contrib_title = 'Trùng testcase đã có trong kho bài tập';
+            $contrib_title = 'Đã có trong kho';
             $contrib_badge = 'badge badge-secondary';
             $contrib_icon = 'fa-ban text-secondary';
             $contrib_guidance = 'Testcase này đã được sinh viên khác đóng góp trước đó trong kho chung của lớp.';
