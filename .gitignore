@@ -59,3 +59,4 @@ e2e/recordings/evidence/*.png
 e2e/recordings/final/*.png
 e2e/recordings/three-phase-scenes/*
 docs/deployed_screenshots/*.png
+e2e/recordings/*

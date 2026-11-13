@@ -113,12 +113,14 @@ function prepareFixtures() {
 async function loginAndSave(browser, username, password, filename) {
   const context = await browser.newContext({ baseURL: BASE_URL });
   const page = await context.newPage();
-  await page.goto('/login/index.php');
-  await page.fill('#username', username);
-  await page.fill('#password', password);
+  await page.goto('/login/index.php', { waitUntil: 'networkidle' });
+  await page.waitForSelector('#username', { state: 'visible' });
+  await page.locator('#username').fill(username);
+  await page.locator('#password').fill(password);
+  await page.waitForTimeout(300);
   await Promise.all([
     page.waitForNavigation({ waitUntil: 'domcontentloaded' }),
-    page.locator('form#login').evaluate((form) => form.submit()),
+    page.click('#loginbtn'),
   ]);
   if (page.url().includes('/login/')) {
     const loginError = await page.locator('.loginerrors, #loginerrormessage, .alert-danger').allTextContents();
@@ -235,6 +237,18 @@ async function reviewContribution(page, username, decision, rating, note) {
   await page.waitForTimeout(1800);
 }
 
+async function openTeacherHub(page) {
+  const visibleHubLink = page.locator('a[href*="/local/testcase_exchange/index.php"]:visible').first();
+  if (await visibleHubLink.count()) {
+    await visibleHubLink.scrollIntoViewIfNeeded();
+    await highlight(visibleHubLink, 1500);
+    await clickAndWait(page, visibleHubLink);
+  } else {
+    await page.goto(`/local/testcase_exchange/index.php?course=${DEMO.courseId}&quiz=${DEMO.quizId}`);
+    await waitForPage(page);
+  }
+}
+
 async function showTab(page, hrefSelector) {
   const tab = page.locator(`a[href="${hrefSelector}"]`).first();
   if (await tab.count() && await tab.isVisible()) {
@@ -327,7 +341,7 @@ function postProcessVideo() {
         }
       }
 
-      await openTeacherHubFromQuiz(page, highlight);
+      await openTeacherHub(page);
       await injectVideoStyles(page);
 
       await showTab(page, '#tab_overview');
@@ -382,7 +396,7 @@ function postProcessVideo() {
       await waitForPage(page);
       await openCourseFromDashboard(page, highlight);
       await openQuizFromCourse(page, highlight);
-      await openTeacherHubFromQuiz(page, highlight);
+      await openTeacherHub(page);
       await injectVideoStyles(page);
 
       await showTab(page, '#tab_review');
