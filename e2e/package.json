@@ -6,7 +6,8 @@
   "scripts": {
     "test": "playwright test",
     "test:demo-flow": "playwright test demo_real_user_flow.spec.js",
-    "record:demo": "node record_full_demo_video.js"
+    "record:demo": "node record_full_demo_video.js",
+    "record:demo-single": "node record_single_student_demo.js"
   },
   "keywords": [],
   "author": "",
