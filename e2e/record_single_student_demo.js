@@ -42,7 +42,7 @@ fs.mkdirSync(EVIDENCE_DIR, { recursive: true });
 
 const sceneRecords = [];
 
-async function highlight(locator, pauseMs = 1500) {
+async function highlight(locator, pauseMs = 2500) {
   if (!(await locator.count()) || !(await locator.first().isVisible())) return;
   await locator.first().scrollIntoViewIfNeeded();
   await locator.first().evaluate((el) => {
@@ -51,7 +51,7 @@ async function highlight(locator, pauseMs = 1500) {
     el.style.outline = '4px solid #f59e0b';
     el.style.boxShadow = '0 0 0 8px rgba(245,158,11,.35)';
   });
-  await locator.page().waitForTimeout(Math.max(1200, pauseMs));
+  await locator.page().waitForTimeout(Math.max(2200, pauseMs));
   await locator.first().evaluate((el) => {
     el.style.outline = el.dataset.demoOutline || '';
     el.style.boxShadow = el.dataset.demoShadow || '';
@@ -179,12 +179,12 @@ async function fillWorkspace(page, { code, input, expected, category, purpose })
   }, { code, input, expected, category, purpose });
   await page.locator('#test_input').dispatchEvent('input');
   await page.locator('#predicted_output').dispatchEvent('input');
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(2500);
 }
 
 async function runWorkspace(page) {
   const runButton = page.locator('#btnSubmitRunTest');
-  await highlight(runButton, 1500);
+  await highlight(runButton, 2500);
   await Promise.all([
     page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 120000 }),
     runButton.click(),
@@ -193,55 +193,90 @@ async function runWorkspace(page) {
   const latestRun = page.locator('.tce-history-desktop-table tbody tr[id^="run-"]').first();
   await latestRun.waitFor({ state: 'visible', timeout: 30000 });
   await latestRun.scrollIntoViewIfNeeded();
-  await highlight(latestRun, 2000);
-  await page.waitForTimeout(1500);
+  await highlight(latestRun, 3500);
+  await page.waitForTimeout(2500);
 }
 
 async function contributeLatest(page) {
   const button = page.locator('.tce-history-desktop-table tbody tr[id^="run-"] form button[type="submit"]').first();
   await button.waitFor({ state: 'visible', timeout: 30000 });
-  await highlight(button, 1500);
+  await highlight(button, 2500);
   await clickAndWait(page, button);
-  await page.waitForTimeout(1800);
+  await page.waitForTimeout(3000);
+}
+
+async function addManualSeed(page, testcode, expected) {
+  const addSeedBtn = page.locator('button[data-target="#addSeedModal"]').first();
+  await addSeedBtn.waitFor({ state: 'visible', timeout: 30000 });
+  await highlight(addSeedBtn, 2500);
+  await addSeedBtn.click();
+
+  const modal = page.locator('#addSeedModal');
+  await modal.waitFor({ state: 'visible' });
+  await page.waitForTimeout(2000);
+
+  const codeArea = modal.locator('textarea[name="seed_testcode"]');
+  await highlight(codeArea, 2000);
+  await codeArea.fill(testcode);
+  await page.waitForTimeout(1500);
+
+  const expArea = modal.locator('textarea[name="seed_expected"]');
+  await highlight(expArea, 2000);
+  await expArea.fill(expected);
+  await page.waitForTimeout(1500);
+
+  const submitBtn = modal.locator('#seedTabManual button[type="submit"]').first();
+  await highlight(submitBtn, 2200);
+  await clickAndWait(page, submitBtn);
+  await page.waitForTimeout(2800);
+}
+
+async function claimReward(page) {
+  const claimForm = page.locator('form:has(input[name="action"][value="claim_reward"])').first();
+  const claimBtn = claimForm.locator('button[type="submit"]').first();
+  await claimBtn.waitFor({ state: 'visible', timeout: 30000 });
+  await highlight(claimBtn, 2800);
+  await clickAndWait(page, claimBtn);
+  await page.waitForTimeout(2500);
 }
 
 async function reviewContribution(page, username, decision, rating, note) {
   const row = page.locator('tr').filter({ hasText: username }).first();
   const openButton = row.locator('button[data-target^="#reviewModal_"]').first();
-  await highlight(openButton, 1500);
+  await highlight(openButton, 2500);
   await openButton.click();
   const modal = page.locator('.modal.show').first();
   await modal.waitFor({ state: 'visible' });
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(2500);
 
   const decisionSelect = modal.locator('select[name="decision"]');
-  await highlight(decisionSelect, 1200);
+  await highlight(decisionSelect, 2200);
   await decisionSelect.selectOption(decision);
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(1800);
 
   if (rating) {
     const ratingSelect = modal.locator('select[name="rating"]');
-    await highlight(ratingSelect, 1200);
+    await highlight(ratingSelect, 2200);
     await ratingSelect.selectOption(String(rating));
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(1800);
   }
 
   const noteTextarea = modal.locator('textarea[name="review_note"]');
-  await highlight(noteTextarea, 1200);
+  await highlight(noteTextarea, 2200);
   await noteTextarea.fill(note);
-  await page.waitForTimeout(1200);
+  await page.waitForTimeout(2000);
 
   const saveBtn = modal.locator('button[type="submit"]').first();
-  await highlight(saveBtn, 1200);
+  await highlight(saveBtn, 2200);
   await clickAndWait(page, saveBtn);
-  await page.waitForTimeout(1800);
+  await page.waitForTimeout(3000);
 }
 
 async function openTeacherHub(page) {
   const visibleHubLink = page.locator('a[href*="/local/testcase_exchange/index.php"]:visible').first();
   if (await visibleHubLink.count()) {
     await visibleHubLink.scrollIntoViewIfNeeded();
-    await highlight(visibleHubLink, 1500);
+    await highlight(visibleHubLink, 2200);
     await clickAndWait(page, visibleHubLink);
   } else {
     await page.goto(`/local/testcase_exchange/index.php?course=${DEMO.courseId}&quiz=${DEMO.quizId}`);
@@ -249,17 +284,17 @@ async function openTeacherHub(page) {
   }
 }
 
-async function showTab(page, hrefSelector) {
+async function showTab(page, hrefSelector, pauseMs = 3500) {
   const tab = page.locator(`a[href="${hrefSelector}"]`).first();
   if (await tab.count() && await tab.isVisible()) {
-    await highlight(tab, 1200);
+    await highlight(tab, 2200);
     await tab.click();
     await page.evaluate((sel) => {
       if (typeof $ !== 'undefined' && $.fn && $.fn.tab) {
         $(`a[href="${sel}"]`).tab('show');
       }
     }, hrefSelector).catch(() => {});
-    await page.waitForTimeout(2200);
+    await page.waitForTimeout(pauseMs);
   }
 }
 
@@ -344,9 +379,10 @@ function postProcessVideo() {
       await openTeacherHub(page);
       await injectVideoStyles(page);
 
-      await showTab(page, '#tab_overview');
-      await showTab(page, '#tab_policy');
-      await showTab(page, '#tab_bank');
+      await showTab(page, '#tab_overview', 3000);
+      await showTab(page, '#tab_policy', 3000);
+      await addManualSeed(page, 'print(is_prime(1009))', 'True');
+      await showTab(page, '#tab_bank', 3500);
     });
 
     // ==========================================
@@ -385,7 +421,7 @@ function postProcessVideo() {
       await contributeLatest(page);
 
       // 3) Xem danh sách đóng góp của sinh viên
-      await showTab(page, '#tab_contributions');
+      await showTab(page, '#contributions', 3000);
     });
 
     // ==========================================
@@ -422,8 +458,14 @@ function postProcessVideo() {
       await openTestcaseExchangeFromQuestion(page, highlight);
       await injectVideoStyles(page);
 
-      await showTab(page, '#tab_unlocked');
-      await showTab(page, '#tab_leaderboard');
+      await showTab(page, '#contributions', 3000);
+      await claimReward(page);
+      await showTab(page, '#contributions', 4000);
+      const claimedCard = page.locator('.tce-reward-claimed').first();
+      if (await claimedCard.count() && await claimedCard.isVisible()) {
+        await highlight(claimedCard, 3500);
+      }
+      await showTab(page, '#tab_leaderboard', 4000);
     });
   } finally {
     await browser.close();
